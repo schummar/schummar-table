@@ -3,77 +3,41 @@ import React from 'react';
 import { InternalTableProps, TableScope } from './table';
 
 const JustifiedCheckbox = styled(Checkbox)({
-  justifySelf: 'end',
+  justifySelf: 'start',
 });
 
-export function AllSelect<T>({ selection: controlledSelection, onSelectionChange, data = [] }: InternalTableProps<T>) {
-  const state = TableScope.useStore();
-  const internalSelection = state.useState((state) => state.selection);
-  const selection = controlledSelection ?? internalSelection;
-  const allSelected = data.every((item) => selection.has(item));
+export function Select<T>({
+  selection,
+  onSelectionChange,
+  items,
+  indent = 0,
+}: InternalTableProps<T> & { items: T[]; indent?: number }): JSX.Element {
+  const store = TableScope.useStore();
+  const allSelected = store.useState(
+    (state) => {
+      const s = selection ?? state.selection;
+      return items.every((item) => s.has(item));
+    },
+    [items, selection],
+  );
 
   function toggle() {
-    if (!controlledSelection) {
-      state.update((state) => {
-        if (allSelected) state.selection = new Set();
-        else state.selection = new Set(data);
+    const newSelection = new Set(selection ?? store.getState().selection);
+    for (const item of items) {
+      if (allSelected) newSelection.delete(item);
+      else newSelection.add(item);
+    }
+
+    if (!selection) {
+      store.update((state) => {
+        state.selection = newSelection;
       });
     }
 
     if (onSelectionChange) {
-      if (allSelected) onSelectionChange(new Set());
-      else onSelectionChange(new Set(data));
+      onSelectionChange(newSelection);
     }
   }
 
-  return <JustifiedCheckbox checked={allSelected} onChange={toggle} />;
-}
-
-export function GroupSelect<T>({ selection: controlledSelection, onSelectionChange, items }: InternalTableProps<T> & { items: T[] }) {
-  const state = TableScope.useStore();
-  const internalSelection = state.useState((state) => state.selection);
-  const selection = controlledSelection ?? internalSelection;
-  const allSelected = items.every((item) => selection.has(item));
-
-  function toggle() {
-    if (!controlledSelection) {
-      state.update((state) => {
-        if (allSelected) state.selection = new Set();
-        else state.selection = new Set(items);
-      });
-    }
-
-    if (onSelectionChange) {
-      if (allSelected) onSelectionChange(new Set());
-      else onSelectionChange(new Set(items));
-    }
-  }
-
-  return <JustifiedCheckbox checked={allSelected} onChange={toggle} />;
-}
-
-export function RowSelect<T>({ selection: controlledSelection, onSelectionChange, item }: InternalTableProps<T> & { item: T }) {
-  const state = TableScope.useStore();
-  const internalIsSelected = state.useState((state) => state.selection.has(item), [item]);
-  const isSelected = controlledSelection ? controlledSelection.has(item) : internalIsSelected;
-
-  function toggle() {
-    state.update((state) => {
-      const selection = controlledSelection ?? state.selection;
-
-      if (onSelectionChange) {
-        const newSet = new Set(selection);
-        if (selection.has(item)) newSet.delete(item);
-        else newSet.add(item);
-        onSelectionChange(newSet as Set<T>);
-      }
-
-      if (!controlledSelection) {
-        if (state.selection.has(item)) state.selection.delete(item);
-        else state.selection.add(item);
-      }
-    });
-  }
-
-  return <JustifiedCheckbox checked={isSelected} onChange={toggle} />;
+  return <JustifiedCheckbox checked={allSelected} onChange={toggle} style={{ marginLeft: indent * 20 }} />;
 }

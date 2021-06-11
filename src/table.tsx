@@ -1,67 +1,25 @@
-import { IconButton, styled, Theme } from '@material-ui/core';
+import { CircularProgress, IconButton, styled, ThemeProvider } from '@material-ui/core';
 import { ChevronRight } from '@material-ui/icons';
 import { Draft } from 'immer';
-import React, { createContext, CSSProperties, Fragment, ReactNode, useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Store, StoreScope } from 'schummar-state/react';
-import * as _ from './helpers';
-import { Filter, FilterComponent } from './tableFilter';
+import { buildTree, flatMap, orderBy, TreeNode, uniq } from './helpers';
+import type { InternalColumn, InternalTableProps, InternalTableState } from './internalTypes';
+import { FilterComponent } from './tableFilter';
 import { DefaultFilter } from './tableFilterDefault';
-import { AllSelect, GroupSelect, RowSelect } from './tableSelect';
+import { Select } from './tableSelect';
 import { Sort } from './tableSort';
+import { Column, TableItem, TableProps } from './types';
 
-export type Column<T = unknown, V = unknown> = {
-  id?: string;
-  header?: ReactNode;
-  value: (item: T) => V;
-  stringValue?: (value: V) => string;
-  sortBy?: (value: V) => unknown;
-  renderValue?: (value: V) => ReactNode;
-  renderCell?: (value: V, item: T) => ReactNode;
-  renderGoupCell?: (rows: { value: V; item: T }[]) => ReactNode;
-
-  filter?: boolean;
-  filterOptions?: V[];
-  defaultFilter?: Filter<V>;
-  width?: string;
-  style?: CSSProperties;
-};
-
-export type InternalColumn<T = unknown, V = unknown> = Omit<Column<T, V>, 'id'> & { id: string | number } & Required<
-    Omit<Column<T, V>, 'id' | 'width' | 'style'>
-  >;
-
-export type TableProps<T = unknown> = {
-  data?: T[];
-  columns?: Column<T, any>[];
-  defaultWidth?: string;
-  defaultSort?: { id: string | number; direction: 'asc' | 'desc' }[];
-  selection?: Set<T>;
-  onSelectionChange?: (selection: Set<T>) => void;
-  groupBy?: (item: T) => unknown;
-  fullWidth?: boolean;
-  text?: {
-    deselectAll?: string;
-  };
-};
-
-export type InternalTableProps<T = unknown> = Omit<TableProps<T>, 'columns'> & { columns: InternalColumn<T, unknown>[] };
-
-export type TableState<T> = {
-  sort?: { id: string | number; direction: 'asc' | 'desc' }[];
-  filters: Map<string | number, Filter<unknown>>;
-  selection: Set<T>;
-  expandedGroups: Set<unknown>;
-};
-
-export const TableScope = new StoreScope<TableState<any>>({
+export const TableScope = new StoreScope<InternalTableState<any>>({
   filters: new Map(),
   selection: new Set(),
-  expandedGroups: new Set(),
+  expanded: new Set(),
 });
 
-const TableView = styled('div')(({ theme }) => ({
+const TableView = styled('div')({
   display: 'grid',
-}));
+});
 
 const CellView = styled('div')(({ theme }) => ({
   padding: `${theme.spacing(0.5)}px ${theme.spacing()}px`,
@@ -73,9 +31,9 @@ const CellView = styled('div')(({ theme }) => ({
   overflow: 'hidden',
   textOverflow: 'ellipsis',
 }));
-const CellFill = styled(CellView)(({ theme }) => ({
+const CellFill = styled(CellView)({
   padding: 0,
-}));
+});
 
 const HeaderCellView = styled(CellView)(({ theme }) => ({
   gridTemplateColumns: 'minmax(0, 1fr) max-content',
@@ -87,35 +45,34 @@ const HeaderCellView = styled(CellView)(({ theme }) => ({
     borderLeft: `1px solid ${theme.palette.background.default}`,
   },
 }));
-const HeaderFill = styled(HeaderCellView)(({ theme }) => ({
+const HeaderFill = styled(HeaderCellView)({
   padding: 0,
+});
+
+const DeferredPlaceholder = styled(CellView)(({ theme }) => ({
+  gridColumn: '1 / -1',
+  padding: theme.spacing(1),
+  display: 'grid',
+  justifyContent: 'center',
 }));
 
-const ToggleOpen = styled(({ open, ...props }) => <ChevronRight {...props} />)(({ theme, open }: { theme: Theme; open?: boolean }) => ({
-  transform: open ? 'rotate3d(0, 0, 1, 90deg)' : 'none',
-  transition: 'all 500ms',
-}));
-
-const Connection = styled('div')(({ theme }) => ({
-  width: 6,
-  height: '100%',
-  background: theme.palette.action.disabled,
-  margin: `-10px 21px`,
-}));
-
-export function Table<T>(props: TableProps<T>) {
-  const { data = [], columns: _columns = [], defaultWidth = 'auto', defaultSort = [], groupBy, fullWidth } = props;
+export function Table<T extends TableItem>(props: TableProps<T>): JSX.Element {
+  const { data = [], defaultWidth = 'auto', defaultSort = [], fullWidth } = props;
+  let { columns: _columns = [] } = props;
 
   const state = useMemo(
     () =>
-      new Store<TableState<T>>({
+      new Store<InternalTableState<T>>({
         filters: new Map(),
         selection: new Set(),
-        expandedGroups: new Set(),
+        expanded: new Set(),
       }),
     [],
   );
 
+  if (_columns instanceof Function) {
+    _columns = _columns((value, column) => ({ ...column, value }));
+  }
   const columns = _columns.map(function <V>(
     {
       id,
@@ -125,10 +82,11 @@ export function Table<T>(props: TableProps<T>) {
       sortBy = (v) => (typeof v === 'number' || v instanceof Date ? v : stringValue(v)),
       renderValue = stringValue,
       renderCell = renderValue,
-      renderGoupCell = (rows) => renderCell(rows[0]!.value, rows[0]!.item),
-      filter = false,
-      filterOptions = _.orderBy(_.uniq(data.map(value).filter((x) => x !== undefined))),
+      useFilter = false,
+      filterOptions = orderBy(uniq(data.map(value).filter((x) => x !== undefined))),
       defaultFilter = new DefaultFilter<V>(),
+      filter,
+      onFilterChange,
       width,
       style,
     }: Column<T, V>,
@@ -142,10 +100,11 @@ export function Table<T>(props: TableProps<T>) {
       sortBy,
       renderValue,
       renderCell,
-      renderGoupCell,
-      filter,
+      useFilter,
       filterOptions,
       defaultFilter,
+      filter,
+      onFilterChange,
       width,
       style,
     };
@@ -161,13 +120,13 @@ export function Table<T>(props: TableProps<T>) {
       return data.filter((item) => filter.filter(column.value(item)));
     }, data);
 
-    const selectors = _.flatMap(sort ?? defaultSort ?? [], (sort) => {
+    const selectors = flatMap(sort ?? defaultSort ?? [], (sort) => {
       const column = columns.find((column) => column.id === sort.id);
       if (column) return [{ selector: (item: T) => column.sortBy(column.value(item)), direction: sort.direction }];
       return [];
     }).filter(Boolean);
 
-    const sorted = _.orderBy(
+    const sorted = orderBy(
       filtered,
       selectors.map((x) => x.selector),
       selectors.map((x) => x.direction),
@@ -179,9 +138,15 @@ export function Table<T>(props: TableProps<T>) {
   useEffect(() => {
     const columnIds = new Set(columns.map((column) => column.id));
     const itemSet = new Set(items);
+
     const newSelection = new Set(state.getState().selection);
     for (const item of newSelection) {
       if (!itemSet.has(item)) newSelection.delete(item);
+    }
+
+    const newExpanded = new Set(state.getState().expanded);
+    for (const item of newExpanded) {
+      if (!itemSet.has(item)) newExpanded.delete(item);
     }
 
     state.update((state) => {
@@ -195,7 +160,7 @@ export function Table<T>(props: TableProps<T>) {
     });
   }, [state, items, columns]);
 
-  const grouped = groupBy ? Object.values(_.groupBy(items, groupBy)) : items.map((item) => [item]);
+  const tree = buildTree(items);
 
   return (
     <TableScope.Provider store={state}>
@@ -213,7 +178,7 @@ export function Table<T>(props: TableProps<T>) {
         <HeaderFill />
 
         <HeaderCellView>
-          <AllSelect {...props} columns={columns} />
+          <Select {...props} columns={columns} items={data} />
         </HeaderCellView>
 
         {columns.map((column) => (
@@ -227,60 +192,75 @@ export function Table<T>(props: TableProps<T>) {
 
         <HeaderFill />
 
-        {grouped.map((items, index) => (
-          <Group key={index} {...props} columns={columns} items={items} />
+        {tree.map((node, index) => (
+          <Row key={index} {...props} columns={columns} {...node} />
         ))}
       </TableView>
     </TableScope.Provider>
   );
 }
 
-function Group<T>(props: InternalTableProps<T> & { items: T[] }) {
-  const { items, columns = [] } = props;
-  const [open, setOpen] = useState(false);
+function Row<T extends TableItem>(props: InternalTableProps<T> & TreeNode<T> & { indent?: number }) {
+  const { item, children, indent = 0, deferredExpansion, columns = [] } = props;
+  const canOpen = children.length > 0 || deferredExpansion?.(item);
+  const store = TableScope.useStore();
+  const open = store.useState(
+    (state) => {
+      const expanded = props.expanded ?? state.expanded;
+      return expanded.has(item);
+    },
+    [props.expanded, item],
+  );
+
+  const toggle = () => {
+    const newExpanded = new Set(props.expanded ?? store.getState().expanded);
+    if (open) newExpanded.delete(item);
+    else newExpanded.add(item);
+
+    if (!props.expanded) {
+      store.update((state) => {
+        state.expanded = newExpanded;
+      });
+    }
+
+    props.onExpandedChange?.(newExpanded);
+  };
 
   return (
     <>
-      {items.length > 1 && (
+      <CellFill />
+
+      <CellView>
+        <Select {...props} items={[]} indent={indent} />
+
+        {canOpen && (
+          <IconButton onClick={toggle}>
+            <ChevronRight
+              style={{
+                transition: 'all 500ms',
+                transform: open ? 'rotate3d(0, 0, 1, 90deg)' : 'none',
+              }}
+            />
+          </IconButton>
+        )}
+      </CellView>
+
+      {columns.map((column) => (
+        <CellView key={column.id} style={column.style}>
+          {column.renderCell(column.value(item), item)}
+        </CellView>
+      ))}
+
+      <CellFill />
+
+      {canOpen && open && children.map((child, index) => <Row key={index} {...props} {...child} indent={indent + 1} />)}
+      {canOpen && open && children.length === 0 && (
         <>
-          <CellFill />
-
-          <CellView>
-            <IconButton onClick={() => setOpen((open) => !open)}>
-              <ToggleOpen open={open} />
-            </IconButton>
-            <GroupSelect {...props} />
-          </CellView>
-
-          {columns.map((column) => (
-            <CellView key={column.id} style={column.style}>
-              {column.renderGoupCell(items.map((item) => ({ value: column.value(item), item })))}
-            </CellView>
-          ))}
-
-          <CellFill />
+          <DeferredPlaceholder>
+            <CircularProgress size={20} />
+          </DeferredPlaceholder>
         </>
       )}
-
-      {(items.length === 1 || open) &&
-        items.map((item, index) => (
-          <Fragment key={index}>
-            <CellFill />
-
-            <CellView>
-              {items.length > 1 && <Connection />}
-              <RowSelect {...props} item={item} />
-            </CellView>
-
-            {columns.map((column) => (
-              <CellView key={column.id} style={column.style}>
-                {column.renderCell(column.value(item), item)}
-              </CellView>
-            ))}
-
-            <CellFill />
-          </Fragment>
-        ))}
     </>
   );
 }

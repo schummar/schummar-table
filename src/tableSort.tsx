@@ -20,7 +20,11 @@ const Empty = styled('div')({
   width: 20,
 });
 
-export function Sort<T>({ column, children, defaultSort }: InternalTableProps<T> & { column: InternalColumn<T>; children: ReactNode }) {
+export function Sort<T>({
+  column,
+  children,
+  defaultSort,
+}: InternalTableProps<T> & { column: InternalColumn<T>; children: ReactNode }): JSX.Element {
   const state = TableScope.useStore();
   const { direction, index } = (() => {
     const sort = state.useState((state) => state.sort) ?? defaultSort;

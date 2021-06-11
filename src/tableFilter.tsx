@@ -12,7 +12,7 @@ const useClasses = makeStyles((theme) => ({
   },
 }));
 
-export function FilterComponent<T, V>({ column, ...props }: InternalTableProps<T> & { column: InternalColumn<T, V> }) {
+export function FilterComponent<T, V>({ column, ...props }: InternalTableProps<T> & { column: InternalColumn<T, V> }): JSX.Element | null {
   const classes = useClasses();
   const filter = TableScope.useState((state) => state.filters.get(column.id), [column.id]) ?? column.defaultFilter;
 

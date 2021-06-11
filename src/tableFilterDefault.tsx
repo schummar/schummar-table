@@ -5,11 +5,11 @@ import { InternalColumn, InternalTableProps, TableScope } from './table';
 import { Filter } from './tableFilter';
 
 export class DefaultFilter<V> extends Set<V> implements Filter<V> {
-  filter(value: V) {
+  filter(value: V): boolean {
     return this.size === 0 || this.has(value);
   }
 
-  isActive() {
+  isActive(): boolean {
     return this.size > 0;
   }
 }
@@ -23,7 +23,7 @@ const View = styled('div')(({ theme }) => ({
   },
 }));
 
-export function DefaultFilterComponent<T, V>({ text, column }: InternalTableProps<T> & { column: InternalColumn<T, V> }) {
+export function DefaultFilterComponent<T, V>({ text, column }: InternalTableProps<T> & { column: InternalColumn<T, V> }): JSX.Element {
   const state = TableScope.useStore();
   const _filter = state.useState((state) => state.filters.get(column.id), [column.id]) ?? column.defaultFilter;
   const filter = _filter instanceof DefaultFilter ? _filter : undefined;
