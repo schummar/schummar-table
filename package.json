@@ -1,0 +1,62 @@
+{
+  "name": "schummar-table",
+  "repository": "schummar/schummar-table",
+  "version": "0.0.1",
+  "description": "",
+  "type": "module",
+  "sideEffects": false,
+  "main": "dist/cjs/index.js",
+  "module": "dist/esm/index.js",
+  "exports": {
+    "import": "./dist/esm/index.js",
+    "require": "./dist/cjs/index.js"
+  },
+  "author": {
+    "name": "Marco Schumacher",
+    "email": "marco@schumacher.dev"
+  },
+  "license": "ISC",
+  "scripts": {
+    "start": "run-p start:*",
+    "start:compile": "tsc -p tsconfig-cjs.json --watch",
+    "start:example": "npm --prefix example start",
+    "build": "npm-run-all -s build:clean -p build:compile:*",
+    "build:clean": "rimraf dist/**",
+    "build:compile:esm": "tsc",
+    "build:compile:cjs": "tsc -p tsconfig-cjs.json && echo '{\"type\":\"commonjs\"}' > dist/cjs/package.json",
+    "lint": "run-p lint:*",
+    "lint:eslint": "eslint src",
+    "lint:tsc": "tsc --noEmit",
+    "prepublishOnly": "run-s test lint build",
+    "test": "cd test && ava",
+    "test-watch": "cd test && ava --watch",
+    "coverage": "nyc --include src --all npm run test"
+  },
+  "peerDependencies": {
+    "@material-ui/core": "^4.11.4",
+    "@material-ui/icons": "^4.11.2",
+    "@types/react": ">=16.8.0",
+    "react": ">=16.8.0"
+  },
+  "devDependencies": {
+    "@testing-library/react": "^11.2.7",
+    "@typescript-eslint/eslint-plugin": "^4.25.0",
+    "@typescript-eslint/parser": "^4.25.0",
+    "ava": "^3.15.0",
+    "eslint": "^7.27.0",
+    "global-jsdom": "^8.1.0",
+    "immer": "^9.0.3",
+    "npm-run-all": "^4.1.5",
+    "nyc": "^15.1.0",
+    "prettier": "^2.3.0",
+    "rimraf": "^3.0.2",
+    "ts-node-dev": "^1.1.6",
+    "typescript": "^4.3.2"
+  },
+  "files": [
+    "dist"
+  ],
+  "dependencies": {
+    "schummar-state": "^0.0.30"
+  }
+}
