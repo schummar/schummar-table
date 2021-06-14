@@ -1,28 +1,32 @@
 import { CSSProperties, ReactNode } from 'react';
 import { Filter } from './tableFilter';
 
-export type Id = string | number;
-export type Sort = { id: string | number; direction: SortDirection };
+export type Sort = { column: string | number; direction: SortDirection };
 export type SortDirection = 'asc' | 'desc';
 
-export type TableItem = { id?: Id; parent?: Id };
+export type Id = string | number;
+export type IdKey<T> = { [P in keyof T]: T[P] extends Id ? P : never }[keyof T];
 
-export type TableProps<T extends TableItem> = {
-  data?: T[];
-  columns?: Column<T, any>[] | ((col: <V>(value: (item: T) => V, column: Omit<Column<T, V>, 'value'>) => Column<T, V>) => Column<T, any>[]);
+export type TableProps<T> = {
+  data: T[];
+  id: ((item: T) => Id) | IdKey<T>;
+  getChildren?: (item: T) => T[];
+  childrenHook?: (item: T, isExpanded: boolean) => { hasChildren: boolean; children?: T[] };
+
+  columns: Column<T, any>[] | ((col: <V>(value: (item: T) => V, column: Omit<Column<T, V>, 'value'>) => Column<T, V>) => Column<T, any>[]);
 
   defaultSort?: Sort[];
   sort?: Sort[];
   onSortChange?: (sort: Sort[]) => void;
 
-  defaultSelection?: Set<T>;
-  selection?: Set<T>;
-  onSelectionChange?: (selection: Set<T>) => void;
+  defaultSelection?: Set<Id>;
+  selection?: Set<Id>;
+  onSelectionChange?: (selection: Set<Id>) => void;
 
-  defaultExpanded?: Set<T>;
-  expanded?: Set<T>;
-  onExpandedChange?: (expanded: Set<T>) => void;
-  deferredExpansion?: (item: T) => boolean;
+  defaultExpanded?: Set<Id>;
+  expanded?: Set<Id>;
+  onExpandedChange?: (expanded: Set<Id>) => void;
+  expandOnlyOne?: boolean;
 
   defaultUseFilter?: boolean;
   defaultWidth?: string;

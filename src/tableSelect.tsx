@@ -1,6 +1,7 @@
 import { Checkbox, styled } from '@material-ui/core';
 import React from 'react';
-import { InternalTableProps, TableScope } from './table';
+import { InternalTableProps } from './internalTypes';
+import { TableScope } from './table';
 
 const JustifiedCheckbox = styled(Checkbox)({
   justifySelf: 'start',

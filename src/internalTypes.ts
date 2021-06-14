@@ -1,15 +1,18 @@
 import { Filter } from './tableFilter';
 import { Column, Id, Sort, TableProps } from './types';
 
-export type InternalColumn<T = unknown, V = unknown> = Omit<Column<T, V>, 'id'> & { id: Id } & Required<
+export type InternalColumn<T, V> = Omit<Column<T, V>, 'id'> & { id: Id } & Required<
     Omit<Column<T, V>, 'id' | 'width' | 'style' | 'filter' | 'onFilterChange'>
   >;
 
-export type InternalTableProps<T = unknown> = Omit<TableProps<T>, 'columns'> & { columns: InternalColumn<T, unknown>[] };
+export type InternalTableProps<T> = Omit<TableProps<T>, 'id' | 'columns'> & {
+  id: (item: T) => Id;
+  columns: InternalColumn<T, unknown>[];
+};
 
-export type InternalTableState<T> = {
+export type InternalTableState = {
   sort?: Sort[];
-  filters: Map<string | number, Filter<unknown>>;
-  selection: Set<T>;
-  expanded: Set<T>;
+  filters: Map<Id, Filter<unknown>>;
+  selection: Set<Id>;
+  expanded: Set<Id>;
 };

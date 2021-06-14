@@ -6,6 +6,7 @@
     "serve": "vite preview"
   },
   "dependencies": {
+    "@fontsource/fira-sans": "^4.4.5",
     "react": "^17.0.0",
     "react-dom": "^17.0.0"
   },

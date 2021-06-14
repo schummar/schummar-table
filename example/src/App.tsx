@@ -7,7 +7,7 @@ type Family = {
 };
 
 type User = {
-  parent: number;
+  id: number;
   lastName: string;
   firstName: string;
   birthday: Date;
@@ -17,13 +17,13 @@ function App(): JSX.Element {
   const data: (Family | User)[] = useMemo(
     () => [
       { id: 1, lastName: 'Schumacher' },
-      { parent: 1, firstName: 'Marco', lastName: 'Schumacher', birthday: new Date('1988-10-16') },
-      { parent: 1, firstName: 'Sonja', lastName: 'Schumacher', birthday: new Date('1989-07-19') },
-      { parent: 1, firstName: 'Linus', lastName: 'Schumacher', birthday: new Date('2017-07-01') },
-      { parent: 1, firstName: 'Laura', lastName: 'Schumacher', birthday: new Date('2020-02-21') },
+      { id: 11, firstName: 'Marco', lastName: 'Schumacher', birthday: new Date('1988-10-16') },
+      { id: 12, firstName: 'Sonja', lastName: 'Schumacher', birthday: new Date('1989-07-19') },
+      { id: 13, firstName: 'Linus', lastName: 'Schumacher', birthday: new Date('2017-07-01') },
+      { id: 14, firstName: 'Laura', lastName: 'Schumacher', birthday: new Date('2020-02-21') },
       { id: 2, lastName: 'Kowarschick' },
-      { parent: 2, firstName: 'Wolfgang', lastName: 'Kowarschick', birthday: new Date() },
-      { parent: 2, firstName: 'Marianne', lastName: 'Kowarschick', birthday: new Date() },
+      { id: 21, firstName: 'Wolfgang', lastName: 'Kowarschick', birthday: new Date() },
+      { id: 22, firstName: 'Marianne', lastName: 'Kowarschick', birthday: new Date() },
       { id: 3, lastName: 'Foo' },
     ],
     [],
@@ -32,7 +32,7 @@ function App(): JSX.Element {
   return (
     <Table
       data={data}
-      deferredExpansion={(u) => 'id' in u}
+      id="id"
       columns={(col) => [
         col((u) => u.lastName, {
           header: 'Nachname',
