@@ -207,6 +207,7 @@ function Row<T extends TableItem>(props: InternalTableProps<T> & TreeNode<T> & {
   const open = store.useState(
     (state) => {
       const expanded = props.expanded ?? state.expanded;
+      console.log(expanded, item, expanded.has(item));
       return expanded.has(item);
     },
     [props.expanded, item],
