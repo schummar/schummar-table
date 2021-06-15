@@ -8,6 +8,7 @@ export class TextFilter<V> implements Filter<V> {
   constructor(public readonly query: string) {}
 
   filter(_value: V, stringValue: string): boolean {
+    console.log(stringValue, this.query, !this.query || stringValue.toLocaleLowerCase().includes(this.query.toLowerCase()));
     return !this.query || stringValue.toLocaleLowerCase().includes(this.query.toLowerCase());
   }
 

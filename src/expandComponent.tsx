@@ -20,7 +20,7 @@ export function useIsExpanded<T>(item: T): boolean {
 export function ExpandComponent<T>({ item }: { item: T }): JSX.Element {
   const {
     state,
-    props: { expanded, onExpandedChange, expandOnlyOne, id },
+    props: { expanded, onExpandedChange, expandOnlyOne, id, itemsFiltered, parentId },
   } = useTableContext<T>();
   const isExpanded = useIsExpanded(item);
   const _id = id(item);
@@ -29,7 +29,16 @@ export function ExpandComponent<T>({ item }: { item: T }): JSX.Element {
     const newExpanded = new Set(state.getState().expanded);
     if (expandOnlyOne) newExpanded.clear();
     if (isExpanded) newExpanded.delete(_id);
-    else newExpanded.add(_id);
+    else {
+      newExpanded.add(_id);
+
+      let i = item,
+        parent;
+      while ((parent = itemsFiltered.find((p) => id(p) === parentId?.(i)))) {
+        newExpanded.add(id(parent));
+        i = parent;
+      }
+    }
 
     if (!expanded) {
       state.update((state) => {
@@ -37,7 +46,7 @@ export function ExpandComponent<T>({ item }: { item: T }): JSX.Element {
       });
     }
 
-    onExpandedChange?.(newExpanded);
+    onExpandedChange?.(newExpanded, item, isExpanded ? 'closed' : 'expanded');
   }
 
   return (

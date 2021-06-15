@@ -1,13 +1,19 @@
 import { DefaultFilter } from './defaultFilterComponent';
-import { InternalColumn, InternalTableProps } from './internalTypes';
-import { Column, Id, TableProps } from './types';
+import { Column, Id, InternalColumn, InternalTableProps, TableProps } from './types';
 
 export function calcProps<T>(props: TableProps<T>): InternalTableProps<T> {
-  let id: (item: T) => Id;
+  let id;
   if (props.id instanceof Function) {
     id = props.id;
   } else {
     id = (item: T) => item[props.id as keyof T] as unknown as Id;
+  }
+
+  let parentId;
+  if (props.parentId instanceof Function) {
+    parentId = props.parentId;
+  } else if (typeof parentId === 'string') {
+    parentId = (item: T) => item[props.parentId as keyof T] as unknown as Id | undefined;
   }
 
   let inputColumns = props.columns;
@@ -28,7 +34,7 @@ export function calcProps<T>(props: TableProps<T>): InternalTableProps<T> {
       filter,
       onFilterChange,
       width,
-      style,
+      justifyContent,
     }: Column<T, V>,
     index: number,
   ): InternalColumn<T, V> {
@@ -45,9 +51,9 @@ export function calcProps<T>(props: TableProps<T>): InternalTableProps<T> {
       filter,
       onFilterChange,
       width,
-      style,
+      justifyContent,
     };
   });
 
-  return { ...props, id, columns };
+  return { ...props, id, parentId, columns, itemsSorted: [], itemsFiltered: [], itemsTree: [] };
 }

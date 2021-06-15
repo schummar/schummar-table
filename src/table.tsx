@@ -5,11 +5,11 @@ import { calcProps } from './calcProps';
 import { cleanupState } from './cleanupState';
 import { HeaderCellView, HeaderFill, TableView } from './elements';
 import { Filter, FilterComponent } from './filterComponent';
-import type { InternalColumn, InternalTableProps, InternalTableState } from './internalTypes';
 import { Row } from './row';
 import { SelectComponent } from './selectComponent';
 import { SortComponent } from './sortComponent';
-import { Id, TableProps } from './types';
+import { syncSelections } from './syncSelections';
+import { Id, InternalColumn, InternalTableProps, InternalTableState, TableProps } from './types';
 
 export type TableContext<T> = {
   props: InternalTableProps<T>;
@@ -57,8 +57,13 @@ export function Table<T>(_props: TableProps<T>): JSX.Element {
     for (const column of columns) if (column.filter) state.filters.set(column.id, column.filter);
   });
 
+  const { tree, itemsSorted, itemsFiltered } = calcItems(props, state);
+  props.itemsSorted = itemsSorted;
+  props.itemsFiltered = itemsFiltered;
+  props.itemsTree = tree;
+
   cleanupState(props, state);
-  props.items = calcItems(props, state);
+  syncSelections(props, state);
 
   return (
     <TableContext.Provider value={{ props, state }}>
@@ -76,12 +81,12 @@ export function Table<T>(_props: TableProps<T>): JSX.Element {
         <HeaderFill />
 
         <HeaderCellView>
-          <SelectComponent items={props.items} />
+          <SelectComponent />
         </HeaderCellView>
 
         {columns.map((column) => (
           <ColumnContext.Provider key={column.id} value={{ props, state, column }}>
-            <HeaderCellView key={column.id} style={column.style}>
+            <HeaderCellView key={column.id}>
               <SortComponent>{column.header}</SortComponent>
               <FilterComponent />
             </HeaderCellView>
@@ -90,8 +95,8 @@ export function Table<T>(_props: TableProps<T>): JSX.Element {
 
         <HeaderFill />
 
-        {props.items.map((item) => (
-          <Row key={id(item)} item={item} />
+        {tree.map((node) => (
+          <Row key={id(node.item)} {...node} />
         ))}
       </TableView>
     </TableContext.Provider>
