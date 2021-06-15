@@ -1,14 +1,14 @@
 import { CSSProperties, ReactNode } from 'react';
-import { Filter } from './tableFilter';
+import { Filter } from './filterComponent';
 
-export type Sort = { column: string | number; direction: SortDirection };
+export type Sort = { columnId: string | number; direction: SortDirection };
 export type SortDirection = 'asc' | 'desc';
 
 export type Id = string | number;
 export type IdKey<T> = { [P in keyof T]: T[P] extends Id ? P : never }[keyof T];
 
 export type TableProps<T> = {
-  data: T[];
+  items: T[];
   id: ((item: T) => Id) | IdKey<T>;
   getChildren?: (item: T) => T[];
   childrenHook?: (item: T, isExpanded: boolean) => { hasChildren: boolean; children?: T[] };
@@ -28,7 +28,6 @@ export type TableProps<T> = {
   onExpandedChange?: (expanded: Set<Id>) => void;
   expandOnlyOne?: boolean;
 
-  defaultUseFilter?: boolean;
   defaultWidth?: string;
   fullWidth?: boolean;
 
@@ -46,8 +45,7 @@ export type Column<T, V> = {
   renderValue?: (value: V) => ReactNode;
   renderCell?: (value: V, item: T) => ReactNode;
 
-  useFilter?: boolean;
-  filterOptions?: V[];
+  filterComponent?: ReactNode;
   defaultFilter?: Filter<V>;
   filter?: Filter<V>;
   onFilterChange?: (filter: Filter<V>) => void;

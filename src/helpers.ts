@@ -33,3 +33,9 @@ export const partition = <T>(arr: T[], predicate: (t: T) => boolean): [yes: T[],
 
   return [yes, no];
 };
+
+export const intersect = <T>(a: Set<T>, b: Set<T>): Set<T> => {
+  const result = new Set<T>();
+  for (const x of a) if (b.has(x)) result.add(x);
+  return result;
+};

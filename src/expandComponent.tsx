@@ -1,34 +1,38 @@
 import { IconButton } from '@material-ui/core';
 import { ChevronRight } from '@material-ui/icons';
 import React from 'react';
-import { InternalTableProps } from './internalTypes';
-import { TableScope } from './table';
+import { useTableContext } from './table';
 
-export function useIsExpanded<T>({ expanded, id, item }: InternalTableProps<T> & { item: T }): boolean {
+export function useIsExpanded<T>(item: T): boolean {
+  const {
+    state,
+    props: { id },
+  } = useTableContext<T>();
   const _id = id(item);
-  return TableScope.useState(
+  return state.useState(
     (state) => {
-      const e = expanded ?? state.expanded;
-      return e.has(_id);
+      return state.expanded.has(_id);
     },
-    [expanded, _id],
+    [_id],
   );
 }
 
-export function Expand<T>(props: InternalTableProps<T> & { item: T }): JSX.Element {
-  const { expanded, onExpandedChange, expandOnlyOne, id, item } = props;
-  const isExpanded = useIsExpanded(props);
+export function ExpandComponent<T>({ item }: { item: T }): JSX.Element {
+  const {
+    state,
+    props: { expanded, onExpandedChange, expandOnlyOne, id },
+  } = useTableContext<T>();
+  const isExpanded = useIsExpanded(item);
   const _id = id(item);
-  const store = TableScope.useStore();
 
   function toggle() {
-    const newExpanded = new Set(expanded ?? store.getState().expanded);
+    const newExpanded = new Set(state.getState().expanded);
     if (expandOnlyOne) newExpanded.clear();
     if (isExpanded) newExpanded.delete(_id);
     else newExpanded.add(_id);
 
     if (!expanded) {
-      store.update((state) => {
+      state.update((state) => {
         state.expanded = newExpanded;
       });
     }

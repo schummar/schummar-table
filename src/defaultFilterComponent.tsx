@@ -1,8 +1,9 @@
 import { Button, Checkbox, FormControlLabel, IconButton, styled, TextField } from '@material-ui/core';
 import { Clear, Search } from '@material-ui/icons';
 import React, { useState } from 'react';
-import { InternalColumn, InternalTableProps, TableScope } from './table';
-import { Filter } from './tableFilter';
+import { Filter } from './filterComponent';
+import { orderBy, uniq } from './helpers';
+import { useColumnContext } from './table';
 
 export class DefaultFilter<V> extends Set<V> implements Filter<V> {
   filter(value: V): boolean {
@@ -23,14 +24,23 @@ const View = styled('div')(({ theme }) => ({
   },
 }));
 
-export function DefaultFilterComponent<T, V>({ text, column }: InternalTableProps<T> & { column: InternalColumn<T, V> }): JSX.Element {
-  const state = TableScope.useStore();
+export function DefaultFilterComponent<T, V>({ options }: { options?: V[] }): JSX.Element {
+  const {
+    state,
+    props: { text, items },
+    column,
+  } = useColumnContext<T, V>();
   const _filter = state.useState((state) => state.filters.get(column.id), [column.id]) ?? column.defaultFilter;
   const filter = _filter instanceof DefaultFilter ? _filter : undefined;
 
   const [input, setInput] = useState('');
 
-  const filtered = column.filterOptions.filter((value) => {
+  if (!options) {
+    options = orderBy(uniq(items.map(column.value).filter((x) => x !== undefined)));
+  }
+  console.log(items, options);
+
+  const filtered = options.filter((value) => {
     return !input || column.stringValue(value).toLowerCase().includes(input.toLowerCase());
   });
 

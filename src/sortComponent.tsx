@@ -1,7 +1,7 @@
 import { Badge, styled } from '@material-ui/core';
 import { ArrowDownward, ArrowUpward } from '@material-ui/icons';
 import React, { ReactNode } from 'react';
-import { InternalColumn, InternalTableProps, TableScope } from './table';
+import { useColumnContext } from './table';
 
 const SortView = styled('div')({
   userSelect: 'none',
@@ -20,15 +20,12 @@ const Empty = styled('div')({
   width: 20,
 });
 
-export function Sort<T>({
-  column,
-  children,
-  defaultSort,
-}: InternalTableProps<T> & { column: InternalColumn<T>; children: ReactNode }): JSX.Element {
-  const state = TableScope.useStore();
+export function SortComponent<T, V>({ children }: { children: ReactNode }): JSX.Element {
+  const { state, column } = useColumnContext<T, V>();
+
   const { direction, index } = (() => {
-    const sort = state.useState((state) => state.sort) ?? defaultSort;
-    const index = sort?.findIndex((s) => s.id === column.id) ?? -1;
+    const sort = state.useState((state) => state.sort);
+    const index = sort?.findIndex((s) => s.columnId === column.id) ?? -1;
 
     return {
       direction: sort?.[index]?.direction,
@@ -38,10 +35,10 @@ export function Sort<T>({
 
   function toggle(e: React.MouseEvent) {
     state.update((state) => {
-      const sort = (state.sort ?? defaultSort ?? []).find((x) => x.id === column.id);
+      const sort = state.sort.find((x) => x.columnId === column.id);
       const direction: 'asc' | 'desc' = sort?.direction === 'asc' ? 'desc' : 'asc';
-      const update = { id: column.id, direction };
-      if (e.getModifierState('Control')) state.sort = (state.sort ?? defaultSort ?? []).filter((x) => x.id !== column.id).concat(update);
+      const update = { columnId: column.id, direction };
+      if (e.getModifierState('Control')) state.sort = state.sort.filter((x) => x.columnId !== column.id).concat(update);
       else state.sort = [update];
     });
   }

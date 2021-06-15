@@ -1,68 +1,67 @@
-import { Draft } from 'immer';
-import React, { useEffect, useMemo } from 'react';
-import { Store, StoreScope } from 'schummar-state/react';
+import React, { createContext, useContext, useMemo } from 'react';
+import { Store } from 'schummar-state/react';
+import { calcItems } from './calcItems';
 import { calcProps } from './calcProps';
-import type { InternalTableState } from './internalTypes';
-import { HeaderCellView, HeaderFill, TableView } from './tableElements';
-import { FilterComponent } from './tableFilter';
-import { Row } from './tableRow';
-import { Select } from './tableSelect';
-import { Sort } from './tableSort';
-import { TableProps } from './types';
+import { cleanupState } from './cleanupState';
+import { HeaderCellView, HeaderFill, TableView } from './elements';
+import { Filter, FilterComponent } from './filterComponent';
+import type { InternalColumn, InternalTableProps, InternalTableState } from './internalTypes';
+import { Row } from './row';
+import { SelectComponent } from './selectComponent';
+import { SortComponent } from './sortComponent';
+import { Id, TableProps } from './types';
 
-export const TableScope = new StoreScope<InternalTableState>({
-  filters: new Map(),
-  selection: new Set(),
-  expanded: new Set(),
-});
+export type TableContext<T> = {
+  props: InternalTableProps<T>;
+  state: Store<InternalTableState>;
+};
+export type ColumnContext<T, V> = TableContext<T> & {
+  column: InternalColumn<T, V>;
+};
+export const TableContext = createContext<TableContext<any> | null>(null);
+export const ColumnContext = createContext<ColumnContext<any, any> | null>(null);
+export function useTableContext<T>(): TableContext<T> {
+  const value = useContext(TableContext);
+  if (!value) throw Error('No table context available');
+  return value as TableContext<T>;
+}
+export function useColumnContext<T, V>(): ColumnContext<T, V> {
+  const value = useContext(ColumnContext);
+  if (!value) throw Error('No column context available');
+  return value as ColumnContext<T, V>;
+}
 
 export function Table<T>(_props: TableProps<T>): JSX.Element {
   const props = calcProps(_props);
-  const { data = [], id, columns, defaultWidth = 'auto', defaultSort = [], fullWidth } = props;
+  const { id, columns, defaultWidth = 'auto', defaultSelection, defaultExpanded, defaultSort, fullWidth } = props;
 
   const state = useMemo(
     () =>
       new Store<InternalTableState>({
-        selection: new Set(),
-        expanded: new Set(),
-        filters: new Map(),
+        sort: defaultSort ?? [],
+        selection: defaultSelection ?? new Set(),
+        expanded: defaultExpanded ?? new Set(),
+        filters: (() => {
+          const filters = new Map<Id, Filter<unknown>>();
+          for (const column of columns) if (column.defaultFilter) filters.set(column.id, column.defaultFilter);
+          return filters;
+        })(),
       }),
     [],
   );
 
   state.update((state) => {
+    if (props.sort) state.sort = props.sort;
     if (props.selection) state.selection = props.selection;
     if (props.expanded) state.expanded = props.expanded;
     for (const column of columns) if (column.filter) state.filters.set(column.id, column.filter);
   });
 
-  useEffect(() => {
-    const columnIds = new Set(columns.map((column) => column.id));
-    const itemSet = new Set(items);
-
-    const newSelection = new Set(state.getState().selection);
-    for (const item of newSelection) {
-      if (!itemSet.has(item)) newSelection.delete(item);
-    }
-
-    const newExpanded = new Set(state.getState().expanded);
-    for (const item of newExpanded) {
-      if (!itemSet.has(item)) newExpanded.delete(item);
-    }
-
-    state.update((state) => {
-      state.sort = state.sort?.filter((s) => columnIds.has(s.column));
-
-      for (const [id] of state.filters.entries()) {
-        if (!columnIds.has(id)) state.filters.delete(id);
-      }
-
-      state.selection = newSelection as Draft<Set<T>>;
-    });
-  }, [state, items, columns]);
+  cleanupState(props, state);
+  props.items = calcItems(props, state);
 
   return (
-    <TableScope.Provider store={state}>
+    <TableContext.Provider value={{ props, state }}>
       <TableView
         style={{
           gridTemplateColumns: [
@@ -77,24 +76,24 @@ export function Table<T>(_props: TableProps<T>): JSX.Element {
         <HeaderFill />
 
         <HeaderCellView>
-          <Select {...props} items={data} />
+          <SelectComponent items={props.items} />
         </HeaderCellView>
 
         {columns.map((column) => (
-          <HeaderCellView key={column.id} style={column.style}>
-            <Sort {...props} columns={columns} column={column}>
-              {column.header}
-            </Sort>
-            <FilterComponent {...props} columns={columns} column={column} />
-          </HeaderCellView>
+          <ColumnContext.Provider key={column.id} value={{ props, state, column }}>
+            <HeaderCellView key={column.id} style={column.style}>
+              <SortComponent>{column.header}</SortComponent>
+              <FilterComponent />
+            </HeaderCellView>
+          </ColumnContext.Provider>
         ))}
 
         <HeaderFill />
 
-        {items.map((item) => (
-          <Row key={id(item)} {...props} columns={columns} item={item} />
+        {props.items.map((item) => (
+          <Row key={id(item)} item={item} />
         ))}
       </TableView>
-    </TableScope.Provider>
+    </TableContext.Provider>
   );
 }

@@ -1,9 +1,9 @@
-import { Filter } from './tableFilter';
+import { Filter } from './filterComponent';
 import { Column, Id, Sort, TableProps } from './types';
 
-export type InternalColumn<T, V> = Omit<Column<T, V>, 'id'> & { id: Id } & Required<
-    Omit<Column<T, V>, 'id' | 'width' | 'style' | 'filter' | 'onFilterChange'>
-  >;
+export type InternalColumn<T, V> = Omit<Column<T, V>, 'id'> & {
+  id: Id;
+} & Required<Omit<Column<T, V>, 'id' | 'width' | 'style' | 'filter' | 'onFilterChange' | 'filterComponent'>>;
 
 export type InternalTableProps<T> = Omit<TableProps<T>, 'id' | 'columns'> & {
   id: (item: T) => Id;
@@ -11,7 +11,7 @@ export type InternalTableProps<T> = Omit<TableProps<T>, 'id' | 'columns'> & {
 };
 
 export type InternalTableState = {
-  sort?: Sort[];
+  sort: Sort[];
   filters: Map<Id, Filter<unknown>>;
   selection: Set<Id>;
   expanded: Set<Id>;

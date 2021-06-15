@@ -2,26 +2,19 @@ import { Store } from 'schummar-state/react';
 import { flatMap, orderBy } from './helpers';
 import { InternalTableProps, InternalTableState } from './internalTypes';
 
-export function calcItems<T>({
-  data,
-  columns,
-  defaultSort,
-  defaultUseFilter,
-  store,
-  ...props
-}: InternalTableProps<T> & { store: Store<InternalTableState> }): T[] {
+export function calcItems<T>({ items, columns }: InternalTableProps<T>, store: Store<InternalTableState>): T[] {
   return store.useState((state) => {
-    const filtered = columns.reduce((data, column) => {
+    const filtered = columns.reduce((items, column) => {
       const filter = state.filters.get(column.id);
-      if (!filter) return data;
-      return data.filter((item) => filter.filter(column.value(item)));
-    }, data);
+      if (!filter) return items;
+      return items.filter((item) => filter.filter(column.value(item), column.stringValue(item)));
+    }, items);
 
     const sort = state.sort;
-    if (!sort) return filtered;
+    if (sort.length === 0) return filtered;
 
     const selectors = flatMap(sort, (sort) => {
-      const column = columns.find((column) => column.id === sort.column);
+      const column = columns.find((column) => column.id === sort.columnId);
       if (column) return [{ selector: (item: T) => column.sortBy(column.value(item)), direction: sort.direction }];
       return [];
     }).filter(Boolean);

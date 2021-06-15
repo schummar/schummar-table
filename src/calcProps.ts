@@ -1,6 +1,5 @@
-import { orderBy, uniq } from './helpers';
+import { DefaultFilter } from './defaultFilterComponent';
 import { InternalColumn, InternalTableProps } from './internalTypes';
-import { DefaultFilter } from './tableFilterDefault';
 import { Column, Id, TableProps } from './types';
 
 export function calcProps<T>(props: TableProps<T>): InternalTableProps<T> {
@@ -24,8 +23,7 @@ export function calcProps<T>(props: TableProps<T>): InternalTableProps<T> {
       sortBy = (v) => (typeof v === 'number' || v instanceof Date ? v : stringValue(v)),
       renderValue = stringValue,
       renderCell = renderValue,
-      useFilter = false,
-      filterOptions = orderBy(uniq(data.map(value).filter((x) => x !== undefined))),
+      filterComponent,
       defaultFilter = new DefaultFilter<V>(),
       filter,
       onFilterChange,
@@ -42,8 +40,7 @@ export function calcProps<T>(props: TableProps<T>): InternalTableProps<T> {
       sortBy,
       renderValue,
       renderCell,
-      useFilter,
-      filterOptions,
+      filterComponent,
       defaultFilter,
       filter,
       onFilterChange,

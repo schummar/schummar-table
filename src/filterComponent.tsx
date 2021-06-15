@@ -1,10 +1,9 @@
 import { IconButton, makeStyles, Popover } from '@material-ui/core';
 import { ArrowDropDown, FilterList } from '@material-ui/icons';
 import React, { useState } from 'react';
-import { InternalColumn, InternalTableProps, TableScope } from './table';
-import { DefaultFilterComponent } from './tableFilterDefault';
+import { useColumnContext } from './table';
 
-export type Filter<V> = { filter(value: V): boolean; isActive(): boolean };
+export type Filter<V> = { filter(value: V, stringValue: string): boolean; isActive(): boolean };
 
 const useClasses = makeStyles((theme) => ({
   active: {
@@ -12,13 +11,13 @@ const useClasses = makeStyles((theme) => ({
   },
 }));
 
-export function FilterComponent<T, V>({ column, ...props }: InternalTableProps<T> & { column: InternalColumn<T, V> }): JSX.Element | null {
+export function FilterComponent<T, V>(): JSX.Element | null {
+  const { state, column } = useColumnContext<T, V>();
   const classes = useClasses();
-  const filter = TableScope.useState((state) => state.filters.get(column.id), [column.id]) ?? column.defaultFilter;
-
+  const filter = state.useState((state) => state.filters.get(column.id), [column.id]);
   const [anchor, setAnchor] = useState<HTMLButtonElement | null>(null);
 
-  if (!column.filter) return null;
+  if (!column.filterComponent) return null;
 
   return (
     <>
@@ -33,7 +32,7 @@ export function FilterComponent<T, V>({ column, ...props }: InternalTableProps<T
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
         transformOrigin={{ vertical: 'top', horizontal: 'center' }}
       >
-        <DefaultFilterComponent {...props} column={column} />
+        {column.filterComponent}
       </Popover>
     </>
   );
