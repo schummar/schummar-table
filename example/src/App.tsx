@@ -4,22 +4,10 @@ import { Action } from 'schummar-state/react';
 import { DefaultFilterComponent, Table, TextFilterComponent } from '../../src';
 import { flatMap } from '../../src/helpers';
 
-const useClasses = makeStyles(() => ({
-  // headerCell: {
-  //   color: 'yellow',
-  // },
-  // cell: {
-  //   background: 'red',
-  //   color: 'white',
-  // },
-  // oddCell: {
-  //   background: 'blue',
-  //   color: 'white',
-  // },
-  // specialCell: {
-  //   background: 'green',
-  //   color: 'red',
-  // },
+const useClasses = makeStyles((theme) => ({
+  oddCell: {
+    background: theme.palette.grey[100],
+  },
 }));
 
 type TopItem = {
@@ -38,7 +26,7 @@ type SubItem = {
 };
 
 const loadTop = new Action(async () => {
-  await new Promise((r) => setTimeout(r, 1000));
+  // await new Promise((r) => setTimeout(r, 1000));
   return new Array(5).fill(0).map<TopItem>((_d, index) => ({ type: 'top', id: String(index), name: `top item ${index}` }));
 });
 
@@ -101,10 +89,6 @@ function App(): JSX.Element {
         col((x) => (x.type === 'sub' ? x.date : null), {
           header: 'Date',
           filterComponent: <DefaultFilterComponent />,
-          classes: {
-            headerCell: classes.specialCell,
-            cell: classes.specialCell,
-          },
         }),
       ]}
       classes={classes}
