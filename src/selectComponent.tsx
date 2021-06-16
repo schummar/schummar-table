@@ -1,5 +1,6 @@
 import { Checkbox, styled } from '@material-ui/core';
 import React from 'react';
+import { getAncestors, getDescendants } from './helpers';
 import { useTableContext } from './table';
 
 const JustifiedCheckbox = styled(Checkbox)({
@@ -14,7 +15,6 @@ export function SelectComponent<T>({ item }: { item?: T }): JSX.Element {
 
   const isSelected = state.useState(
     (state) => {
-      console.log('calc', state.selection);
       return itemsFiltered.length > 0 && (item ? [item] : itemsFiltered).every((item) => state.selection.has(id(item)));
     },
     [item, itemsFiltered, id],
@@ -38,7 +38,11 @@ export function SelectComponent<T>({ item }: { item?: T }): JSX.Element {
       else newSelection.add(id(item));
     }
 
-    if (selectSyncChildren) {
+    if (selectSyncChildren && isSelected) {
+      const ancestors = getAncestors(range, itemsFiltered, { id, parentId });
+      for (const ancestor of ancestors) newSelection.delete(id(ancestor));
+      const descendants = getDescendants(range, itemsFiltered, { id, parentId });
+      for (const descendant of descendants) newSelection.delete(id(descendant));
     }
 
     if (!selection) {

@@ -38,7 +38,6 @@ export function DefaultFilterComponent<T, V>({ options }: { options?: V[] }): JS
   if (!options) {
     options = orderBy(uniq(itemsSorted.map(column.value).filter((x) => x !== undefined)));
   }
-  console.log(itemsSorted, options);
 
   const filtered = options.filter((value) => {
     return !input || column.stringValue(value).toLowerCase().includes(input.toLowerCase());

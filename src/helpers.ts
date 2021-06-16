@@ -25,17 +25,6 @@ export const uniq = <T>(arr: T[]): T[] => {
   return [...set.values()];
 };
 
-export const partition = <T>(arr: T[], predicate: (t: T) => boolean): [yes: T[], no: T[]] => {
-  const no: T[] = [];
-  const yes = arr.filter((t) => {
-    if (predicate(t)) return true;
-    no.push(t);
-    return false;
-  });
-
-  return [yes, no];
-};
-
 export const intersect = <T>(a: Set<T>, b: Set<T>): Set<T> => {
   const result = new Set<T>();
   for (const x of a) if (b.has(x)) result.add(x);
@@ -88,16 +77,38 @@ export const flattenTree = <T>(tree: TreeNode<T>[]): T[] => {
   return flatMap(tree, ({ item, children }) => [item, ...flattenTree(children)]);
 };
 
-export const getAncestors = <T>(item: T, items: T[], { id, parentId }: Pick<InternalTableProps<T>, 'id' | 'parentId'>): T[] => {
-  if (!parentId) return [];
-  const lookup = groupBy(items, (item) => id(item));
-  const find = (id?: Id): T[] => flatMap((id ? lookup.get(id) : undefined) ?? [], (item) => [item, ...find(parentId(item))]);
-  return find(parentId(item));
+export const getAncestors = <T>(items: T[], Allitems: T[], { id, parentId }: Pick<InternalTableProps<T>, 'id' | 'parentId'>): Set<T> => {
+  const result = new Set<T>();
+  if (!parentId) return result;
+
+  const lookup = groupBy(Allitems, (item) => id(item)) as Map<Id | undefined, T[]>;
+
+  const find = (item: T): void => {
+    const parent = lookup.get(parentId(item))?.[0];
+    if (parent && !result.has(parent)) {
+      result.add(parent);
+      find(parent);
+    }
+  };
+  items.forEach(find);
+  return result;
 };
 
-export const getDescendants = <T>(item: T, items: T[], { id, parentId }: Pick<InternalTableProps<T>, 'id' | 'parentId'>): T[] => {
-  if (!parentId) return [];
-  const lookup = groupBy(items, (item) => parentId(item));
-  const find = (parentId?: Id): T[] => flatMap(lookup.get(parentId) ?? [], (item) => [item, ...find(id(item))]);
-  return find(id(item));
+export const getDescendants = <T>(items: T[], Allitems: T[], { id, parentId }: Pick<InternalTableProps<T>, 'id' | 'parentId'>): Set<T> => {
+  const result = new Set<T>();
+  if (!parentId) return result;
+
+  const lookup = groupBy(Allitems, (item) => parentId(item));
+
+  const find = (item: T): void => {
+    const children = lookup.get(id(item)) ?? [];
+    for (const child of children) {
+      if (!result.has(child)) {
+        result.add(child);
+        find(child);
+      }
+    }
+  };
+  items.forEach(find);
+  return result;
 };

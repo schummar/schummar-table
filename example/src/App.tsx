@@ -1,7 +1,10 @@
-import React, { useState } from 'react';
+import { enableMapSet } from 'immer';
+import React, { useEffect, useState } from 'react';
 import { Action } from 'schummar-state/react';
 import { DefaultFilterComponent, Table, TextFilterComponent } from '../../src';
 import { flatMap } from '../../src/helpers';
+
+enableMapSet();
 
 type TopItem = {
   type: 'top';
@@ -20,36 +23,38 @@ type SubItem = {
 
 const loadTop = new Action(async () => {
   await new Promise((r) => setTimeout(r, 1000));
-  return new Array(10).fill(0).map<TopItem>((_d, index) => ({ type: 'top', id: String(index), name: `top item ${index}` }));
+  return new Array(5).fill(0).map<TopItem>((_d, index) => ({ type: 'top', id: String(index), name: `top item ${index}` }));
 });
-
-const loadChildren = new Action(async (parentId?: string) => {
-  await new Promise((r) => setTimeout(r, 1000));
-  if (!parentId) return [];
-
-  return new Array(10).fill(0).map<SubItem>((_d, index) => ({
-    type: 'sub',
-    id: `${parentId}_${index}`,
-    parentId,
-    name: `sub item ${parentId}_${index}`,
-    state: 'foo',
-    date: new Date(),
-  }));
-});
-
-const month = (d: Date) => new Date(d.getFullYear(), d.getMonth());
 
 function App(): JSX.Element {
   const [active, setActive] = useState<string[]>([]);
+  const [children, setChildren] = useState<SubItem[]>([]);
   const [topItems = []] = loadTop.useAction(undefined);
-  const [children1 = []] = loadChildren.useAction(active.find((a) => !a.includes('_')));
-  const [children2 = []] = loadChildren.useAction(active.find((a) => a.includes('_')));
 
-  console.log(active, children1, children2);
+  // console.log(active, children1, children2);
+
+  useEffect(() => {
+    setChildren((c) => c.filter((c) => active.includes(c.parentId)));
+    const handle = setInterval(() => {
+      setChildren(
+        flatMap(active, (parentId) =>
+          new Array(5).fill(0).map<SubItem>((_d, index) => ({
+            type: 'sub',
+            id: `${parentId}_${index}`,
+            parentId,
+            name: `sub item ${parentId}_${index}`,
+            state: `foo-${Date.now()}`,
+            date: new Date(),
+          })),
+        ),
+      );
+    }, 1000);
+    return () => clearInterval(handle);
+  }, [active]);
 
   return (
     <Table
-      items={[...topItems, ...children1, ...children2]}
+      items={[...topItems, ...children]}
       id="id"
       parentId={(x) => (x.type === 'sub' ? x.parentId : undefined)}
       hasDeferredChildren={(x) => !x.id.replace('_', '').includes('_')}
@@ -67,11 +72,13 @@ function App(): JSX.Element {
         col((x) => x.name, {
           header: 'Name',
           filterComponent: <TextFilterComponent />,
+          width: '1fr',
         }),
 
         col((x) => (x.type === 'sub' ? x.state : null), {
           header: 'State',
           filterComponent: <DefaultFilterComponent options={['foo', 'bar', 'baz']} />,
+          width: '20ch',
         }),
       ]}
     />
