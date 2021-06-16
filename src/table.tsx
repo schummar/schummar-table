@@ -3,7 +3,9 @@ import { Store } from 'schummar-state/react';
 import { calcItems } from './calcItems';
 import { calcProps } from './calcProps';
 import { cleanupState } from './cleanupState';
+import { ColumnSelection } from './columnSelection';
 import { HeaderCellView, HeaderFill, TableView } from './elements';
+import { filterColumns } from './filterColumns';
 import { Filter, FilterComponent } from './filterComponent';
 import { c } from './helpers';
 import { Row } from './row';
@@ -34,7 +36,7 @@ export function useColumnContext<T, V>(): ColumnContext<T, V> {
 
 export function Table<T>(_props: TableProps<T>): JSX.Element {
   let props = calcProps(_props);
-  const { columns, defaultWidth = 'auto', defaultSelection, defaultExpanded, defaultSort, fullWidth, classes } = props;
+  const { defaultWidth = 'auto', defaultSelection, defaultExpanded, defaultSort, fullWidth, classes } = props;
 
   const state = useMemo(
     () =>
@@ -44,8 +46,19 @@ export function Table<T>(_props: TableProps<T>): JSX.Element {
         expanded: defaultExpanded ?? new Set(),
         filters: (() => {
           const filters = new Map<Id, Filter<unknown>>();
-          for (const column of columns) if (column.defaultFilter) filters.set(column.id, column.defaultFilter);
+          for (const column of props.columns)
+            if (column.defaultFilter) {
+              filters.set(column.id, column.defaultFilter);
+            }
           return filters;
+        })(),
+        visible: (() => {
+          const visible = new Map<Id, boolean>();
+          for (const column of props.columns)
+            if (column.defaultVisible !== undefined) {
+              visible.set(column.id, column.defaultVisible);
+            }
+          return visible;
         })(),
       }),
     [],
@@ -55,11 +68,14 @@ export function Table<T>(_props: TableProps<T>): JSX.Element {
     if (props.sort) state.sort = props.sort;
     if (props.selection) state.selection = props.selection;
     if (props.expanded) state.expanded = props.expanded;
-    for (const column of columns) if (column.filter) state.filters.set(column.id, column.filter);
+    for (const column of props.columns) {
+      if (column.filter) state.filters.set(column.id, column.filter);
+      if (column.visible !== undefined) state.visible.set(column.id, column.visible);
+    }
   });
 
+  props = filterColumns(props, state);
   props = calcItems(props, state);
-
   cleanupState(props, state);
   syncSelections(props, state);
 
@@ -71,7 +87,7 @@ export function Table<T>(_props: TableProps<T>): JSX.Element {
             //
             fullWidth ? 'auto' : '0',
             'max-content',
-            ...columns.map((column) => column.width ?? defaultWidth),
+            ...props.activeColumns.map((column) => column.width ?? defaultWidth),
             fullWidth ? 'auto' : '0',
           ].join(' '),
         }}
@@ -81,9 +97,11 @@ export function Table<T>(_props: TableProps<T>): JSX.Element {
 
         <HeaderCellView className={classes?.headerCell}>
           <SelectComponent />
+
+          <ColumnSelection />
         </HeaderCellView>
 
-        {columns.map((column) => (
+        {props.activeColumns.map((column) => (
           <ColumnContext.Provider key={column.id} value={{ props, state, column }}>
             <HeaderCellView key={column.id} className={c(classes?.headerCell, column.classes?.headerCell)}>
               <SortComponent>{column.header}</SortComponent>

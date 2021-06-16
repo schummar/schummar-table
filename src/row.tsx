@@ -18,7 +18,7 @@ export function Row<T>({ item, indent = 0 }: { item: WithIds<T>; indent?: number
   const {
     state,
     props,
-    props: { hasDeferredChildren, columns, classes, activeItemsByParentId, items, activeItems },
+    props: { hasDeferredChildren, activeColumns, classes, activeItemsByParentId, items, activeItems },
   } = useTableContext<T>();
   const isExpanded = useIsExpanded(item);
   const children = [...(activeItemsByParentId.get(item.id) ?? [])];
@@ -38,7 +38,7 @@ export function Row<T>({ item, indent = 0 }: { item: WithIds<T>; indent?: number
         {(hasChildren || hasDeferredChildren?.(item)) && <ExpandComponent item={item} />}
       </CellView>
 
-      {columns.map((column) => (
+      {activeColumns.map((column) => (
         <ColumnContext.Provider key={column.id} value={{ state, props, column }}>
           <CellView className={c(className, calcClassName(column.classes, index))}>{column.renderCell(column.value(item), item)}</CellView>
         </ColumnContext.Provider>

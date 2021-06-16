@@ -49,6 +49,7 @@ export type InternalTableProps<T> = Omit<TableProps<T>, 'id' | 'parentId' | 'col
   id: (item: T) => Id;
   parentId?: (item: T) => Id | undefined;
   columns: InternalColumn<T, unknown>[];
+  activeColumns: InternalColumn<T, unknown>[];
   items: WithIds<T>[];
   activeItems: WithIds<T>[];
   activeItemsById: Map<Id, WithIds<T>>;
@@ -70,6 +71,11 @@ export type Column<T, V> = {
   defaultFilter?: Filter<V>;
   filter?: Filter<V>;
   onFilterChange?: (filter: Filter<V>) => void;
+
+  defaultVisible?: boolean;
+  visible?: boolean;
+  onVisibleChange?: (visible: boolean) => void;
+
   width?: string;
   justifyContent?: CSSProperties['justifyContent'];
 
@@ -100,5 +106,6 @@ export type InternalTableState = {
   filters: Map<Id, Filter<unknown>>;
   selection: Set<Id>;
   expanded: Set<Id>;
+  visible: Map<Id, boolean>;
   lastSelectedId?: Id;
 };

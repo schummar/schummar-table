@@ -47,5 +47,15 @@ export function calcProps<T>(props: TableProps<T>): InternalTableProps<T> {
     };
   });
 
-  return { ...props, id, parentId, columns, items, activeItems: [], activeItemsById: new Map(), activeItemsByParentId: new MultiMap() };
+  return {
+    ...props,
+    id,
+    parentId,
+    columns,
+    activeColumns: columns,
+    items,
+    activeItems: [],
+    activeItemsById: new Map(),
+    activeItemsByParentId: new MultiMap(),
+  };
 }

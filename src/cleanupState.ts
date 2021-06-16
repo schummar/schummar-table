@@ -4,14 +4,15 @@ import { intersect } from './helpers';
 import { InternalTableProps, InternalTableState } from './types';
 
 export function cleanupState<T>(
-  { columns, activeItemsById, onSortChange, onSelectionChange, onExpandedChange }: InternalTableProps<T>,
+  { columns, activeColumns, activeItemsById, onSortChange, onSelectionChange, onExpandedChange }: InternalTableProps<T>,
   store: Store<InternalTableState>,
 ): void {
   useEffect(() => {
     const columnIds = new Set(columns.map((column) => column.id));
+    const activeColumnIds = new Set(activeColumns.map((column) => column.id));
 
     // Remove sort entries for non existings columns
-    const newSort = store.getState().sort.filter((s) => columnIds.has(s.columnId));
+    const newSort = store.getState().sort.filter((s) => activeColumnIds.has(s.columnId));
     if (newSort.length < store.getState().sort.length) {
       store.update((state) => {
         state.sort = newSort;
@@ -22,7 +23,7 @@ export function cleanupState<T>(
     // Remove filters for non existing columns
     const newFilters = new Map(store.getState().filters);
     for (const id of newFilters.keys()) {
-      if (!columnIds.has(id)) newFilters.delete(id);
+      if (!activeColumnIds.has(id)) newFilters.delete(id);
     }
     if (newFilters.size < store.getState().filters.size) {
       store.update((state) => {
@@ -47,5 +48,15 @@ export function cleanupState<T>(
       });
       onExpandedChange?.(newExpanded);
     }
-  }, [columns, activeItemsById, onSortChange, onSelectionChange, onExpandedChange, store]);
+
+    const newVisible = new Map(store.getState().visible);
+    for (const id of newVisible.keys()) {
+      if (!columnIds.has(id)) newVisible.delete(id);
+    }
+    if (newVisible.size < store.getState().visible.size) {
+      store.update((state) => {
+        state.visible = newVisible;
+      });
+    }
+  }, [columns, activeColumns, activeItemsById, onSortChange, onSelectionChange, onExpandedChange, store]);
 }
