@@ -41,7 +41,7 @@ export type TableProps<T> = {
   };
 };
 
-export type InternalTableProps<T> = Omit<TableProps<T>, 'id' | 'parentId' | 'columns'> & {
+export type InternalTableProps<T> = Omit<TableProps<T>, 'id' | 'parentId' | 'columns' | 'items'> & {
   id: (item: T) => Id;
   parentId?: (item: T) => Id | undefined;
   columns: InternalColumn<T, unknown>[];

@@ -1,10 +1,15 @@
+import { makeStyles } from '@material-ui/core';
 import { enableMapSet } from 'immer';
 import React, { useEffect, useState } from 'react';
 import { Action } from 'schummar-state/react';
 import { DefaultFilterComponent, Table, TextFilterComponent } from '../../src';
 import { flatMap } from '../../src/helpers';
 
-enableMapSet();
+const useClasses = makeStyles((theme) => ({
+  cell: {
+    background: 'red',
+  },
+}));
 
 type TopItem = {
   type: 'top';
@@ -27,6 +32,7 @@ const loadTop = new Action(async () => {
 });
 
 function App(): JSX.Element {
+  const classes = useClasses();
   const [active, setActive] = useState<string[]>([]);
   const [children, setChildren] = useState<SubItem[]>([]);
   const [topItems = []] = loadTop.useAction(undefined);
@@ -43,7 +49,7 @@ function App(): JSX.Element {
             id: `${parentId}_${index}`,
             parentId,
             name: `sub item ${parentId}_${index}`,
-            state: `foo-${Date.now()}`,
+            state: `foo--${Date.now()}`,
             date: new Date(),
           })),
         ),
@@ -77,10 +83,16 @@ function App(): JSX.Element {
 
         col((x) => (x.type === 'sub' ? x.state : null), {
           header: 'State',
-          filterComponent: <DefaultFilterComponent options={['foo', 'bar', 'baz']} />,
+          filterComponent: <DefaultFilterComponent />,
           width: '20ch',
         }),
+
+        col((x) => (x.type === 'sub' ? x.date : null), {
+          header: 'Date',
+          filterComponent: <DefaultFilterComponent />,
+        }),
       ]}
+      classes={classes}
     />
   );
 }

@@ -10,11 +10,11 @@ export function Row<T>({ item, indent = 0 }: { item: WithIds<T>; indent?: number
   const {
     state,
     props,
-    props: { hasDeferredChildren, columns, classes, activeItemsByParentId },
+    props: { hasDeferredChildren, columns, classes, activeItemsByParentId, items },
   } = useTableContext<T>();
   const isExpanded = useIsExpanded(item);
   const children = [...(activeItemsByParentId.get(item.id) ?? [])];
-  const hasChildren = children.length > 0 || hasDeferredChildren?.(item);
+  const hasChildren = items.some((i) => i.parentId === item.id);
 
   return (
     <>
@@ -23,7 +23,7 @@ export function Row<T>({ item, indent = 0 }: { item: WithIds<T>; indent?: number
       <CellView style={{ marginLeft: indent * 20 }}>
         <SelectComponent item={item} />
 
-        {hasChildren && <ExpandComponent item={item} />}
+        {(hasChildren || hasDeferredChildren?.(item)) && <ExpandComponent item={item} />}
       </CellView>
 
       {columns.map((column) => (
@@ -34,9 +34,9 @@ export function Row<T>({ item, indent = 0 }: { item: WithIds<T>; indent?: number
 
       <CellFill />
 
-      {hasChildren && isExpanded && children.map((child) => <Row key={child.id} item={child} indent={indent + 1} />)}
+      {isExpanded && children.map((child) => <Row key={child.id} item={child} indent={indent + 1} />)}
 
-      {hasChildren && isExpanded && children.length === 0 && (
+      {isExpanded && !hasChildren && (
         <>
           <DeferredPlaceholder>
             <CircularProgress size={20} />
