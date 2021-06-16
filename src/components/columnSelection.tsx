@@ -1,8 +1,8 @@
 import { Checkbox, FormControlLabel, IconButton, Popover, styled } from '@material-ui/core';
 import { Settings } from '@material-ui/icons';
 import React, { useState } from 'react';
-import { useTableContext } from './table';
-import { InternalColumn } from './types';
+import { useTableContext } from '../table';
+import { InternalColumn } from '../types';
 
 const List = styled('div')(({ theme }) => ({
   padding: theme.spacing(2),
@@ -10,22 +10,21 @@ const List = styled('div')(({ theme }) => ({
 }));
 
 export function ColumnSelection<T>(): JSX.Element {
-  const {
-    state,
-    props: { columns, activeColumns },
-  } = useTableContext<T>();
   const [anchor, setAnchor] = useState<HTMLButtonElement | null>(null);
+  const state = useTableContext<T>();
+  const columns = state.useState('props.columns');
+  const isHidden = state.useState('isHidden');
 
   const toggle = (column: InternalColumn<T, unknown>) => {
-    const newValue = !activeColumns.includes(column);
+    const newValue = !isHidden.get(column.id);
 
-    if (column.visible === undefined) {
+    if (column.isHidden === undefined) {
       state.update((state) => {
-        state.visible.set(column.id, newValue);
+        state.isHidden.set(column.id, newValue);
       });
     }
 
-    column.onVisibleChange?.(newValue);
+    column.onIsHiddenChange?.(newValue);
   };
 
   return (
@@ -45,7 +44,7 @@ export function ColumnSelection<T>(): JSX.Element {
           {columns.map((column) => (
             <FormControlLabel
               key={column.id}
-              control={<Checkbox checked={activeColumns.includes(column)} onChange={() => toggle(column)} />}
+              control={<Checkbox checked={!isHidden.get(column.id)} onChange={() => toggle(column)} />}
               label={column.header}
             />
           ))}

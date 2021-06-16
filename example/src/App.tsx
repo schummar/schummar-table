@@ -2,7 +2,7 @@ import { makeStyles } from '@material-ui/core';
 import React, { useEffect, useState } from 'react';
 import { Action } from 'schummar-state/react';
 import { DefaultFilterComponent, Table, TextFilterComponent } from '../../src';
-import { flatMap } from '../../src/helpers';
+import { flatMap } from '../../src/misc/helpers';
 
 const useClasses = makeStyles((theme) => ({
   oddCell: {

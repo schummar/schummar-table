@@ -1,30 +1,17 @@
 import { IconButton } from '@material-ui/core';
 import { ChevronRight } from '@material-ui/icons';
 import React from 'react';
-import { getAncestors } from './helpers';
-import { useTableContext } from './table';
-import { WithIds } from './types';
-
-export function useIsExpanded<T>(item: T): boolean {
-  const {
-    state,
-    props: { id },
-  } = useTableContext<T>();
-  const _id = id(item);
-  return state.useState(
-    (state) => {
-      return state.expanded.has(_id);
-    },
-    [_id],
-  );
-}
+import { getAncestors } from '../misc/helpers';
+import { useTableContext } from '../table';
+import { WithIds } from '../types';
 
 export function ExpandComponent<T>({ item }: { item: WithIds<T> }): JSX.Element {
-  const {
-    state,
-    props: { expanded, onExpandedChange, expandOnlyOne, activeItemsById },
-  } = useTableContext<T>();
-  const isExpanded = useIsExpanded(item);
+  const state = useTableContext<T>();
+  const isControlled = state.useState((state) => !!state.props.expanded);
+  const isExpanded = state.useState((state) => state.expanded.has(item.id), [item.id]);
+  const onExpandedChange = state.useState('props.onExpandedChange');
+  const expandOnlyOne = state.useState('props.expandOnlyOne');
+  const activeItemsById = state.useState('activeItemsById');
 
   function toggle() {
     const newExpanded = new Set(state.getState().expanded);
@@ -38,7 +25,7 @@ export function ExpandComponent<T>({ item }: { item: WithIds<T> }): JSX.Element 
       }
     }
 
-    if (!expanded) {
+    if (!isControlled) {
       state.update((state) => {
         state.expanded = newExpanded;
       });

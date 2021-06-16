@@ -1,5 +1,4 @@
-import { MultiMap } from './multiMap';
-import { Column, Id, InternalColumn, InternalTableProps, TableProps } from './types';
+import { Column, Id, InternalColumn, InternalTableProps, TableProps } from '../types';
 
 export function calcProps<T>(props: TableProps<T>): InternalTableProps<T> {
   let id: (item: T) => Id;
@@ -52,10 +51,6 @@ export function calcProps<T>(props: TableProps<T>): InternalTableProps<T> {
     id,
     parentId,
     columns,
-    activeColumns: columns,
     items,
-    activeItems: [],
-    activeItemsById: new Map(),
-    activeItemsByParentId: new MultiMap(),
   };
 }

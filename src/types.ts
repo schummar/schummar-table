@@ -1,6 +1,6 @@
 import { CSSProperties, ReactNode } from 'react';
-import { Filter } from './filterComponent';
-import { MultiMap } from './multiMap';
+import { Filter } from './components/filterComponent';
+import { MultiMap } from './misc/multiMap';
 
 export type Sort = { columnId: string | number; direction: SortDirection };
 export type SortDirection = 'asc' | 'desc';
@@ -22,7 +22,7 @@ export type TableProps<T> = {
 
   defaultSelection?: Set<Id>;
   selection?: Set<Id>;
-  onSelectionChange?: (selection: Set<Id>, target?: T, action?: 'selected' | 'deselected') => void;
+  onSelectionChange?: (selection: Set<Id>, targets?: T[], action?: 'selected' | 'deselected') => void;
   selectSyncChildren?: boolean;
 
   defaultExpanded?: Set<Id>;
@@ -45,15 +45,10 @@ export type TableProps<T> = {
   };
 };
 
-export type InternalTableProps<T> = Omit<TableProps<T>, 'id' | 'parentId' | 'columns' | 'items'> & {
+export type InternalTableProps<T> = Omit<TableProps<T>, 'id' | 'parentId' | 'columns'> & {
   id: (item: T) => Id;
   parentId?: (item: T) => Id | undefined;
   columns: InternalColumn<T, unknown>[];
-  activeColumns: InternalColumn<T, unknown>[];
-  items: WithIds<T>[];
-  activeItems: WithIds<T>[];
-  activeItemsById: Map<Id, WithIds<T>>;
-  activeItemsByParentId: MultiMap<Id | undefined, WithIds<T>>;
 };
 
 export type WithIds<T = unknown> = T & { id: Id; parentId?: Id };
@@ -72,9 +67,10 @@ export type Column<T, V> = {
   filter?: Filter<V>;
   onFilterChange?: (filter: Filter<V>) => void;
 
-  defaultVisible?: boolean;
-  visible?: boolean;
-  onVisibleChange?: (visible: boolean) => void;
+  defaultIsHidden?: boolean;
+  isHidden?: boolean;
+  onIsHiddenChange?: (isHidden: boolean) => void;
+  cannotHide?: boolean;
 
   width?: string;
   justifyContent?: CSSProperties['justifyContent'];
@@ -101,11 +97,22 @@ type Required<T, S> = T &
 
 export type Rows<T, V> = [{ value: V; item: T }, ...{ value: V; item: T }[]];
 
-export type InternalTableState = {
+export type InternalTableState<T> = {
+  // Basically the passed in props, but normalized
+  props: InternalTableProps<T>;
+
+  // Actual internal state
   sort: Sort[];
-  filters: Map<Id, Filter<unknown>>;
   selection: Set<Id>;
   expanded: Set<Id>;
-  visible: Map<Id, boolean>;
+  filters: Map<Id, Filter<unknown>>;
+  isHidden: Map<Id, boolean>;
+
+  // Helper data structures for efficient lookup etc.
+  activeColumns: InternalColumn<T, unknown>[];
+  items: WithIds<T>[];
+  activeItems: WithIds<T>[];
+  activeItemsById: Map<Id, WithIds<T>>;
+  activeItemsByParentId: MultiMap<Id | undefined, WithIds<T>>;
   lastSelectedId?: Id;
 };

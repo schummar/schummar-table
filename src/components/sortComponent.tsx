@@ -1,7 +1,7 @@
 import { Badge, styled } from '@material-ui/core';
 import { ArrowDownward, ArrowUpward } from '@material-ui/icons';
 import React, { ReactNode } from 'react';
-import { useColumnContext } from './table';
+import { useColumnContext, useTableContext } from '../table';
 
 const SortView = styled('div')({
   userSelect: 'none',
@@ -21,26 +21,33 @@ const Empty = styled('div')({
 });
 
 export function SortComponent<T, V>({ children }: { children: ReactNode }): JSX.Element {
-  const { state, column } = useColumnContext<T, V>();
+  const state = useTableContext<T>();
+  const column = useColumnContext<T, V>();
+  const isControlled = state.useState((state) => !!state.props.sort);
+  const onSortChange = state.useState('props.onSortChange');
 
-  const { direction, index } = (() => {
-    const sort = state.useState((state) => state.sort);
-    const index = sort?.findIndex((s) => s.columnId === column.id) ?? -1;
-
+  const { direction, index } = state.useState((state) => {
+    const index = state.sort.findIndex((s) => s.columnId === column.id) ?? -1;
     return {
-      direction: sort?.[index]?.direction,
-      index: (sort?.length ?? 0) > 1 && index >= 0 ? index + 1 : undefined,
+      direction: state.sort[index]?.direction,
+      index: index >= 0 ? index + 1 : undefined,
     };
-  })();
+  });
 
   function toggle(e: React.MouseEvent) {
-    state.update((state) => {
-      const sort = state.sort.find((x) => x.columnId === column.id);
-      const direction: 'asc' | 'desc' = sort?.direction === 'asc' ? 'desc' : 'asc';
-      const update = { columnId: column.id, direction };
-      if (e.getModifierState('Control')) state.sort = state.sort.filter((x) => x.columnId !== column.id).concat(update);
-      else state.sort = [update];
+    const newDirection = direction === 'asc' ? 'desc' : 'asc';
+    const newSort = (e.getModifierState('Control') ? state.getState().sort.filter((s) => s.columnId !== column.id) : []).concat({
+      columnId: column.id,
+      direction: newDirection,
     });
+
+    if (!isControlled) {
+      state.update((state) => {
+        state.sort = newSort;
+      });
+    }
+
+    onSortChange?.(newSort);
   }
 
   return (

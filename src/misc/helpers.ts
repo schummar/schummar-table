@@ -1,5 +1,5 @@
 import { MultiMap } from './multiMap';
-import { Id, WithIds } from './types';
+import { Id, WithIds } from '../types';
 
 export const flatMap = <T, S>(arr: Iterable<T>, flatMap: (t: T) => S[]): S[] => {
   return [...arr].reduce<S[]>((out, cur) => out.concat(flatMap(cur)), []);

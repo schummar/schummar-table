@@ -1,8 +1,8 @@
 import { Checkbox, styled } from '@material-ui/core';
 import React from 'react';
-import { getAncestors, getDescendants } from './helpers';
-import { useTableContext } from './table';
-import { WithIds } from './types';
+import { getAncestors, getDescendants } from '../misc/helpers';
+import { useTableContext } from '../table';
+import { WithIds } from '../types';
 
 const JustifiedCheckbox = styled(Checkbox)({
   justifySelf: 'start',
@@ -10,10 +10,13 @@ const JustifiedCheckbox = styled(Checkbox)({
 });
 
 export function SelectComponent<T>({ item }: { item?: WithIds<T> }): JSX.Element {
-  const {
-    state,
-    props: { onSelectionChange, selection, activeItems, activeItemsById, activeItemsByParentId, selectSyncChildren },
-  } = useTableContext<T>();
+  const state = useTableContext<T>();
+  const isControlled = state.useState((state) => !!state.props.selection);
+  const onSelectionChange = state.useState('props.onSelectionChange');
+  const selectSyncChildren = state.useState('props.selectSyncChildren');
+  const activeItems = state.useState('activeItems');
+  const activeItemsById = state.useState('activeItemsById');
+  const activeItemsByParentId = state.useState('activeItemsByParentId');
 
   const isSelected = state.useState(
     (state) => {
@@ -49,7 +52,7 @@ export function SelectComponent<T>({ item }: { item?: WithIds<T> }): JSX.Element
       }
     }
 
-    if (!selection) {
+    if (!isControlled) {
       state.update((state) => {
         state.selection = newSelection;
       });

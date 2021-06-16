@@ -1,8 +1,8 @@
 import { IconButton, styled, TextField } from '@material-ui/core';
 import { Clear, Search } from '@material-ui/icons';
 import React from 'react';
+import { useColumnContext, useTableContext } from '../table';
 import { Filter } from './filterComponent';
-import { useColumnContext } from './table';
 
 export class TextFilter<V> implements Filter<V> {
   constructor(public readonly query: string) {}
@@ -26,7 +26,8 @@ const View = styled('div')(({ theme }) => ({
 }));
 
 export function TextFilterComponent<T, V>(): JSX.Element {
-  const { state, column } = useColumnContext<T, V>();
+  const state = useTableContext<T>();
+  const column = useColumnContext<T, V>();
   const _filter = state.useState((state) => state.filters.get(column.id), [column.id]) ?? column.defaultFilter;
   const filter = _filter instanceof TextFilter ? _filter : undefined;
 

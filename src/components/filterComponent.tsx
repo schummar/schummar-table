@@ -1,7 +1,7 @@
 import { IconButton, makeStyles, Popover } from '@material-ui/core';
 import { ArrowDropDown, FilterList } from '@material-ui/icons';
 import React, { useState } from 'react';
-import { useColumnContext } from './table';
+import { useColumnContext, useTableContext } from '../table';
 
 export type Filter<V> = { filter(value: V, stringValue: string): boolean; isActive(): boolean };
 
@@ -12,7 +12,8 @@ const useClasses = makeStyles((theme) => ({
 }));
 
 export function FilterComponent<T, V>(): JSX.Element | null {
-  const { state, column } = useColumnContext<T, V>();
+  const state = useTableContext<T>();
+  const column = useColumnContext<T, V>();
   const classes = useClasses();
   const filter = state.useState((state) => state.filters.get(column.id), [column.id]);
   const [anchor, setAnchor] = useState<HTMLButtonElement | null>(null);

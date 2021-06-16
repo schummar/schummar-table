@@ -1,9 +1,9 @@
 import { Button, Checkbox, FormControlLabel, IconButton, styled, TextField } from '@material-ui/core';
 import { Clear, Search } from '@material-ui/icons';
 import React, { useState } from 'react';
+import { orderBy, uniq } from '../misc/helpers';
+import { useColumnContext, useTableContext } from '../table';
 import { Filter } from './filterComponent';
-import { orderBy, uniq } from './helpers';
-import { useColumnContext } from './table';
 
 export class DefaultFilter<V> extends Set<V> implements Filter<V> {
   filter(value: V): boolean {
@@ -25,14 +25,12 @@ const View = styled('div')(({ theme }) => ({
 }));
 
 export function DefaultFilterComponent<T, V>({ options }: { options?: V[] }): JSX.Element {
-  const {
-    state,
-    props: { text, items },
-    column,
-  } = useColumnContext<T, V>();
-  const _filter = state.useState((state) => state.filters.get(column.id), [column.id]) ?? column.defaultFilter;
+  const state = useTableContext<T>();
+  const column = useColumnContext<T, V>();
+  const text = state.useState('props.text');
+  const items = state.useState('items');
+  const _filter = state.useState((state) => state.filters.get(column.id), [column.id]);
   const filter = _filter instanceof DefaultFilter ? _filter : undefined;
-
   const [input, setInput] = useState('');
 
   if (!options) {
@@ -46,18 +44,28 @@ export function DefaultFilterComponent<T, V>({ options }: { options?: V[] }): JS
   });
 
   function toggle(value: V) {
-    state.update((state) => {
-      const newFilter = new DefaultFilter(filter);
-      if (newFilter?.has(value)) newFilter.delete(value);
-      else newFilter?.add(value);
-      state.filters.set(column.id, newFilter);
-    });
+    const newFilter = new DefaultFilter(filter);
+    if (newFilter?.has(value)) newFilter.delete(value);
+    else newFilter?.add(value);
+
+    if (!column.filter) {
+      state.update((state) => {
+        state.filters.set(column.id, newFilter);
+      });
+    }
+
+    column.onFilterChange?.(newFilter);
   }
 
   function deselectAll() {
-    state.update((state) => {
-      state.filters.set(column.id, new DefaultFilter());
-    });
+    const newFilter = new DefaultFilter();
+    if (!column.filter) {
+      state.update((state) => {
+        state.filters.set(column.id, newFilter);
+      });
+    }
+
+    column.onFilterChange?.(newFilter);
   }
 
   return (

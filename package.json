@@ -37,7 +37,7 @@
     "@material-ui/icons": "^4.11.2",
     "@types/react": ">=16.8.0",
     "react": ">=16.8.0",
-    "schummar-state": ">=0.0.34"
+    "schummar-state": ">=0.0.35"
   },
   "devDependencies": {
     "@testing-library/react": "^11.2.7",
