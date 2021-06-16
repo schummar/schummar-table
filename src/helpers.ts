@@ -90,3 +90,12 @@ export const getDescendants = <T extends WithIds>(activeItemsByParentId: MultiMa
   items.forEach(find);
   return result;
 };
+
+export const c = (...classNames: (string | Record<string, boolean> | undefined)[]): string =>
+  flatMap(classNames, (item) => {
+    if (item === undefined) return [];
+    if (typeof item === 'string') return [item];
+    return Object.entries(item)
+      .filter(([, predicate]) => predicate)
+      .map(([key]) => key);
+  }).join(' ');

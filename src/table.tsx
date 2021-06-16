@@ -5,6 +5,7 @@ import { calcProps } from './calcProps';
 import { cleanupState } from './cleanupState';
 import { HeaderCellView, HeaderFill, TableView } from './elements';
 import { Filter, FilterComponent } from './filterComponent';
+import { c } from './helpers';
 import { Row } from './row';
 import { SelectComponent } from './selectComponent';
 import { SortComponent } from './sortComponent';
@@ -33,7 +34,7 @@ export function useColumnContext<T, V>(): ColumnContext<T, V> {
 
 export function Table<T>(_props: TableProps<T>): JSX.Element {
   let props = calcProps(_props);
-  const { columns, defaultWidth = 'auto', defaultSelection, defaultExpanded, defaultSort, fullWidth } = props;
+  const { columns, defaultWidth = 'auto', defaultSelection, defaultExpanded, defaultSort, fullWidth, classes } = props;
 
   const state = useMemo(
     () =>
@@ -74,23 +75,24 @@ export function Table<T>(_props: TableProps<T>): JSX.Element {
             fullWidth ? 'auto' : '0',
           ].join(' '),
         }}
+        className={classes?.table}
       >
-        <HeaderFill />
+        <HeaderFill className={classes?.headerCell} />
 
-        <HeaderCellView>
+        <HeaderCellView className={classes?.headerCell}>
           <SelectComponent />
         </HeaderCellView>
 
         {columns.map((column) => (
           <ColumnContext.Provider key={column.id} value={{ props, state, column }}>
-            <HeaderCellView key={column.id}>
+            <HeaderCellView key={column.id} className={c(classes?.headerCell, column.classes?.headerCell)}>
               <SortComponent>{column.header}</SortComponent>
               <FilterComponent />
             </HeaderCellView>
           </ColumnContext.Provider>
         ))}
 
-        <HeaderFill />
+        <HeaderFill className={classes?.headerCell} />
 
         {[...(props.activeItemsByParentId.get(undefined)?.values() ?? [])].map((item) => (
           <Row key={item.id} item={item} />

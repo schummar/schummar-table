@@ -21,7 +21,8 @@ export const CellFill = styled(CellView)({
 
 export const HeaderCellView = styled(CellView)(({ theme }) => ({
   gridTemplateColumns: 'minmax(0, 1fr) max-content',
-  background: theme.palette.grey[300],
+  background: theme.palette.primary.main,
+  color: theme.palette.primary.contrastText,
   fontWeight: 'bold',
   borderBottom: `none`,
 

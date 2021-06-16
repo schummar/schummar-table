@@ -1,14 +1,25 @@
 import { makeStyles } from '@material-ui/core';
-import { enableMapSet } from 'immer';
 import React, { useEffect, useState } from 'react';
 import { Action } from 'schummar-state/react';
 import { DefaultFilterComponent, Table, TextFilterComponent } from '../../src';
 import { flatMap } from '../../src/helpers';
 
-const useClasses = makeStyles((theme) => ({
-  cell: {
-    background: 'red',
-  },
+const useClasses = makeStyles(() => ({
+  // headerCell: {
+  //   color: 'yellow',
+  // },
+  // cell: {
+  //   background: 'red',
+  //   color: 'white',
+  // },
+  // oddCell: {
+  //   background: 'blue',
+  //   color: 'white',
+  // },
+  // specialCell: {
+  //   background: 'green',
+  //   color: 'red',
+  // },
 }));
 
 type TopItem = {
@@ -90,6 +101,10 @@ function App(): JSX.Element {
         col((x) => (x.type === 'sub' ? x.date : null), {
           header: 'Date',
           filterComponent: <DefaultFilterComponent />,
+          classes: {
+            headerCell: classes.specialCell,
+            cell: classes.specialCell,
+          },
         }),
       ]}
       classes={classes}

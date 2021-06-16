@@ -1,4 +1,3 @@
-import { DefaultFilter } from './defaultFilterComponent';
 import { MultiMap } from './multiMap';
 import { Column, Id, InternalColumn, InternalTableProps, TableProps } from './types';
 
@@ -32,12 +31,7 @@ export function calcProps<T>(props: TableProps<T>): InternalTableProps<T> {
       sortBy = (v) => (typeof v === 'number' || v instanceof Date ? v : stringValue(v)),
       renderValue = stringValue,
       renderCell = renderValue,
-      filterComponent,
-      defaultFilter = new DefaultFilter<V>(),
-      filter,
-      onFilterChange,
-      width,
-      justifyContent,
+      ...props
     }: Column<T, V>,
     index: number,
   ): InternalColumn<T, V> {
@@ -49,12 +43,7 @@ export function calcProps<T>(props: TableProps<T>): InternalTableProps<T> {
       sortBy,
       renderValue,
       renderCell,
-      filterComponent,
-      defaultFilter,
-      filter,
-      onFilterChange,
-      width,
-      justifyContent,
+      ...props,
     };
   });
 

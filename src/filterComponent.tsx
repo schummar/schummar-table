@@ -21,7 +21,12 @@ export function FilterComponent<T, V>(): JSX.Element | null {
 
   return (
     <>
-      <IconButton size="small" onClick={(e) => setAnchor(e.currentTarget)} className={filter?.isActive() ? classes.active : undefined}>
+      <IconButton
+        size="small"
+        color="inherit"
+        onClick={(e) => setAnchor(e.currentTarget)}
+        className={filter?.isActive() ? classes.active : undefined}
+      >
         {filter?.isActive() ? <FilterList /> : <ArrowDropDown />}
       </IconButton>
 

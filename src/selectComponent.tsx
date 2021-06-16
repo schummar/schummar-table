@@ -6,6 +6,7 @@ import { WithIds } from './types';
 
 const JustifiedCheckbox = styled(Checkbox)({
   justifySelf: 'start',
+  color: 'inherit',
 });
 
 export function SelectComponent<T>({ item }: { item?: WithIds<T> }): JSX.Element {

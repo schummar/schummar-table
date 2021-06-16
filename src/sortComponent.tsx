@@ -48,9 +48,7 @@ export function SortComponent<T, V>({ children }: { children: ReactNode }): JSX.
       <div>{children}</div>
 
       <Badge badgeContent={index}>
-        {/* <IconButton size="small"> */}
         {direction === 'asc' ? <ArrowUpward fontSize="small" /> : direction === 'desc' ? <ArrowDownward fontSize="small" /> : <Empty />}
-        {/* </IconButton> */}
       </Badge>
     </SortView>
   );

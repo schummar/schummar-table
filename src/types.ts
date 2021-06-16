@@ -37,7 +37,11 @@ export type TableProps<T> = {
     deselectAll?: string;
   };
   classes?: {
-    cell: string;
+    table?: string;
+    headerCell?: string;
+    cell?: string;
+    evenCell?: string;
+    oddCell?: string;
   };
 };
 
@@ -68,11 +72,26 @@ export type Column<T, V> = {
   onFilterChange?: (filter: Filter<V>) => void;
   width?: string;
   justifyContent?: CSSProperties['justifyContent'];
+
+  classes?: {
+    headerCell?: string;
+    cell?: string;
+    evenCell?: string;
+    oddCell?: string;
+  };
 };
 
-export type InternalColumn<T, V> = Omit<Column<T, V>, 'id'> & {
-  id: Id;
-} & Required<Omit<Column<T, V>, 'id' | 'width' | 'justifyContent' | 'filter' | 'onFilterChange' | 'filterComponent'>>;
+export type InternalColumn<T, V> = Required<
+  Omit<Column<T, V>, 'id'> & {
+    id: Id;
+  },
+  'header' | 'stringValue' | 'sortBy' | 'renderValue' | 'renderCell'
+>;
+
+type Required<T, S> = T &
+  {
+    [P in keyof T as P extends S ? P : never]-?: T[P];
+  };
 
 export type Rows<T, V> = [{ value: V; item: T }, ...{ value: V; item: T }[]];
 
