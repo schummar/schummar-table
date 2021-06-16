@@ -1,6 +1,6 @@
 import { CSSProperties, ReactNode } from 'react';
 import { Filter } from './filterComponent';
-import { TreeNode } from './helpers';
+import { MultiMap } from './multiMap';
 
 export type Sort = { columnId: string | number; direction: SortDirection };
 export type SortDirection = 'asc' | 'desc';
@@ -45,10 +45,13 @@ export type InternalTableProps<T> = Omit<TableProps<T>, 'id' | 'parentId' | 'col
   id: (item: T) => Id;
   parentId?: (item: T) => Id | undefined;
   columns: InternalColumn<T, unknown>[];
-  itemsSorted: T[];
-  itemsFiltered: T[];
-  itemsTree: TreeNode<T>[];
+  items: WithIds<T>[];
+  activeItems: WithIds<T>[];
+  activeItemsById: Map<Id, WithIds<T>>;
+  activeItemsByParentId: MultiMap<Id | undefined, WithIds<T>>;
 };
+
+export type WithIds<T = unknown> = T & { id: Id; parentId?: Id };
 
 export type Column<T, V> = {
   id?: string;

@@ -1,7 +1,8 @@
-import { Id, InternalTableProps } from './types';
+import { MultiMap } from './multiMap';
+import { Id, WithIds } from './types';
 
-export const flatMap = <T, S>(arr: T[], flatMap: (t: T) => S[]): S[] => {
-  return arr.reduce<S[]>((out, cur) => out.concat(flatMap(cur)), []);
+export const flatMap = <T, S>(arr: Iterable<T>, flatMap: (t: T) => S[]): S[] => {
+  return [...arr].reduce<S[]>((out, cur) => out.concat(flatMap(cur)), []);
 };
 
 export const orderBy = <T>(arr: T[], selectors: ((t: T) => any)[] = [], direction: ('desc' | 'asc')[] = []): T[] => {
@@ -25,66 +26,46 @@ export const uniq = <T>(arr: T[]): T[] => {
   return [...set.values()];
 };
 
-export const intersect = <T>(a: Set<T>, b: Set<T>): Set<T> => {
+export const intersect = <T>(a: Iterable<T>, b: { has(t: T): boolean }): Set<T> => {
   const result = new Set<T>();
   for (const x of a) if (b.has(x)) result.add(x);
   return result;
 };
 
-export const groupBy = <T, S>(arr: T[], groupBy: (t: T) => S): Map<S, T[]> => {
-  const groups = new Map<S, T[]>();
+export const filterTree = <T extends WithIds>(
+  tree: MultiMap<Id | undefined, T>,
+  filter: (item: T) => boolean,
+): MultiMap<Id | undefined, T> => {
+  const result = new MultiMap<Id | undefined, T>();
 
-  for (const t of arr) {
-    const key = groupBy(t);
-    let group = groups.get(key);
-    if (!group) {
-      group = [];
-      groups.set(key, group);
-    }
-    group.push(t);
+  const traverse = (parentId?: Id): T[] =>
+    flatMap(tree.get(parentId) ?? [], (item) => {
+      const children = traverse(item.id);
+      if (children.length > 0 || filter(item)) {
+        return [item, ...children];
+      }
+      return [];
+    });
+
+  for (const item of traverse()) {
+    result.set(item.parentId, item);
   }
 
-  return groups;
+  return result;
 };
 
-export type TreeNode<T> = { item: T; children: TreeNode<T>[] };
-export const buildTree = <T>({ items, id, parentId }: Pick<InternalTableProps<T>, 'items' | 'id' | 'parentId'>): TreeNode<T>[] => {
-  if (!parentId) return items.map((item) => ({ item, children: [] }));
-
-  const grouped = groupBy(items, (item) => parentId(item));
-
-  const find = (parentId?: Id): TreeNode<T>[] => {
-    return (
-      grouped.get(parentId)?.map((item) => ({
-        item,
-        children: find(id(item)),
-      })) ?? []
-    );
+export const flattenTree = <T extends WithIds>(tree: MultiMap<Id | undefined, T>): T[] => {
+  const traverse = (parentId?: Id): T[] => {
+    return flatMap([...(tree.get(parentId) ?? [])], (item) => [item, ...traverse(item.id)]);
   };
-
-  return find();
+  return traverse(undefined);
 };
 
-export const filterTree = <T>(tree: TreeNode<T>[], filter: (item: T) => boolean): TreeNode<T>[] => {
-  return flatMap(tree, ({ item, children }) => {
-    const filteredChildren = filterTree(children, filter);
-    if (filteredChildren.length || filter(item)) return [{ item, children: filteredChildren }];
-    return [];
-  });
-};
-
-export const flattenTree = <T>(tree: TreeNode<T>[]): T[] => {
-  return flatMap(tree, ({ item, children }) => [item, ...flattenTree(children)]);
-};
-
-export const getAncestors = <T>(items: T[], Allitems: T[], { id, parentId }: Pick<InternalTableProps<T>, 'id' | 'parentId'>): Set<T> => {
+export const getAncestors = <T extends WithIds>(activeItemsById: Map<Id, T>, ...items: T[]): Set<T> => {
   const result = new Set<T>();
-  if (!parentId) return result;
-
-  const lookup = groupBy(Allitems, (item) => id(item)) as Map<Id | undefined, T[]>;
 
   const find = (item: T): void => {
-    const parent = lookup.get(parentId(item))?.[0];
+    const parent = item.parentId ? activeItemsById.get(item.parentId) : undefined;
     if (parent && !result.has(parent)) {
       result.add(parent);
       find(parent);
@@ -94,14 +75,11 @@ export const getAncestors = <T>(items: T[], Allitems: T[], { id, parentId }: Pic
   return result;
 };
 
-export const getDescendants = <T>(items: T[], Allitems: T[], { id, parentId }: Pick<InternalTableProps<T>, 'id' | 'parentId'>): Set<T> => {
+export const getDescendants = <T extends WithIds>(activeItemsByParentId: MultiMap<Id | undefined, T>, ...items: T[]): Set<T> => {
   const result = new Set<T>();
-  if (!parentId) return result;
-
-  const lookup = groupBy(Allitems, (item) => parentId(item));
 
   const find = (item: T): void => {
-    const children = lookup.get(id(item)) ?? [];
+    const children = activeItemsByParentId.get(item.id) ?? [];
     for (const child of children) {
       if (!result.has(child)) {
         result.add(child);

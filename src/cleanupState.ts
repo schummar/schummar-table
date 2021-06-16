@@ -1,15 +1,14 @@
 import { useEffect } from 'react';
 import { Store } from 'schummar-state/react';
-import { intersect, TreeNode } from './helpers';
+import { intersect } from './helpers';
 import { InternalTableProps, InternalTableState } from './types';
 
 export function cleanupState<T>(
-  { columns, itemsFiltered, itemsTree, id, onSortChange, onSelectionChange, onExpandedChange, selectSyncChildren }: InternalTableProps<T>,
+  { columns, activeItemsById, onSortChange, onSelectionChange, onExpandedChange }: InternalTableProps<T>,
   store: Store<InternalTableState>,
 ): void {
   useEffect(() => {
     const columnIds = new Set(columns.map((column) => column.id));
-    const ids = new Set(itemsFiltered.map(id));
 
     // Remove sort entries for non existings columns
     const newSort = store.getState().sort.filter((s) => columnIds.has(s.columnId));
@@ -32,7 +31,7 @@ export function cleanupState<T>(
     }
 
     // Remove selection for non existing items
-    const newSelection = intersect(store.getState().selection, ids);
+    const newSelection = intersect(store.getState().selection, activeItemsById);
     if (newSelection.size !== store.getState().selection.size) {
       store.update((state) => {
         state.selection = newSelection;
@@ -41,12 +40,12 @@ export function cleanupState<T>(
     }
 
     // Remove expanded for non existing items
-    const newExpanded = intersect(store.getState().expanded, ids);
+    const newExpanded = intersect(store.getState().expanded, activeItemsById);
     if (newExpanded.size < store.getState().expanded.size) {
       store.update((state) => {
         state.expanded = newExpanded;
       });
       onExpandedChange?.(newExpanded);
     }
-  }, [columns, itemsFiltered, itemsTree, id, onSortChange, onSelectionChange, onExpandedChange, selectSyncChildren, store]);
+  }, [columns, activeItemsById, onSortChange, onSelectionChange, onExpandedChange, store]);
 }

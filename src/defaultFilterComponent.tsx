@@ -27,7 +27,7 @@ const View = styled('div')(({ theme }) => ({
 export function DefaultFilterComponent<T, V>({ options }: { options?: V[] }): JSX.Element {
   const {
     state,
-    props: { text, itemsSorted },
+    props: { text, items },
     column,
   } = useColumnContext<T, V>();
   const _filter = state.useState((state) => state.filters.get(column.id), [column.id]) ?? column.defaultFilter;
@@ -36,7 +36,7 @@ export function DefaultFilterComponent<T, V>({ options }: { options?: V[] }): JS
   const [input, setInput] = useState('');
 
   if (!options) {
-    options = orderBy(uniq(itemsSorted.map(column.value).filter((x) => x !== undefined)));
+    options = orderBy(uniq(items.map(column.value).filter((x) => x !== undefined)));
   }
 
   const filtered = options.filter((value) => {

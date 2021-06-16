@@ -41,8 +41,8 @@
   },
   "devDependencies": {
     "@testing-library/react": "^11.2.7",
-    "@typescript-eslint/eslint-plugin": "^4.26.1",
-    "@typescript-eslint/parser": "^4.26.1",
+    "@typescript-eslint/eslint-plugin": "^4.27.0",
+    "@typescript-eslint/parser": "^4.27.0",
     "ava": "^3.15.0",
     "eslint": "^7.28.0",
     "global-jsdom": "^8.1.0",

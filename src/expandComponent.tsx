@@ -1,7 +1,9 @@
 import { IconButton } from '@material-ui/core';
 import { ChevronRight } from '@material-ui/icons';
 import React from 'react';
+import { getAncestors } from './helpers';
 import { useTableContext } from './table';
+import { WithIds } from './types';
 
 export function useIsExpanded<T>(item: T): boolean {
   const {
@@ -17,26 +19,22 @@ export function useIsExpanded<T>(item: T): boolean {
   );
 }
 
-export function ExpandComponent<T>({ item }: { item: T }): JSX.Element {
+export function ExpandComponent<T>({ item }: { item: WithIds<T> }): JSX.Element {
   const {
     state,
-    props: { expanded, onExpandedChange, expandOnlyOne, id, itemsFiltered, parentId },
+    props: { expanded, onExpandedChange, expandOnlyOne, activeItemsById },
   } = useTableContext<T>();
   const isExpanded = useIsExpanded(item);
-  const _id = id(item);
 
   function toggle() {
     const newExpanded = new Set(state.getState().expanded);
     if (expandOnlyOne) newExpanded.clear();
-    if (isExpanded) newExpanded.delete(_id);
+    if (isExpanded) newExpanded.delete(item.id);
     else {
-      newExpanded.add(_id);
+      newExpanded.add(item.id);
 
-      let i = item,
-        parent;
-      while ((parent = itemsFiltered.find((p) => id(p) === parentId?.(i)))) {
-        newExpanded.add(id(parent));
-        i = parent;
+      for (const ancestor of getAncestors(activeItemsById, item)) {
+        newExpanded.add(ancestor.id);
       }
     }
 

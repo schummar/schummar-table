@@ -1,9 +1,11 @@
 import { useEffect } from 'react';
 import { Store } from 'schummar-state/react';
-import { TreeNode } from './helpers';
-import { InternalTableProps, InternalTableState } from './types';
+import { Id, InternalTableProps, InternalTableState } from './types';
 
-export function syncSelections<T>({ selectSyncChildren, id, itemsTree }: InternalTableProps<T>, store: Store<InternalTableState>): void {
+export function syncSelections<T>(
+  { selectSyncChildren, activeItemsByParentId }: InternalTableProps<T>,
+  store: Store<InternalTableState>,
+): void {
   useEffect(() => {
     if (!selectSyncChildren) return;
 
@@ -11,13 +13,14 @@ export function syncSelections<T>({ selectSyncChildren, id, itemsTree }: Interna
       (state) => state.selection,
       (selection, state) => {
         const newSelection = new Set(selection);
-        const traverse = (tree: TreeNode<T>[], force?: boolean): void => {
-          for (const { item, children } of tree) {
-            if (force) newSelection.add(id(item));
-            traverse(children, force || newSelection.has(id(item)));
+
+        const traverse = (parentId?: Id, force?: boolean): void => {
+          for (const item of activeItemsByParentId.get(parentId) ?? []) {
+            if (force) newSelection.add(item.id);
+            traverse(item.id, force || newSelection.has(item.id));
           }
         };
-        traverse(itemsTree);
+        traverse();
 
         if (newSelection.size !== selection.size) {
           state.selection = newSelection;
@@ -25,5 +28,5 @@ export function syncSelections<T>({ selectSyncChildren, id, itemsTree }: Interna
       },
       { runNow: true },
     );
-  }, [selectSyncChildren, id, itemsTree, store]);
+  }, [selectSyncChildren, activeItemsByParentId, store]);
 }

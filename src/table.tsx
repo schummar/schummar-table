@@ -32,8 +32,8 @@ export function useColumnContext<T, V>(): ColumnContext<T, V> {
 }
 
 export function Table<T>(_props: TableProps<T>): JSX.Element {
-  const props = calcProps(_props);
-  const { id, columns, defaultWidth = 'auto', defaultSelection, defaultExpanded, defaultSort, fullWidth } = props;
+  let props = calcProps(_props);
+  const { columns, defaultWidth = 'auto', defaultSelection, defaultExpanded, defaultSort, fullWidth } = props;
 
   const state = useMemo(
     () =>
@@ -57,10 +57,7 @@ export function Table<T>(_props: TableProps<T>): JSX.Element {
     for (const column of columns) if (column.filter) state.filters.set(column.id, column.filter);
   });
 
-  const { tree, itemsSorted, itemsFiltered } = calcItems(props, state);
-  props.itemsSorted = itemsSorted;
-  props.itemsFiltered = itemsFiltered;
-  props.itemsTree = tree;
+  props = calcItems(props, state);
 
   cleanupState(props, state);
   syncSelections(props, state);
@@ -95,8 +92,8 @@ export function Table<T>(_props: TableProps<T>): JSX.Element {
 
         <HeaderFill />
 
-        {tree.map((node) => (
-          <Row key={id(node.item)} {...node} />
+        {[...(props.activeItemsByParentId.get(undefined)?.values() ?? [])].map((item) => (
+          <Row key={item.id} item={item} />
         ))}
       </TableView>
     </TableContext.Provider>

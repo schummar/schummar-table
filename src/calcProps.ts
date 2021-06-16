@@ -1,20 +1,23 @@
 import { DefaultFilter } from './defaultFilterComponent';
+import { MultiMap } from './multiMap';
 import { Column, Id, InternalColumn, InternalTableProps, TableProps } from './types';
 
 export function calcProps<T>(props: TableProps<T>): InternalTableProps<T> {
-  let id;
+  let id: (item: T) => Id;
   if (props.id instanceof Function) {
     id = props.id;
   } else {
     id = (item: T) => item[props.id as keyof T] as unknown as Id;
   }
 
-  let parentId;
+  let parentId: ((item: T) => Id | undefined) | undefined;
   if (props.parentId instanceof Function) {
     parentId = props.parentId;
-  } else if (typeof parentId === 'string') {
+  } else if (typeof props.parentId === 'string') {
     parentId = (item: T) => item[props.parentId as keyof T] as unknown as Id | undefined;
   }
+
+  const items = props.items.map((item) => ({ ...item, id: id(item), parentId: parentId?.(item) }));
 
   let inputColumns = props.columns;
   if (inputColumns instanceof Function) {
@@ -55,5 +58,5 @@ export function calcProps<T>(props: TableProps<T>): InternalTableProps<T> {
     };
   });
 
-  return { ...props, id, parentId, columns, itemsSorted: [], itemsFiltered: [], itemsTree: [] };
+  return { ...props, id, parentId, columns, items, activeItems: [], activeItemsById: new Map(), activeItemsByParentId: new MultiMap() };
 }
