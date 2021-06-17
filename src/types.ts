@@ -1,4 +1,4 @@
-import { CSSProperties, ReactNode } from 'react';
+import { CSSProperties, DependencyList, ReactNode } from 'react';
 import { Filter } from './components/filterComponent';
 import { MultiMap } from './misc/multiMap';
 
@@ -22,16 +22,17 @@ export type TableProps<T> = {
 
   defaultSelection?: Set<Id>;
   selection?: Set<Id>;
-  onSelectionChange?: (selection: Set<Id>, targets?: T[], action?: 'selected' | 'deselected') => void;
+  onSelectionChange?: (selection: Set<Id>, targets?: Id[], action?: 'selected' | 'deselected') => void;
   selectSyncChildren?: boolean;
 
   defaultExpanded?: Set<Id>;
   expanded?: Set<Id>;
-  onExpandedChange?: (expanded: Set<Id>, target?: T, action?: 'expanded' | 'closed') => void;
+  onExpandedChange?: (expanded: Set<Id>, target?: Id, action?: 'expanded' | 'closed') => void;
   expandOnlyOne?: boolean;
 
   defaultWidth?: string;
   fullWidth?: boolean;
+  dependencies?: DependencyList;
 
   text?: {
     deselectAll?: string;
@@ -43,6 +44,7 @@ export type TableProps<T> = {
     evenCell?: string;
     oddCell?: string;
   };
+  debug?: (...output: any) => void;
 };
 
 export type InternalTableProps<T> = Omit<TableProps<T>, 'id' | 'parentId' | 'columns'> & {

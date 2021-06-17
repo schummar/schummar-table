@@ -3,35 +3,38 @@ import React, { memo } from 'react';
 import { c } from '../misc/helpers';
 import { ColumnContext, useTableContext } from '../table';
 import { Id, InternalColumn } from '../types';
+import { Cell } from './cell';
 import { CellFill, CellView, DeferredPlaceholder } from './elements';
 import { ExpandComponent } from './expandComponent';
 import { SelectComponent } from './selectComponent';
 
-const calcClassName = (classes: InternalColumn<any, any>['classes'] | undefined, index: number): string =>
+export const calcClassName = (classes: InternalColumn<any, any>['classes'] | undefined, index: number): string =>
   c(
     classes?.cell,
     classes?.evenCell === undefined ? undefined : { [classes.evenCell]: index % 2 === 0 },
     classes?.oddCell === undefined ? undefined : { [classes.oddCell]: index % 2 === 1 },
   );
 
-export const Row = memo(function Row<T>({ id, indent = 0 }: { id: Id; indent?: number }): JSX.Element | null {
+export const Row = memo(function Row<T>({ itemId, indent = 0 }: { itemId: Id; indent?: number }): JSX.Element | null {
   const state = useTableContext<T>();
-  const item = state.useState((state) => state.activeItemsById.get(id), [id]);
-  const hasDeferredChildren = state.useState((state) => item && state.props.hasDeferredChildren?.(item), [item]);
-  const classes = state.useState('props.classes');
-  const activeColumns = state.useState('activeColumns');
-  const activeItemsByParentId = state.useState('activeItemsByParentId');
-  const items = state.useState('items');
-  const activeItems = state.useState('activeItems');
-  const isExpanded = state.useState((state) => state.expanded.has(id), [id]);
-  const children = [...(activeItemsByParentId.get(id) ?? [])];
-  const hasChildren = items.some((i) => i.parentId === id);
+  const { hasDeferredChildren, activeColumns, isExpanded, children, hasChildren, className } = state.useState(
+    (state) => {
+      const item = state.activeItemsById.get(itemId);
+      const index = !item ? -1 : state.activeItems.indexOf(item);
 
-  if (!item) return null;
-  const index = activeItems.indexOf(item);
-  const className = calcClassName(classes, index);
+      return {
+        hasDeferredChildren: item && state.props.hasDeferredChildren?.(item),
+        activeColumns: state.activeColumns,
+        isExpanded: state.expanded.has(itemId),
+        children: state.expanded.has(itemId) ? [...(state.activeItemsByParentId.get(itemId) ?? [])].map((child) => child.id) : [],
+        hasChildren: state.items.some((i) => i.parentId === itemId),
+        className: calcClassName(state.props.classes, index),
+      };
+    },
+    [itemId],
+  );
 
-  console.log('render row', activeColumns);
+  state.getState().props.debug?.('render row', itemId);
 
   return (
     <>
@@ -40,20 +43,20 @@ export const Row = memo(function Row<T>({ id, indent = 0 }: { id: Id; indent?: n
       <CellView className={className}>
         <div style={{ width: indent * 20 }} />
 
-        <SelectComponent item={item} />
+        <SelectComponent itemId={itemId} />
 
-        {(hasChildren || hasDeferredChildren) && <ExpandComponent item={item} />}
+        {(hasChildren || hasDeferredChildren) && <ExpandComponent itemId={itemId} />}
       </CellView>
 
       {activeColumns.map((column) => (
         <ColumnContext.Provider key={column.id} value={column}>
-          <CellView className={c(className, calcClassName(column.classes, index))}>{column.renderCell(column.value(item), item)}</CellView>
+          <Cell itemId={itemId} />
         </ColumnContext.Provider>
       ))}
 
       <CellFill className={className} />
 
-      {isExpanded && children.map((child) => <Row key={child.id} id={child.id} indent={indent + 1} />)}
+      {isExpanded && children.map((childId) => <Row key={childId} itemId={childId} indent={indent + 1} />)}
 
       {isExpanded && !hasChildren && (
         <>

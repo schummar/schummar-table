@@ -24,20 +24,21 @@ const View = styled('div')(({ theme }) => ({
   },
 }));
 
-export function DefaultFilterComponent<T, V>({ options }: { options?: V[] }): JSX.Element {
+export function DefaultFilterComponent<T, V>({ options: _options }: { options?: V[] }): JSX.Element {
   const state = useTableContext<T>();
   const column = useColumnContext<T, V>();
-  const text = state.useState('props.text');
-  const items = state.useState('items');
-  const _filter = state.useState((state) => state.filters.get(column.id), [column.id]);
-  const filter = _filter instanceof DefaultFilter ? _filter : undefined;
-  const [input, setInput] = useState('');
+  const { text, options, filter } = state.useState(
+    (state) => {
+      const _filter = state.filters.get(column.id);
+      const filter = _filter instanceof DefaultFilter ? _filter : undefined;
+      let options = _options ?? orderBy(uniq(state.items.map(column.value).filter((x) => x !== undefined)));
+      options = options.concat([...(filter ?? [])].filter((value) => !options.includes(value)));
 
-  if (!options) {
-    console.log(items);
-    options = orderBy(uniq(items.map(column.value).filter((x) => x !== undefined)));
-  }
-  options = options.concat([...(filter ?? [])].filter((value) => !options?.includes(value)));
+      return { text: state.props.text, options, filter };
+    },
+    [_options, column],
+  );
+  const [input, setInput] = useState('');
 
   const filtered = options.filter((value) => {
     return !input || column.stringValue(value).toLowerCase().includes(input.toLowerCase());

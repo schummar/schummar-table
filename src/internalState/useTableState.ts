@@ -11,7 +11,7 @@ import { filterColumns } from './filterColumns';
 import { syncSelections } from './syncSelections';
 
 export function useTableState<T>(_props: TableProps<T>): Store<InternalTableState<T>> {
-  const props = useMemo(() => calcProps(_props), [_props]);
+  const props = calcProps(_props);
 
   const state = useMemo(
     () =>

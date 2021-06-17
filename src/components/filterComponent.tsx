@@ -15,7 +15,7 @@ export function FilterComponent<T, V>(): JSX.Element | null {
   const state = useTableContext<T>();
   const column = useColumnContext<T, V>();
   const classes = useClasses();
-  const filter = state.useState((state) => state.filters.get(column.id), [column.id]);
+  const isActive = state.useState((state) => state.filters.get(column.id)?.isActive, [column.id]);
   const [anchor, setAnchor] = useState<HTMLButtonElement | null>(null);
 
   if (!column.filterComponent) return null;
@@ -26,9 +26,9 @@ export function FilterComponent<T, V>(): JSX.Element | null {
         size="small"
         color="inherit"
         onClick={(e) => setAnchor(e.currentTarget)}
-        className={filter?.isActive() ? classes.active : undefined}
+        className={isActive ? classes.active : undefined}
       >
-        {filter?.isActive() ? <FilterList /> : <ArrowDropDown />}
+        {isActive ? <FilterList /> : <ArrowDropDown />}
       </IconButton>
 
       <Popover

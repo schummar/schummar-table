@@ -25,9 +25,11 @@ type SubItem = {
   date: Date;
 };
 
+const N = 400,
+  M = 10;
 const loadTop = new Action(async () => {
   // await new Promise((r) => setTimeout(r, 1000));
-  return new Array(5).fill(0).map<TopItem>((_d, index) => ({ type: 'top', id: String(index), name: `top item ${index}` }));
+  return new Array(N).fill(0).map<TopItem>((_d, index) => ({ type: 'top', id: String(index), name: `top item ${index}` }));
 });
 
 function App(): JSX.Element {
@@ -40,19 +42,22 @@ function App(): JSX.Element {
 
   useEffect(() => {
     setChildren((c) => c.filter((c) => active.includes(c.parentId)));
+    let i = 0;
     const handle = setInterval(() => {
       setChildren(
         flatMap(active, (parentId) =>
-          new Array(5).fill(0).map<SubItem>((_d, index) => ({
+          new Array(M).fill(0).map<SubItem>((_d, index) => ({
             type: 'sub',
             id: `${parentId}_${index}`,
             parentId,
             name: `sub item ${parentId}_${index}`,
-            state: `foo--${Date.now()}`,
+            state: `foo--${i === index ? 1 : 0}`,
             date: new Date(),
           })),
         ),
       );
+      i = (i + 1) % M;
+      clearInterval(handle);
     }, 1000);
     return () => clearInterval(handle);
   }, [active]);
@@ -89,9 +94,12 @@ function App(): JSX.Element {
         col((x) => (x.type === 'sub' ? x.date : null), {
           header: 'Date',
           filterComponent: <DefaultFilterComponent />,
+          defaultIsHidden: true,
         }),
       ]}
       classes={classes}
+      dependencies={[]}
+      // debug={(...args) => console.log(...args)}
     />
   );
 }

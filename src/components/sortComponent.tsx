@@ -23,9 +23,6 @@ const Empty = styled('div')({
 export function SortComponent<T, V>({ children }: { children: ReactNode }): JSX.Element {
   const state = useTableContext<T>();
   const column = useColumnContext<T, V>();
-  const isControlled = state.useState((state) => !!state.props.sort);
-  const onSortChange = state.useState('props.onSortChange');
-
   const { direction, index } = state.useState((state) => {
     const index = state.sort.findIndex((s) => s.columnId === column.id) ?? -1;
     return {
@@ -35,13 +32,17 @@ export function SortComponent<T, V>({ children }: { children: ReactNode }): JSX.
   });
 
   function toggle(e: React.MouseEvent) {
+    const {
+      props: { sort: controlledSort, onSortChange },
+    } = state.getState();
+
     const newDirection = direction === 'asc' ? 'desc' : 'asc';
     const newSort = (e.getModifierState('Control') ? state.getState().sort.filter((s) => s.columnId !== column.id) : []).concat({
       columnId: column.id,
       direction: newDirection,
     });
 
-    if (!isControlled) {
+    if (!controlledSort) {
       state.update((state) => {
         state.sort = newSort;
       });

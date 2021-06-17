@@ -61,33 +61,34 @@ export const flattenTree = <T extends WithIds>(tree: MultiMap<Id | undefined, T>
   return traverse(undefined);
 };
 
-export const getAncestors = <T extends WithIds>(activeItemsById: Map<Id, T>, ...items: T[]): Set<T> => {
-  const result = new Set<T>();
+export const getAncestors = <T extends WithIds>(activeItemsById: Map<Id, T>, ...itemIds: Id[]): Set<Id> => {
+  const result = new Set<Id>();
 
-  const find = (item: T): void => {
-    const parent = item.parentId ? activeItemsById.get(item.parentId) : undefined;
-    if (parent && !result.has(parent)) {
-      result.add(parent);
-      find(parent);
+  const find = (itemId: Id): void => {
+    const parentId = activeItemsById.get(itemId)?.parentId;
+    const parent = parentId ? activeItemsById.get(parentId) : undefined;
+    if (parent && !result.has(parent.id)) {
+      result.add(parent.id);
+      find(parent.id);
     }
   };
-  items.forEach(find);
+  itemIds.forEach(find);
   return result;
 };
 
-export const getDescendants = <T extends WithIds>(activeItemsByParentId: MultiMap<Id | undefined, T>, ...items: T[]): Set<T> => {
-  const result = new Set<T>();
+export const getDescendants = <T extends WithIds>(activeItemsByParentId: MultiMap<Id | undefined, T>, ...itemIds: Id[]): Set<Id> => {
+  const result = new Set<Id>();
 
-  const find = (item: T): void => {
-    const children = activeItemsByParentId.get(item.id) ?? [];
+  const find = (itemId: Id): void => {
+    const children = activeItemsByParentId.get(itemId) ?? [];
     for (const child of children) {
-      if (!result.has(child)) {
-        result.add(child);
-        find(child);
+      if (!result.has(child.id)) {
+        result.add(child.id);
+        find(child.id);
       }
     }
   };
-  items.forEach(find);
+  itemIds.forEach(find);
   return result;
 };
 

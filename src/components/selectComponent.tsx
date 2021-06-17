@@ -2,66 +2,73 @@ import { Checkbox, styled } from '@material-ui/core';
 import React from 'react';
 import { getAncestors, getDescendants } from '../misc/helpers';
 import { useTableContext } from '../table';
-import { WithIds } from '../types';
+import { Id } from '../types';
 
 const JustifiedCheckbox = styled(Checkbox)({
   justifySelf: 'start',
   color: 'inherit',
 });
 
-export function SelectComponent<T>({ item }: { item?: WithIds<T> }): JSX.Element {
+export function SelectComponent<T>({ itemId }: { itemId?: Id }): JSX.Element {
   const state = useTableContext<T>();
-  const isControlled = state.useState((state) => !!state.props.selection);
-  const onSelectionChange = state.useState('props.onSelectionChange');
-  const selectSyncChildren = state.useState('props.selectSyncChildren');
-  const activeItems = state.useState('activeItems');
-  const activeItemsById = state.useState('activeItemsById');
-  const activeItemsByParentId = state.useState('activeItemsByParentId');
-
   const isSelected = state.useState(
     (state) => {
-      return activeItems.length > 0 && (item ? [item] : activeItems).every((item) => state.selection.has(item.id));
+      const itemIds = itemId ? [itemId] : [...state.activeItemsById.keys()];
+      return state.activeItemsById.size > 0 && itemIds.every((itemId) => state.selection.has(itemId));
     },
-    [item, activeItems],
+    [itemId],
   );
+
+  state.getState().props.debug?.('render selectComponent', itemId);
 
   function toggle(e: React.ChangeEvent<HTMLInputElement>) {
     const mouseEvent = e.nativeEvent as MouseEvent;
 
-    let range: WithIds<T>[];
-    if (mouseEvent.shiftKey && item) {
-      const a = state.getState().lastSelectedId ? activeItems.findIndex((i) => state.getState().lastSelectedId === i.id) : 0;
-      const b = activeItems.indexOf(item);
-      range = activeItems.slice(Math.min(a, b), Math.max(a, b) + 1);
+    const {
+      activeItems,
+      activeItemsById,
+      activeItemsByParentId,
+      lastSelectedId,
+      selection,
+      props: { selectSyncChildren, selection: controlledSelection, onSelectionChange },
+    } = state.getState();
+
+    let range: Id[];
+    if (mouseEvent.shiftKey && itemId) {
+      const a = lastSelectedId ? activeItems.findIndex((i) => lastSelectedId === i.id) : 0;
+      const b = activeItems.findIndex((item) => item.id === itemId);
+      range = activeItems.slice(Math.min(a, b), Math.max(a, b) + 1).map((item) => item.id);
     } else {
-      range = item ? [item] : activeItems;
+      range = itemId ? [itemId] : [...activeItemsById.keys()];
     }
 
-    const newSelection = new Set(state.getState().selection);
-    for (const item of range) {
-      if (isSelected) newSelection.delete(item.id);
-      else newSelection.add(item.id);
+    const newSelection = new Set(selection);
+    for (const itemId of range) {
+      if (isSelected) newSelection.delete(itemId);
+      else newSelection.add(itemId);
     }
 
+    console.log('sync?', selectSyncChildren, isSelected);
     if (selectSyncChildren && isSelected) {
+      console.log('sync', getAncestors(activeItemsById, ...range));
       for (const ancestor of getAncestors(activeItemsById, ...range)) {
-        newSelection.delete(ancestor.id);
+        newSelection.delete(ancestor);
       }
       for (const descendant of getDescendants(activeItemsByParentId, ...range)) {
-        newSelection.delete(descendant.id);
+        newSelection.delete(descendant);
       }
     }
 
-    if (!isControlled) {
+    if (!controlledSelection) {
       state.update((state) => {
         state.selection = newSelection;
       });
     }
 
-    onSelectionChange?.(newSelection);
+    onSelectionChange?.(newSelection, range, isSelected ? 'deselected' : 'selected');
 
     state.update((state) => {
-      state.lastSelectedId = item?.id;
+      state.lastSelectedId = itemId;
     });
   }
 

@@ -1,4 +1,4 @@
-import React, { createContext, useContext } from 'react';
+import React, { createContext, memo, useContext } from 'react';
 import { Store } from 'schummar-state/react';
 import { ColumnSelection } from './components/columnSelection';
 import { HeaderCellView, HeaderFill, TableView } from './components/elements';
@@ -25,51 +25,60 @@ export function useColumnContext<T, V>(): InternalColumn<T, V> {
 
 export function Table<T>(props: TableProps<T>): JSX.Element {
   const state = useTableState(props);
+  state.getState().props.debug?.('render table');
+
+  return (
+    <TableContext.Provider value={state}>
+      <TableInner />
+    </TableContext.Provider>
+  );
+}
+
+const TableInner = memo(function TableInner<T>(): JSX.Element {
+  const state = useTableContext<T>();
   const fullWidth = state.useState('props.fullWidth');
   const activeColumns = state.useState('activeColumns');
   const defaultWidth = state.useState('props.defaultWidth');
   const classes = state.useState('props.classes');
-  const activeItemsByParentId = state.useState('activeItemsByParentId');
+  const rootItemIds = state.useState((state) => state.activeItemsByParentId.get(undefined)?.map((item) => item.id));
 
-  // console.log('render table');
+  state.getState().props.debug?.('render table inner');
 
   return (
-    <TableContext.Provider value={state}>
-      <TableView
-        style={{
-          gridTemplateColumns: [
-            //
-            fullWidth ? 'auto' : '0',
-            'max-content',
-            ...activeColumns.map((column) => column.width ?? defaultWidth ?? 'auto'),
-            fullWidth ? 'auto' : '0',
-          ].join(' '),
-        }}
-        className={classes?.table}
-      >
-        <HeaderFill className={classes?.headerCell} />
+    <TableView
+      style={{
+        gridTemplateColumns: [
+          //
+          fullWidth ? 'auto' : '0',
+          'max-content',
+          ...activeColumns.map((column) => column.width ?? defaultWidth ?? 'auto'),
+          fullWidth ? 'auto' : '0',
+        ].join(' '),
+      }}
+      className={classes?.table}
+    >
+      <HeaderFill className={classes?.headerCell} />
 
-        <HeaderCellView className={classes?.headerCell}>
-          <SelectComponent />
+      <HeaderCellView className={classes?.headerCell}>
+        <SelectComponent />
 
-          <ColumnSelection />
-        </HeaderCellView>
+        <ColumnSelection />
+      </HeaderCellView>
 
-        {activeColumns.map((column) => (
-          <ColumnContext.Provider key={column.id} value={column}>
-            <HeaderCellView key={column.id} className={c(classes?.headerCell, column.classes?.headerCell)}>
-              <SortComponent>{column.header}</SortComponent>
-              <FilterComponent />
-            </HeaderCellView>
-          </ColumnContext.Provider>
-        ))}
+      {activeColumns.map((column) => (
+        <ColumnContext.Provider key={column.id} value={column}>
+          <HeaderCellView key={column.id} className={c(classes?.headerCell, column.classes?.headerCell)}>
+            <SortComponent>{column.header}</SortComponent>
+            <FilterComponent />
+          </HeaderCellView>
+        </ColumnContext.Provider>
+      ))}
 
-        <HeaderFill className={classes?.headerCell} />
+      <HeaderFill className={classes?.headerCell} />
 
-        {[...(activeItemsByParentId.get(undefined)?.values() ?? [])].map((item) => (
-          <Row key={item.id} id={item.id} />
-        ))}
-      </TableView>
-    </TableContext.Provider>
+      {rootItemIds?.map((itemId) => (
+        <Row key={itemId} itemId={itemId} />
+      ))}
+    </TableView>
   );
-}
+});
