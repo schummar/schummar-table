@@ -25,7 +25,7 @@ type SubItem = {
   date: Date;
 };
 
-const N = 400,
+const N = 100,
   M = 10;
 const loadTop = new Action(async () => {
   // await new Promise((r) => setTimeout(r, 1000));

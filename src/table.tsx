@@ -1,11 +1,11 @@
 import React, { createContext, memo, useContext } from 'react';
 import { Store } from 'schummar-state/react';
 import { ColumnSelection } from './components/columnSelection';
-import { HeaderCellView, HeaderFill, TableView } from './components/elements';
 import { FilterComponent } from './components/filterComponent';
 import { Row } from './components/row';
 import { SelectComponent } from './components/selectComponent';
 import { SortComponent } from './components/sortComponent';
+import { useCommonClasses } from './components/useCommonClasses';
 import { useTableState } from './internalState/useTableState';
 import { c } from './misc/helpers';
 import { InternalColumn, InternalTableState, TableProps } from './types';
@@ -35,6 +35,7 @@ export function Table<T>(props: TableProps<T>): JSX.Element {
 }
 
 const TableInner = memo(function TableInner<T>(): JSX.Element {
+  const commonClasses = useCommonClasses();
   const state = useTableContext<T>();
   const fullWidth = state.useState('props.fullWidth');
   const activeColumns = state.useState('activeColumns');
@@ -45,7 +46,8 @@ const TableInner = memo(function TableInner<T>(): JSX.Element {
   state.getState().props.debug?.('render table inner');
 
   return (
-    <TableView
+    <div
+      className={c(commonClasses.table, classes?.table)}
       style={{
         gridTemplateColumns: [
           //
@@ -55,30 +57,29 @@ const TableInner = memo(function TableInner<T>(): JSX.Element {
           fullWidth ? 'auto' : '0',
         ].join(' '),
       }}
-      className={classes?.table}
     >
-      <HeaderFill className={classes?.headerCell} />
+      <div className={c(commonClasses.headerFill, classes?.headerCell)} />
 
-      <HeaderCellView className={classes?.headerCell}>
+      <div className={c(commonClasses.headerCell, classes?.headerCell)}>
         <SelectComponent />
 
         <ColumnSelection />
-      </HeaderCellView>
+      </div>
 
       {activeColumns.map((column) => (
         <ColumnContext.Provider key={column.id} value={column}>
-          <HeaderCellView key={column.id} className={c(classes?.headerCell, column.classes?.headerCell)}>
+          <div className={c(commonClasses.headerCell, classes?.headerCell, column.classes?.headerCell)} key={column.id}>
             <SortComponent>{column.header}</SortComponent>
             <FilterComponent />
-          </HeaderCellView>
+          </div>
         </ColumnContext.Provider>
       ))}
 
-      <HeaderFill className={classes?.headerCell} />
+      <div className={c(commonClasses.headerFill, classes?.headerCell)} />
 
       {rootItemIds?.map((itemId) => (
         <Row key={itemId} itemId={itemId} />
       ))}
-    </TableView>
+    </div>
   );
 });

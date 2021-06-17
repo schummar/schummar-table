@@ -1,15 +1,18 @@
-import { Checkbox, FormControlLabel, IconButton, Popover, styled } from '@material-ui/core';
+import { Checkbox, FormControlLabel, IconButton, makeStyles, Popover } from '@material-ui/core';
 import { Settings } from '@material-ui/icons';
 import React, { useState } from 'react';
 import { useTableContext } from '../table';
 import { InternalColumn } from '../types';
 
-const List = styled('div')(({ theme }) => ({
-  padding: theme.spacing(2),
-  display: 'grid',
+const useClasses = makeStyles((theme) => ({
+  list: {
+    padding: theme.spacing(2),
+    display: 'grid',
+  },
 }));
 
 export function ColumnSelection<T>(): JSX.Element {
+  const classes = useClasses();
   const [anchor, setAnchor] = useState<HTMLButtonElement | null>(null);
   const state = useTableContext<T>();
   const columns = state.useState('props.columns');
@@ -40,7 +43,7 @@ export function ColumnSelection<T>(): JSX.Element {
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
         transformOrigin={{ vertical: 'top', horizontal: 'center' }}
       >
-        <List>
+        <div className={classes.list}>
           {columns.map((column) => (
             <FormControlLabel
               key={column.id}
@@ -48,7 +51,7 @@ export function ColumnSelection<T>(): JSX.Element {
               label={column.header}
             />
           ))}
-        </List>
+        </div>
       </Popover>
     </>
   );

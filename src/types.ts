@@ -67,7 +67,7 @@ export type Column<T, V> = {
   filterComponent?: ReactNode;
   defaultFilter?: Filter<V>;
   filter?: Filter<V>;
-  onFilterChange?: (filter: Filter<V>) => void;
+  onFilterChange?: (filter?: Filter<V>) => void;
 
   defaultIsHidden?: boolean;
   isHidden?: boolean;
@@ -107,7 +107,7 @@ export type InternalTableState<T> = {
   sort: Sort[];
   selection: Set<Id>;
   expanded: Set<Id>;
-  filters: Map<Id, Filter<unknown>>;
+  filters: Map<Id, Filter<unknown> | undefined>;
   isHidden: Map<Id, boolean>;
 
   // Helper data structures for efficient lookup etc.

@@ -1,10 +1,11 @@
 import React, { memo } from 'react';
 import { Id, useColumnContext, useTableContext } from '..';
 import { c } from '../misc/helpers';
-import { CellView } from './elements';
 import { calcClassName } from './row';
+import { useCommonClasses } from './useCommonClasses';
 
 export const Cell = memo(function Cell<T, V>({ itemId }: { itemId: Id }) {
+  const commonClasses = useCommonClasses();
   const state = useTableContext<T>();
   const column = useColumnContext<T, V>();
   const { className, content } = state.useState(
@@ -21,5 +22,5 @@ export const Cell = memo(function Cell<T, V>({ itemId }: { itemId: Id }) {
 
   state.getState().props.debug?.('render cell', itemId, column.id);
 
-  return <CellView className={className}>{content}</CellView>;
+  return <div className={c(commonClasses.cell, className)}>{content}</div>;
 });

@@ -4,9 +4,9 @@ import { c } from '../misc/helpers';
 import { ColumnContext, useTableContext } from '../table';
 import { Id, InternalColumn } from '../types';
 import { Cell } from './cell';
-import { CellFill, CellView, DeferredPlaceholder } from './elements';
 import { ExpandComponent } from './expandComponent';
 import { SelectComponent } from './selectComponent';
+import { useCommonClasses } from './useCommonClasses';
 
 export const calcClassName = (classes: InternalColumn<any, any>['classes'] | undefined, index: number): string =>
   c(
@@ -16,6 +16,7 @@ export const calcClassName = (classes: InternalColumn<any, any>['classes'] | und
   );
 
 export const Row = memo(function Row<T>({ itemId, indent = 0 }: { itemId: Id; indent?: number }): JSX.Element | null {
+  const commonClasses = useCommonClasses();
   const state = useTableContext<T>();
   const { hasDeferredChildren, activeColumns, isExpanded, children, hasChildren, className } = state.useState(
     (state) => {
@@ -38,15 +39,15 @@ export const Row = memo(function Row<T>({ itemId, indent = 0 }: { itemId: Id; in
 
   return (
     <>
-      <CellFill className={className} />
+      <div className={c(commonClasses.cellFill, className)} />
 
-      <CellView className={className}>
+      <div className={c(commonClasses.cell, className)}>
         <div style={{ width: indent * 20 }} />
 
         <SelectComponent itemId={itemId} />
 
         {(hasChildren || hasDeferredChildren) && <ExpandComponent itemId={itemId} />}
-      </CellView>
+      </div>
 
       {activeColumns.map((column) => (
         <ColumnContext.Provider key={column.id} value={column}>
@@ -54,15 +55,15 @@ export const Row = memo(function Row<T>({ itemId, indent = 0 }: { itemId: Id; in
         </ColumnContext.Provider>
       ))}
 
-      <CellFill className={className} />
+      <div className={c(commonClasses.cellFill, className)} />
 
       {isExpanded && children.map((childId) => <Row key={childId} itemId={childId} indent={indent + 1} />)}
 
       {isExpanded && !hasChildren && (
         <>
-          <DeferredPlaceholder>
+          <div className={commonClasses.deferredPlaceholder}>
             <CircularProgress size={20} />
-          </DeferredPlaceholder>
+          </div>
         </>
       )}
     </>

@@ -1,4 +1,4 @@
-import { Button, Checkbox, FormControlLabel, IconButton, styled, TextField } from '@material-ui/core';
+import { Button, Checkbox, FormControlLabel, IconButton, makeStyles, TextField } from '@material-ui/core';
 import { Clear, Search } from '@material-ui/icons';
 import React, { useState } from 'react';
 import { orderBy, uniq } from '../misc/helpers';
@@ -15,16 +15,19 @@ export class DefaultFilter<V> extends Set<V> implements Filter<V> {
   }
 }
 
-const View = styled('div')(({ theme }) => ({
-  padding: theme.spacing(2),
-  display: 'grid',
+const useClasses = makeStyles((theme) => ({
+  view: {
+    padding: theme.spacing(2),
+    display: 'grid',
 
-  '& > :first-child': {
-    marginBottom: theme.spacing(2),
+    '& > :first-child': {
+      marginBottom: theme.spacing(2),
+    },
   },
 }));
 
 export function DefaultFilterComponent<T, V>({ options: _options }: { options?: V[] }): JSX.Element {
+  const classes = useClasses();
   const state = useTableContext<T>();
   const column = useColumnContext<T, V>();
   const { text, options, filter } = state.useState(
@@ -70,7 +73,7 @@ export function DefaultFilterComponent<T, V>({ options: _options }: { options?: 
   }
 
   return (
-    <View>
+    <div className={classes.view}>
       <TextField
         value={input}
         onChange={(e) => setInput(e.target.value)}
@@ -98,6 +101,6 @@ export function DefaultFilterComponent<T, V>({ options: _options }: { options?: 
           />
         );
       })}
-    </View>
+    </div>
   );
 }
