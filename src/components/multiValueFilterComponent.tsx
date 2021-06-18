@@ -1,13 +1,13 @@
 import { Button, Checkbox, FormControlLabel, IconButton, makeStyles, TextField } from '@material-ui/core';
 import { Clear, Search } from '@material-ui/icons';
 import React, { useState } from 'react';
-import { orderBy, uniq } from '../misc/helpers';
+import { flatMap, orderBy, uniq } from '../misc/helpers';
 import { useColumnContext, useTableContext } from '../table';
 import { Filter } from './filterComponent';
 
-export class DefaultFilter<V> extends Set<V> implements Filter<V> {
-  filter(value: V): boolean {
-    return this.size === 0 || this.has(value);
+export class MultiValueFilter<V> extends Set<V> implements Filter<V[]> {
+  filter(values: V[]): boolean {
+    return this.size === 0 || values.some((value) => this.has(value));
   }
 
   isActive(): boolean {
@@ -26,15 +26,15 @@ const useClasses = makeStyles((theme) => ({
   },
 }));
 
-export function DefaultFilterComponent<T, V>({ options: _options }: { options?: V[] }): JSX.Element {
+export function MultiValueFilterComponent<T, V>({ options: _options }: { options?: V[] }): JSX.Element {
   const classes = useClasses();
   const state = useTableContext<T>();
-  const column = useColumnContext<T, V>();
+  const column = useColumnContext<T, V[]>();
   const { text, options, filter } = state.useState(
     (state) => {
       const _filter = state.filters.get(column.id);
-      const filter = _filter instanceof DefaultFilter ? _filter : undefined;
-      let options = _options ?? orderBy(uniq(state.items.map(column.value).filter((x) => x !== undefined)));
+      const filter = _filter instanceof MultiValueFilter ? _filter : undefined;
+      let options = _options ?? orderBy(uniq(flatMap(state.items, column.value).filter((x) => x !== undefined)));
       options = options.concat([...(filter ?? [])].filter((value) => !options.includes(value)));
 
       return { text: state.props.text, options, filter };
@@ -44,11 +44,11 @@ export function DefaultFilterComponent<T, V>({ options: _options }: { options?: 
   const [input, setInput] = useState('');
 
   const filtered = options.filter((value) => {
-    return !input || column.stringValue(value).toLowerCase().includes(input.toLowerCase());
+    return !input || column.stringValue([value]).toLowerCase().includes(input.toLowerCase());
   });
 
   function toggle(value: V) {
-    const newFilter = new DefaultFilter(filter);
+    const newFilter = new MultiValueFilter(filter);
     if (newFilter?.has(value)) newFilter.delete(value);
     else newFilter?.add(value);
 
@@ -62,7 +62,7 @@ export function DefaultFilterComponent<T, V>({ options: _options }: { options?: 
   }
 
   function deselectAll() {
-    const newFilter = new DefaultFilter();
+    const newFilter = new MultiValueFilter();
     if (!column.filter) {
       state.update((state) => {
         state.filters.set(column.id, newFilter);
@@ -96,7 +96,7 @@ export function DefaultFilterComponent<T, V>({ options: _options }: { options?: 
         <FormControlLabel
           key={index}
           control={<Checkbox checked={filter?.has(value) ?? false} onChange={() => toggle(value)} />}
-          label={column.renderValue(value)}
+          label={column.renderValue([value])}
         />
       ))}
     </div>

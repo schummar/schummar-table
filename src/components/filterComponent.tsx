@@ -15,7 +15,7 @@ export function FilterComponent<T, V>(): JSX.Element | null {
   const state = useTableContext<T>();
   const column = useColumnContext<T, V>();
   const classes = useClasses();
-  const isActive = state.useState((state) => state.filters.get(column.id)?.isActive, [column.id]);
+  const isActive = state.useState((state) => state.filters.get(column.id)?.isActive(), [column.id]);
   const [anchor, setAnchor] = useState<HTMLButtonElement | null>(null);
 
   if (!column.filterComponent) return null;

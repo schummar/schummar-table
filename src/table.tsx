@@ -42,6 +42,7 @@ const TableInner = memo(function TableInner<T>(): JSX.Element {
   const defaultWidth = state.useState('props.defaultWidth');
   const classes = state.useState('props.classes');
   const rootItemIds = state.useState((state) => state.activeItemsByParentId.get(undefined)?.map((item) => item.id));
+  const stickyHeader = state.useState('props.stickyHeader');
 
   state.getState().props.debug?.('render table inner');
 
@@ -58,9 +59,9 @@ const TableInner = memo(function TableInner<T>(): JSX.Element {
         ].join(' '),
       }}
     >
-      <div className={c(commonClasses.headerFill, classes?.headerCell)} />
+      <div className={c(commonClasses.headerFill, { [commonClasses.sticky]: !!stickyHeader }, classes?.headerCell)} />
 
-      <div className={c(commonClasses.headerCell, classes?.headerCell)}>
+      <div className={c(commonClasses.headerCell, { [commonClasses.sticky]: !!stickyHeader }, classes?.headerCell)}>
         <SelectComponent />
 
         <ColumnSelection />
@@ -68,14 +69,22 @@ const TableInner = memo(function TableInner<T>(): JSX.Element {
 
       {activeColumns.map((column) => (
         <ColumnContext.Provider key={column.id} value={column}>
-          <div className={c(commonClasses.headerCell, classes?.headerCell, column.classes?.headerCell)} key={column.id}>
+          <div
+            className={c(
+              commonClasses.headerCell,
+              { [commonClasses.sticky]: !!stickyHeader },
+              classes?.headerCell,
+              column.classes?.headerCell,
+            )}
+            key={column.id}
+          >
             <SortComponent>{column.header}</SortComponent>
             <FilterComponent />
           </div>
         </ColumnContext.Provider>
       ))}
 
-      <div className={c(commonClasses.headerFill, classes?.headerCell)} />
+      <div className={c(commonClasses.headerFill, { [commonClasses.sticky]: !!stickyHeader }, classes?.headerCell)} />
 
       {rootItemIds?.map((itemId) => (
         <Row key={itemId} itemId={itemId} />

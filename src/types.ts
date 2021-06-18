@@ -33,6 +33,7 @@ export type TableProps<T> = {
   defaultWidth?: string;
   fullWidth?: boolean;
   dependencies?: DependencyList;
+  stickyHeader?: boolean;
 
   text?: {
     deselectAll?: string;

@@ -41,7 +41,7 @@ export const Row = memo(function Row<T>({ itemId, indent = 0 }: { itemId: Id; in
     <>
       <div className={c(commonClasses.cellFill, className)} />
 
-      <div className={c(commonClasses.cell, className)}>
+      <div className={c(commonClasses.cell, commonClasses.firstCell, className)}>
         <div style={{ width: indent * 20 }} />
 
         <SelectComponent itemId={itemId} />

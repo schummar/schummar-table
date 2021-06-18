@@ -48,10 +48,10 @@ export function useTableState<T>(_props: TableProps<T>): Store<InternalTableStat
     [],
   );
 
-  cleanupState(state);
   filterColumns(state);
   calcItems(state);
   syncSelections(state);
+  cleanupState(state);
 
   useEffect(() => {
     state.update((state) => {

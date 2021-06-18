@@ -1,34 +1,31 @@
-import { makeStyles } from '@material-ui/core';
+import { makeStyles, Theme } from '@material-ui/core';
+
+const cell = (theme: Theme) =>
+  ({
+    padding: theme.spacing(0.5, 1),
+    display: 'grid',
+    gridAutoFlow: 'column',
+    alignItems: 'center',
+    borderBottom: `1px solid ${theme.palette.grey[200]}`,
+    whiteSpace: 'nowrap',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+  } as const);
 
 export const useCommonClasses = makeStyles((theme) => ({
   table: {
     display: 'grid',
   },
 
-  cell: {
-    padding: theme.spacing(0.5, 1),
-    display: 'grid',
-    gridAutoFlow: 'column',
-    alignItems: 'center',
-    borderBottom: `1px solid ${theme.palette.grey[200]}`,
-    whiteSpace: 'nowrap',
-    overflow: 'hidden',
-    textOverflow: 'ellipsis',
-  },
+  cell: cell(theme),
 
   cellFill: {
     borderBottom: `1px solid ${theme.palette.grey[200]}`,
   },
 
   headerCell: {
-    padding: theme.spacing(0.5, 1),
-    display: 'grid',
-    gridAutoFlow: 'column',
-    alignItems: 'center',
+    ...cell(theme),
     borderBottom: 'none',
-    whiteSpace: 'nowrap',
-    overflow: 'hidden',
-    textOverflow: 'ellipsis',
     gridTemplateColumns: 'minmax(0, 1fr) max-content',
     background: theme.palette.primary.main,
     color: theme.palette.primary.contrastText,
@@ -37,6 +34,16 @@ export const useCommonClasses = makeStyles((theme) => ({
     '&:not(:first-child)': {
       borderLeft: `1px solid ${theme.palette.background.default}`,
     },
+  },
+
+  firstCell: {
+    justifyContent: 'start',
+  },
+
+  sticky: {
+    position: 'sticky',
+    top: 0,
+    zIndex: 1,
   },
 
   headerFill: {

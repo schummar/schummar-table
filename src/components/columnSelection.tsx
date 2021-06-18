@@ -47,7 +47,9 @@ export function ColumnSelection<T>(): JSX.Element {
           {columns.map((column) => (
             <FormControlLabel
               key={column.id}
-              control={<Checkbox checked={!isHidden.get(column.id)} onChange={() => toggle(column)} />}
+              control={
+                <Checkbox checked={!isHidden.get(column.id)} onChange={() => toggle(column)} disabled={column.isHidden !== undefined} />
+              }
               label={column.header}
             />
           ))}
