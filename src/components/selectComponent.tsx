@@ -22,8 +22,6 @@ export function SelectComponent<T>({ itemId }: { itemId?: Id }): JSX.Element {
     [itemId],
   );
 
-  state.getState().props.debug?.('render selectComponent', itemId);
-
   function toggle(e: React.ChangeEvent<HTMLInputElement>) {
     const mouseEvent = e.nativeEvent as MouseEvent;
 

@@ -14,6 +14,7 @@ const cell = (theme: Theme) =>
 
 export const useCommonClasses = makeStyles((theme) => ({
   table: {
+    position: 'relative',
     display: 'grid',
   },
 

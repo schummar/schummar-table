@@ -6,8 +6,9 @@ import { flatMap } from '../../src/misc/helpers';
 
 const useClasses = makeStyles((theme) => ({
   container: {
-    height: '90vh',
-    overflowY: 'auto',
+    marginTop: '10vh',
+    height: '70vh',
+    overflow: 'auto',
   },
   oddCell: {
     background: theme.palette.grey[100],
@@ -74,7 +75,6 @@ function App(): JSX.Element {
         parentId={(x) => (x.type === 'sub' ? x.parentId : undefined)}
         hasDeferredChildren={(x) => !x.id.replace('_', '').includes('_')}
         onExpandedChange={(e) => {
-          console.log('setActive', e);
           setActive([...e].map(String));
         }}
         expandOnlyOne
@@ -109,6 +109,7 @@ function App(): JSX.Element {
         // dependencies={[]}
         stickyHeader
         // debug={(...args) => console.log(...args)}
+        virtual={{ rowHeight: 57 }}
       />
     </div>
   );

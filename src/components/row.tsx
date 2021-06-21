@@ -1,6 +1,5 @@
-import { CircularProgress } from '@material-ui/core';
 import React, { memo } from 'react';
-import { c } from '../misc/helpers';
+import { c, getAncestors } from '../misc/helpers';
 import { ColumnContext, useTableContext } from '../table';
 import { Id, InternalColumn } from '../types';
 import { Cell } from './cell';
@@ -15,21 +14,21 @@ export const calcClassName = (classes: InternalColumn<any, any>['classes'] | und
     classes?.oddCell === undefined ? undefined : { [classes.oddCell]: index % 2 === 1 },
   );
 
-export const Row = memo(function Row<T>({ itemId, indent = 0 }: { itemId: Id; indent?: number }): JSX.Element | null {
+export const Row = memo(function Row<T>({ itemId }: { itemId: Id }): JSX.Element | null {
   const commonClasses = useCommonClasses();
   const state = useTableContext<T>();
-  const { hasDeferredChildren, activeColumns, isExpanded, children, hasChildren, className } = state.useState(
+
+  const { className, indent, hasChildren, hasDeferredChildren, activeColumns } = state.useState(
     (state) => {
       const item = state.activeItemsById.get(itemId);
       const index = !item ? -1 : state.activeItems.indexOf(item);
 
       return {
+        className: calcClassName(state.props.classes, index),
+        indent: getAncestors(state.activeItemsById, itemId).size,
+        hasChildren: state.items.some((i) => i.parentId === itemId),
         hasDeferredChildren: item && state.props.hasDeferredChildren?.(item),
         activeColumns: state.activeColumns,
-        isExpanded: state.expanded.has(itemId),
-        children: state.expanded.has(itemId) ? [...(state.activeItemsByParentId.get(itemId) ?? [])].map((child) => child.id) : [],
-        hasChildren: state.items.some((i) => i.parentId === itemId),
-        className: calcClassName(state.props.classes, index),
       };
     },
     [itemId],
@@ -56,16 +55,6 @@ export const Row = memo(function Row<T>({ itemId, indent = 0 }: { itemId: Id; in
       ))}
 
       <div className={c(commonClasses.cellFill, className)} />
-
-      {isExpanded && children.map((childId) => <Row key={childId} itemId={childId} indent={indent + 1} />)}
-
-      {isExpanded && !hasChildren && (
-        <>
-          <div className={commonClasses.deferredPlaceholder}>
-            <CircularProgress size={20} />
-          </div>
-        </>
-      )}
     </>
   );
 });

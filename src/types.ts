@@ -34,6 +34,7 @@ export type TableProps<T> = {
   fullWidth?: boolean;
   dependencies?: DependencyList;
   stickyHeader?: boolean;
+  virtual?: { rowHeight: number; throttleScroll?: number };
 
   text?: {
     deselectAll?: string;

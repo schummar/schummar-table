@@ -6,6 +6,7 @@ import { Row } from './components/row';
 import { SelectComponent } from './components/selectComponent';
 import { SortComponent } from './components/sortComponent';
 import { useCommonClasses } from './components/useCommonClasses';
+import { Virtualized } from './components/virtualized';
 import { useTableState } from './internalState/useTableState';
 import { c } from './misc/helpers';
 import { InternalColumn, InternalTableState, TableProps } from './types';
@@ -41,13 +42,14 @@ const TableInner = memo(function TableInner<T>(): JSX.Element {
   const activeColumns = state.useState('activeColumns');
   const defaultWidth = state.useState('props.defaultWidth');
   const classes = state.useState('props.classes');
-  const rootItemIds = state.useState((state) => state.activeItemsByParentId.get(undefined)?.map((item) => item.id));
+  const itemIds = state.useState((state) => state.activeItems.map((item) => item.id));
   const stickyHeader = state.useState('props.stickyHeader');
 
   state.getState().props.debug?.('render table inner');
 
   return (
-    <div
+    <Virtualized
+      count={itemIds.length}
       className={c(commonClasses.table, classes?.table)}
       style={{
         gridTemplateColumns: [
@@ -58,37 +60,38 @@ const TableInner = memo(function TableInner<T>(): JSX.Element {
           fullWidth ? 'auto' : '0',
         ].join(' '),
       }}
-    >
-      <div className={c(commonClasses.headerFill, { [commonClasses.sticky]: !!stickyHeader }, classes?.headerCell)} />
+      header={
+        <>
+          <div className={c(commonClasses.headerFill, { [commonClasses.sticky]: !!stickyHeader }, classes?.headerCell)} />
 
-      <div className={c(commonClasses.headerCell, { [commonClasses.sticky]: !!stickyHeader }, classes?.headerCell)}>
-        <SelectComponent />
+          <div className={c(commonClasses.headerCell, { [commonClasses.sticky]: !!stickyHeader }, classes?.headerCell)}>
+            <SelectComponent />
 
-        <ColumnSelection />
-      </div>
-
-      {activeColumns.map((column) => (
-        <ColumnContext.Provider key={column.id} value={column}>
-          <div
-            className={c(
-              commonClasses.headerCell,
-              { [commonClasses.sticky]: !!stickyHeader },
-              classes?.headerCell,
-              column.classes?.headerCell,
-            )}
-            key={column.id}
-          >
-            <SortComponent>{column.header}</SortComponent>
-            <FilterComponent />
+            <ColumnSelection />
           </div>
-        </ColumnContext.Provider>
-      ))}
 
-      <div className={c(commonClasses.headerFill, { [commonClasses.sticky]: !!stickyHeader }, classes?.headerCell)} />
+          {activeColumns.map((column) => (
+            <ColumnContext.Provider key={column.id} value={column}>
+              <div
+                className={c(
+                  commonClasses.headerCell,
+                  { [commonClasses.sticky]: !!stickyHeader },
+                  classes?.headerCell,
+                  column.classes?.headerCell,
+                )}
+                key={column.id}
+              >
+                <SortComponent>{column.header}</SortComponent>
+                <FilterComponent />
+              </div>
+            </ColumnContext.Provider>
+          ))}
 
-      {rootItemIds?.map((itemId) => (
-        <Row key={itemId} itemId={itemId} />
-      ))}
-    </div>
+          <div className={c(commonClasses.headerFill, { [commonClasses.sticky]: !!stickyHeader }, classes?.headerCell)} />
+        </>
+      }
+    >
+      {(from, to) => itemIds.slice(from, to).map((itemId) => <Row key={itemId} itemId={itemId} />)}
+    </Virtualized>
   );
 });

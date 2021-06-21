@@ -1,5 +1,5 @@
-import { MultiMap } from './multiMap';
 import { Id, WithIds } from '../types';
+import { MultiMap } from './multiMap';
 
 export const flatMap = <T, S>(arr: Iterable<T>, flatMap: (t: T) => S[]): S[] => {
   return [...arr].reduce<S[]>((out, cur) => out.concat(flatMap(cur)), []);
@@ -100,3 +100,9 @@ export const c = (...classNames: (string | Record<string, boolean> | undefined)[
       .filter(([, predicate]) => predicate)
       .map(([key]) => key);
   }).join(' ');
+
+export const clamp = (min: number, max: number, n: number): number => {
+  if (n < min) return min;
+  if (n > max) return max;
+  return n;
+};
