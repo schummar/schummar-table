@@ -31,7 +31,7 @@ export type TableProps<T> = {
   expandOnlyOne?: boolean;
 
   defaultWidth?: string;
-  fullWidth?: boolean;
+  fullWidth?: boolean | 'left' | 'right';
   dependencies?: DependencyList;
   stickyHeader?: boolean;
   virtual?: boolean | { rowHeight?: number; initalRowHeight?: number; throttleScroll?: number };

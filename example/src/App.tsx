@@ -9,8 +9,8 @@ const useClasses = makeStyles((theme) => ({
     marginTop: '10vh',
     height: '70vh',
     overflow: 'auto',
-    // display: 'grid',
-    // gridTemplateRows: 'max-content 1fr',
+    display: 'grid',
+    gridTemplateRows: 'max-content 1fr',
   },
   oddCell: {
     background: theme.palette.grey[100],
@@ -33,7 +33,7 @@ type SubItem = {
   tags: string[];
 };
 
-const N = 50000,
+const N = 1000,
   M = 10;
 const loadTop = new Action(async () => {
   // await new Promise((r) => setTimeout(r, 1000));
@@ -96,7 +96,6 @@ function App(): JSX.Element {
           col((x) => x.name, {
             header: 'Name',
             filterComponent: <TextFilterComponent />,
-            width: '1fr',
           }),
 
           col((x) => (x.type === 'sub' ? x.state : null), {
@@ -118,6 +117,7 @@ function App(): JSX.Element {
         stickyHeader
         // debug={(...args) => console.log(...args)}
         virtual
+        fullWidth="left"
       />
     </div>
   );

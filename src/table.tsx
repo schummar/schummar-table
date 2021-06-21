@@ -52,10 +52,10 @@ const TableInner = memo(function TableInner<T>(): JSX.Element {
       style={{
         gridTemplateColumns: [
           //
-          fullWidth ? 'auto' : '0',
+          fullWidth === 'right' || fullWidth === true ? 'auto' : '0',
           'max-content',
-          ...activeColumns.map((column) => column.width ?? defaultWidth ?? 'auto'),
-          fullWidth ? 'auto' : '0',
+          ...activeColumns.map((column) => column.width ?? defaultWidth ?? 'max-content'),
+          fullWidth === 'left' || fullWidth === true ? 'auto' : '0',
         ].join(' '),
       }}
       header={
