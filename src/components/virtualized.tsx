@@ -1,7 +1,8 @@
 import React, { HTMLProps, ReactNode, useEffect, useMemo, useRef, useState } from 'react';
-import { clamp } from '../misc/helpers';
+import { avg } from '../misc/helpers';
 import { throttle } from '../misc/throttle';
 import { useTableContext } from '../table';
+import { Id } from '../types';
 
 const onAncestorScroll = (x: HTMLElement, onScroll: () => void): (() => void) => {
   const find = (x: HTMLElement): Node[] => (x.parentElement ? [x.parentElement, ...find(x.parentElement)] : [document]);
@@ -32,39 +33,68 @@ const relativeOffset = (x: HTMLElement, y: HTMLElement): number => {
 
 export function Virtualized<T>({
   header,
-  count,
   children,
   ...props
-}: { header: ReactNode; count: number; children: (from: number, to: number) => ReactNode } & HTMLProps<HTMLDivElement>): JSX.Element {
+}: { header: ReactNode; children: (itemIds: Id[]) => ReactNode } & HTMLProps<HTMLDivElement>): JSX.Element {
   const state = useTableContext<T>();
-  const { rowHeight, throttleScroll = 100 } = state.useState('props.virtual') ?? {};
+  const virtual = state.useState('props.virtual');
   const probeRef = useRef<HTMLDivElement>(null);
-  const [, setCounter] = useState(0);
-  const incCounter = useMemo(() => throttle(() => setCounter((c) => c + 1), throttleScroll), [throttleScroll]);
+  const [counter, setCounter] = useState(0);
 
-  let from = 0,
-    to = 0;
-  if (!rowHeight) {
-    to = count;
-  } else if (probeRef.current) {
-    const root = findScrollRoot(probeRef.current);
-    if (document.contains(root)) {
+  const {
+    itemIds = [],
+    before = 0,
+    after = 0,
+  } = state.useState(
+    (state) => {
+      const itemIds = state.activeItems.map((item) => item.id);
+      const root = probeRef.current && findScrollRoot(probeRef.current);
+      if (!state.props.virtual) return { itemIds };
+      if (!probeRef.current || !root || !document.contains(root)) return {};
+
+      const { rowHeight, initalRowHeight } = (state.props.virtual instanceof Object ? state.props.virtual : undefined) ?? {};
+
+      let totalHeight = 0;
+      const rowHeights = itemIds.map((itemId, index) => {
+        const h = rowHeight ?? state.rowHeights.get(itemId) ?? initalRowHeight ?? (index === 0 ? 100 : totalHeight / index);
+        totalHeight += h;
+        return h;
+      });
+
       const probeOffset = relativeOffset(probeRef.current, root);
       const headerHeight = probeRef.current.offsetTop;
       const topOfTable = root.scrollTop - probeOffset + headerHeight;
-      const bottomOfContent = topOfTable + root.clientHeight - headerHeight;
+      const bottomOfTable = topOfTable + root.clientHeight - headerHeight;
 
-      from = clamp(0, count, Math.floor(topOfTable / rowHeight));
-      to = clamp(0, count, Math.ceil(bottomOfContent / rowHeight));
+      console.log(topOfTable, bottomOfTable, probeOffset, headerHeight);
 
-      // console.log(probeOffset, headerHeight, topOfTable, bottomOfContent);
-    }
-  }
+      let from = 0,
+        to = itemIds.length,
+        before = 0,
+        after = 0;
+      for (const h of rowHeights) {
+        if (before + h > topOfTable) break;
+        from++;
+        before += h;
+      }
 
-  console.log(from, to);
+      for (const h of rowHeights.reverse()) {
+        if (after + h > totalHeight - bottomOfTable) break;
+        to--;
+        after += h;
+      }
+
+      state.props.debug?.(`Virtualalized render ${from} to ${to}`);
+      return { itemIds: itemIds.slice(from, to), before, after };
+    },
+    [probeRef.current, counter],
+  );
+
+  const throttleScroll = (typeof virtual === 'boolean' ? undefined : virtual)?.throttleScroll ?? 100;
+  const incCounter = useMemo(() => throttle(() => setCounter((c) => c + 1), throttleScroll), [throttleScroll]);
 
   useEffect(() => {
-    if (!rowHeight || !probeRef.current) return;
+    if (!virtual || !probeRef.current) return;
     return onAncestorScroll(probeRef.current, incCounter);
   }, [probeRef.current, incCounter]);
 
@@ -72,11 +102,11 @@ export function Virtualized<T>({
     <div {...props}>
       {header}
 
-      {rowHeight && <div style={{ gridColumn: '1 / -1', height: from * rowHeight }} ref={probeRef} />}
+      {virtual && <div style={{ gridColumn: '1 / -1', height: before }} ref={probeRef} />}
 
-      {children(from, to)}
+      {children(itemIds)}
 
-      {rowHeight && <div style={{ gridColumn: '1 / -1', height: (count - to) * rowHeight }} />}
+      {virtual && <div style={{ gridColumn: '1 / -1', height: after }} />}
     </div>
   );
 }

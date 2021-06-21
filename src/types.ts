@@ -34,7 +34,7 @@ export type TableProps<T> = {
   fullWidth?: boolean;
   dependencies?: DependencyList;
   stickyHeader?: boolean;
-  virtual?: { rowHeight: number; throttleScroll?: number };
+  virtual?: boolean | { rowHeight?: number; initalRowHeight?: number; throttleScroll?: number };
 
   text?: {
     deselectAll?: string;
@@ -107,6 +107,7 @@ export type InternalTableState<T> = {
   sort: Sort[];
   selection: Set<Id>;
   expanded: Set<Id>;
+  rowHeights: Map<Id, number>;
   filters: Map<Id, Filter<unknown> | undefined>;
   isHidden: Map<Id, boolean>;
 

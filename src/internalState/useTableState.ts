@@ -21,6 +21,7 @@ export function useTableState<T>(_props: TableProps<T>): Store<InternalTableStat
         sort: props.defaultSort ?? [],
         selection: props.defaultSelection ?? new Set(),
         expanded: props.defaultExpanded ?? new Set(),
+        rowHeights: new Map(),
         filters: (() => {
           const filters = new Map<Id, Filter<unknown>>();
           for (const column of props.columns)

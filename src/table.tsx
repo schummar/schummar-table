@@ -42,14 +42,12 @@ const TableInner = memo(function TableInner<T>(): JSX.Element {
   const activeColumns = state.useState('activeColumns');
   const defaultWidth = state.useState('props.defaultWidth');
   const classes = state.useState('props.classes');
-  const itemIds = state.useState((state) => state.activeItems.map((item) => item.id));
   const stickyHeader = state.useState('props.stickyHeader');
 
   state.getState().props.debug?.('render table inner');
 
   return (
     <Virtualized
-      count={itemIds.length}
       className={c(commonClasses.table, classes?.table)}
       style={{
         gridTemplateColumns: [
@@ -91,7 +89,7 @@ const TableInner = memo(function TableInner<T>(): JSX.Element {
         </>
       }
     >
-      {(from, to) => itemIds.slice(from, to).map((itemId) => <Row key={itemId} itemId={itemId} />)}
+      {(itemIds) => itemIds.map((itemId) => <Row key={itemId} itemId={itemId} />)}
     </Virtualized>
   );
 });

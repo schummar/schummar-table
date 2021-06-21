@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import React, { memo, useRef } from 'react';
 import { c, getAncestors } from '../misc/helpers';
 import { ColumnContext, useTableContext } from '../table';
 import { Id, InternalColumn } from '../types';
@@ -38,7 +38,15 @@ export const Row = memo(function Row<T>({ itemId }: { itemId: Id }): JSX.Element
 
   return (
     <>
-      <div className={c(commonClasses.cellFill, className)} />
+      <div
+        className={c(commonClasses.cellFill, className)}
+        ref={(div) => {
+          if (div)
+            state.update((state) => {
+              state.rowHeights.set(itemId, div.offsetHeight);
+            });
+        }}
+      />
 
       <div className={c(commonClasses.cell, commonClasses.firstCell, className)}>
         <div style={{ width: indent * 20 }} />

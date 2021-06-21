@@ -6,11 +6,11 @@ import { flatMap } from '../../src/misc/helpers';
 
 const useClasses = makeStyles((theme) => ({
   container: {
-    // marginTop: '10vh',
-    // height: '70vh',
-    // overflow: 'auto',
-    display: 'grid',
-    gridTemplateRows: 'max-content 1fr',
+    marginTop: '10vh',
+    height: '70vh',
+    overflow: 'auto',
+    // display: 'grid',
+    // gridTemplateRows: 'max-content 1fr',
   },
   oddCell: {
     background: theme.palette.grey[100],
@@ -21,6 +21,7 @@ type TopItem = {
   type: 'top';
   id: string;
   name: string;
+  h: number;
 };
 
 type SubItem = {
@@ -32,11 +33,13 @@ type SubItem = {
   tags: string[];
 };
 
-const N = 100,
+const N = 50000,
   M = 10;
 const loadTop = new Action(async () => {
   // await new Promise((r) => setTimeout(r, 1000));
-  return new Array(N).fill(0).map<TopItem>((_d, index) => ({ type: 'top', id: String(index), name: `top item ${index}` }));
+  return new Array(N)
+    .fill(0)
+    .map<TopItem>((_d, index) => ({ type: 'top', id: String(index), name: `top item ${index}`, h: (index % 4) * 30 }));
 });
 
 function App(): JSX.Element {
@@ -87,6 +90,7 @@ function App(): JSX.Element {
           col((x) => x.id, {
             header: 'Id',
             filterComponent: <TextFilterComponent />,
+            renderCell: (id, x) => (x.type === 'top' ? <div style={{ height: x.h }}>{id}</div> : id),
           }),
 
           col((x) => x.name, {
@@ -113,7 +117,7 @@ function App(): JSX.Element {
         // dependencies={[]}
         stickyHeader
         // debug={(...args) => console.log(...args)}
-        virtual={{ rowHeight: 57 }}
+        virtual
       />
     </div>
   );

@@ -110,3 +110,14 @@ export const clamp = (min: number, max: number, n: number): number => {
 export const identity = (x: unknown): any => x;
 export const defaultEquals = (a: unknown, b: unknown): boolean => a === b;
 export const subStringMatch = (a: string, b: string): boolean => a.toLowerCase().includes(b.toLowerCase());
+
+export const avg = (it: Iterable<number>): number | null => {
+  let sum = 0,
+    count = 0;
+  for (const i of it) {
+    sum += i;
+    count++;
+  }
+  if (count === 0) return null;
+  return sum / count;
+};
