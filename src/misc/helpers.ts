@@ -106,3 +106,7 @@ export const clamp = (min: number, max: number, n: number): number => {
   if (n > max) return max;
   return n;
 };
+
+export const identity = (x: unknown): any => x;
+export const defaultEquals = (a: unknown, b: unknown): boolean => a === b;
+export const subStringMatch = (a: string, b: string): boolean => a.toLowerCase().includes(b.toLowerCase());

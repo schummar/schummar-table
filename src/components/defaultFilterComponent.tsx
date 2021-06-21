@@ -1,7 +1,7 @@
 import { Button, Checkbox, FormControlLabel, IconButton, makeStyles, TextField } from '@material-ui/core';
 import { Clear, Search } from '@material-ui/icons';
 import React, { ReactNode, useCallback, useState } from 'react';
-import { flatMap, orderBy, uniq } from '../misc/helpers';
+import { defaultEquals, flatMap, identity, orderBy, uniq } from '../misc/helpers';
 import { useColumnContext, useTableContext } from '../table';
 import { Filter } from './filterComponent';
 
@@ -20,9 +20,6 @@ const useClasses = makeStyles((theme) => ({
   },
 }));
 
-const identity = (x: any) => x;
-const defaultEquals = (a: any, b: any) => a === b;
-
 type UnwrapArray<O> = O extends Array<infer S> ? S : O;
 
 export function DefaultFilterComponent<V>(props: {
@@ -39,8 +36,8 @@ export function DefaultFilterComponent<T, V, O>(props: {
 export function DefaultFilterComponent<T, V, O>({
   filterBy: _filterBy,
   options: _options,
-  compare: _compare,
-  render: _render,
+  compare = defaultEquals,
+  render = identity,
 }: {
   filterBy?: (value: V, item: T) => O | O[];
   options?: O[];
@@ -56,8 +53,6 @@ export function DefaultFilterComponent<T, V, O>({
     const values = _filterBy ? _filterBy(value, item) : (value as unknown as O);
     return values instanceof Array ? values : [values];
   }, deps ?? [_filterBy]);
-  const compare = useCallback(_compare ?? defaultEquals, deps ?? [_compare]);
-  const render: (value: O) => ReactNode = useCallback(_render ?? identity, deps ?? [_render]);
 
   const { text, options, filter } = state.useState(
     (state) => {
