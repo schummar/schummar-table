@@ -19,8 +19,9 @@ export function calcItems<T>(state: Store<InternalTableState<T>>): void {
           } else {
             const selectors = flatMap(sort, (sort) => {
               const column = activeColumns.find((column) => column.id === sort.columnId);
-              if (column) return [{ selector: (item: T) => column.sortBy(column.value(item)), direction: sort.direction }];
-              return [];
+              if (!column) return [];
+              const sortBy = column.sortBy instanceof Array ? column.sortBy : [column.sortBy];
+              return sortBy.map((sortBy) => ({ selector: (item: T) => sortBy(column.value(item), item), direction: sort.direction }));
             }).filter(Boolean);
 
             sorted = orderBy(
@@ -38,7 +39,7 @@ export function calcItems<T>(state: Store<InternalTableState<T>>): void {
           const activeItemsByParentId = filterTree(tree, (item) =>
             activeColumns.every((column) => {
               const filter = filters.get(column.id);
-              return filter?.filter(column.value(item), column.stringValue(column.value(item))) ?? true;
+              return filter?.filter(item) ?? true;
             }),
           );
 

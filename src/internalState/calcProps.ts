@@ -29,22 +29,13 @@ export function calcProps<T>(props: TableProps<T>): InternalTableProps<T> {
     }
 
     const columns = inputColumns.map(function <V>(
-      {
-        id,
-        value,
-        stringValue = (v) => String(v ?? ''),
-        sortBy = (v) => (typeof v === 'number' || v instanceof Date ? v : stringValue(v)),
-        renderValue = stringValue,
-        renderCell = renderValue,
-      }: Column<T, V>,
+      { id, value, sortBy = (v) => (typeof v === 'number' || v instanceof Date ? v : String(v)), renderCell = (v) => v }: Column<T, V>,
       index: number,
     ) {
       return {
         id: id ?? index,
         value,
-        stringValue,
         sortBy,
-        renderValue,
         renderCell,
       };
     });
@@ -70,10 +61,8 @@ export function calcProps<T>(props: TableProps<T>): InternalTableProps<T> {
       id,
       header = null,
       value,
-      stringValue = (v) => String(v ?? ''),
-      sortBy = (v) => (typeof v === 'number' || v instanceof Date ? v : stringValue(v)),
-      renderValue = stringValue,
-      renderCell = renderValue,
+      sortBy = (v) => (typeof v === 'number' || v instanceof Date ? v : String(v)),
+      renderCell = (v) => v,
       ...props
     }: Column<T, V>,
     index: number,
@@ -83,9 +72,7 @@ export function calcProps<T>(props: TableProps<T>): InternalTableProps<T> {
       id: id ?? index,
       header,
       value,
-      stringValue,
       sortBy,
-      renderValue,
       renderCell,
       ...withMemoizedFunctions.columns.find((c) => c.id === (id ?? index)),
     };

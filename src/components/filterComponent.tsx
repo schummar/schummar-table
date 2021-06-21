@@ -3,7 +3,7 @@ import { ArrowDropDown, FilterList } from '@material-ui/icons';
 import React, { useState } from 'react';
 import { useColumnContext, useTableContext } from '../table';
 
-export type Filter<V> = { filter(value: V, stringValue: string): boolean; isActive(): boolean };
+export type Filter<T> = { filter(item: T): boolean };
 
 const useClasses = makeStyles((theme) => ({
   active: {
@@ -15,7 +15,7 @@ export function FilterComponent<T, V>(): JSX.Element | null {
   const state = useTableContext<T>();
   const column = useColumnContext<T, V>();
   const classes = useClasses();
-  const isActive = state.useState((state) => state.filters.get(column.id)?.isActive(), [column.id]);
+  const isActive = state.useState((state) => !!state.filters.get(column.id), [column.id]);
   const [anchor, setAnchor] = useState<HTMLButtonElement | null>(null);
 
   if (!column.filterComponent) return null;

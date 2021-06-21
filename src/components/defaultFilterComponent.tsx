@@ -1,18 +1,12 @@
 import { Button, Checkbox, FormControlLabel, IconButton, makeStyles, TextField } from '@material-ui/core';
 import { Clear, Search } from '@material-ui/icons';
-import React, { useState } from 'react';
-import { orderBy, uniq } from '../misc/helpers';
+import React, { ReactNode, useCallback, useState } from 'react';
+import { flatMap, orderBy, uniq } from '../misc/helpers';
 import { useColumnContext, useTableContext } from '../table';
 import { Filter } from './filterComponent';
 
-export class DefaultFilter<V> extends Set<V> implements Filter<V> {
-  filter(value: V): boolean {
-    return this.size === 0 || this.has(value);
-  }
-
-  isActive(): boolean {
-    return this.size > 0;
-  }
+export class DefaultFilter<T, O> implements Filter<T> {
+  constructor(public readonly values: Set<O>, public readonly filter: (item: T) => boolean) {}
 }
 
 const useClasses = makeStyles((theme) => ({
@@ -26,35 +20,77 @@ const useClasses = makeStyles((theme) => ({
   },
 }));
 
-export function DefaultFilterComponent<T, V>({ options: _options }: { options?: V[] }): JSX.Element {
+const identity = (x: any) => x;
+const defaultEquals = (a: any, b: any) => a === b;
+
+type UnwrapArray<O> = O extends Array<infer S> ? S : O;
+
+export function DefaultFilterComponent<V>(props: {
+  options?: UnwrapArray<V>[];
+  compare?: (a: UnwrapArray<V>, b: UnwrapArray<V>) => boolean;
+  render?: (value: UnwrapArray<V>) => ReactNode;
+}): JSX.Element;
+export function DefaultFilterComponent<T, V, O>(props: {
+  filterBy?: (value: V, item: T) => O | O[];
+  options?: O[];
+  compare?: (a: O, b: O) => boolean;
+  render?: (value: O) => ReactNode;
+}): JSX.Element;
+export function DefaultFilterComponent<T, V, O>({
+  filterBy: _filterBy,
+  options: _options,
+  compare: _compare,
+  render: _render,
+}: {
+  filterBy?: (value: V, item: T) => O | O[];
+  options?: O[];
+  compare?: (a: O, b: O) => boolean;
+  render?: (value: O) => ReactNode;
+}): JSX.Element {
   const classes = useClasses();
   const state = useTableContext<T>();
   const column = useColumnContext<T, V>();
+
+  const deps = state.useState('props.dependencies');
+  const filterBy: (value: V, item: T) => O[] = useCallback((value, item) => {
+    const values = _filterBy ? _filterBy(value, item) : (value as unknown as O);
+    return values instanceof Array ? values : [values];
+  }, deps ?? [_filterBy]);
+  const compare = useCallback(_compare ?? defaultEquals, deps ?? [_compare]);
+  const render: (value: O) => ReactNode = useCallback(_render ?? identity, deps ?? [_render]);
+
   const { text, options, filter } = state.useState(
     (state) => {
       const _filter = state.filters.get(column.id);
       const filter = _filter instanceof DefaultFilter ? _filter : undefined;
-      let options = _options ?? orderBy(uniq(state.items.map(column.value).filter((x) => x !== undefined)));
-      options = options.concat([...(filter ?? [])].filter((value) => !options.includes(value)));
+      let options = _options ?? orderBy(uniq(flatMap(state.items, (item) => filterBy(column.value(item), item))));
+      if (filter) options = options.concat([...filter.values].filter((value) => !options.includes(value)));
 
       return { text: state.props.text, options, filter };
     },
-    [_options, column],
+    [_options, column, filterBy],
   );
+
   const [input, setInput] = useState('');
+  const filtered = options.filter((option) => !input || String(option).toLowerCase().includes(input.toLowerCase()));
 
-  const filtered = options.filter((value) => {
-    return !input || column.stringValue(value).toLowerCase().includes(input.toLowerCase());
-  });
+  function toggle(value: O) {
+    const newValues = new Set(filter?.values);
+    if (newValues?.has(value)) newValues.delete(value);
+    else newValues?.add(value);
 
-  function toggle(value: V) {
-    const newFilter = new DefaultFilter(filter);
-    if (newFilter?.has(value)) newFilter.delete(value);
-    else newFilter?.add(value);
+    const newFilter =
+      newValues.size === 0
+        ? undefined
+        : new DefaultFilter<T, O>(newValues, (item) => {
+            const itemValues = filterBy(column.value(item), item);
+            return [...newValues].some((value) => itemValues.some((itemValue) => compare(value, itemValue)));
+          });
 
     if (!column.filter) {
       state.update((state) => {
-        state.filters.set(column.id, newFilter);
+        if (newFilter) state.filters.set(column.id, newFilter);
+        else state.filters.delete(column.id);
       });
     }
 
@@ -62,14 +98,13 @@ export function DefaultFilterComponent<T, V>({ options: _options }: { options?: 
   }
 
   function deselectAll() {
-    const newFilter = new DefaultFilter();
     if (!column.filter) {
       state.update((state) => {
-        state.filters.set(column.id, newFilter);
+        state.filters.delete(column.id);
       });
     }
 
-    column.onFilterChange?.(newFilter);
+    column.onFilterChange?.();
   }
 
   return (
@@ -88,15 +123,15 @@ export function DefaultFilterComponent<T, V>({ options: _options }: { options?: 
         }}
       />
 
-      <Button variant="outlined" onClick={deselectAll} disabled={!filter?.size}>
+      <Button variant="outlined" onClick={deselectAll} disabled={!filter}>
         {text?.deselectAll ?? 'Deselect all'}
       </Button>
 
       {filtered.map((value, index) => (
         <FormControlLabel
           key={index}
-          control={<Checkbox checked={filter?.has(value) ?? false} onChange={() => toggle(value)} />}
-          label={column.renderValue(value)}
+          control={<Checkbox checked={filter?.values.has(value) ?? false} onChange={() => toggle(value)} />}
+          label={render(value)}
         />
       ))}
     </div>

@@ -60,15 +60,13 @@ export type Column<T, V> = {
   id?: string;
   header?: ReactNode;
   value: (item: T) => V;
-  stringValue?: (value: V) => string;
-  sortBy?: (value: V) => unknown;
-  renderValue?: (value: V) => ReactNode;
   renderCell?: (value: V, item: T) => ReactNode;
+  sortBy?: ((value: V, item: T) => unknown) | ((value: V) => unknown)[];
 
   filterComponent?: ReactNode;
   defaultFilter?: Filter<V>;
   filter?: Filter<V>;
-  onFilterChange?: (filter?: Filter<V>) => void;
+  onFilterChange?: (filter?: Filter<T>) => void;
 
   defaultIsHidden?: boolean;
   isHidden?: boolean;

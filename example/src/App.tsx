@@ -1,7 +1,7 @@
 import { makeStyles } from '@material-ui/core';
 import React, { useEffect, useState } from 'react';
 import { Action } from 'schummar-state/react';
-import { DefaultFilterComponent, MultiValueFilterComponent, Table, TextFilterComponent } from '../../src';
+import { DefaultFilterComponent, Table, TextFilterComponent } from '../../src';
 import { flatMap } from '../../src/misc/helpers';
 
 const useClasses = makeStyles((theme) => ({
@@ -56,7 +56,7 @@ function App(): JSX.Element {
             parentId,
             name: `sub item ${parentId}_${index}`,
             state: `foo--${i === index ? 1 : 0}`,
-            tags: ['foo', index % 2 === 0 ? 'bar' : 'baz'],
+            tags: [`foo${index}`, index % 2 === 0 ? 'bar' : 'baz'],
           })),
         ),
       );
@@ -99,8 +99,10 @@ function App(): JSX.Element {
 
           col((x) => (x.type === 'sub' ? x.tags : []), {
             header: 'Tags',
-            filterComponent: <MultiValueFilterComponent />,
+            filterComponent: <DefaultFilterComponent />,
             // defaultIsHidden: true,
+            sortBy: [(x) => x.includes('bar'), (x) => x[0]],
+            renderCell: (tags) => tags.join(', '),
           }),
         ]}
         classes={classes}
