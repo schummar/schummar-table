@@ -49,7 +49,6 @@ export function SelectComponent<T>({ itemId }: { itemId?: Id }): JSX.Element {
       else newSelection.add(itemId);
     }
 
-    console.log('sync?', selectSyncChildren, isSelected);
     if (selectSyncChildren && isSelected) {
       console.log('sync', getAncestors(activeItemsById, ...range));
       for (const ancestor of getAncestors(activeItemsById, ...range)) {

@@ -24,6 +24,12 @@ const findScrollRoot = (x: HTMLElement): HTMLElement => {
   return findScrollRoot(parent);
 };
 
+const relativeOffset = (x: HTMLElement, y: HTMLElement): number => {
+  if (x.offsetParent === y.offsetParent || !x.offsetParent) return x.offsetTop - y.offsetTop;
+  if (x.offsetParent instanceof HTMLElement) return relativeOffset(x.offsetParent, y) + x.offsetTop;
+  return 0;
+};
+
 export function Virtualized<T>({
   header,
   count,
@@ -43,12 +49,19 @@ export function Virtualized<T>({
   } else if (probeRef.current) {
     const root = findScrollRoot(probeRef.current);
     if (document.contains(root)) {
-      const topOutside = root.scrollTop;
-      const height = root.clientHeight - probeRef.current.offsetTop;
-      from = clamp(0, count, Math.floor(topOutside / rowHeight));
-      to = clamp(0, count, Math.ceil((topOutside + height) / rowHeight));
+      const probeOffset = relativeOffset(probeRef.current, root);
+      const headerHeight = probeRef.current.offsetTop;
+      const topOfTable = root.scrollTop - probeOffset + headerHeight;
+      const bottomOfContent = topOfTable + root.clientHeight - headerHeight;
+
+      from = clamp(0, count, Math.floor(topOfTable / rowHeight));
+      to = clamp(0, count, Math.ceil(bottomOfContent / rowHeight));
+
+      // console.log(probeOffset, headerHeight, topOfTable, bottomOfContent);
     }
   }
+
+  console.log(from, to);
 
   useEffect(() => {
     if (!rowHeight || !probeRef.current) return;

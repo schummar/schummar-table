@@ -6,9 +6,11 @@ import { flatMap } from '../../src/misc/helpers';
 
 const useClasses = makeStyles((theme) => ({
   container: {
-    marginTop: '10vh',
-    height: '70vh',
-    overflow: 'auto',
+    // marginTop: '10vh',
+    // height: '70vh',
+    // overflow: 'auto',
+    display: 'grid',
+    gridTemplateRows: 'max-content 1fr',
   },
   oddCell: {
     background: theme.palette.grey[100],
@@ -69,6 +71,8 @@ function App(): JSX.Element {
 
   return (
     <div className={classes.container}>
+      <div style={{ height: 200 }}></div>
+
       <Table
         items={[...topItems, ...children]}
         id="id"

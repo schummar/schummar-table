@@ -18,8 +18,8 @@
   "license": "ISC",
   "scripts": {
     "start": "run-p start:*",
-    "start:compile": "tsc -p tsconfig-cjs.json --watch",
-    "start:example": "npm --prefix example start",
+    "start:esm": "tsc --watch",
+    "start:cjs": "tsc -p tsconfig-cjs.json --watch",
     "build": "npm-run-all -s build:clean -p build:compile:*",
     "build:clean": "rimraf dist/**",
     "build:compile:esm": "tsc",

@@ -9,8 +9,17 @@ export function calcItems<T>(state: Store<InternalTableState<T>>): void {
   useEffect(
     () =>
       state.addReaction(
-        (state) => [state.props.items, state.props.id, state.props.parentId, state.sort, state.filters, state.activeColumns] as const,
-        ([items, id, parentId, sort, filters, activeColumns], draft) => {
+        (state) =>
+          [
+            state.props.items,
+            state.props.id,
+            state.props.parentId,
+            state.sort,
+            state.filters,
+            state.activeColumns,
+            state.expanded,
+          ] as const,
+        ([items, id, parentId, sort, filters, activeColumns, expanded], draft) => {
           const withIds = items.map((item) => ({ ...item, id: id(item), parentId: parentId?.(item) }));
 
           let sorted;
@@ -36,11 +45,14 @@ export function calcItems<T>(state: Store<InternalTableState<T>>): void {
             tree.set(item.parentId, item);
           }
 
-          const activeItemsByParentId = filterTree(tree, (item) =>
-            activeColumns.every((column) => {
-              const filter = filters.get(column.id);
-              return filter?.filter(item) ?? true;
-            }),
+          const activeItemsByParentId = filterTree(
+            tree,
+            (item) =>
+              (!item.parentId || expanded.has(item.parentId)) &&
+              activeColumns.every((column) => {
+                const filter = filters.get(column.id);
+                return filter?.filter(item) ?? true;
+              }),
           );
 
           const activeItemsById = new Map<Id, WithIds<T>>();
