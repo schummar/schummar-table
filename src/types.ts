@@ -1,6 +1,5 @@
 import { CSSProperties, DependencyList, ReactNode } from 'react';
 import { Filter } from './components/filterComponent';
-import { MultiMap } from './misc/multiMap';
 
 export type Sort = { columnId: string | number; direction: SortDirection };
 export type SortDirection = 'asc' | 'desc';
@@ -22,12 +21,12 @@ export type TableProps<T> = {
 
   defaultSelection?: Set<Id>;
   selection?: Set<Id>;
-  onSelectionChange?: (selection: Set<Id>, targets?: Id[], action?: 'selected' | 'deselected') => void;
+  onSelectionChange?: (selection: Set<Id>) => void;
   selectSyncChildren?: boolean;
 
   defaultExpanded?: Set<Id>;
   expanded?: Set<Id>;
-  onExpandedChange?: (expanded: Set<Id>, target?: Id, action?: 'expanded' | 'closed') => void;
+  onExpandedChange?: (expanded: Set<Id>) => void;
   expandOnlyOne?: boolean;
 
   defaultWidth?: string;
@@ -55,7 +54,7 @@ export type InternalTableProps<T> = Omit<TableProps<T>, 'id' | 'parentId' | 'col
   columns: InternalColumn<T, unknown>[];
 };
 
-export type WithIds<T = unknown> = T & { id: Id; parentId?: Id };
+export type TableItem<T = unknown> = T & { id: Id; parentId?: Id; children: TableItem<T>[] };
 
 export type Column<T, V> = {
   id?: string;
@@ -113,9 +112,8 @@ export type InternalTableState<T> = {
 
   // Helper data structures for efficient lookup etc.
   activeColumns: InternalColumn<T, unknown>[];
-  items: WithIds<T>[];
-  activeItems: WithIds<T>[];
-  activeItemsById: Map<Id, WithIds<T>>;
-  activeItemsByParentId: MultiMap<Id | undefined, WithIds<T>>;
+  items: TableItem<T>[];
+  activeItems: TableItem<T>[];
+  activeItemsById: Map<Id, TableItem<T>>;
   lastSelectedId?: Id;
 };

@@ -28,33 +28,32 @@ export function SelectComponent<T>({ itemId }: { itemId?: Id }): JSX.Element {
     const {
       activeItems,
       activeItemsById,
-      activeItemsByParentId,
       lastSelectedId,
       selection,
       props: { selectSyncChildren, selection: controlledSelection, onSelectionChange },
     } = state.getState();
 
-    let range: Id[];
+    let range;
     if (mouseEvent.shiftKey && itemId) {
       const a = lastSelectedId ? activeItems.findIndex((i) => lastSelectedId === i.id) : 0;
       const b = activeItems.findIndex((item) => item.id === itemId);
-      range = activeItems.slice(Math.min(a, b), Math.max(a, b) + 1).map((item) => item.id);
+      range = activeItems.slice(Math.min(a, b), Math.max(a, b) + 1);
     } else {
-      range = itemId ? [itemId] : [...activeItemsById.keys()];
+      const item = itemId ? activeItemsById.get(itemId) : undefined;
+      range = item ? [item] : activeItems;
     }
 
     const newSelection = new Set(selection);
-    for (const itemId of range) {
-      if (isSelected) newSelection.delete(itemId);
-      else newSelection.add(itemId);
+    for (const item of range) {
+      if (isSelected) newSelection.delete(item.id);
+      else newSelection.add(item.id);
     }
 
     if (selectSyncChildren && isSelected) {
-      console.log('sync', getAncestors(activeItemsById, ...range));
       for (const ancestor of getAncestors(activeItemsById, ...range)) {
         newSelection.delete(ancestor);
       }
-      for (const descendant of getDescendants(activeItemsByParentId, ...range)) {
+      for (const descendant of getDescendants(...range)) {
         newSelection.delete(descendant);
       }
     }
@@ -65,7 +64,7 @@ export function SelectComponent<T>({ itemId }: { itemId?: Id }): JSX.Element {
       });
     }
 
-    onSelectionChange?.(newSelection, range, isSelected ? 'deselected' : 'selected');
+    onSelectionChange?.(newSelection);
 
     state.update((state) => {
       state.lastSelectedId = itemId;

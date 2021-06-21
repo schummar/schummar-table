@@ -1,9 +1,8 @@
 import { castDraft } from 'immer';
 import { useEffect } from 'react';
 import { Store } from 'schummar-state/react';
-import { filterTree, flatMap, flattenTree, orderBy } from '../misc/helpers';
-import { MultiMap } from '../misc/multiMap';
-import { Id, InternalTableState, WithIds } from '../types';
+import { flatMap, orderBy } from '../misc/helpers';
+import { Id, InternalTableState, TableItem } from '../types';
 
 export function calcItems<T>(state: Store<InternalTableState<T>>): void {
   useEffect(
@@ -20,11 +19,26 @@ export function calcItems<T>(state: Store<InternalTableState<T>>): void {
             state.expanded,
           ] as const,
         ([items, id, parentId, sort, filters, activeColumns, expanded], draft) => {
-          const withIds = items.map((item) => ({ ...item, id: id(item), parentId: parentId?.(item) }));
+          const tableItems = items.map<TableItem<T>>((item) => ({
+            ...item,
+            id: id(item),
+            parentId: parentId?.(item),
+            children: [],
+          }));
+
+          const lookup = new Map<Id, TableItem<T>>();
+          for (const item of tableItems) {
+            lookup.set(item.id, item);
+          }
+
+          for (const item of tableItems) {
+            const parent = item.parentId !== undefined ? lookup.get(item.parentId) : undefined;
+            parent?.children.push(item);
+          }
 
           let sorted;
           if (sort.length === 0) {
-            sorted = withIds;
+            sorted = tableItems;
           } else {
             const selectors = flatMap(sort, (sort) => {
               const column = activeColumns.find((column) => column.id === sort.columnId);
@@ -34,37 +48,85 @@ export function calcItems<T>(state: Store<InternalTableState<T>>): void {
             }).filter(Boolean);
 
             sorted = orderBy(
-              withIds,
+              tableItems,
               selectors.map((x) => x.selector),
               selectors.map((x) => x.direction),
             );
           }
 
-          const tree = new MultiMap<Id | undefined, WithIds<T>>();
-          for (const item of sorted) {
-            tree.set(item.parentId, item);
-          }
+          const allItems: TableItem<T>[] = [];
 
-          const activeItemsByParentId = filterTree(
-            tree,
-            (item) =>
-              (!item.parentId || expanded.has(item.parentId)) &&
-              activeColumns.every((column) => {
-                const filter = filters.get(column.id);
-                return filter?.filter(item) ?? true;
-              }),
-          );
-
-          const activeItemsById = new Map<Id, WithIds<T>>();
-          for (const items of activeItemsByParentId.values())
+          const traverse = (items: TableItem<T>[]): void => {
             for (const item of items) {
-              activeItemsById.set(item.id, item);
-            }
+              allItems.push(item);
+              traverse(item.children);
 
-          draft.items = castDraft(flattenTree(tree));
-          draft.activeItems = castDraft(flattenTree(activeItemsByParentId));
+              // let isActive = activeChildren.length > 0;
+
+              // isActive ||= !item.parent || expanded.has(item.parent.id);
+
+              // isActive ||= activeColumns.every((column) => {
+              //   const filter = filters.get(column.id);
+              //   return filter?.filter(item) ?? true;
+              // });
+
+              // if (isActive) {
+              //   activeItemsById.set(item.id, item);
+              //   return [item, ...activeChildren];
+              // }
+              // return [];
+            }
+          };
+          traverse(sorted.filter((item) => item.parentId === undefined));
+
+          const activeItemsById = new Map<Id, TableItem<T>>();
+          const activeSet = new Set<Id>();
+          const activeItems = [...allItems]
+            .reverse()
+            .filter((item) => {
+              let isActive = activeItemsById.has(item.id);
+
+              isActive ||=
+                (item.parentId === undefined || expanded.has(item.parentId)) &&
+                activeColumns.every((column) => {
+                  const filter = filters.get(column.id);
+                  return filter?.filter(item) ?? true;
+                });
+
+              if (isActive && item.parentId !== undefined) {
+                activeSet.add(item.parentId);
+              }
+              if (isActive) {
+                activeItemsById.set(item.id, item);
+              }
+              return isActive;
+            })
+            .reverse();
+
+          // const activeItemsByParentId = filterTree(
+          //   tree,
+          //   (item) =>
+          //     (!item.parentId || expanded.has(item.parentId)) &&
+          //     activeColumns.every((column) => {
+          //       const filter = filters.get(column.id);
+          //       return filter?.filter(item) ?? true;
+          //     }),
+          // );
+
+          // const activeItemsById = new Map<Id, TableItem<T>>();
+          // for (const items of activeItemsByParentId.values())
+          //   for (const item of items) {
+          //     activeItemsById.set(item.id, item);
+          //   }
+
+          // draft.items = castDraft(flattenTree(tree));
+          // draft.activeItems = castDraft(flattenTree(activeItemsByParentId));
+          // draft.activeItemsById = castDraft(activeItemsById);
+          // draft.activeItemsByParentId = castDraft(activeItemsByParentId);
+          draft.items = castDraft(allItems);
+          draft.activeItems = castDraft(activeItems);
           draft.activeItemsById = castDraft(activeItemsById);
-          draft.activeItemsByParentId = castDraft(activeItemsByParentId);
+          // console.log(activeItems);
         },
         { runNow: true },
       ),

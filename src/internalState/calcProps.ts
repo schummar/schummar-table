@@ -51,11 +51,6 @@ export function calcProps<T>(props: TableProps<T>): InternalTableProps<T> {
     };
   }, props.dependencies);
 
-  const items = props.items.map((item) => ({
-    ...item,
-    id: withMemoizedFunctions.id(item),
-    parentId: withMemoizedFunctions.parentId?.(item),
-  }));
   const columns = inputColumns.map(function <V>(
     {
       id,
@@ -82,7 +77,6 @@ export function calcProps<T>(props: TableProps<T>): InternalTableProps<T> {
     () => ({
       ...props,
       ...withMemoizedFunctions,
-      items,
       columns,
     }),
     [props],

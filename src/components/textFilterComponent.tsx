@@ -46,8 +46,6 @@ export function TextFilterComponent<T, V>({
           })
         : undefined;
 
-      console.log(newFilter);
-
       if (!column.filter) {
         state.update((state) => {
           if (newFilter) state.filters.set(column.id, newFilter);

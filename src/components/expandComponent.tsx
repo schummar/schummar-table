@@ -22,7 +22,8 @@ export function ExpandComponent<T>({ itemId }: { itemId: Id }): JSX.Element {
     else {
       newExpanded.add(itemId);
 
-      for (const ancestor of getAncestors(activeItemsById, itemId)) {
+      const item = activeItemsById.get(itemId);
+      for (const ancestor of item ? getAncestors(activeItemsById, item) : []) {
         newExpanded.add(ancestor);
       }
     }
@@ -33,7 +34,7 @@ export function ExpandComponent<T>({ itemId }: { itemId: Id }): JSX.Element {
       });
     }
 
-    onExpandedChange?.(newExpanded, itemId, isExpanded ? 'closed' : 'expanded');
+    onExpandedChange?.(newExpanded);
   }
 
   return (

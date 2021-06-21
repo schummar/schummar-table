@@ -1,5 +1,4 @@
 import React, { HTMLProps, ReactNode, useEffect, useMemo, useRef, useState } from 'react';
-import { avg } from '../misc/helpers';
 import { throttle } from '../misc/throttle';
 import { useTableContext } from '../table';
 import { Id } from '../types';
@@ -65,8 +64,6 @@ export function Virtualized<T>({
       const headerHeight = probeRef.current.offsetTop;
       const topOfTable = root.scrollTop - probeOffset + headerHeight;
       const bottomOfTable = topOfTable + root.clientHeight - headerHeight;
-
-      console.log(topOfTable, bottomOfTable, probeOffset, headerHeight);
 
       let from = 0,
         to = itemIds.length,

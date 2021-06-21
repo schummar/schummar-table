@@ -1,4 +1,4 @@
-import React, { memo, useRef } from 'react';
+import React, { memo } from 'react';
 import { c, getAncestors } from '../misc/helpers';
 import { ColumnContext, useTableContext } from '../table';
 import { Id, InternalColumn } from '../types';
@@ -25,8 +25,8 @@ export const Row = memo(function Row<T>({ itemId }: { itemId: Id }): JSX.Element
 
       return {
         className: calcClassName(state.props.classes, index),
-        indent: getAncestors(state.activeItemsById, itemId).size,
-        hasChildren: state.items.some((i) => i.parentId === itemId),
+        indent: item ? getAncestors(state.activeItemsById, item).size : 0,
+        hasChildren: !!item?.children.length,
         hasDeferredChildren: item && state.props.hasDeferredChildren?.(item),
         activeColumns: state.activeColumns,
       };

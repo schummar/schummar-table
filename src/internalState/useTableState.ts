@@ -2,7 +2,6 @@ import { castDraft } from 'immer';
 import { useEffect, useMemo } from 'react';
 import { Store } from 'schummar-state/react';
 import { Filter } from '../components/filterComponent';
-import { MultiMap } from '../misc/multiMap';
 import { Id, InternalTableState, TableProps } from '../types';
 import { calcItems } from './calcItems';
 import { calcProps } from './calcProps';
@@ -43,7 +42,6 @@ export function useTableState<T>(_props: TableProps<T>): Store<InternalTableStat
         items: [],
         activeItems: [],
         activeItemsById: new Map(),
-        activeItemsByParentId: new MultiMap(),
         lastSelectedId: undefined,
       }),
     [],

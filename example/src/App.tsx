@@ -6,9 +6,9 @@ import { flatMap } from '../../src/misc/helpers';
 
 const useClasses = makeStyles((theme) => ({
   container: {
-    marginTop: '10vh',
-    height: '70vh',
-    overflow: 'auto',
+    // marginTop: '10vh',
+    // height: '70vh',
+    // overflow: 'auto',
     display: 'grid',
     gridTemplateRows: 'max-content 1fr',
   },
@@ -33,7 +33,7 @@ type SubItem = {
   tags: string[];
 };
 
-const N = 1000,
+const N = 10000,
   M = 10;
 const loadTop = new Action(async () => {
   // await new Promise((r) => setTimeout(r, 1000));
