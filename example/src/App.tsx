@@ -84,6 +84,7 @@ function App(): JSX.Element {
         onExpandedChange={(e) => {
           setActive([...e].map(String));
         }}
+        onSelectionChange={s =>console.log(s)}
         expandOnlyOne
         selectSyncChildren
         columns={(col) => [

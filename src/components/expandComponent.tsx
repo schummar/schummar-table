@@ -28,13 +28,14 @@ export function ExpandComponent<T>({ itemId }: { itemId: Id }): JSX.Element {
       }
     }
 
+    onExpandedChange?.(newExpanded);
+    
     if (!controlledExpanded) {
       state.update((state) => {
         state.expanded = newExpanded;
       });
     }
 
-    onExpandedChange?.(newExpanded);
   }
 
   return (

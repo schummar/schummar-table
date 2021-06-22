@@ -58,13 +58,14 @@ export function SelectComponent<T>({ itemId }: { itemId?: Id }): JSX.Element {
       }
     }
 
+    onSelectionChange?.(newSelection);
+    
     if (!controlledSelection) {
       state.update((state) => {
         state.selection = newSelection;
       });
     }
 
-    onSelectionChange?.(newSelection);
 
     state.update((state) => {
       state.lastSelectedId = itemId;
