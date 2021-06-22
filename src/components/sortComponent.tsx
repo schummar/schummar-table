@@ -22,12 +22,12 @@ const useClasses = makeStyles({
   },
 });
 
-export function SortComponent<T, V>({ children }: { children: ReactNode }): JSX.Element {
+export function SortComponent<T>({ children }: { children: ReactNode }): JSX.Element {
   const classes = useClasses();
   const state = useTableContext<T>();
-  const column = useColumnContext<T, V>();
+  const columnId = useColumnContext();
   const { direction, index } = state.useState((state) => {
-    const index = state.sort.findIndex((s) => s.columnId === column.id) ?? -1;
+    const index = state.sort.findIndex((s) => s.columnId === columnId) ?? -1;
     return {
       direction: state.sort[index]?.direction,
       index: index >= 0 ? index + 1 : undefined,
@@ -40,8 +40,8 @@ export function SortComponent<T, V>({ children }: { children: ReactNode }): JSX.
     } = state.getState();
 
     const newDirection = direction === 'asc' ? 'desc' : 'asc';
-    const newSort = (e.getModifierState('Control') ? state.getState().sort.filter((s) => s.columnId !== column.id) : []).concat({
-      columnId: column.id,
+    const newSort = (e.getModifierState('Control') ? state.getState().sort.filter((s) => s.columnId !== columnId) : []).concat({
+      columnId,
       direction: newDirection,
     });
 

@@ -1,6 +1,6 @@
 import React, { memo } from 'react';
 import { c, getAncestors } from '../misc/helpers';
-import { ColumnContext, useTableContext } from '../table';
+import { useTableContext, ColumnContext } from '../table';
 import { Id, InternalColumn } from '../types';
 import { Cell } from './cell';
 import { ExpandComponent } from './expandComponent';
@@ -18,7 +18,7 @@ export const Row = memo(function Row<T>({ itemId }: { itemId: Id }): JSX.Element
   const commonClasses = useCommonClasses();
   const state = useTableContext<T>();
 
-  const { className, indent, hasChildren, hasDeferredChildren, activeColumns } = state.useState(
+  const { className, indent, hasChildren, hasDeferredChildren, columnIds } = state.useState(
     (state) => {
       const item = state.activeItemsById.get(itemId);
       const index = !item ? -1 : state.activeItems.indexOf(item);
@@ -28,7 +28,7 @@ export const Row = memo(function Row<T>({ itemId }: { itemId: Id }): JSX.Element
         indent: item ? getAncestors(state.activeItemsById, item).size : 0,
         hasChildren: !!item?.children.length,
         hasDeferredChildren: item && state.props.hasDeferredChildren?.(item),
-        activeColumns: state.activeColumns,
+        columnIds: state.activeColumns.map((column) => column.id),
       };
     },
     [itemId],
@@ -56,8 +56,8 @@ export const Row = memo(function Row<T>({ itemId }: { itemId: Id }): JSX.Element
         {(hasChildren || hasDeferredChildren) && <ExpandComponent itemId={itemId} />}
       </div>
 
-      {activeColumns.map((column) => (
-        <ColumnContext.Provider key={column.id} value={column}>
+      {columnIds.map((columnId) => (
+        <ColumnContext.Provider key={columnId} value={columnId}>
           <Cell itemId={itemId} />
         </ColumnContext.Provider>
       ))}

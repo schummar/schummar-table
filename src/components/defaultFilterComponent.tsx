@@ -3,6 +3,7 @@ import { Clear, Search } from '@material-ui/icons';
 import React, { ReactNode, useCallback, useState } from 'react';
 import { defaultEquals, flatMap, identity, orderBy, uniq } from '../misc/helpers';
 import { useColumnContext, useTableContext } from '../table';
+import { InternalColumn } from '../types';
 import { Filter } from './filterComponent';
 
 export class DefaultFilter<T, O> implements Filter<T> {
@@ -46,7 +47,7 @@ export function DefaultFilterComponent<T, V, O>({
 }): JSX.Element {
   const classes = useClasses();
   const state = useTableContext<T>();
-  const column = useColumnContext<T, V>();
+  const columnId = useColumnContext();
 
   const deps = state.useState('props.dependencies');
   const filterBy: (value: V, item: T) => O[] = useCallback((value, item) => {
@@ -56,20 +57,24 @@ export function DefaultFilterComponent<T, V, O>({
 
   const { text, options, filter } = state.useState(
     (state) => {
-      const _filter = state.filters.get(column.id);
+      const column = state.activeColumns.find((column) => column.id === columnId) as InternalColumn<T, V> | undefined;
+      const _filter = state.filters.get(columnId);
       const filter = _filter instanceof DefaultFilter ? _filter : undefined;
-      let options = _options ?? orderBy(uniq(flatMap(state.items, (item) => filterBy(column.value(item), item))));
+      let options = _options ?? orderBy(uniq(flatMap(state.items, (item) => (column ? filterBy(column.value(item), item) : []))));
       if (filter) options = options.concat([...filter.values].filter((value) => !options.includes(value)));
 
       return { text: state.props.text, options, filter };
     },
-    [_options, column, filterBy],
+    [_options, columnId, filterBy],
   );
 
   const [input, setInput] = useState('');
   const filtered = options.filter((option) => !input || String(option).toLowerCase().includes(input.toLowerCase()));
 
   function toggle(value: O) {
+    const column = state.getState().activeColumns.find((column) => column.id === columnId) as InternalColumn<T, V> | undefined;
+    if (!column) return;
+
     const newValues = new Set(filter?.values);
     if (newValues?.has(value)) newValues.delete(value);
     else newValues?.add(value);
@@ -93,6 +98,9 @@ export function DefaultFilterComponent<T, V, O>({
   }
 
   function deselectAll() {
+    const column = state.getState().activeColumns.find((column) => column.id === columnId) as InternalColumn<T, V> | undefined;
+    if (!column) return;
+
     if (!column.filter) {
       state.update((state) => {
         state.filters.delete(column.id);

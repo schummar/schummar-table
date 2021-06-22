@@ -33,7 +33,7 @@ type SubItem = {
   tags: string[];
 };
 
-const N = 1000,
+const N = 10000,
   M = 10;
 const loadTop = new Action(async () => {
   // await new Promise((r) => setTimeout(r, 1000));
@@ -118,9 +118,9 @@ function App(): JSX.Element {
           }),
         ]}
         classes={classes}
-        dependencies={[]}
+        // dependencies={[]}
         stickyHeader
-        debug={(...args) => console.log(...args)}
+        // debug={(...args) => console.log(...args)}
         virtual
         fullWidth="left"
       />

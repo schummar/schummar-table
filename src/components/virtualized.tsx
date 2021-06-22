@@ -42,6 +42,8 @@ export function Virtualized<T>({
 
   const {
     itemIds = [],
+    from,
+    to,
     before = 0,
     after = 0,
   } = state.useState(
@@ -81,19 +83,20 @@ export function Virtualized<T>({
         after += h;
       }
 
-      state.props.debug?.(`Virtualalized render ${from} to ${to}`);
-      return { itemIds: itemIds.slice(from, to), before, after };
+      return { itemIds: itemIds.slice(from, to), from, to, before, after };
     },
     [probeRef.current, counter],
   );
 
-  const throttleScroll = (typeof virtual === 'boolean' ? undefined : virtual)?.throttleScroll ?? 100;
+  const throttleScroll = (typeof virtual === 'boolean' ? undefined : virtual)?.throttleScroll ?? 500;
   const incCounter = useMemo(() => throttle(() => setCounter((c) => c + 1), throttleScroll), [throttleScroll]);
 
   useEffect(() => {
     if (!virtual || !probeRef.current) return;
     return onAncestorScroll(probeRef.current, incCounter);
   }, [probeRef.current, incCounter]);
+
+  state.getState().props.debug?.(`Virtualalized render ${from} to ${to}`);
 
   return (
     <div {...props}>

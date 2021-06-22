@@ -11,14 +11,15 @@ const useClasses = makeStyles((theme) => ({
   },
 }));
 
-export function FilterComponent<T, V>(): JSX.Element | null {
+export function FilterComponent<T>(): JSX.Element | null {
   const state = useTableContext<T>();
-  const column = useColumnContext<T, V>();
+  const columnId = useColumnContext();
   const classes = useClasses();
-  const isActive = state.useState((state) => !!state.filters.get(column.id), [column.id]);
+  const isActive = state.useState((state) => !!state.filters.get(columnId), [columnId]);
+  const filterComponent = state.useState((state) => state.activeColumns.find((column) => column.id === columnId)?.filterComponent);
   const [anchor, setAnchor] = useState<HTMLButtonElement | null>(null);
 
-  if (!column.filterComponent) return null;
+  if (!filterComponent) return null;
 
   return (
     <>
@@ -38,7 +39,7 @@ export function FilterComponent<T, V>(): JSX.Element | null {
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
         transformOrigin={{ vertical: 'top', horizontal: 'center' }}
       >
-        {column.filterComponent}
+        {filterComponent}
       </Popover>
     </>
   );

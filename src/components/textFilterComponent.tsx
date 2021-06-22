@@ -3,6 +3,7 @@ import { Clear, Search } from '@material-ui/icons';
 import React, { useEffect, useState } from 'react';
 import { subStringMatch } from '../misc/helpers';
 import { useColumnContext, useTableContext } from '../table';
+import { InternalColumn } from '../types';
 import { Filter } from './filterComponent';
 
 export class TextFilter<T> implements Filter<T> {
@@ -29,9 +30,15 @@ export function TextFilterComponent<T, V>({
 }): JSX.Element {
   const classes = useClasses();
   const state = useTableContext<T>();
-  const column = useColumnContext<T, V>();
+  const columnId = useColumnContext();
 
-  const _filter = state.useState((state) => state.filters.get(column.id), [column.id]) ?? column.defaultFilter;
+  const _filter = state.useState(
+    (state) => {
+      const column = state.activeColumns.find((column) => column.id === columnId);
+      return state.filters.get(columnId) ?? column?.defaultFilter;
+    },
+    [columnId],
+  );
   const filter = _filter instanceof TextFilter ? _filter : undefined;
   const [input, setInput] = useState<string>();
 
@@ -39,6 +46,9 @@ export function TextFilterComponent<T, V>({
     if (input === undefined) return;
 
     const handle = setTimeout(() => {
+      const column = state.getState().activeColumns.find((column) => column.id === columnId) as InternalColumn<T, V> | undefined;
+      if (!column) return;
+
       const newFilter = input
         ? new TextFilter<T>(input, (item) => {
             const itemValue = filterBy(column.value(item), item);

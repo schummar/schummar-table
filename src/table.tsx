@@ -9,19 +9,19 @@ import { useCommonClasses } from './components/useCommonClasses';
 import { Virtualized } from './components/virtualized';
 import { useTableState } from './internalState/useTableState';
 import { c } from './misc/helpers';
-import { InternalColumn, InternalTableState, TableProps } from './types';
+import { Id, InternalTableState, TableProps } from './types';
 
 export const TableContext = createContext<Store<InternalTableState<any>> | null>(null);
-export const ColumnContext = createContext<InternalColumn<any, any> | null>(null);
+export const ColumnContext = createContext<Id | null>(null);
 export function useTableContext<T>(): Store<InternalTableState<T>> {
   const value = useContext(TableContext);
   if (!value) throw Error('No table context available');
   return value as Store<InternalTableState<T>>;
 }
-export function useColumnContext<T, V>(): InternalColumn<T, V> {
+export function useColumnContext(): Id {
   const value = useContext(ColumnContext);
-  if (!value) throw Error('No column context available');
-  return value as InternalColumn<T, V>;
+  if (value === null) throw Error('No column context available');
+  return value;
 }
 
 export function Table<T>(props: TableProps<T>): JSX.Element {
@@ -39,7 +39,14 @@ const TableInner = memo(function TableInner<T>(): JSX.Element {
   const commonClasses = useCommonClasses();
   const state = useTableContext<T>();
   const fullWidth = state.useState('props.fullWidth');
-  const activeColumns = state.useState('activeColumns');
+  const activeColumns = state.useState((state) =>
+    state.activeColumns.map((column) => ({
+      id: column.id,
+      width: column.width,
+      classes: column.classes,
+      header: column.header,
+    })),
+  );
   const defaultWidth = state.useState('props.defaultWidth');
   const classes = state.useState('props.classes');
   const stickyHeader = state.useState('props.stickyHeader');
@@ -69,7 +76,7 @@ const TableInner = memo(function TableInner<T>(): JSX.Element {
           </div>
 
           {activeColumns.map((column) => (
-            <ColumnContext.Provider key={column.id} value={column}>
+            <ColumnContext.Provider key={column.id} value={column.id}>
               <div
                 className={c(
                   commonClasses.headerCell,
