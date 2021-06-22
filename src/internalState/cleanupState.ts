@@ -18,6 +18,7 @@ export function cleanupState<T>(state: Store<InternalTableState<T>>): void {
             state.expanded,
             state.filters,
             state.isHidden,
+            state.itemsById,
             state.activeItemsById,
             state.activeColumns,
           ] as const,
@@ -32,6 +33,7 @@ export function cleanupState<T>(state: Store<InternalTableState<T>>): void {
             expanded,
             filters,
             isHidden,
+            itemsById,
             activeItemsById,
             activeColumns,
           ],
@@ -40,14 +42,14 @@ export function cleanupState<T>(state: Store<InternalTableState<T>>): void {
           const columnIds = new Set(columns.map((column) => column.id));
           const activeColumnIds = new Set(activeColumns.map((column) => column.id));
 
-          // Remove sort entries for non existings columns
+          // Remove sort entries for non active columns
           const newSort = sort.filter((s) => activeColumnIds.has(s.columnId));
           if (newSort.length < sort.length) {
             state.sort = newSort;
             onSortChange?.(newSort);
           }
 
-          // Remove selection for non existing items
+          // Remove selection for non active items
           const newSelection = intersect(selection, activeItemsById);
           if (newSelection.size !== selection.size) {
             state.selection = newSelection;
@@ -55,7 +57,7 @@ export function cleanupState<T>(state: Store<InternalTableState<T>>): void {
           }
 
           // Remove expanded for non existing items
-          const newExpanded = intersect(expanded, activeItemsById);
+          const newExpanded = intersect(expanded, itemsById);
           if (newExpanded.size < expanded.size) {
             state.expanded = newExpanded;
             onExpandedChange?.(newExpanded);

@@ -40,6 +40,7 @@ export function useTableState<T>(_props: TableProps<T>): Store<InternalTableStat
 
         activeColumns: [],
         items: [],
+        itemsById: new Map(),
         activeItems: [],
         activeItemsById: new Map(),
         lastSelectedId: undefined,

@@ -113,6 +113,7 @@ export type InternalTableState<T> = {
   // Helper data structures for efficient lookup etc.
   activeColumns: InternalColumn<T, unknown>[];
   items: TableItem<T>[];
+  itemsById: Map<Id, TableItem<T>>;
   activeItems: TableItem<T>[];
   activeItemsById: Map<Id, TableItem<T>>;
   lastSelectedId?: Id;

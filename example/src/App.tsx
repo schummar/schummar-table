@@ -33,7 +33,7 @@ type SubItem = {
   tags: string[];
 };
 
-const N = 10000,
+const N = 1,
   M = 10;
 const loadTop = new Action(async () => {
   // await new Promise((r) => setTimeout(r, 1000));

@@ -54,11 +54,13 @@ export function calcItems<T>(state: Store<InternalTableState<T>>): void {
             parent?.children.push(item);
           }
 
-          const allItems: TableItem<T>[] = [];
+          const allItems = new Array<TableItem<T>>();
+          const allItemsById = new Map<Id, TableItem<T>>();
 
           const traverse = (items: TableItem<T>[]): void => {
             for (const item of items) {
               allItems.push(item);
+              allItemsById.set(item.id, item);
               traverse(item.children);
             }
           };
@@ -89,6 +91,7 @@ export function calcItems<T>(state: Store<InternalTableState<T>>): void {
             .reverse();
 
           draft.items = castDraft(allItems);
+          draft.itemsById = castDraft(allItemsById);
           draft.activeItems = castDraft(activeItems);
           draft.activeItemsById = castDraft(activeItemsById);
         },
