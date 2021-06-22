@@ -26,15 +26,7 @@ export function calcItems<T>(state: Store<InternalTableState<T>>): void {
             children: [],
           }));
 
-          const lookup = new Map<Id, TableItem<T>>();
-          for (const item of tableItems) {
-            lookup.set(item.id, item);
-          }
-
-          for (const item of tableItems) {
-            const parent = item.parentId !== undefined ? lookup.get(item.parentId) : undefined;
-            parent?.children.push(item);
-          }
+          
 
           let sorted;
           if (sort.length === 0) {
@@ -52,6 +44,17 @@ export function calcItems<T>(state: Store<InternalTableState<T>>): void {
               selectors.map((x) => x.selector),
               selectors.map((x) => x.direction),
             );
+          }
+
+          
+          const lookup = new Map<Id, TableItem<T>>();
+          for (const item of sorted) {
+            lookup.set(item.id, item);
+          }
+
+          for (const item of sorted) {
+            const parent = item.parentId !== undefined ? lookup.get(item.parentId) : undefined;
+            parent?.children.push(item);
           }
 
           const allItems: TableItem<T>[] = [];

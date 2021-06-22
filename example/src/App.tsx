@@ -33,7 +33,7 @@ type SubItem = {
   tags: string[];
 };
 
-const N = 10000,
+const N = 10,
   M = 10;
 const loadTop = new Action(async () => {
   // await new Promise((r) => setTimeout(r, 1000));
@@ -68,7 +68,7 @@ function App(): JSX.Element {
       );
       i = (i + 1) % M;
       clearInterval(handle);
-    }, 1000);
+    }, 100);
     return () => clearInterval(handle);
   }, [active]);
 
@@ -91,6 +91,7 @@ function App(): JSX.Element {
             header: 'Id',
             filterComponent: <TextFilterComponent />,
             renderCell: (id, x) => (x.type === 'top' ? <div style={{ height: x.h }}>{id}</div> : id),
+            sortBy: id => id
           }),
 
           col((x) => x.name, {
