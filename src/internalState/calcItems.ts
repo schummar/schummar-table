@@ -69,7 +69,7 @@ export function calcItems<T>(state: Store<InternalTableState<T>>): void {
           const activeItems = [...allItems]
             .reverse()
             .filter((item) => {
-              let isActive = activeItemsById.has(item.id);
+              let isActive = activeSet.has(item.id);
 
               isActive ||=
                 (item.parentId === undefined || expanded.has(item.parentId)) &&
