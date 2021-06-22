@@ -33,7 +33,7 @@ type SubItem = {
   tags: string[];
 };
 
-const N = 10,
+const N = 1000,
   M = 10;
 const loadTop = new Action(async () => {
   // await new Promise((r) => setTimeout(r, 1000));
@@ -49,7 +49,7 @@ function App(): JSX.Element {
   const [children, setChildren] = useState<SubItem[]>([]);
   const [topItems = []] = loadTop.useAction(undefined);
 
-  console.log(selected)
+  console.log(selected);
 
   // console.log(active, children1, children2);
 
@@ -95,7 +95,7 @@ function App(): JSX.Element {
             header: 'Id',
             filterComponent: <TextFilterComponent />,
             renderCell: (id, x) => (x.type === 'top' ? <div style={{ height: x.h }}>{id}</div> : id),
-            sortBy: id => id
+            sortBy: (id) => id,
           }),
 
           col((x) => x.name, {
@@ -111,16 +111,16 @@ function App(): JSX.Element {
 
           col((x) => (x.type === 'sub' ? x.tags : []), {
             header: 'Tags',
-            filterComponent: <DefaultFilterComponent />,
+            filterComponent: <DefaultFilterComponent render={(x) => String(x)} />,
             // defaultIsHidden: true,
             sortBy: [(x) => x.includes('bar'), (x) => x[0]],
             renderCell: (tags) => tags.join(', '),
           }),
         ]}
         classes={classes}
-        // dependencies={[]}
+        dependencies={[]}
         stickyHeader
-        // debug={(...args) => console.log(...args)}
+        debug={(...args) => console.log(...args)}
         virtual
         fullWidth="left"
       />

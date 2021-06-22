@@ -29,7 +29,15 @@ export function calcProps<T>(props: TableProps<T>): InternalTableProps<T> {
     }
 
     const columns = inputColumns.map(function <V>(
-      { id, value, sortBy = (v) => (typeof v === 'number' || v instanceof Date ? v : String(v)), renderCell = (v) => v }: Column<T, V>,
+      {
+        id,
+        value,
+        sortBy = (v) => (typeof v === 'number' || v instanceof Date ? v : String(v)),
+        renderCell = (v) => v,
+        filterComponent,
+        onFilterChange,
+        onIsHiddenChange,
+      }: Column<T, V>,
       index: number,
     ) {
       return {
@@ -37,6 +45,9 @@ export function calcProps<T>(props: TableProps<T>): InternalTableProps<T> {
         value,
         sortBy,
         renderCell,
+        filterComponent,
+        onFilterChange,
+        onIsHiddenChange,
       };
     });
 
