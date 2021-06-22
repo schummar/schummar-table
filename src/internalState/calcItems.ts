@@ -26,8 +26,6 @@ export function calcItems<T>(state: Store<InternalTableState<T>>): void {
             children: [],
           }));
 
-          
-
           let sorted;
           if (sort.length === 0) {
             sorted = tableItems;
@@ -46,7 +44,6 @@ export function calcItems<T>(state: Store<InternalTableState<T>>): void {
             );
           }
 
-          
           const lookup = new Map<Id, TableItem<T>>();
           for (const item of sorted) {
             lookup.set(item.id, item);
@@ -63,21 +60,6 @@ export function calcItems<T>(state: Store<InternalTableState<T>>): void {
             for (const item of items) {
               allItems.push(item);
               traverse(item.children);
-
-              // let isActive = activeChildren.length > 0;
-
-              // isActive ||= !item.parent || expanded.has(item.parent.id);
-
-              // isActive ||= activeColumns.every((column) => {
-              //   const filter = filters.get(column.id);
-              //   return filter?.filter(item) ?? true;
-              // });
-
-              // if (isActive) {
-              //   activeItemsById.set(item.id, item);
-              //   return [item, ...activeChildren];
-              // }
-              // return [];
             }
           };
           traverse(sorted.filter((item) => item.parentId === undefined));
@@ -106,30 +88,9 @@ export function calcItems<T>(state: Store<InternalTableState<T>>): void {
             })
             .reverse();
 
-          // const activeItemsByParentId = filterTree(
-          //   tree,
-          //   (item) =>
-          //     (!item.parentId || expanded.has(item.parentId)) &&
-          //     activeColumns.every((column) => {
-          //       const filter = filters.get(column.id);
-          //       return filter?.filter(item) ?? true;
-          //     }),
-          // );
-
-          // const activeItemsById = new Map<Id, TableItem<T>>();
-          // for (const items of activeItemsByParentId.values())
-          //   for (const item of items) {
-          //     activeItemsById.set(item.id, item);
-          //   }
-
-          // draft.items = castDraft(flattenTree(tree));
-          // draft.activeItems = castDraft(flattenTree(activeItemsByParentId));
-          // draft.activeItemsById = castDraft(activeItemsById);
-          // draft.activeItemsByParentId = castDraft(activeItemsByParentId);
           draft.items = castDraft(allItems);
           draft.activeItems = castDraft(activeItems);
           draft.activeItemsById = castDraft(activeItemsById);
-          // console.log(activeItems);
         },
         { runNow: true },
       ),

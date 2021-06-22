@@ -46,13 +46,12 @@ export function SortComponent<T, V>({ children }: { children: ReactNode }): JSX.
     });
 
     onSortChange?.(newSort);
-    
+
     if (!controlledSort) {
       state.update((state) => {
         state.sort = newSort;
       });
     }
-
   }
 
   return (

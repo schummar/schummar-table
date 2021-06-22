@@ -44,9 +44,12 @@ const loadTop = new Action(async () => {
 
 function App(): JSX.Element {
   const classes = useClasses();
-  const [active, setActive] = useState<string[]>([]);
+  const [active, setActive] = useState<string[]>(['0']);
+  const [selected, setSelected] = useState<Set<any>>(new Set());
   const [children, setChildren] = useState<SubItem[]>([]);
   const [topItems = []] = loadTop.useAction(undefined);
+
+  console.log(selected)
 
   // console.log(active, children1, children2);
 
@@ -84,7 +87,7 @@ function App(): JSX.Element {
         onExpandedChange={(e) => {
           setActive([...e].map(String));
         }}
-        onSelectionChange={s =>console.log(s)}
+        onSelectionChange={setSelected}
         expandOnlyOne
         selectSyncChildren
         columns={(col) => [

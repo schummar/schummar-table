@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { Store } from 'schummar-state/react';
-import { InternalTableState, TableItem } from '../types';
+import { InternalTableState } from '../types';
 
 export function syncSelections<T>(state: Store<InternalTableState<T>>): void {
   useEffect(
@@ -11,13 +11,11 @@ export function syncSelections<T>(state: Store<InternalTableState<T>>): void {
           if (!state.props.selectSyncChildren) return;
 
           const newSelection = new Set(selection);
-          const traverse = (items: TableItem<T>[], force?: boolean): void => {
-            for (const item of items) {
-              if (force) newSelection.add(item.id);
-              traverse(item.children, force || newSelection.has(item.id));
+          for (const item of activeItems) {
+            if (item.parentId !== undefined && newSelection.has(item.parentId)) {
+              newSelection.add(item.id);
             }
-          };
-          traverse(activeItems.filter((item) => item.parentId === undefined));
+          }
 
           if (newSelection.size !== selection.size) {
             state.selection = newSelection;
