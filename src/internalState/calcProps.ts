@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { asString } from '../misc/helpers';
 import { Column, Id, InternalColumn, InternalTableProps, TableProps } from '../types';
 
 const noopParentId = () => undefined;
@@ -33,7 +34,7 @@ export function calcProps<T>(props: TableProps<T>): InternalTableProps<T> {
         id,
         value,
         sortBy = (v) => (typeof v === 'number' || v instanceof Date ? v : String(v)),
-        renderCell = (v) => v,
+        renderCell = asString,
         filterComponent,
         onFilterChange,
         onIsHiddenChange,

@@ -111,10 +111,10 @@ function App(): JSX.Element {
 
           col((x) => (x.type === 'sub' ? x.tags : []), {
             header: 'Tags',
-            filterComponent: <DefaultFilterComponent render={(x) => String(x)} />,
+            filterComponent: <TextFilterComponent />,
+            // filterComponent: <DefaultFilterComponent render={(x) => String(x)} />,
             // defaultIsHidden: true,
             sortBy: [(x) => x.includes('bar'), (x) => x[0]],
-            renderCell: (tags) => tags.join(', '),
           }),
         ]}
         classes={classes}

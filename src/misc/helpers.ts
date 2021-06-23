@@ -70,5 +70,10 @@ export const c = (...classNames: (string | Record<string, boolean> | undefined)[
   }).join(' ');
 
 export const identity = (x: unknown): any => x;
+export const asString = (x: unknown): string => {
+  if (x instanceof Array) return x.map(asString).join(', ');
+  if (x instanceof Object) return JSON.stringify(x);
+  return String(x ?? '');
+};
 export const defaultEquals = (a: unknown, b: unknown): boolean => a === b;
 export const subStringMatch = (a: string, b: string): boolean => a.toLowerCase().includes(b.toLowerCase());
