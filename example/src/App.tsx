@@ -122,6 +122,7 @@ function App(): JSX.Element {
         // debug={(...args) => console.log(...args)}
         virtual={{ throttleScroll: 16 }}
         fullWidth="left"
+        revealFiltered
       />
     </div>
   );

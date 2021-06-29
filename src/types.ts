@@ -23,6 +23,7 @@ export type TableProps<T> = {
   selection?: Set<Id>;
   onSelectionChange?: (selection: Set<Id>) => void;
   selectSyncChildren?: boolean;
+  revealFiltered?: boolean;
 
   defaultExpanded?: Set<Id>;
   expanded?: Set<Id>;

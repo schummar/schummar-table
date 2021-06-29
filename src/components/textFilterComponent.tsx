@@ -1,11 +1,12 @@
 import { IconButton, makeStyles, TextField } from '@material-ui/core';
 import { Clear, Search } from '@material-ui/icons';
 import React, { useEffect, useState } from 'react';
-import { asString, subStringMatch } from '../misc/helpers';
+import { asString } from '../misc/helpers';
+import '../misc/textMatch';
+import { textMatch } from '../misc/textMatch';
 import { useColumnContext, useTableContext } from '../table';
 import { InternalColumn } from '../types';
 import { Filter } from './filterComponent';
-
 export class TextFilter<T> implements Filter<T> {
   constructor(public readonly query: string, public readonly filter: (item: T) => boolean) {}
 }
@@ -23,7 +24,7 @@ const useClasses = makeStyles((theme) => ({
 
 export function TextFilterComponent<T, V>({
   filterBy = asString,
-  compare = subStringMatch,
+  compare = textMatch,
 }: {
   filterBy?: (value: V, item: T) => string;
   compare?: (a: string, b: string) => boolean;

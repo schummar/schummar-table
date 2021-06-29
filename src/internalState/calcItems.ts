@@ -13,12 +13,13 @@ export function calcItems<T>(state: Store<InternalTableState<T>>): void {
             state.props.items,
             state.props.id,
             state.props.parentId,
+            state.props.revealFiltered,
             state.sort,
             state.filters,
             state.activeColumns,
             state.expanded,
           ] as const,
-        ([items, id, parentId, sort, filters, activeColumns, expanded], draft) => {
+        ([items, id, parentId, revealFiltered, sort, filters, activeColumns], draft) => {
           const tableItems = items.map<TableItem<T>>((item) => ({
             ...item,
             id: id(item),
@@ -73,12 +74,18 @@ export function calcItems<T>(state: Store<InternalTableState<T>>): void {
             .filter((item) => {
               let isActive = activeSet.has(item.id);
 
-              isActive ||=
-                (item.parentId === undefined || expanded.has(item.parentId)) &&
-                activeColumns.every((column) => {
-                  const filter = filters.get(column.id);
-                  return filter?.filter(item) ?? true;
-                });
+              isActive ||= activeColumns.every((column) => {
+                const filter = filters.get(column.id);
+                return filter?.filter(item) ?? true;
+              });
+
+              if (isActive && item.parentId !== undefined) {
+                if (revealFiltered && filters.size > 0) {
+                  draft.expanded.add(item.parentId);
+                } else if (!draft.expanded.has(item.parentId)) {
+                  isActive = false;
+                }
+              }
 
               if (isActive && item.parentId !== undefined) {
                 activeSet.add(item.parentId);
