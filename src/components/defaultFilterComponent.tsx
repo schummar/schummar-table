@@ -1,7 +1,7 @@
 import { Button, Checkbox, FormControlLabel, IconButton, makeStyles, TextField } from '@material-ui/core';
 import { Clear, Search } from '@material-ui/icons';
 import React, { ReactNode, useCallback, useState } from 'react';
-import { defaultEquals, flatMap, identity, orderBy, uniq } from '../misc/helpers';
+import { asString, defaultEquals, flatMap, orderBy, uniq } from '../misc/helpers';
 import { useColumnContext, useTableContext } from '../table';
 import { InternalColumn } from '../types';
 import { Filter } from './filterComponent';
@@ -26,23 +26,27 @@ type UnwrapArray<O> = O extends Array<infer S> ? S : O;
 export function DefaultFilterComponent<V>(props: {
   options?: UnwrapArray<V>[];
   compare?: (a: UnwrapArray<V>, b: UnwrapArray<V>) => boolean;
+  stringValue?: (value: UnwrapArray<V>) => string;
   render?: (value: UnwrapArray<V>) => ReactNode;
 }): JSX.Element;
 export function DefaultFilterComponent<T, V, O>(props: {
   filterBy?: (value: V, item: T) => O | O[];
   options?: O[];
   compare?: (a: O, b: O) => boolean;
+  stringValue?: (value: O) => string;
   render?: (value: O) => ReactNode;
 }): JSX.Element;
 export function DefaultFilterComponent<T, V, O>({
   filterBy: _filterBy,
   options: _options,
   compare = defaultEquals,
-  render = identity,
+  stringValue = asString,
+  render = stringValue,
 }: {
   filterBy?: (value: V, item: T) => O | O[];
   options?: O[];
   compare?: (a: O, b: O) => boolean;
+  stringValue?: (value: O) => string;
   render?: (value: O) => ReactNode;
 }): JSX.Element {
   const classes = useClasses();
@@ -69,7 +73,7 @@ export function DefaultFilterComponent<T, V, O>({
   );
 
   const [input, setInput] = useState('');
-  const filtered = options.filter((option) => !input || String(option).toLowerCase().includes(input.toLowerCase()));
+  const filtered = options.filter((option) => !input || stringValue(option).toLowerCase().includes(input.toLowerCase()));
 
   function toggle(value: O) {
     const column = state.getState().activeColumns.find((column) => column.id === columnId) as InternalColumn<T, V> | undefined;

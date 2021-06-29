@@ -6,8 +6,8 @@ export function syncSelections<T>(state: Store<InternalTableState<T>>): void {
   useEffect(
     () =>
       state.addReaction(
-        (state) => [state.props.onSelectionChange, state.selection, state.activeItems] as const,
-        ([onSelectionChange, selection, activeItems], state) => {
+        (state) => [state.selection, state.activeItems] as const,
+        ([selection, activeItems], state) => {
           if (!state.props.selectSyncChildren) return;
 
           const newSelection = new Set(selection);
@@ -19,7 +19,7 @@ export function syncSelections<T>(state: Store<InternalTableState<T>>): void {
 
           if (newSelection.size !== selection.size) {
             state.selection = newSelection;
-            onSelectionChange?.(newSelection);
+            state.props.onSelectionChange?.(newSelection);
           }
         },
         { runNow: true },

@@ -33,7 +33,7 @@ type SubItem = {
   tags: string[];
 };
 
-const N = 1,
+const N = 1000,
   M = 10;
 const loadTop = new Action(async () => {
   // await new Promise((r) => setTimeout(r, 1000));
@@ -48,8 +48,6 @@ function App(): JSX.Element {
   const [selected, setSelected] = useState<Set<any>>(new Set());
   const [children, setChildren] = useState<SubItem[]>([]);
   const [topItems = []] = loadTop.useAction(undefined);
-
-  console.log(selected);
 
   // console.log(active, children1, children2);
 
@@ -85,11 +83,12 @@ function App(): JSX.Element {
         parentId={(x) => (x.type === 'sub' ? x.parentId : undefined)}
         hasDeferredChildren={(x) => !x.id.replace('_', '').includes('_')}
         onExpandedChange={(e) => {
-          setActive([...e].map(String));
+          // setActive([...e].map(String));
         }}
         onSelectionChange={setSelected}
         expandOnlyOne
         selectSyncChildren
+        // expanded={new Set('0')}
         columns={(col) => [
           col((x) => x.id, {
             header: 'Id',
@@ -105,7 +104,7 @@ function App(): JSX.Element {
 
           col((x) => (x.type === 'sub' ? x.state : null), {
             header: 'State',
-            filterComponent: <DefaultFilterComponent />,
+            filterComponent: <DefaultFilterComponent stringValue={(v) => v + '#'} />,
             width: '20ch',
           }),
 
@@ -121,7 +120,7 @@ function App(): JSX.Element {
         // dependencies={[]}
         stickyHeader
         // debug={(...args) => console.log(...args)}
-        virtual
+        virtual={{ throttleScroll: 16 }}
         fullWidth="left"
       />
     </div>
