@@ -19,7 +19,7 @@ export function calcItems<T>(state: Store<InternalTableState<T>>): void {
             state.activeColumns,
             state.expanded,
           ] as const,
-        ([items, id, parentId, revealFiltered, sort, filters, activeColumns], draft) => {
+        ([items = [], id, parentId, revealFiltered, sort, filters, activeColumns], draft) => {
           const tableItems = items.map<TableItem<T>>((item) => ({
             ...item,
             id: id(item),

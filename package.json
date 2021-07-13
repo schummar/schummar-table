@@ -1,7 +1,7 @@
 {
   "name": "schummar-table",
   "repository": "schummar/schummar-table",
-  "version": "0.0.13",
+  "version": "0.0.14",
   "description": "",
   "type": "module",
   "sideEffects": false,
@@ -17,9 +17,10 @@
   },
   "license": "ISC",
   "scripts": {
-    "start": "run-p start:*",
-    "start:esm": "tsc --watch",
-    "start:cjs": "tsc -p tsconfig-cjs.json --watch",
+    "start": "npm --prefix example run dev",
+    "dev": "run-p start:*",
+    "dev:esm": "tsc --watch",
+    "dev:cjs": "tsc -p tsconfig-cjs.json --watch",
     "build": "npm-run-all -s build:clean -p build:compile:*",
     "build:clean": "rimraf dist/**",
     "build:compile:esm": "tsc",
@@ -56,5 +57,8 @@
   },
   "files": [
     "dist"
+  ],
+  "workspaces": [
+    "example"
   ]
 }

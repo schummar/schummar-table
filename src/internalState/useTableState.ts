@@ -29,14 +29,7 @@ export function useTableState<T>(_props: TableProps<T>): Store<InternalTableStat
             }
           return filters;
         })(),
-        isHidden: (() => {
-          const isHidden = new Map<Id, boolean>();
-          for (const column of props.columns)
-            if (column.defaultIsHidden !== undefined) {
-              isHidden.set(column.id, column.defaultIsHidden);
-            }
-          return isHidden;
-        })(),
+        hiddenColumns: props.defaultHiddenColumns ?? new Set(),
 
         activeColumns: [],
         items: [],
@@ -59,9 +52,9 @@ export function useTableState<T>(_props: TableProps<T>): Store<InternalTableStat
       if (props.sort) state.sort = props.sort;
       if (props.selection) state.selection = props.selection;
       if (props.expanded) state.expanded = props.expanded;
+      if (props.hiddenColumns) state.hiddenColumns = props.hiddenColumns;
       for (const column of props.columns) {
         if (column.filter) state.filters.set(column.id, column.filter);
-        if (column.isHidden !== undefined) state.isHidden.set(column.id, column.isHidden);
       }
     });
   }, [state, props]);

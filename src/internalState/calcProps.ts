@@ -37,7 +37,6 @@ export function calcProps<T>(props: TableProps<T>): InternalTableProps<T> {
         renderCell = asString,
         filterComponent,
         onFilterChange,
-        onIsHiddenChange,
       }: Column<T, V>,
       index: number,
     ) {
@@ -48,7 +47,6 @@ export function calcProps<T>(props: TableProps<T>): InternalTableProps<T> {
         renderCell,
         filterComponent,
         onFilterChange,
-        onIsHiddenChange,
       };
     });
 
@@ -58,6 +56,7 @@ export function calcProps<T>(props: TableProps<T>): InternalTableProps<T> {
       hasDeferredChildren: props.hasDeferredChildren,
       onSortChange: props.onSortChange,
       onExpandedChange: props.onExpandedChange,
+      onHiddenColumnsChange: props.onHiddenColumnsChange,
       debug: props.debug,
       columns,
     };

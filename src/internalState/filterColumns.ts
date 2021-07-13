@@ -6,9 +6,9 @@ export function filterColumns<T>(state: Store<InternalTableState<T>>): void {
   useEffect(
     () =>
       state.addReaction(
-        (state) => [state.props.columns, state.isHidden] as const,
-        ([columns, isHidden], draft) => {
-          draft.activeColumns = columns.filter((column) => !isHidden.get(column.id));
+        (state) => [state.props.columns, state.hiddenColumns] as const,
+        ([columns, hiddenColumns], draft) => {
+          draft.activeColumns = columns.filter((column) => !hiddenColumns.has(column.id));
         },
         { runNow: true },
       ),

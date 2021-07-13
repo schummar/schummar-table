@@ -16,18 +16,24 @@ export function ColumnSelection<T>(): JSX.Element {
   const [anchor, setAnchor] = useState<HTMLButtonElement | null>(null);
   const state = useTableContext<T>();
   const columns = state.useState('props.columns');
-  const isHidden = state.useState('isHidden');
+  const hiddenColumns = state.useState('hiddenColumns');
 
   const toggle = (column: InternalColumn<T, unknown>) => {
-    const newValue = !isHidden.get(column.id);
+    const {
+      props: { hiddenColumns: controlledHiddenColumns, onHiddenColumnsChange },
+    } = state.getState();
 
-    if (column.isHidden === undefined) {
+    const newValue = new Set(hiddenColumns);
+    if (hiddenColumns.has(column.id)) newValue.delete(column.id);
+    else newValue.add(column.id);
+
+    if (!controlledHiddenColumns) {
       state.update((state) => {
-        state.isHidden.set(column.id, newValue);
+        state.hiddenColumns = newValue;
       });
     }
 
-    column.onIsHiddenChange?.(newValue);
+    onHiddenColumnsChange?.(newValue);
   };
 
   return (
@@ -47,9 +53,7 @@ export function ColumnSelection<T>(): JSX.Element {
           {columns.map((column) => (
             <FormControlLabel
               key={column.id}
-              control={
-                <Checkbox checked={!isHidden.get(column.id)} onChange={() => toggle(column)} disabled={column.isHidden !== undefined} />
-              }
+              control={<Checkbox checked={!hiddenColumns.has(column.id)} onChange={() => toggle(column)} disabled={column.cannotHide} />}
               label={column.header}
             />
           ))}

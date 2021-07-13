@@ -6,9 +6,9 @@ import { flatMap } from '../../src/misc/helpers';
 
 const useClasses = makeStyles((theme) => ({
   container: {
-    // marginTop: '10vh',
-    // height: '70vh',
-    // overflow: 'auto',
+    marginTop: '10vh',
+    height: '70vh',
+    overflow: 'auto',
     display: 'grid',
     gridTemplateRows: 'max-content 1fr',
   },
@@ -47,7 +47,7 @@ function App(): JSX.Element {
   const [active, setActive] = useState<string[]>(['0']);
   const [selected, setSelected] = useState<Set<any>>(new Set());
   const [children, setChildren] = useState<SubItem[]>([]);
-  const [topItems = []] = loadTop.useAction(undefined);
+  const [topItems] = loadTop.useAction(undefined);
 
   // console.log(active, children1, children2);
 
@@ -78,7 +78,7 @@ function App(): JSX.Element {
       <div style={{ height: 200 }}></div>
 
       <Table
-        items={[...topItems, ...children]}
+        items={topItems ? [...topItems, ...children] : undefined}
         id="id"
         parentId={(x) => (x.type === 'sub' ? x.parentId : undefined)}
         hasDeferredChildren={(x) => !x.id.replace('_', '').includes('_')}
@@ -88,6 +88,9 @@ function App(): JSX.Element {
         onSelectionChange={setSelected}
         expandOnlyOne
         selectSyncChildren
+        defaultHiddenColumns={new Set([3])}
+        onHiddenColumnsChange={(...args) => console.log(...args)}
+        defaultExpanded={new Set('0')}
         // expanded={new Set('0')}
         columns={(col) => [
           col((x) => x.id, {

@@ -8,7 +8,7 @@ export type Id = string | number;
 export type KeyOfType<T, S> = { [K in keyof T]: T[K] extends S ? K : never }[keyof T];
 
 export type TableProps<T> = {
-  items: T[];
+  items?: T[];
   id: ((item: T) => Id) | KeyOfType<T, Id>;
   parentId?: ((item: T) => Id | undefined) | KeyOfType<T, Id | undefined>;
   hasDeferredChildren?: (item: T) => boolean;
@@ -29,6 +29,10 @@ export type TableProps<T> = {
   expanded?: Set<Id>;
   onExpandedChange?: (expanded: Set<Id>) => void;
   expandOnlyOne?: boolean;
+
+  defaultHiddenColumns?: Set<Id>;
+  hiddenColumns?: Set<Id>;
+  onHiddenColumnsChange?: (hiddenColumns: Set<Id>) => void;
 
   defaultWidth?: string;
   fullWidth?: boolean | 'left' | 'right';
@@ -69,9 +73,6 @@ export type Column<T, V> = {
   filter?: Filter<V>;
   onFilterChange?: (filter?: Filter<T>) => void;
 
-  defaultIsHidden?: boolean;
-  isHidden?: boolean;
-  onIsHiddenChange?: (isHidden: boolean) => void;
   cannotHide?: boolean;
 
   width?: string;
@@ -109,7 +110,7 @@ export type InternalTableState<T> = {
   expanded: Set<Id>;
   rowHeights: Map<Id, number>;
   filters: Map<Id, Filter<unknown> | undefined>;
-  isHidden: Map<Id, boolean>;
+  hiddenColumns: Set<Id>;
 
   // Helper data structures for efficient lookup etc.
   activeColumns: InternalColumn<T, unknown>[];

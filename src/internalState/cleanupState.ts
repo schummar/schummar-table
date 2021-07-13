@@ -19,28 +19,30 @@ export function cleanupState<T>(state: Store<InternalTableState<T>>): void {
             draft.props.onSortChange?.(newSort);
           }
 
-          // Remove selection for non active items
-          const newSelection = intersect(draft.selection, activeItemsById);
-          if (newSelection.size !== draft.selection.size) {
-            draft.selection = newSelection;
-            draft.props.onSelectionChange?.(newSelection);
-          }
-
-          // Remove expanded for non existing items
-          const newExpanded = intersect(draft.expanded, itemsById);
-          if (newExpanded.size < draft.expanded.size) {
-            draft.expanded = newExpanded;
-            draft.props.onExpandedChange?.(newExpanded);
-          }
-
           // Remove filters for non active columns
           for (const id of draft.filters.keys()) {
             if (!activeColumnIds.has(id)) draft.filters.delete(id);
           }
 
-          // Remove isHidden for non existing columns
-          for (const id of draft.isHidden.keys()) {
-            if (!columnIds.has(id)) draft.isHidden.delete(id);
+          // Remove hiddenColumns for non existing columns
+          for (const id of draft.hiddenColumns.keys()) {
+            if (!columnIds.has(id)) draft.hiddenColumns.delete(id);
+          }
+
+          if (draft.props.items) {
+            // Remove selection for non active items
+            const newSelection = intersect(draft.selection, activeItemsById);
+            if (newSelection.size !== draft.selection.size) {
+              draft.selection = newSelection;
+              draft.props.onSelectionChange?.(newSelection);
+            }
+
+            // Remove expanded for non existing items
+            const newExpanded = intersect(draft.expanded, itemsById);
+            if (newExpanded.size < draft.expanded.size) {
+              draft.expanded = newExpanded;
+              draft.props.onExpandedChange?.(newExpanded);
+            }
           }
         },
         { runNow: true },
