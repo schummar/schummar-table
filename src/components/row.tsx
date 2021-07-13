@@ -1,6 +1,6 @@
-import React, { memo } from 'react';
+import React, { memo, useEffect, useRef } from 'react';
 import { c, getAncestors } from '../misc/helpers';
-import { useTableContext, ColumnContext } from '../table';
+import { ColumnContext, useTableContext } from '../table';
 import { Id, InternalColumn } from '../types';
 import { Cell } from './cell';
 import { ExpandComponent } from './expandComponent';
@@ -17,6 +17,7 @@ export const calcClassName = (classes: InternalColumn<any, any>['classes'] | und
 export const Row = memo(function Row<T>({ itemId }: { itemId: Id }): JSX.Element | null {
   const commonClasses = useCommonClasses();
   const state = useTableContext<T>();
+  const divRef = useRef<HTMLDivElement>(null);
 
   const { className, indent, hasChildren, hasDeferredChildren, columnIds } = state.useState(
     (state) => {
@@ -34,19 +35,25 @@ export const Row = memo(function Row<T>({ itemId }: { itemId: Id }): JSX.Element
     [itemId],
   );
 
+  useEffect(() => {
+    const div = divRef.current;
+    if (!div) return;
+
+    const o = new ResizeObserver(() => {
+      state.update((state) => {
+        state.rowHeights.set(itemId, div.offsetHeight);
+      });
+    });
+    o.observe(div);
+
+    return () => o.disconnect();
+  }, [divRef.current]);
+
   state.getState().props.debug?.('render row', itemId);
 
   return (
     <>
-      <div
-        className={c(commonClasses.cellFill, className)}
-        ref={(div) => {
-          if (div)
-            state.update((state) => {
-              state.rowHeights.set(itemId, div.offsetHeight);
-            });
-        }}
-      />
+      <div className={c(commonClasses.cellFill, className)} ref={divRef} />
 
       <div className={c(commonClasses.cell, commonClasses.firstCell, className)}>
         <div style={{ width: indent * 20 }} />

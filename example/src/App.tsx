@@ -6,9 +6,9 @@ import { flatMap } from '../../src/misc/helpers';
 
 const useClasses = makeStyles((theme) => ({
   container: {
-    marginTop: '10vh',
-    height: '70vh',
-    overflow: 'auto',
+    // marginTop: '10vh',
+    // height: '70vh',
+    // overflow: 'auto',
     display: 'grid',
     gridTemplateRows: 'max-content 1fr',
   },
@@ -48,6 +48,7 @@ function App(): JSX.Element {
   const [selected, setSelected] = useState<Set<any>>(new Set());
   const [children, setChildren] = useState<SubItem[]>([]);
   const [topItems] = loadTop.useAction(undefined);
+  const [big, setBig] = useState(true);
 
   // console.log(active, children1, children2);
 
@@ -74,7 +75,7 @@ function App(): JSX.Element {
   }, [active]);
 
   return (
-    <div className={classes.container}>
+    <div className={classes.container} onClick={() => setBig((b) => !b)}>
       <div style={{ height: 200 }}></div>
 
       <Table
@@ -90,13 +91,13 @@ function App(): JSX.Element {
         selectSyncChildren
         defaultHiddenColumns={new Set([3])}
         onHiddenColumnsChange={(...args) => console.log(...args)}
-        defaultExpanded={new Set('0')}
+        // defaultExpanded={new Set('0')}
         // expanded={new Set('0')}
         columns={(col) => [
           col((x) => x.id, {
             header: 'Id',
             filterComponent: <TextFilterComponent />,
-            renderCell: (id, x) => (x.type === 'top' ? <div style={{ height: x.h }}>{id}</div> : id),
+            renderCell: (id, x) => (x.type === 'top' ? <div style={{ height: x.h * (big ? 10 : 1) }}>{id}</div> : id),
             sortBy: (id) => id,
           }),
 
@@ -122,7 +123,7 @@ function App(): JSX.Element {
         classes={classes}
         // dependencies={[]}
         stickyHeader
-        // debug={(...args) => console.log(...args)}
+        debug={(...args) => console.log(...args)}
         virtual={{ throttleScroll: 16 }}
         fullWidth="left"
         revealFiltered
