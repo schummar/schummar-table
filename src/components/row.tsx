@@ -40,6 +40,7 @@ export const Row = memo(function Row<T>({ itemId }: { itemId: Id }): JSX.Element
     if (!div) return;
 
     const o = new ResizeObserver(() => {
+      if (!document.contains(div)) return;
       state.update((state) => {
         state.rowHeights.set(itemId, div.offsetHeight);
       });

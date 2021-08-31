@@ -123,7 +123,7 @@ function App(): JSX.Element {
         classes={classes}
         // dependencies={[]}
         stickyHeader
-        debug={(...args) => console.log(...args)}
+        debug={(...args) => console.debug(...args)}
         virtual={{ throttleScroll: 16 }}
         fullWidth="left"
         revealFiltered
