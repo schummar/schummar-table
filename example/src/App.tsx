@@ -93,6 +93,7 @@ function App(): JSX.Element {
         onHiddenColumnsChange={(...args) => console.log(...args)}
         // defaultExpanded={new Set('0')}
         // expanded={new Set('0')}
+        // wrapCell={(cell) => <div style={{ background: 'green' }}>{cell}</div>}
         columns={(col) => [
           col((x) => x.id, {
             header: 'Id',

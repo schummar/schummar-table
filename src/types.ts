@@ -50,6 +50,7 @@ export type TableProps<T> = {
     evenCell?: string;
     oddCell?: string;
   };
+  wrapCell?: (cell: ReactNode, item: T) => ReactNode;
   debug?: (...output: any) => void;
 };
 

@@ -8,21 +8,23 @@ export const Cell = memo(function Cell<T>({ itemId }: { itemId: Id }) {
   const commonClasses = useCommonClasses();
   const state = useTableContext<T>();
   const columnId = useColumnContext();
-  const { className, content } = state.useState(
+
+  const content = state.useState(
     (state) => {
       const item = state.activeItemsById.get(itemId);
       const column = state.activeColumns.find((column) => column.id === columnId);
+      if (!item || !column) return null;
 
       const index = item ? state.activeItems.indexOf(item) : -1;
-      return {
-        className: c(calcClassName(state.props.classes, index), calcClassName(column?.classes, index)),
-        content: item && column && column.renderCell(column.value(item), item),
-      };
+      const className = c(calcClassName(state.props.classes, index), calcClassName(column?.classes, index));
+      const wrapCell = state.props.wrapCell ?? ((cell) => <div className={c(commonClasses.cell, className)}>{cell}</div>);
+
+      return wrapCell(column.renderCell(column.value(item), item), item);
     },
-    [itemId, columnId],
+    [itemId, columnId, commonClasses],
   );
 
   state.getState().props.debug?.('render cell', itemId, columnId);
 
-  return <div className={c(commonClasses.cell, className)}>{content}</div>;
+  return <>{content}</>;
 });

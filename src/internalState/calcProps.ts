@@ -58,6 +58,7 @@ export function calcProps<T>(props: TableProps<T>): InternalTableProps<T> {
       onExpandedChange: props.onExpandedChange,
       onHiddenColumnsChange: props.onHiddenColumnsChange,
       debug: props.debug,
+      wrapCell: props.wrapCell,
       columns,
     };
   }, props.dependencies);
