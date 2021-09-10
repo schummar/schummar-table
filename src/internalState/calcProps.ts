@@ -5,22 +5,15 @@ import { Column, Id, InternalColumn, InternalTableProps, TableProps } from '../t
 const noopParentId = () => undefined;
 
 export function calcProps<T>(props: TableProps<T>): InternalTableProps<T> {
-  let inputColumns: Column<T, any>[];
-  if (props.columns instanceof Function) {
-    inputColumns = props.columns((value, column) => ({ ...column, value }));
-  } else {
-    inputColumns = props.columns;
-  }
-
-  const withMemoizedFunctions = useMemo(() => {
-    let id: (item: T) => Id;
+  return useMemo(() => {
+    let id;
     if (props.id instanceof Function) {
       id = props.id;
     } else {
       id = (item: T) => item[props.id as keyof T] as unknown as Id;
     }
 
-    let parentId: (item: T) => Id | undefined;
+    let parentId;
     if (props.parentId instanceof Function) {
       parentId = props.parentId;
     } else if (typeof props.parentId === 'string') {
@@ -29,68 +22,57 @@ export function calcProps<T>(props: TableProps<T>): InternalTableProps<T> {
       parentId = noopParentId;
     }
 
-    const columns = inputColumns.map(function <V>(
+    let inputColumns: Column<T, any>[];
+    if (props.columns instanceof Function) {
+      inputColumns = props.columns((value, column) => ({ ...column, value }));
+    } else {
+      inputColumns = props.columns;
+    }
+    const columns = inputColumns.map<InternalColumn<T, any>>(function <V>(
       {
         id,
-        value,
-        sortBy = (v) => (typeof v === 'number' || v instanceof Date ? v : String(v)),
+        header = null,
         renderCell = asString,
-        filterComponent,
-        onFilterChange,
+        exportCell = asString,
+        sortBy = (v) => (typeof v === 'number' || v instanceof Date ? v : String(v)),
+        ...props
       }: Column<T, V>,
       index: number,
     ) {
       return {
         id: id ?? index,
-        value,
-        sortBy,
+        header,
         renderCell,
-        filterComponent,
-        onFilterChange,
+        exportCell,
+        sortBy,
+        ...props,
       };
     });
 
+    let copy;
+    if (props.enableExport === true || (props.enableExport instanceof Object && props.enableExport.copy === true)) {
+      copy = { separator: '\t' };
+    } else if (props.enableExport && props.enableExport.copy instanceof Object) {
+      copy = props.enableExport.copy;
+    }
+
+    let download;
+    if (props.enableExport === true || (props.enableExport instanceof Object && props.enableExport.download === true)) {
+      download = { sepPrefix: true };
+    } else if (props.enableExport && props.enableExport.download instanceof Object) {
+      download = props.enableExport.download;
+    }
+
+    const enableExport = { copy, download };
+
     return {
+      ...props,
       id,
       parentId,
-      hasDeferredChildren: props.hasDeferredChildren,
-      onSortChange: props.onSortChange,
-      onExpandedChange: props.onExpandedChange,
-      onHiddenColumnsChange: props.onHiddenColumnsChange,
-      debug: props.debug,
-      wrapCell: props.wrapCell,
       columns,
+      enableSelection: props.enableSelection ?? true,
+      enableColumnSelection: props.enableColumnSelection ?? true,
+      enableExport,
     };
-  }, props.dependencies);
-
-  const columns = inputColumns.map(function <V>(
-    {
-      id,
-      header = null,
-      value,
-      sortBy = (v) => (typeof v === 'number' || v instanceof Date ? v : String(v)),
-      renderCell = (v) => v,
-      ...props
-    }: Column<T, V>,
-    index: number,
-  ): InternalColumn<T, V> {
-    return {
-      ...props,
-      id: id ?? index,
-      header,
-      value,
-      sortBy,
-      renderCell,
-      ...withMemoizedFunctions.columns.find((c) => c.id === (id ?? index)),
-    };
-  });
-
-  return useMemo(
-    () => ({
-      ...props,
-      ...withMemoizedFunctions,
-      columns,
-    }),
-    [props],
-  );
+  }, [props]);
 }

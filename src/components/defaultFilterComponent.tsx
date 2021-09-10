@@ -53,11 +53,13 @@ export function DefaultFilterComponent<T, V, O>({
   const state = useTableContext<T>();
   const columnId = useColumnContext();
 
-  const deps = state.useState('props.dependencies');
-  const filterBy: (value: V, item: T) => O[] = useCallback((value, item) => {
-    const values = _filterBy ? _filterBy(value, item) : (value as unknown as O);
-    return values instanceof Array ? values : [values];
-  }, deps ?? [_filterBy]);
+  const filterBy: (value: V, item: T) => O[] = useCallback(
+    (value, item) => {
+      const values = _filterBy ? _filterBy(value, item) : (value as unknown as O);
+      return values instanceof Array ? values : [values];
+    },
+    [_filterBy],
+  );
 
   const { text, options, filter } = state.useState(
     (state) => {

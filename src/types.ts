@@ -1,5 +1,6 @@
-import { CSSProperties, DependencyList, ReactNode } from 'react';
+import { CSSProperties, ReactNode } from 'react';
 import { Filter } from './components/filterComponent';
+import { CsvExportOptions } from './misc/csvExport';
 
 export type Sort = { columnId: string | number; direction: SortDirection };
 export type SortDirection = 'asc' | 'desc';
@@ -36,12 +37,14 @@ export type TableProps<T> = {
 
   defaultWidth?: string;
   fullWidth?: boolean | 'left' | 'right';
-  dependencies?: DependencyList;
   stickyHeader?: boolean;
   virtual?: boolean | { rowHeight?: number; initalRowHeight?: number; throttleScroll?: number };
 
   text?: {
     deselectAll?: string;
+    exportTitle?: string;
+    exportCopy?: string;
+    exportDownload?: string;
   };
   classes?: {
     table?: string;
@@ -52,12 +55,22 @@ export type TableProps<T> = {
   };
   wrapCell?: (cell: ReactNode, item: T) => ReactNode;
   debug?: (...output: any) => void;
+
+  enableSelection?: boolean;
+  enableColumnSelection?: boolean;
+  enableExport?: boolean | { copy?: boolean | CsvExportOptions; download?: boolean | CsvExportOptions };
 };
 
-export type InternalTableProps<T> = Omit<TableProps<T>, 'id' | 'parentId' | 'columns'> & {
+export type InternalTableProps<T> = Omit<
+  TableProps<T>,
+  'id' | 'parentId' | 'columns' | 'enableSelection' | 'enableColumnSelection' | 'enableExport'
+> & {
   id: (item: T) => Id;
   parentId?: (item: T) => Id | undefined;
   columns: InternalColumn<T, unknown>[];
+  enableSelection: boolean;
+  enableColumnSelection: boolean;
+  enableExport: { copy?: CsvExportOptions; download?: CsvExportOptions };
 };
 
 export type TableItem<T = unknown> = T & { id: Id; parentId?: Id; children: TableItem<T>[] };
@@ -67,6 +80,7 @@ export type Column<T, V> = {
   header?: ReactNode;
   value: (item: T) => V;
   renderCell?: (value: V, item: T) => ReactNode;
+  exportCell?: (value: V, item: T) => string | number;
   sortBy?: ((value: V, item: T) => unknown) | ((value: V) => unknown)[];
 
   filterComponent?: ReactNode;
@@ -91,7 +105,7 @@ export type InternalColumn<T, V> = Required<
   Omit<Column<T, V>, 'id'> & {
     id: Id;
   },
-  'header' | 'stringValue' | 'sortBy' | 'renderValue' | 'renderCell'
+  'header' | 'stringValue' | 'sortBy' | 'renderValue' | 'renderCell' | 'exportCell'
 >;
 
 type Required<T, S> = T &

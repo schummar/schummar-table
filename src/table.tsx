@@ -1,6 +1,7 @@
 import React, { createContext, memo, useContext } from 'react';
 import { Store } from 'schummar-state/react';
 import { ColumnSelection } from './components/columnSelection';
+import { Export } from './components/export';
 import { FilterComponent } from './components/filterComponent';
 import { Row } from './components/row';
 import { SelectComponent } from './components/selectComponent';
@@ -50,6 +51,9 @@ const TableInner = memo(function TableInner<T>(): JSX.Element {
   const defaultWidth = state.useState('props.defaultWidth');
   const classes = state.useState('props.classes');
   const stickyHeader = state.useState('props.stickyHeader');
+  const enableSelection = state.useState('props.enableSelection');
+  const enableColumnSelection = state.useState('props.enableColumnSelection');
+  const enableExport = state.useState((state) => !!state.props.enableExport.copy || !!state.props.enableExport.download);
 
   state.getState().props.debug?.('render table inner');
 
@@ -70,9 +74,11 @@ const TableInner = memo(function TableInner<T>(): JSX.Element {
           <div className={c(commonClasses.headerFill, { [commonClasses.sticky]: !!stickyHeader }, classes?.headerCell)} />
 
           <div className={c(commonClasses.headerCell, { [commonClasses.sticky]: !!stickyHeader }, classes?.headerCell)}>
-            <SelectComponent />
+            {enableSelection && <SelectComponent />}
 
-            <ColumnSelection />
+            {enableColumnSelection && <ColumnSelection />}
+
+            {enableExport && <Export />}
           </div>
 
           {activeColumns.map((column) => (

@@ -75,7 +75,7 @@ function App(): JSX.Element {
   }, [active]);
 
   return (
-    <div className={classes.container} onClick={() => setBig((b) => !b)}>
+    <div className={classes.container}>
       <div style={{ height: 200 }}></div>
 
       <Table
@@ -87,6 +87,7 @@ function App(): JSX.Element {
           // setActive([...e].map(String));
         }}
         onSelectionChange={setSelected}
+        // disableSelection
         expandOnlyOne
         selectSyncChildren
         defaultHiddenColumns={new Set([3])}
@@ -94,6 +95,7 @@ function App(): JSX.Element {
         // defaultExpanded={new Set('0')}
         // expanded={new Set('0')}
         // wrapCell={(cell) => <div style={{ background: 'green' }}>{cell}</div>}
+        enableExport
         columns={(col) => [
           col((x) => x.id, {
             header: 'Id',
@@ -122,7 +124,6 @@ function App(): JSX.Element {
           }),
         ]}
         classes={classes}
-        // dependencies={[]}
         stickyHeader
         debug={(...args) => console.debug(...args)}
         virtual={{ throttleScroll: 16 }}

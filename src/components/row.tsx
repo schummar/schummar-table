@@ -19,7 +19,7 @@ export const Row = memo(function Row<T>({ itemId }: { itemId: Id }): JSX.Element
   const state = useTableContext<T>();
   const divRef = useRef<HTMLDivElement>(null);
 
-  const { className, indent, hasChildren, hasDeferredChildren, columnIds } = state.useState(
+  const { className, indent, hasChildren, hasDeferredChildren, columnIds, enableSelection } = state.useState(
     (state) => {
       const item = state.activeItemsById.get(itemId);
       const index = !item ? -1 : state.activeItems.indexOf(item);
@@ -30,6 +30,7 @@ export const Row = memo(function Row<T>({ itemId }: { itemId: Id }): JSX.Element
         hasChildren: !!item?.children.length,
         hasDeferredChildren: item && state.props.hasDeferredChildren?.(item),
         columnIds: state.activeColumns.map((column) => column.id),
+        enableSelection: state.props.enableSelection,
       };
     },
     [itemId],
@@ -59,7 +60,7 @@ export const Row = memo(function Row<T>({ itemId }: { itemId: Id }): JSX.Element
       <div className={c(commonClasses.cell, commonClasses.firstCell, className)}>
         <div style={{ width: indent * 20 }} />
 
-        <SelectComponent itemId={itemId} />
+        {enableSelection && <SelectComponent itemId={itemId} />}
 
         {(hasChildren || hasDeferredChildren) && <ExpandComponent itemId={itemId} />}
       </div>
