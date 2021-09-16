@@ -1,5 +1,12 @@
 # Changelog
 
+### [0.2.1](https://www.github.com/schummar/schummar-table/compare/v0.2.0...v0.2.1) (2021-09-16)
+
+
+### Bug Fixes
+
+* correcty peer deps versions ([81599aa](https://www.github.com/schummar/schummar-table/commit/81599aafb3fc8633bc148c19116cc6442c8d5ff2))
+
 ## [0.2.0](https://www.github.com/schummar/schummar-table/compare/v0.1.0...v0.2.0) (2021-09-10)
 
 
