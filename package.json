@@ -36,16 +36,16 @@
   "peerDependencies": {
     "@material-ui/core": ">=4.11.4",
     "@material-ui/icons": ">=4.11.2",
-    "@types/react": "^17.0.11",
-    "immer": "^9.0.3",
+    "@types/react": ">=17.0.11",
+    "immer": ">=9.0.3",
     "react": ">=16.8.0",
-    "schummar-state": "^0.0.36"
+    "schummar-state": ">=0.0.36"
   },
   "devDependencies": {
-    "@testing-library/react": "^12.0.0",
+    "@testing-library/react": "^12.1.0",
     "@types/react": "*",
-    "@typescript-eslint/eslint-plugin": "^4.31.0",
-    "@typescript-eslint/parser": "^4.31.0",
+    "@typescript-eslint/eslint-plugin": "^4.31.1",
+    "@typescript-eslint/parser": "^4.31.1",
     "ava": "^3.15.0",
     "eslint": "^7.32.0",
     "global-jsdom": "^8.2.0",
@@ -53,13 +53,13 @@
     "jsdom": "^17.0.0",
     "npm-run-all": "^4.1.5",
     "nyc": "^15.1.0",
-    "prettier": "^2.4.0",
+    "prettier": "^2.4.1",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "rimraf": "^3.0.2",
     "schummar-state": "*",
     "ts-node": "^9.1.1",
-    "typescript": "^4.4.2"
+    "typescript": "^4.4.3"
   },
   "files": [
     "dist"
