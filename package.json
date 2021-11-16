@@ -18,7 +18,7 @@
   "license": "ISC",
   "scripts": {
     "start": "npm --prefix example run dev",
-    "dev": "run-p start:*",
+    "dev": "run-p dev:*",
     "dev:esm": "tsc --watch",
     "dev:cjs": "tsc -p tsconfig-cjs.json --watch",
     "build": "npm-run-all -s build:clean -p build:compile:*",

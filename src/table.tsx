@@ -102,7 +102,7 @@ const TableInner = memo(function TableInner<T>(): JSX.Element {
         </>
       }
     >
-      {(itemIds) => itemIds.map((itemId) => <Row key={itemId} itemId={itemId} />)}
+      {(itemIds, startIndex) => itemIds.map((itemId, index) => <Row key={itemId} itemId={itemId} rowIndex={startIndex + index} />)}
     </Virtualized>
   );
 });

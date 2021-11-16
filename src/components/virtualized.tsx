@@ -34,7 +34,7 @@ export function Virtualized<T>({
   header,
   children,
   ...props
-}: { header: ReactNode; children: (itemIds: Id[]) => ReactNode } & HTMLProps<HTMLDivElement>): JSX.Element {
+}: { header: ReactNode; children: (itemIds: Id[], startIndex: number) => ReactNode } & HTMLProps<HTMLDivElement>): JSX.Element {
   const state = useTableContext<T>();
   const virtual = state.useState('props.virtual');
   const probeRef = useRef<HTMLDivElement>(null);
@@ -42,7 +42,7 @@ export function Virtualized<T>({
 
   const {
     itemIds = [],
-    from,
+    from = 0,
     to,
     before = 0,
     after = 0,
@@ -53,7 +53,13 @@ export function Virtualized<T>({
       if (!state.props.virtual) return { itemIds };
       if (!probeRef.current || !root || !document.contains(root)) return {};
 
-      const { rowHeight, initalRowHeight } = (state.props.virtual instanceof Object ? state.props.virtual : undefined) ?? {};
+      const {
+        rowHeight,
+        initalRowHeight,
+        overscan = 200,
+        overscanTop,
+        overscanBottom,
+      } = (state.props.virtual instanceof Object ? state.props.virtual : undefined) ?? {};
 
       let totalHeight = 0;
       const rowHeights = itemIds.map((itemId, index) => {
@@ -72,13 +78,13 @@ export function Virtualized<T>({
         before = 0,
         after = 0;
       for (const h of rowHeights) {
-        if (before + h > topOfTable) break;
+        if (before + h > topOfTable - (overscanTop ?? overscan)) break;
         from++;
         before += h;
       }
 
       for (const h of rowHeights.reverse()) {
-        if (after + h > totalHeight - bottomOfTable) break;
+        if (after + h > totalHeight - bottomOfTable - (overscanBottom ?? overscan)) break;
         to--;
         after += h;
       }
@@ -104,7 +110,7 @@ export function Virtualized<T>({
 
       {virtual && <div style={{ gridColumn: '1 / -1', height: before }} ref={probeRef} />}
 
-      {children(itemIds)}
+      {children(itemIds, from)}
 
       {virtual && <div style={{ gridColumn: '1 / -1', height: after }} />}
     </div>

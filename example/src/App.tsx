@@ -6,6 +6,7 @@ import { flatMap } from '../../src/misc/helpers';
 
 const useClasses = makeStyles((theme) => ({
   container: {
+    padding: 20,
     // marginTop: '10vh',
     // height: '70vh',
     // overflow: 'auto',
@@ -13,7 +14,7 @@ const useClasses = makeStyles((theme) => ({
     gridTemplateRows: 'max-content 1fr',
   },
   oddCell: {
-    background: theme.palette.grey[100],
+    // background: theme.palette.grey[100],
   },
 }));
 
@@ -100,7 +101,7 @@ function App(): JSX.Element {
           col((x) => x.id, {
             header: 'Id',
             filterComponent: <TextFilterComponent />,
-            renderCell: (id, x) => (x.type === 'top' ? <div style={{ height: x.h * (big ? 10 : 1) }}>{id}</div> : id),
+            renderCell: (id, x) => (x.type === 'top' ? <div>{id}</div> : id),
             sortBy: (id) => id,
           }),
 

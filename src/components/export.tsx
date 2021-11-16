@@ -1,5 +1,5 @@
 import { Button, IconButton, makeStyles, Popover, Typography } from '@material-ui/core';
-import { AssignmentReturn, CloudDownload, GetApp } from '@material-ui/icons';
+import { AssignmentReturn, CloudDownload } from '@material-ui/icons';
 import React, { useState } from 'react';
 import { csvExport, CsvExportOptions } from '../misc/csvExport';
 import { useTableContext } from '../table';
@@ -49,8 +49,8 @@ export function Export<T>(): JSX.Element {
 
   return (
     <>
-      <IconButton color="inherit" onClick={(e) => setAnchor(e.currentTarget)}>
-        <GetApp />
+      <IconButton color="inherit" size="small" onClick={(e) => setAnchor(e.currentTarget)}>
+        <CloudDownload />
       </IconButton>
 
       <Popover
@@ -58,7 +58,7 @@ export function Export<T>(): JSX.Element {
         onClose={() => setAnchor(null)}
         anchorEl={anchor}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-        transformOrigin={{ vertical: 'top', horizontal: 'center' }}
+        transformOrigin={{ vertical: 'top', horizontal: 'left' }}
       >
         <div className={classes.dialog}>
           <Typography variant="caption">{textTitle ?? 'Export'}</Typography>

@@ -14,7 +14,7 @@ export const calcClassName = (classes: InternalColumn<any, any>['classes'] | und
     classes?.oddCell === undefined ? undefined : { [classes.oddCell]: index % 2 === 1 },
   );
 
-export const Row = memo(function Row<T>({ itemId }: { itemId: Id }): JSX.Element | null {
+export const Row = memo(function Row<T>({ itemId, rowIndex }: { itemId: Id; rowIndex: number }): JSX.Element | null {
   const commonClasses = useCommonClasses();
   const state = useTableContext<T>();
   const divRef = useRef<HTMLDivElement>(null);
@@ -67,7 +67,7 @@ export const Row = memo(function Row<T>({ itemId }: { itemId: Id }): JSX.Element
 
       {columnIds.map((columnId) => (
         <ColumnContext.Provider key={columnId} value={columnId}>
-          <Cell itemId={itemId} />
+          <Cell itemId={itemId} rowIndex={rowIndex} />
         </ColumnContext.Provider>
       ))}
 

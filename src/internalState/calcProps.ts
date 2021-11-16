@@ -1,10 +1,12 @@
-import { useMemo } from 'react';
+import { useMemo, useRef } from 'react';
 import { asString } from '../misc/helpers';
 import { Column, Id, InternalColumn, InternalTableProps, TableProps } from '../types';
 
 const noopParentId = () => undefined;
 
 export function calcProps<T>(props: TableProps<T>): InternalTableProps<T> {
+  const columnCache = useRef(new Map<string | number, [any[], InternalColumn<T, any>]>());
+
   return useMemo(() => {
     let id;
     if (props.id instanceof Function) {
@@ -22,12 +24,15 @@ export function calcProps<T>(props: TableProps<T>): InternalTableProps<T> {
       parentId = noopParentId;
     }
 
-    let inputColumns: Column<T, any>[];
+    let inputColumns;
     if (props.columns instanceof Function) {
       inputColumns = props.columns((value, column) => ({ ...column, value }));
     } else {
-      inputColumns = props.columns;
+      inputColumns = props.columns.map((column) => ({ ...column, dependecies: undefined }));
     }
+
+    const newColumnCache = new Map<string | number, [any[], InternalColumn<T, any>]>();
+
     const columns = inputColumns.map<InternalColumn<T, any>>(function <V>(
       {
         id,
@@ -35,19 +40,38 @@ export function calcProps<T>(props: TableProps<T>): InternalTableProps<T> {
         renderCell = asString,
         exportCell = asString,
         sortBy = (v) => (typeof v === 'number' || v instanceof Date ? v : String(v)),
+        dependencies = [],
         ...props
       }: Column<T, V>,
       index: number,
     ) {
-      return {
-        id: id ?? index,
-        header,
-        renderCell,
-        exportCell,
-        sortBy,
-        ...props,
-      };
+      const [depsInCache, columnInCache] = columnCache.current.get(id ?? index) ?? [];
+
+      let column;
+      if (
+        depsInCache &&
+        columnInCache &&
+        depsInCache.length === dependencies.length &&
+        depsInCache.every((x, i) => dependencies[i] === x)
+      ) {
+        column = columnInCache;
+      } else {
+        column = {
+          id: id ?? index,
+          header,
+          renderCell,
+          exportCell,
+          sortBy,
+          dependencies,
+          ...props,
+        };
+      }
+
+      newColumnCache.set(id ?? index, [dependencies, column]);
+      return column;
     });
+
+    columnCache.current = newColumnCache;
 
     let copy;
     if (props.enableExport === true || (props.enableExport instanceof Object && props.enableExport.copy === true)) {

@@ -2,7 +2,7 @@ import { makeStyles, Theme } from '@material-ui/core';
 
 const cell = (theme: Theme) =>
   ({
-    padding: theme.spacing(0.5, 1),
+    padding: theme.spacing(0.1, 1),
     display: 'grid',
     gridAutoFlow: 'column',
     alignItems: 'center',
@@ -26,11 +26,9 @@ export const useCommonClasses = makeStyles((theme) => ({
 
   headerCell: {
     ...cell(theme),
-    borderBottom: 'none',
+    borderBottom: `2px solid ${theme.palette.grey[400]}`,
     gridTemplateColumns: 'minmax(0, 1fr) max-content',
-    background: theme.palette.primary.main,
-    color: theme.palette.primary.contrastText,
-    fontWeight: 'bold',
+    background: theme.palette.common.white,
 
     '&:not(:first-child)': {
       borderLeft: `1px solid ${theme.palette.background.default}`,
@@ -48,7 +46,8 @@ export const useCommonClasses = makeStyles((theme) => ({
   },
 
   headerFill: {
-    background: theme.palette.primary.main,
+    borderBottom: `3px solid ${theme.palette.grey[200]}`,
+    background: theme.palette.common.white,
   },
 
   deferredPlaceholder: {

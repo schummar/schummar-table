@@ -38,7 +38,7 @@ export function ColumnSelection<T>(): JSX.Element {
 
   return (
     <>
-      <IconButton color="inherit" onClick={(e) => setAnchor(e.currentTarget)}>
+      <IconButton color="inherit" size="small" onClick={(e) => setAnchor(e.currentTarget)}>
         <Settings />
       </IconButton>
 
@@ -47,7 +47,7 @@ export function ColumnSelection<T>(): JSX.Element {
         onClose={() => setAnchor(null)}
         anchorEl={anchor}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-        transformOrigin={{ vertical: 'top', horizontal: 'center' }}
+        transformOrigin={{ vertical: 'top', horizontal: 'left' }}
       >
         <div className={classes.list}>
           {columns.map((column) => (

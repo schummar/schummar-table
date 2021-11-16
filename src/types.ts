@@ -38,7 +38,16 @@ export type TableProps<T> = {
   defaultWidth?: string;
   fullWidth?: boolean | 'left' | 'right';
   stickyHeader?: boolean;
-  virtual?: boolean | { rowHeight?: number; initalRowHeight?: number; throttleScroll?: number };
+  virtual?:
+    | boolean
+    | {
+        rowHeight?: number;
+        initalRowHeight?: number;
+        throttleScroll?: number;
+        overscan?: number;
+        overscanBottom?: number;
+        overscanTop?: number;
+      };
 
   text?: {
     deselectAll?: string;
@@ -99,6 +108,9 @@ export type Column<T, V> = {
     evenCell?: string;
     oddCell?: string;
   };
+
+  /** If the column definition changes, supply parameters that it depends on. If not set, the column will not update */
+  dependencies?: any[];
 };
 
 export type InternalColumn<T, V> = Required<
@@ -108,10 +120,9 @@ export type InternalColumn<T, V> = Required<
   'header' | 'stringValue' | 'sortBy' | 'renderValue' | 'renderCell' | 'exportCell'
 >;
 
-type Required<T, S> = T &
-  {
-    [P in keyof T as P extends S ? P : never]-?: T[P];
-  };
+type Required<T, S> = T & {
+  [P in keyof T as P extends S ? P : never]-?: T[P];
+};
 
 export type Rows<T, V> = [{ value: V; item: T }, ...{ value: V; item: T }[]];
 

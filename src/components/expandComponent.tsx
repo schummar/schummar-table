@@ -38,7 +38,7 @@ export function ExpandComponent<T>({ itemId }: { itemId: Id }): JSX.Element {
   }
 
   return (
-    <IconButton onClick={toggle}>
+    <IconButton size="small" onClick={toggle}>
       <ChevronRight
         style={{
           transition: 'all 500ms',
