@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.3.0](https://www.github.com/schummar/schummar-table/compare/v0.2.1...v0.3.0) (2021-11-16)
+
+
+### Features
+
+* added overscan settings ([9b40720](https://www.github.com/schummar/schummar-table/commit/9b40720d2185fc0caff05014f34d9101dbe0cc03))
+* changed default looks ([9b40720](https://www.github.com/schummar/schummar-table/commit/9b40720d2185fc0caff05014f34d9101dbe0cc03))
+* update cols only when dependencies change ([9b40720](https://www.github.com/schummar/schummar-table/commit/9b40720d2185fc0caff05014f34d9101dbe0cc03))
+
 ### [0.2.1](https://www.github.com/schummar/schummar-table/compare/v0.2.0...v0.2.1) (2021-09-16)
 
 
