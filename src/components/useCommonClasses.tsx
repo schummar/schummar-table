@@ -1,9 +1,9 @@
 import { makeStyles, Theme } from '@material-ui/core';
 
-const cell = (theme: Theme) =>
+const cell = (theme: Theme, isHeader: boolean = false) =>
   ({
     padding: theme.spacing(0.1, 1),
-    display: 'grid',
+    display: isHeader ? 'grid' : 'unset',
     gridAutoFlow: 'column',
     alignItems: 'center',
     borderBottom: `1px solid ${theme.palette.grey[200]}`,
@@ -25,7 +25,7 @@ export const useCommonClasses = makeStyles((theme) => ({
   },
 
   headerCell: {
-    ...cell(theme),
+    ...cell(theme, true),
     borderBottom: `2px solid ${theme.palette.grey[400]}`,
     gridTemplateColumns: 'minmax(0, 1fr) max-content',
     background: theme.palette.common.white,
