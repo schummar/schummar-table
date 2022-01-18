@@ -12,15 +12,22 @@ export const Cell = memo(function Cell<T>({ itemId, rowIndex }: { itemId: Id; ro
   const column = state.useState((state) => state.activeColumns.find((column) => column.id === columnId), [columnId]);
   const item = state.useState((state) => state.activeItemsById.get(itemId), [itemId]);
   const classes = state.useState('props.classes');
-  const wrapCell = state.useState('props.wrapCell');
-
+  let wrapCell = state.useState('props.wrapCell');
   if (!column || !item) return null;
   state.getState().props.debug?.('render cell', itemId, columnId);
 
   const className = c(calcClassName(classes, rowIndex), calcClassName(column?.classes, rowIndex));
   const content = column.renderCell(column.value(item), item);
 
-  if (wrapCell) return <>{wrapCell(content, item)}</>;
+  if (!wrapCell && typeof content === 'string') {
+    wrapCell = (content) => (
+      <div className={c(commonClasses.cell, className)}>
+        <span className={c(commonClasses.text)}>{content}</span>
+      </div>
+    );
+  } else if (!wrapCell) {
+    wrapCell = (content) => <div className={c(commonClasses.cell, className)}>{content}</div>;
+  }
 
-  return <div className={c(commonClasses.cell, className)}>{content}</div>;
+  return <>{wrapCell(content, item)}</>;
 });

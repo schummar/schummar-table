@@ -123,6 +123,11 @@ function App(): JSX.Element {
             // defaultIsHidden: true,
             sortBy: [(x) => x.includes('bar'), (x) => x[0]],
           }),
+
+          col((x) => 'askdjfhdfjkgfhas kljfhsdkjfh dfkgjlhs dfkljhdfgk jdh', {
+            header: 'test',
+            width: '10ch',
+          }),
         ]}
         classes={classes}
         stickyHeader

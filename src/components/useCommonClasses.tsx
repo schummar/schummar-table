@@ -3,13 +3,11 @@ import { makeStyles, Theme } from '@material-ui/core';
 const cell = (theme: Theme) =>
   ({
     padding: theme.spacing(0.1, 1),
-    display: 'grid',
-    gridAutoFlow: 'column',
+    display: 'flex',
     alignItems: 'center',
     borderBottom: `1px solid ${theme.palette.grey[200]}`,
     whiteSpace: 'nowrap',
     overflow: 'hidden',
-    textOverflow: 'ellipsis',
   } as const);
 
 export const useCommonClasses = makeStyles((theme) => ({
@@ -56,5 +54,11 @@ export const useCommonClasses = makeStyles((theme) => ({
     gridColumn: '1 / -1',
     display: 'grid',
     justifyContent: 'center',
+  },
+
+  text: {
+    minWidth: 0,
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
   },
 }));
