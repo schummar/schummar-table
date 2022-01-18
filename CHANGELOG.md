@@ -1,5 +1,12 @@
 # Changelog
 
+### [0.3.1](https://www.github.com/schummar/schummar-table/compare/v0.3.0...v0.3.1) (2022-01-18)
+
+
+### Bug Fixes
+
+* truncate long text with ellipsis ([23d39e5](https://www.github.com/schummar/schummar-table/commit/23d39e560a4bcedc68c21068afd151ee91a28344))
+
 ## [0.3.0](https://www.github.com/schummar/schummar-table/compare/v0.2.1...v0.3.0) (2021-11-16)
 
 
