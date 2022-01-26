@@ -1,5 +1,12 @@
 # Changelog
 
+### [0.3.2](https://www.github.com/schummar/schummar-table/compare/v0.3.1...v0.3.2) (2022-01-26)
+
+
+### Bug Fixes
+
+* added missing exports ([7d5da72](https://www.github.com/schummar/schummar-table/commit/7d5da72ce45a552e11465634d4e23b839a73b154))
+
 ### [0.3.1](https://www.github.com/schummar/schummar-table/compare/v0.3.0...v0.3.1) (2022-01-18)
 
 
