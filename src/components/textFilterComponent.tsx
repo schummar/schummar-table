@@ -2,11 +2,11 @@ import { IconButton, makeStyles, TextField } from '@material-ui/core';
 import { Clear, Search } from '@material-ui/icons';
 import React, { useEffect, useState } from 'react';
 import { asString } from '../misc/helpers';
-import '../misc/textMatch';
 import { textMatch } from '../misc/textMatch';
 import { useColumnContext, useTableContext } from '../table';
 import { InternalColumn } from '../types';
 import { Filter } from './filterComponent';
+
 export class TextFilter<T> implements Filter<T> {
   constructor(public readonly query: string, public readonly filter: (item: T) => boolean) {}
 }
