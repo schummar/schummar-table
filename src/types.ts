@@ -58,7 +58,7 @@ export type TableProps<T> = {
   classes?: {
     table?: string;
     headerCell?: string;
-    cell?: string;
+    cell?: string | ((item: T, index: number) => string | undefined);
     evenCell?: string;
     oddCell?: string;
   };
@@ -104,7 +104,7 @@ export type Column<T, V> = {
 
   classes?: {
     headerCell?: string;
-    cell?: string;
+    cell?: string | ((item: T, index: number) => string | undefined);
     evenCell?: string;
     oddCell?: string;
   };

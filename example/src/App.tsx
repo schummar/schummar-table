@@ -23,6 +23,9 @@ const useClasses = makeStyles((theme) => ({
   oddCell: {
     // background: theme.palette.grey[100],
   },
+  inactive: {
+    background: 'lightGray',
+  },
 }));
 
 type TopItem = {
@@ -136,7 +139,10 @@ function App(): JSX.Element {
             width: '10ch',
           }),
         ]}
-        classes={classes}
+        classes={{
+          ...classes,
+          cell: (item) => (item.name.endsWith('10') ? classes.inactive : undefined),
+        }}
         stickyHeader
         debug={(...args) => console.debug(...args)}
         virtual={{ throttleScroll: 16 }}

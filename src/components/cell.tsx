@@ -16,7 +16,7 @@ export const Cell = memo(function Cell<T>({ itemId, rowIndex }: { itemId: Id; ro
   if (!column || !item) return null;
   state.getState().props.debug?.('render cell', itemId, columnId);
 
-  const className = c(calcClassName(classes, rowIndex), calcClassName(column?.classes, rowIndex));
+  const className = c(calcClassName(classes, item, rowIndex), calcClassName(column?.classes, item, rowIndex));
   const content = column.renderCell(column.value(item), item);
 
   if (!wrapCell && typeof content === 'string') {

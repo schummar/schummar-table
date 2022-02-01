@@ -7,12 +7,13 @@ import { ExpandComponent } from './expandComponent';
 import { SelectComponent } from './selectComponent';
 import { useCommonClasses } from './useCommonClasses';
 
-export const calcClassName = (classes: InternalColumn<any, any>['classes'] | undefined, index: number): string =>
-  c(
-    classes?.cell,
+export function calcClassName<T>(classes: InternalColumn<any, any>['classes'] | undefined, item: T, index: number): string {
+  return c(
+    classes?.cell instanceof Function ? classes.cell(item, index) : classes?.cell,
     classes?.evenCell === undefined ? undefined : { [classes.evenCell]: index % 2 === 0 },
     classes?.oddCell === undefined ? undefined : { [classes.oddCell]: index % 2 === 1 },
   );
+}
 
 export const Row = memo(function Row<T>({ itemId, rowIndex }: { itemId: Id; rowIndex: number }): JSX.Element | null {
   const commonClasses = useCommonClasses();
@@ -25,7 +26,7 @@ export const Row = memo(function Row<T>({ itemId, rowIndex }: { itemId: Id; rowI
       const index = !item ? -1 : state.activeItems.indexOf(item);
 
       return {
-        className: calcClassName(state.props.classes, index),
+        className: calcClassName(state.props.classes, item, index),
         indent: item ? getAncestors(state.activeItemsById, item).size : 0,
         hasChildren: !!item?.children.length,
         hasDeferredChildren: item && state.props.hasDeferredChildren?.(item),
