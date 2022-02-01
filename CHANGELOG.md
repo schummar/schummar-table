@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.4.0](https://www.github.com/schummar/schummar-table/compare/v0.3.2...v0.4.0) (2022-02-01)
+
+
+### Features
+
+* added preColumn ([152112c](https://www.github.com/schummar/schummar-table/commit/152112cedabb2aaa60325268ec00c5488abc51d7))
+* global table config ([bf0430a](https://www.github.com/schummar/schummar-table/commit/bf0430a6ced4b29ee169df07da4467e244862ccd))
+* row styles ([9d0e9e0](https://www.github.com/schummar/schummar-table/commit/9d0e9e038a61268a5108d6ebcd4c445b696b5f08))
+* store table state ([dabdae9](https://www.github.com/schummar/schummar-table/commit/dabdae97b48b0fb77bcd1df134967d58dee7b748))
+
 ### [0.3.2](https://www.github.com/schummar/schummar-table/compare/v0.3.1...v0.3.2) (2022-01-26)
 
 
