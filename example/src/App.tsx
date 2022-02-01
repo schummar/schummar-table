@@ -3,6 +3,13 @@ import React, { useEffect, useState } from 'react';
 import { Action } from 'schummar-state/react';
 import { DefaultFilterComponent, Table, TextFilterComponent } from '../../src';
 import { flatMap } from '../../src/misc/helpers';
+import { configureTables } from '../../src/table';
+
+configureTables({
+  text: {
+    exportCopy: <pre style={{ color: 'red' }}>foo</pre>,
+  },
+});
 
 const useClasses = makeStyles((theme) => ({
   container: {

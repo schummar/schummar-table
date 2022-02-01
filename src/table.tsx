@@ -25,7 +25,20 @@ export function useColumnContext(): Id {
   return value;
 }
 
+let defaultProps: Pick<TableProps<unknown>, 'text' | 'classes'> = {};
+export function configureTables(props: typeof defaultProps) {
+  defaultProps = props;
+}
+function mergeProps<T>(props: TableProps<T>): TableProps<T> {
+  return {
+    ...props,
+    text: { ...defaultProps.text, ...props.text },
+    classes: { ...defaultProps.classes, ...props.classes },
+  };
+}
+
 export function Table<T>(props: TableProps<T>): JSX.Element {
+  props = mergeProps(props);
   const state = useTableState(props);
   state.getState().props.debug?.('render table');
 

@@ -50,10 +50,10 @@ export type TableProps<T> = {
       };
 
   text?: {
-    deselectAll?: string;
-    exportTitle?: string;
-    exportCopy?: string;
-    exportDownload?: string;
+    deselectAll?: ReactNode;
+    exportTitle?: ReactNode;
+    exportCopy?: ReactNode;
+    exportDownload?: ReactNode;
   };
   classes?: {
     table?: string;
