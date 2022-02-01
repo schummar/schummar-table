@@ -1,4 +1,5 @@
-import { makeStyles } from '@material-ui/core';
+import { CircularProgress, makeStyles } from '@material-ui/core';
+import { Link } from '@material-ui/icons';
 import React, { useEffect, useState } from 'react';
 import { Action } from 'schummar-state/react';
 import { DefaultFilterComponent, Table, TextFilterComponent } from '../../src';
@@ -107,6 +108,7 @@ function App(): JSX.Element {
         // expanded={new Set('0')}
         // wrapCell={(cell) => <div style={{ background: 'green' }}>{cell}</div>}
         enableExport
+        rowAction={(_item, index) => (index % 2 === 0 ? <Link /> : undefined)}
         columns={(col) => [
           col((x) => x.id, {
             header: 'Id',

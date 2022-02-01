@@ -16,6 +16,8 @@ export type TableProps<T> = {
 
   columns: Column<T, any>[] | ((col: <V>(value: (item: T) => V, column: Omit<Column<T, V>, 'value'>) => Column<T, V>) => Column<T, any>[]);
 
+  rowAction?: ReactNode | ((item: T, index: number) => ReactNode);
+
   defaultSort?: Sort[];
   sort?: Sort[];
   onSortChange?: (sort: Sort[]) => void;

@@ -20,7 +20,7 @@ export const Row = memo(function Row<T>({ itemId, rowIndex }: { itemId: Id; rowI
   const state = useTableContext<T>();
   const divRef = useRef<HTMLDivElement>(null);
 
-  const { className, indent, hasChildren, hasDeferredChildren, columnIds, enableSelection } = state.useState(
+  const { className, indent, hasChildren, hasDeferredChildren, columnIds, enableSelection, rowAction } = state.useState(
     (state) => {
       const item = state.activeItemsById.get(itemId);
       const index = !item ? -1 : state.activeItems.indexOf(item);
@@ -32,6 +32,7 @@ export const Row = memo(function Row<T>({ itemId, rowIndex }: { itemId: Id; rowI
         hasDeferredChildren: item && state.props.hasDeferredChildren?.(item),
         columnIds: state.activeColumns.map((column) => column.id),
         enableSelection: state.props.enableSelection,
+        rowAction: state.props.rowAction instanceof Function ? state.props.rowAction(item, index) : state.props.rowAction,
       };
     },
     [itemId],
@@ -64,6 +65,8 @@ export const Row = memo(function Row<T>({ itemId, rowIndex }: { itemId: Id; rowI
         {enableSelection && <SelectComponent itemId={itemId} />}
 
         {(hasChildren || hasDeferredChildren) && <ExpandComponent itemId={itemId} />}
+
+        {rowAction}
       </div>
 
       {columnIds.map((columnId) => (
