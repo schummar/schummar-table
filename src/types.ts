@@ -1,6 +1,7 @@
 import { CSSProperties, ReactNode } from 'react';
 import { Filter } from './components/filterComponent';
 import { CsvExportOptions } from './misc/csvExport';
+import { TableStateStorage } from './internalState/tableStateStorage';
 
 export type Sort = { columnId: string | number; direction: SortDirection };
 export type SortDirection = 'asc' | 'desc';
@@ -70,6 +71,17 @@ export type TableProps<T> = {
   enableSelection?: boolean;
   enableColumnSelection?: boolean;
   enableExport?: boolean | { copy?: boolean | CsvExportOptions; download?: boolean | CsvExportOptions };
+
+  storeState?: {
+    storage: TableStateStorage;
+    id?: string;
+    include?: {
+      sort?: boolean;
+      selection?: boolean;
+      expanded?: boolean;
+      hiddenColumns?: boolean;
+    };
+  };
 };
 
 export type InternalTableProps<T> = Omit<

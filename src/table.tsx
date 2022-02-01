@@ -8,6 +8,7 @@ import { SelectComponent } from './components/selectComponent';
 import { SortComponent } from './components/sortComponent';
 import { useCommonClasses } from './components/useCommonClasses';
 import { Virtualized } from './components/virtualized';
+import { useTableStateStorage } from './internalState/tableStateStorage';
 import { useTableState } from './internalState/useTableState';
 import { c } from './misc/helpers';
 import { Id, InternalTableState, TableProps } from './types';
@@ -50,6 +51,7 @@ export function Table<T>(props: TableProps<T>): JSX.Element {
 }
 
 const TableInner = memo(function TableInner<T>(): JSX.Element {
+  useTableStateStorage();
   const commonClasses = useCommonClasses();
   const state = useTableContext<T>();
   const fullWidth = state.useState('props.fullWidth');

@@ -5,6 +5,9 @@ import { Action } from 'schummar-state/react';
 import { DefaultFilterComponent, Table, TextFilterComponent } from '../../src';
 import { flatMap } from '../../src/misc/helpers';
 import { configureTables } from '../../src/table';
+import localforage from 'localforage';
+
+const storage = localforage.createInstance({ name: 'xyz' });
 
 configureTables({
   text: {

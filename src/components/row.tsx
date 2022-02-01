@@ -32,7 +32,7 @@ export const Row = memo(function Row<T>({ itemId, rowIndex }: { itemId: Id; rowI
         hasDeferredChildren: item && state.props.hasDeferredChildren?.(item),
         columnIds: state.activeColumns.map((column) => column.id),
         enableSelection: state.props.enableSelection,
-        rowAction: state.props.rowAction instanceof Function ? state.props.rowAction(item, index) : state.props.rowAction,
+        rowAction: state.props.rowAction instanceof Function ? (item ? state.props.rowAction(item, index) : null) : state.props.rowAction,
       };
     },
     [itemId],
