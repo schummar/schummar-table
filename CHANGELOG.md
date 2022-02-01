@@ -1,5 +1,12 @@
 # Changelog
 
+### [0.4.1](https://www.github.com/schummar/schummar-table/compare/v0.4.0...v0.4.1) (2022-02-01)
+
+
+### Bug Fixes
+
+* added missing types ([20a172a](https://www.github.com/schummar/schummar-table/commit/20a172ad1dcab66d6e9cccab40d2a220fb20df1e))
+
 ## [0.4.0](https://www.github.com/schummar/schummar-table/compare/v0.3.2...v0.4.0) (2022-02-01)
 
 
