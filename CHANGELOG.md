@@ -1,5 +1,12 @@
 # Changelog
 
+### [0.4.2](https://www.github.com/schummar/schummar-table/compare/v0.4.1...v0.4.2) (2022-02-01)
+
+
+### Bug Fixes
+
+* show sort index only if needed ([4815059](https://www.github.com/schummar/schummar-table/commit/481505903e6a830c79fbcdcbc2943cee4250ac38))
+
 ### [0.4.1](https://www.github.com/schummar/schummar-table/compare/v0.4.0...v0.4.1) (2022-02-01)
 
 
