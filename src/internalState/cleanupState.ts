@@ -29,6 +29,11 @@ export function cleanupState<T>(state: Store<InternalTableState<T>>): void {
             if (!columnIds.has(id)) draft.hiddenColumns.delete(id);
           }
 
+          // Remove columnWidth for non existing columns
+          for (const id of draft.columnWidths.keys()) {
+            if (!columnIds.has(id)) draft.columnWidths.delete(id);
+          }
+
           if (draft.props.items) {
             // Remove selection for non active items
             const newSelection = intersect(draft.selection, activeItemsById);

@@ -30,6 +30,7 @@ export function useTableState<T>(_props: TableProps<T>): Store<InternalTableStat
           return filters;
         })(),
         hiddenColumns: props.defaultHiddenColumns ?? new Set(),
+        columnWidths: new Map(),
 
         activeColumns: [],
         items: [],

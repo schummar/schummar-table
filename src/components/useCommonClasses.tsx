@@ -44,7 +44,7 @@ export const useCommonClasses = makeStyles((theme) => ({
   },
 
   headerFill: {
-    borderBottom: `3px solid ${theme.palette.grey[200]}`,
+    borderBottom: `2px solid ${theme.palette.grey[400]}`,
     background: theme.palette.common.white,
   },
 

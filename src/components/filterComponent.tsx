@@ -1,6 +1,7 @@
 import { IconButton, makeStyles, Popover } from '@material-ui/core';
 import { ArrowDropDown, FilterList } from '@material-ui/icons';
 import React, { useState } from 'react';
+import { c } from '../misc/helpers';
 import { useColumnContext, useTableContext } from '../table';
 
 export type Filter<T> = { filter(item: T): boolean };
@@ -23,12 +24,7 @@ export function FilterComponent<T>(): JSX.Element | null {
 
   return (
     <>
-      <IconButton
-        size="small"
-        color="inherit"
-        onClick={(e) => setAnchor(e.currentTarget)}
-        className={isActive ? classes.active : undefined}
-      >
+      <IconButton size="small" color="inherit" onClick={(e) => setAnchor(e.currentTarget)} className={c({ [classes.active]: isActive })}>
         {isActive ? <FilterList /> : <ArrowDropDown />}
       </IconButton>
 

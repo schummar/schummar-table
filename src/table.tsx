@@ -1,6 +1,7 @@
 import React, { createContext, memo, useContext } from 'react';
 import { Store } from 'schummar-state/react';
 import { ColumnSelection } from './components/columnSelection';
+import { ColumnHeaderContext, ColumnHeader } from './components/columnHeader';
 import { Export } from './components/export';
 import { FilterComponent } from './components/filterComponent';
 import { Row } from './components/row';
@@ -63,6 +64,7 @@ const TableInner = memo(function TableInner<T>(): JSX.Element {
       header: column.header,
     })),
   );
+  const columnWidths = state.useState('columnWidths', { throttle: 16 });
   const defaultWidth = state.useState('props.defaultWidth');
   const classes = state.useState('props.classes');
   const stickyHeader = state.useState('props.stickyHeader');
@@ -80,7 +82,7 @@ const TableInner = memo(function TableInner<T>(): JSX.Element {
           //
           fullWidth === 'right' || fullWidth === true ? 'auto' : '0',
           'max-content',
-          ...activeColumns.map((column) => column.width ?? defaultWidth ?? 'max-content'),
+          ...activeColumns.map((column) => columnWidths.get(column.id) ?? column.width ?? defaultWidth ?? 'max-content'),
           fullWidth === 'left' || fullWidth === true ? 'auto' : '0',
         ].join(' '),
       }}
@@ -96,22 +98,25 @@ const TableInner = memo(function TableInner<T>(): JSX.Element {
             {enableExport && <Export />}
           </div>
 
-          {activeColumns.map((column) => (
-            <ColumnContext.Provider key={column.id} value={column.id}>
-              <div
-                className={c(
-                  commonClasses.headerCell,
-                  { [commonClasses.sticky]: !!stickyHeader },
-                  classes?.headerCell,
-                  column.classes?.headerCell,
-                )}
-                key={column.id}
-              >
-                <SortComponent>{column.header}</SortComponent>
-                <FilterComponent />
-              </div>
-            </ColumnContext.Provider>
-          ))}
+          <ColumnHeaderContext.Provider>
+            {activeColumns.map((column, index) => (
+              <ColumnContext.Provider key={column.id} value={column.id}>
+                <ColumnHeader
+                  index={index}
+                  className={c(
+                    commonClasses.headerCell,
+                    { [commonClasses.sticky]: !!stickyHeader },
+                    classes?.headerCell,
+                    column.classes?.headerCell,
+                  )}
+                  key={column.id}
+                >
+                  <SortComponent>{column.header}</SortComponent>
+                  <FilterComponent />
+                </ColumnHeader>
+              </ColumnContext.Provider>
+            ))}
+          </ColumnHeaderContext.Provider>
 
           <div className={c(commonClasses.headerFill, { [commonClasses.sticky]: !!stickyHeader }, classes?.headerCell)} />
         </>

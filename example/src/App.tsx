@@ -149,7 +149,7 @@ function App(): JSX.Element {
           cell: (item) => (item.name.endsWith('10') ? classes.inactive : undefined),
         }}
         stickyHeader
-        debug={(...args) => console.debug(...args)}
+        // debug={(...args) => console.debug(...args)}
         virtual={{ throttleScroll: 16 }}
         fullWidth="left"
         revealFiltered
