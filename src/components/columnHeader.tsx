@@ -228,9 +228,13 @@ function ResizeHandle() {
     div.releasePointerCapture(e.pointerId);
   }
 
-  function onDoubleClick() {
+  function onDoubleClick(e: React.MouseEvent) {
     tableState.update((state) => {
-      state.columnWidths.set(columnId, 'max-content');
+      if (e.getModifierState('Control')) {
+        state.columnWidths.delete(columnId);
+      } else {
+        state.columnWidths.set(columnId, 'max-content');
+      }
     });
   }
 
