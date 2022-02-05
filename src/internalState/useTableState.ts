@@ -31,6 +31,7 @@ export function useTableState<T>(_props: TableProps<T>): Store<InternalTableStat
         })(),
         hiddenColumns: props.defaultHiddenColumns ?? new Set(),
         columnWidths: new Map(),
+        columnOrder: props.columns.map((column) => column.id),
 
         activeColumns: [],
         items: [],
@@ -56,6 +57,10 @@ export function useTableState<T>(_props: TableProps<T>): Store<InternalTableStat
       if (props.hiddenColumns) state.hiddenColumns = props.hiddenColumns;
       for (const column of props.columns) {
         if (column.filter) state.filters.set(column.id, column.filter);
+        if (!state.columnOrder.includes(column.id)) {
+          const index = props.columns.indexOf(column);
+          state.columnOrder.splice(index, 0, column.id);
+        }
       }
     });
   }, [state, props]);

@@ -152,6 +152,7 @@ export type InternalTableState<T> = {
   filters: Map<Id, Filter<unknown> | undefined>;
   hiddenColumns: Set<Id>;
   columnWidths: Map<Id, string>;
+  columnOrder: Id[];
 
   // Helper data structures for efficient lookup etc.
   activeColumns: InternalColumn<T, unknown>[];

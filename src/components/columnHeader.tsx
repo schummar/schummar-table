@@ -66,6 +66,8 @@ export function ColumnHeader({ index, ...props }: { index: number } & HTMLProps<
   const start = useRef(0);
   const store = ColumnHeaderContext.useStore();
   const [isDragged, setIsDragged] = useState<number>();
+  const columnId = useColumnContext();
+  const tableState = useTableContext();
 
   useEffect(() => {
     const div = ref.current;
@@ -76,6 +78,8 @@ export function ColumnHeader({ index, ...props }: { index: number } & HTMLProps<
     });
 
     return () => {
+      console.log('unmount');
+
       store.update((state) => {
         state.items.delete(castDraft(div));
       });
@@ -122,6 +126,7 @@ export function ColumnHeader({ index, ...props }: { index: number } & HTMLProps<
 
     const div = ref.current;
     if (!div) return;
+    setIsDragged(e.clientX);
     div.setPointerCapture(e.pointerId);
     start.current = e.clientX;
   }
@@ -130,9 +135,10 @@ export function ColumnHeader({ index, ...props }: { index: number } & HTMLProps<
     e.stopPropagation();
 
     const div = ref.current;
-    if (!div || !div.hasPointerCapture(e.pointerId)) return;
+    if (!div || isDragged === undefined) return;
 
     setIsDragged(e.clientX);
+    div.setPointerCapture(e.pointerId);
     // div.style.transform = `translate3d(${e.clientX - start.current}px, 0, 0)`;
     // div.style.zIndex = 2;
 
@@ -142,9 +148,25 @@ export function ColumnHeader({ index, ...props }: { index: number } & HTMLProps<
     // tableState.update((state) => {
     //   state.columnWidths.set(columnId, `${width}px`);
     // });
+
+    let targetIndex = [...store.getState().items]
+      .sort((a, b) => a.offsetLeft - b.offsetLeft)
+      .findIndex((x) => x.getBoundingClientRect().right > e.clientX);
+
+    if (targetIndex === -1) {
+      targetIndex = store.getState().items.size - 1;
+    }
+
+    tableState.update((state) => {
+      const index = state.columnOrder.indexOf(columnId);
+      state.columnOrder.splice(index, 1);
+      state.columnOrder.splice(targetIndex, 0, columnId);
+    });
   }
 
   function onPointerUp(e: React.PointerEvent) {
+    console.log('up');
+
     e.stopPropagation();
 
     const div = e.target as HTMLDivElement;
@@ -158,8 +180,6 @@ export function ColumnHeader({ index, ...props }: { index: number } & HTMLProps<
     //   state.columnWidths.set(columnId, 'max-content');
     // });
   }
-
-  console.log(ref.current?.getBoundingClientRect().top);
 
   return (
     <div

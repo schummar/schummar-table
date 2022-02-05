@@ -34,6 +34,11 @@ export function cleanupState<T>(state: Store<InternalTableState<T>>): void {
             if (!columnIds.has(id)) draft.columnWidths.delete(id);
           }
 
+          // Remove non existing columns from columnOrder
+          for (const id of draft.columnOrder) {
+            if (!columnIds.has(id)) draft.columnOrder = draft.columnOrder.filter((x) => x !== id);
+          }
+
           if (draft.props.items) {
             // Remove selection for non active items
             const newSelection = intersect(draft.selection, activeItemsById);
