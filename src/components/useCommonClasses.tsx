@@ -8,6 +8,7 @@ const cell = (theme: Theme) =>
     borderBottom: `1px solid ${theme.palette.grey[200]}`,
     whiteSpace: 'nowrap',
     overflow: 'hidden',
+    transition: 'transform 300ms',
   } as const);
 
 export const useCommonClasses = makeStyles((theme) => ({

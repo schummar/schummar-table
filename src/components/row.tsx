@@ -4,6 +4,7 @@ import { ColumnContext, useTableContext } from '../table';
 import { Id, InternalColumn } from '../types';
 import { Cell } from './cell';
 import { ExpandComponent } from './expandComponent';
+import { InsertLine } from './inserLine';
 import { SelectComponent } from './selectComponent';
 import { useCommonClasses } from './useCommonClasses';
 
@@ -19,6 +20,7 @@ export const Row = memo(function Row<T>({ itemId, rowIndex }: { itemId: Id; rowI
   const commonClasses = useCommonClasses();
   const state = useTableContext<T>();
   const divRef = useRef<HTMLDivElement>(null);
+  const insertLine = state.useState('insertLine');
 
   const { className, indent, hasChildren, hasDeferredChildren, columnIds, enableSelection, rowAction } = state.useState(
     (state) => {
@@ -69,11 +71,15 @@ export const Row = memo(function Row<T>({ itemId, rowIndex }: { itemId: Id; rowI
         {rowAction}
       </div>
 
-      {columnIds.map((columnId) => (
+      {columnIds.map((columnId, index) => (
         <ColumnContext.Provider key={columnId} value={columnId}>
+          {insertLine === index && <InsertLine />}
+
           <Cell itemId={itemId} rowIndex={rowIndex} />
         </ColumnContext.Provider>
       ))}
+
+      {insertLine === columnIds.length && <InsertLine />}
 
       <div className={c(commonClasses.cellFill, className)} />
     </>

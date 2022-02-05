@@ -1,9 +1,11 @@
 import React, { createContext, memo, useContext } from 'react';
 import { Store } from 'schummar-state/react';
+import { ColumnHeader, ColumnHeaderContext } from './components/columnHeader';
 import { ColumnSelection } from './components/columnSelection';
-import { ColumnHeaderContext, ColumnHeader } from './components/columnHeader';
 import { Export } from './components/export';
 import { FilterComponent } from './components/filterComponent';
+import { InsertLine } from './components/inserLine';
+import { ResizeHandle } from './components/resizeHandle';
 import { Row } from './components/row';
 import { SelectComponent } from './components/selectComponent';
 import { SortComponent } from './components/sortComponent';
@@ -65,6 +67,7 @@ const TableInner = memo(function TableInner<T>(): JSX.Element {
     })),
   );
   const columnWidths = state.useState('columnWidths', { throttle: 16 });
+  const insertLine = state.useState('insertLine');
   const defaultWidth = state.useState('props.defaultWidth');
   const classes = state.useState('props.classes');
   const stickyHeader = state.useState('props.stickyHeader');
@@ -82,9 +85,15 @@ const TableInner = memo(function TableInner<T>(): JSX.Element {
           //
           fullWidth === 'right' || fullWidth === true ? 'auto' : '0',
           'max-content',
-          ...activeColumns.map((column) => columnWidths.get(column.id) ?? column.width ?? defaultWidth ?? 'max-content'),
+          ...activeColumns.flatMap((column, index) => [
+            insertLine === index && '0',
+            columnWidths.get(column.id) ?? column.width ?? defaultWidth ?? 'max-content',
+          ]),
+          insertLine === activeColumns.length && '0',
           fullWidth === 'left' || fullWidth === true ? 'auto' : '0',
-        ].join(' '),
+        ]
+          .filter(Boolean)
+          .join(' '),
       }}
       header={
         <>
@@ -101,8 +110,9 @@ const TableInner = memo(function TableInner<T>(): JSX.Element {
           <ColumnHeaderContext.Provider>
             {activeColumns.map((column, index) => (
               <ColumnContext.Provider key={column.id} value={column.id}>
+                {insertLine === index && <InsertLine />}
+
                 <ColumnHeader
-                  index={index}
                   className={c(
                     commonClasses.headerCell,
                     { [commonClasses.sticky]: !!stickyHeader },
@@ -113,9 +123,12 @@ const TableInner = memo(function TableInner<T>(): JSX.Element {
                 >
                   <SortComponent>{column.header}</SortComponent>
                   <FilterComponent />
+                  <ResizeHandle />
                 </ColumnHeader>
               </ColumnContext.Provider>
             ))}
+
+            {insertLine === activeColumns.length && <InsertLine />}
           </ColumnHeaderContext.Provider>
 
           <div className={c(commonClasses.headerFill, { [commonClasses.sticky]: !!stickyHeader }, classes?.headerCell)} />
