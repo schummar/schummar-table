@@ -1,7 +1,7 @@
 import { Checkbox, makeStyles } from '@material-ui/core';
 import React from 'react';
 import { getAncestors, getDescendants } from '../misc/helpers';
-import { useTableContext } from '../table';
+import { useTableContext } from './table';
 import { Id } from '../types';
 
 const useClasses = makeStyles({

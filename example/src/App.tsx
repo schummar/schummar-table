@@ -1,18 +1,18 @@
+import { css } from '@emotion/react';
+import localforage from 'localforage';
 import React, { useEffect, useState } from 'react';
 import { Action } from 'schummar-state/react';
 import { DefaultFilterComponent, Table, TextFilterComponent } from '../../src';
 import { flatMap } from '../../src/misc/helpers';
-import { configureTables } from '../../src/table';
-import localforage from 'localforage';
-import { css } from '@emotion/react';
+import { configureTableTheme } from '../../src/theme/tableTheme';
 
 const storage = localforage.createInstance({ name: 'xyz' });
 
-configureTables({
-  text: {
-    exportCopy: <pre style={{ color: 'red' }}>foo</pre>,
-  },
-});
+// configureTableTheme({
+//   text: {
+//     exportCopy: <pre style={{ color: 'red' }}>foo</pre>,
+//   },
+// });
 
 type TopItem = {
   type: 'top';
@@ -131,7 +131,7 @@ function App(): JSX.Element {
             width: '10ch',
           }),
         ]}
-        classes={{
+        css={{
           cell: (item) => (item.name.endsWith('10') ? css({ background: 'lightGray' }) : undefined),
         }}
         stickyHeader

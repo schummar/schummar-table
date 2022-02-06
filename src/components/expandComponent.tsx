@@ -2,7 +2,7 @@ import { IconButton } from '@material-ui/core';
 import { ChevronRight } from '@material-ui/icons';
 import React from 'react';
 import { getAncestors } from '../misc/helpers';
-import { useTableContext } from '../table';
+import { useTableContext } from './table';
 import { Id } from '../types';
 
 export function ExpandComponent<T>({ itemId }: { itemId: Id }): JSX.Element {

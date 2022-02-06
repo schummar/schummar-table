@@ -2,6 +2,7 @@ import { castDraft } from 'immer';
 import { useEffect, useMemo } from 'react';
 import { Store } from 'schummar-state/react';
 import { Filter } from '../components/filterComponent';
+import { useTableTheme } from '../theme/tableTheme';
 import { Id, InternalTableState, TableProps } from '../types';
 import { calcItems } from './calcItems';
 import { calcProps } from './calcProps';
@@ -11,11 +12,13 @@ import { syncSelections } from './syncSelections';
 
 export function useTableState<T>(_props: TableProps<T>): Store<InternalTableState<T>> {
   const props = calcProps(_props);
+  const theme = useTableTheme(props);
 
   const state = useMemo(
     () =>
       new Store<InternalTableState<T>>({
         props,
+        theme,
 
         sort: props.defaultSort ?? [],
         selection: props.defaultSelection ?? new Set(),

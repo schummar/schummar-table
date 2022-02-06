@@ -1,15 +1,44 @@
-import { CSSProperties, ReactNode } from 'react';
+import { CSSInterpolation } from '@emotion/serialize';
+import React, { ComponentType, CSSProperties, ReactNode } from 'react';
 import { Filter } from './components/filterComponent';
-import { CsvExportOptions } from './misc/csvExport';
 import { TableStateStorage } from './internalState/tableStateStorage';
-
+import { CsvExportOptions } from './misc/csvExport';
 export type Sort = { columnId: string | number; direction: SortDirection };
 export type SortDirection = 'asc' | 'desc';
 
 export type Id = string | number;
 export type KeyOfType<T, S> = { [K in keyof T]: T[K] extends S ? K : never }[keyof T];
 
-export type TableProps<T> = {
+export interface TableTheme<T = unknown> {
+  text: {
+    deselectAll: ReactNode;
+    exportTitle: ReactNode;
+    exportCopy: ReactNode;
+    exportDownload: ReactNode;
+  };
+  css?: {
+    table?: CSSInterpolation;
+    headerCell?: CSSInterpolation;
+    cell?: CSSInterpolation | ((item: T, index: number) => CSSInterpolation);
+    evenCell?: CSSInterpolation;
+    oddCell?: CSSInterpolation;
+  };
+  components: {
+    IconButton: ComponentType<{ children: ReactNode; onClick?: (e: React.MouseEvent<Element>) => void }>;
+    Button: ComponentType<{ children: ReactNode; onClick?: (e: React.MouseEvent<Element>) => void; startIcon?: ReactNode }>;
+    Checkbox: ComponentType<{ checked: boolean; onChange: (checked: boolean) => void; disabled?: boolean }>;
+    Popover: ComponentType<{ anchorEl: Element | null; open?: boolean; onClose?: () => void; children: ReactNode }>;
+  };
+  icons: {
+    settingsIcon: ReactNode;
+    exportIcon: ReactNode;
+    clipboardIcon: ReactNode;
+  };
+  primaryColor: string;
+  spacing: string | number;
+}
+
+export interface TableProps<T> extends Partial<TableTheme<T>> {
   items?: T[];
   id: ((item: T) => Id) | KeyOfType<T, Id>;
   parentId?: ((item: T) => Id | undefined) | KeyOfType<T, Id | undefined>;
@@ -52,19 +81,6 @@ export type TableProps<T> = {
         overscanTop?: number;
       };
 
-  text?: {
-    deselectAll?: ReactNode;
-    exportTitle?: ReactNode;
-    exportCopy?: ReactNode;
-    exportDownload?: ReactNode;
-  };
-  classes?: {
-    table?: string;
-    headerCell?: string;
-    cell?: string | ((item: T, index: number) => string | undefined);
-    evenCell?: string;
-    oddCell?: string;
-  };
   wrapCell?: (cell: ReactNode, item: T) => ReactNode;
   debug?: (...output: any) => void;
 
@@ -82,7 +98,7 @@ export type TableProps<T> = {
       hiddenColumns?: boolean;
     };
   };
-};
+}
 
 export type InternalTableProps<T> = Omit<
   TableProps<T>,
@@ -116,12 +132,7 @@ export type Column<T, V> = {
   width?: string;
   justifyContent?: CSSProperties['justifyContent'];
 
-  classes?: {
-    headerCell?: string;
-    cell?: string | ((item: T, index: number) => string | undefined);
-    evenCell?: string;
-    oddCell?: string;
-  };
+  css?: TableTheme<T>['css'];
 
   /** If the column definition changes, supply parameters that it depends on. If not set, the column will not update */
   dependencies?: any[];
@@ -143,6 +154,7 @@ export type Rows<T, V> = [{ value: V; item: T }, ...{ value: V; item: T }[]];
 export type InternalTableState<T> = {
   // Basically the passed in props, but normalized
   props: InternalTableProps<T>;
+  theme: TableTheme<T>;
 
   // Actual internal state
   sort: Sort[];
@@ -162,4 +174,8 @@ export type InternalTableState<T> = {
   activeItems: TableItem<T>[];
   activeItemsById: Map<Id, TableItem<T>>;
   lastSelectedId?: Id;
+};
+
+export type CssTheme = {
+  spacing?: string | number;
 };

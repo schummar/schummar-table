@@ -1,26 +1,13 @@
-import { IconButton, makeStyles, TextField } from '@material-ui/core';
-import { Clear, Search } from '@material-ui/icons';
 import React, { useEffect, useState } from 'react';
 import { asString } from '../misc/helpers';
 import { textMatch } from '../misc/textMatch';
-import { useColumnContext, useTableContext } from '../table';
-import { InternalColumn } from '../types';
+import { CssTheme, InternalColumn } from '../types';
 import { Filter } from './filterComponent';
+import { useColumnContext, useTableContext } from './table';
 
 export class TextFilter<T> implements Filter<T> {
   constructor(public readonly query: string, public readonly filter: (item: T) => boolean) {}
 }
-
-const useClasses = makeStyles((theme) => ({
-  view: {
-    padding: theme.spacing(2),
-    display: 'grid',
-
-    '& > :first-child': {
-      marginBottom: theme.spacing(2),
-    },
-  },
-}));
 
 export function TextFilterComponent<T, V>({
   filterBy = asString,
@@ -29,7 +16,6 @@ export function TextFilterComponent<T, V>({
   filterBy?: (value: V, item: T) => string;
   compare?: (a: string, b: string) => boolean;
 }): JSX.Element {
-  const classes = useClasses();
   const state = useTableContext<T>();
   const columnId = useColumnContext();
 
@@ -72,19 +58,20 @@ export function TextFilterComponent<T, V>({
   }, [input]);
 
   return (
-    <div className={classes.view}>
-      <TextField
+    <div
+      css={({ spacing }: CssTheme) => ({
+        padding: `calc(${spacing} * 2)`,
+        display: 'grid',
+
+        '& > :first-child': {
+          marginBottom: `calc(${spacing} * 2)`,
+        },
+      })}
+    >
+      <input
         value={input ?? filter?.query ?? ''}
         onChange={(e) => setInput(e.target.value)}
-        InputProps={{
-          endAdornment: filter?.query ? (
-            <IconButton onClick={() => setInput('')}>
-              <Clear />
-            </IconButton>
-          ) : (
-            '🔍'
-          ),
-        }}
+        // TODO icon and clear
       />
     </div>
   );

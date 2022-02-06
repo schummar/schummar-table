@@ -2,7 +2,7 @@ import { IconButton, makeStyles, Popover } from '@material-ui/core';
 import { ArrowDropDown, FilterList } from '@material-ui/icons';
 import React, { useState } from 'react';
 import { c } from '../misc/helpers';
-import { useColumnContext, useTableContext } from '../table';
+import { useColumnContext, useTableContext } from './table';
 
 export type Filter<T> = { filter(item: T): boolean };
 

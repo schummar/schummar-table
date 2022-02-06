@@ -2,7 +2,7 @@ import { Button, Checkbox, FormControlLabel, IconButton, makeStyles, TextField }
 import { Clear, Search } from '@material-ui/icons';
 import React, { ReactNode, useCallback, useState } from 'react';
 import { asString, defaultEquals, flatMap, orderBy, uniq } from '../misc/helpers';
-import { useColumnContext, useTableContext } from '../table';
+import { useColumnContext, useTableContext } from './table';
 import { InternalColumn } from '../types';
 import { Filter } from './filterComponent';
 

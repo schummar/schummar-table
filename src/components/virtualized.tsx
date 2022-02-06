@@ -1,6 +1,6 @@
 import React, { HTMLProps, ReactNode, useEffect, useMemo, useRef, useState } from 'react';
 import { throttle } from '../misc/throttle';
-import { useTableContext } from '../table';
+import { useTableContext } from './table';
 import { Id } from '../types';
 
 const onAncestorScroll = (x: HTMLElement, onScroll: () => void): (() => void) => {

@@ -1,11 +1,9 @@
 import React, { memo } from 'react';
 import { Id, useColumnContext, useTableContext } from '..';
-import { c } from '../misc/helpers';
-import { calcClassName } from './row';
-import { useCommonClasses } from './useCommonClasses';
+import { defaultClasses } from '../theme/defaultClasses';
+import { calcClassNames } from './row';
 
 export const Cell = memo(function Cell<T>({ itemId, rowIndex }: { itemId: Id; rowIndex: number }) {
-  const commonClasses = useCommonClasses();
   const state = useTableContext<T>();
   const columnId = useColumnContext();
 
@@ -16,17 +14,17 @@ export const Cell = memo(function Cell<T>({ itemId, rowIndex }: { itemId: Id; ro
   if (!column || !item) return null;
   state.getState().props.debug?.('render cell', itemId, columnId);
 
-  const className = c(calcClassName(classes, item, rowIndex), calcClassName(column?.classes, item, rowIndex));
+  const classNames = [...calcClassNames(classes, item, rowIndex), ...calcClassNames(column?.classes, item, rowIndex)];
   const content = column.renderCell(column.value(item), item);
 
   if (!wrapCell && typeof content === 'string') {
     wrapCell = (content) => (
-      <div className={c(commonClasses.cell, className)}>
-        <span className={c(commonClasses.text)}>{content}</span>
+      <div css={[defaultClasses.cell, classNames]}>
+        <span css={defaultClasses.text}>{content}</span>
       </div>
     );
   } else if (!wrapCell) {
-    wrapCell = (content) => <div className={c(commonClasses.cell, className)}>{content}</div>;
+    wrapCell = (content) => <div css={[defaultClasses.cell, classNames]}>{content}</div>;
   }
 
   return <>{wrapCell(content, item)}</>;

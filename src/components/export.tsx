@@ -1,29 +1,19 @@
-import { Button, IconButton, makeStyles, Popover, Typography } from '@material-ui/core';
-import { AssignmentReturn, CloudDownload } from '@material-ui/icons';
 import React, { useState } from 'react';
 import { csvExport, CsvExportOptions } from '../misc/csvExport';
-import { ExportIcon } from '../misc/icons';
-import { useTableContext } from '../table';
-
-const useClasses = makeStyles((theme) => ({
-  dialog: {
-    padding: theme.spacing(2),
-    display: 'grid',
-    justifyItems: 'stretch',
-
-    '& > *': {
-      justifyContent: 'start',
-    },
-  },
-}));
+import { CssTheme } from '../types';
+import { useTableContext } from './table';
 
 export function Export<T>(): JSX.Element {
-  const classes = useClasses();
-  const [anchor, setAnchor] = useState<HTMLButtonElement | null>(null);
+  const [anchor, setAnchor] = useState<Element | null>(null);
   const state = useTableContext<T>();
-  const textTitle = state.useState('props.text.exportTitle');
-  const textCopy = state.useState('props.text.exportCopy');
-  const textDownload = state.useState('props.text.exportDownload');
+  const textTitle = state.useState((state) => state.theme.text.exportTitle);
+  const textCopy = state.useState((state) => state.theme.text.exportCopy);
+  const textDownload = state.useState((state) => state.theme.text.exportDownload);
+  const IconButton = state.useState((state) => state.theme.components.IconButton);
+  const Button = state.useState((state) => state.theme.components.Button);
+  const Popover = state.useState((state) => state.theme.components.Popover);
+  const exportIcon = state.useState((state) => state.theme.icons.exportIcon);
+  const clipboardIcon = state.useState((state) => state.theme.icons.clipboardIcon);
 
   const generate = (options?: CsvExportOptions) => {
     const { activeColumns, activeItems } = state.getState();
@@ -50,24 +40,26 @@ export function Export<T>(): JSX.Element {
 
   return (
     <>
-      <IconButton color="inherit" size="small" onClick={(e) => setAnchor(e.currentTarget)}>
-        <ExportIcon />
-      </IconButton>
+      <IconButton onClick={(e) => setAnchor(anchor ? null : e.currentTarget)}>{exportIcon}</IconButton>
 
-      <Popover
-        open={!!anchor}
-        onClose={() => setAnchor(null)}
-        anchorEl={anchor}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-        transformOrigin={{ vertical: 'top', horizontal: 'left' }}
-      >
-        <div className={classes.dialog}>
-          <Typography variant="caption">{textTitle ?? 'Export'}</Typography>
-          <Button startIcon={<AssignmentReturn />} fullWidth onClick={copy}>
-            {textCopy ?? 'In die Zwischenablage'}
+      <Popover open={!!anchor} onClose={() => setAnchor(null)} anchorEl={anchor}>
+        <div
+          css={(theme: CssTheme) => ({
+            padding: `calc(${theme.spacing} * 2)`,
+            display: 'grid',
+            justifyItems: 'stretch',
+
+            '& > *': {
+              justifyContent: 'start',
+            },
+          })}
+        >
+          <div>{textTitle}</div>
+          <Button startIcon={clipboardIcon} onClick={copy}>
+            {textCopy}
           </Button>
-          <Button startIcon={<CloudDownload />} fullWidth onClick={download}>
-            {textDownload ?? 'Herunterladen'}
+          <Button startIcon={exportIcon} onClick={download}>
+            {textDownload}
           </Button>
         </div>
       </Popover>

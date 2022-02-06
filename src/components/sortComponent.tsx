@@ -1,7 +1,7 @@
 import { Badge, makeStyles } from '@material-ui/core';
 import { ArrowDownward, ArrowUpward } from '@material-ui/icons';
 import React, { ReactNode } from 'react';
-import { useColumnContext, useTableContext } from '../table';
+import { useColumnContext, useTableContext } from './table';
 
 const useClasses = makeStyles({
   sortView: {
