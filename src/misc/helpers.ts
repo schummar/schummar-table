@@ -60,15 +60,6 @@ export const getDescendants = <T>(...items: TableItem<T>[]): Set<Id> => {
   return result;
 };
 
-export const c = (...classNames: (string | Record<string, boolean> | undefined)[]): string =>
-  flatMap(classNames, (item) => {
-    if (item === undefined) return [];
-    if (typeof item === 'string') return [item];
-    return Object.entries(item)
-      .filter(([, predicate]) => predicate)
-      .map(([key]) => key);
-  }).join(' ');
-
 export const identity = (x: unknown): any => x;
 export const asString = (x: unknown): string => {
   if (x instanceof Array) return x.map(asString).join(', ');

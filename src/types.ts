@@ -1,5 +1,5 @@
 import { CSSInterpolation } from '@emotion/serialize';
-import React, { ComponentType, CSSProperties, ReactNode } from 'react';
+import React, { ComponentType, CSSProperties, HTMLProps, ReactNode } from 'react';
 import { Filter } from './components/filterComponent';
 import { TableStateStorage } from './internalState/tableStateStorage';
 import { CsvExportOptions } from './misc/csvExport';
@@ -26,14 +26,10 @@ export interface TableTheme<T = unknown> {
   components: {
     IconButton: ComponentType<{ children: ReactNode; onClick?: (e: React.MouseEvent<Element>) => void }>;
     Button: ComponentType<{ children: ReactNode; onClick?: (e: React.MouseEvent<Element>) => void; startIcon?: ReactNode }>;
-    Checkbox: ComponentType<{ checked: boolean; onChange: (checked: boolean) => void; disabled?: boolean }>;
+    Checkbox: ComponentType<HTMLProps<HTMLInputElement>>;
     Popover: ComponentType<{ anchorEl: Element | null; open?: boolean; onClose?: () => void; children: ReactNode }>;
   };
-  icons: {
-    settingsIcon: ReactNode;
-    exportIcon: ReactNode;
-    clipboardIcon: ReactNode;
-  };
+  icons: { [K in 'SettingsIcon' | 'ExportIcon' | 'ClipboardIcon' | 'ChevronRightIcon']: ComponentType<HTMLProps<Element>> };
   primaryColor: string;
   spacing: string | number;
 }

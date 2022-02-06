@@ -1,8 +1,8 @@
 import { css } from '@emotion/react';
 
-const white = '#ffffff';
-const lightGray = '#eeeeee';
-const gray = '#bdbdbd';
+export const white = '#ffffff';
+export const lightGray = '#eeeeee';
+export const gray = '#bdbdbd';
 
 const cell = css({
   padding: `calc(var(--spacing) * 0.1) var(--spacing)`,

@@ -1,25 +1,14 @@
-import { Button, Checkbox, FormControlLabel, IconButton, makeStyles, TextField } from '@material-ui/core';
+import { Button, Checkbox, FormControlLabel, IconButton, TextField } from '@material-ui/core';
 import { Clear, Search } from '@material-ui/icons';
 import React, { ReactNode, useCallback, useState } from 'react';
 import { asString, defaultEquals, flatMap, orderBy, uniq } from '../misc/helpers';
-import { useColumnContext, useTableContext } from './table';
 import { InternalColumn } from '../types';
 import { Filter } from './filterComponent';
+import { useColumnContext, useTableContext } from './table';
 
 export class DefaultFilter<T, O> implements Filter<T> {
   constructor(public readonly values: Set<O>, public readonly filter: (item: T) => boolean) {}
 }
-
-const useClasses = makeStyles((theme) => ({
-  view: {
-    padding: theme.spacing(2),
-    display: 'grid',
-
-    '& > :first-child': {
-      marginBottom: theme.spacing(2),
-    },
-  },
-}));
 
 type UnwrapArray<O> = O extends Array<infer S> ? S : O;
 
@@ -49,7 +38,6 @@ export function DefaultFilterComponent<T, V, O>({
   stringValue?: (value: O) => string;
   render?: (value: O) => ReactNode;
 }): JSX.Element {
-  const classes = useClasses();
   const state = useTableContext<T>();
   const columnId = useColumnContext();
 
@@ -117,7 +105,16 @@ export function DefaultFilterComponent<T, V, O>({
   }
 
   return (
-    <div className={classes.view}>
+    <div
+      css={{
+        padding: 'calc(var(--spacing) * 2)',
+        display: 'grid',
+
+        '& > :first-child': {
+          marginBottom: 'calc(var(--spacing) * 2)',
+        },
+      }}
+    >
       <TextField
         value={input}
         onChange={(e) => setInput(e.target.value)}

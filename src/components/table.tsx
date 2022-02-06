@@ -65,22 +65,26 @@ const TableInner = memo(function TableInner<T>(): JSX.Element {
 
   return (
     <Virtualized
-      css={[cssVariables, defaultClasses.table, css?.table]}
-      style={{
-        gridTemplateColumns: [
-          //
-          fullWidth === 'right' || fullWidth === true ? 'auto' : '0',
-          'max-content',
-          ...activeColumns.flatMap((column, index) => [
-            insertLine === index && '0',
-            columnWidths.get(column.id) ?? column.width ?? defaultWidth ?? 'max-content',
-          ]),
-          insertLine === activeColumns.length && '0',
-          fullWidth === 'left' || fullWidth === true ? 'auto' : '0',
-        ]
-          .filter(Boolean)
-          .join(' '),
-      }}
+      css={[
+        cssVariables,
+        defaultClasses.table,
+        css?.table,
+        {
+          gridTemplateColumns: [
+            //
+            fullWidth === 'right' || fullWidth === true ? 'auto' : '0',
+            'max-content',
+            ...activeColumns.flatMap((column, index) => [
+              insertLine === index && '0',
+              columnWidths.get(column.id) ?? column.width ?? defaultWidth ?? 'max-content',
+            ]),
+            insertLine === activeColumns.length && '0',
+            fullWidth === 'left' || fullWidth === true ? 'auto' : '0',
+          ]
+            .filter(Boolean)
+            .join(' '),
+        },
+      ]}
       header={
         <>
           <div css={[defaultClasses.headerFill, stickyHeader && defaultClasses.sticky, css?.headerCell]} />

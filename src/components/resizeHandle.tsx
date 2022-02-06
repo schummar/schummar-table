@@ -1,28 +1,8 @@
-import { makeStyles } from '@material-ui/core';
 import React from 'react';
 import { useColumnContext, useTableContext } from '..';
-
-const useClasses = makeStyles((theme) => ({
-  resizeHandle: {
-    position: 'absolute',
-    top: 0,
-    right: 0,
-    width: 6,
-    height: '100%',
-    background: theme.palette.grey[400],
-    zIndex: 1,
-    opacity: 0,
-    transition: 'opactiy 300ms',
-    cursor: 'col-resize',
-
-    '&:hover, &:active': {
-      opacity: 1,
-    },
-  },
-}));
+import { gray } from '../theme/defaultClasses';
 
 export function ResizeHandle() {
-  const classes = useClasses();
   const columnId = useColumnContext();
   const tableState = useTableContext();
 
@@ -66,7 +46,22 @@ export function ResizeHandle() {
 
   return (
     <div
-      className={classes.resizeHandle}
+      css={{
+        position: 'absolute',
+        top: 0,
+        right: 0,
+        width: 6,
+        height: '100%',
+        background: gray,
+        zIndex: 1,
+        opacity: 0,
+        transition: 'opactiy 300ms',
+        cursor: 'col-resize',
+
+        '&:hover, &:active': {
+          opacity: 1,
+        },
+      }}
       onPointerDown={onPointerDown}
       onPointerMove={onPointerMove}
       onPointerUp={onPointerUp}

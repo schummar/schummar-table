@@ -1,29 +1,9 @@
-import { Badge, makeStyles } from '@material-ui/core';
+import { Badge } from '@material-ui/core';
 import { ArrowDownward, ArrowUpward } from '@material-ui/icons';
 import React, { ReactNode } from 'react';
 import { useColumnContext, useTableContext } from './table';
 
-const useClasses = makeStyles({
-  sortView: {
-    userSelect: 'none',
-    display: 'grid',
-    gridTemplateColumns: 'minmax(0, 1fr) max-content',
-    alignItems: 'center',
-    cursor: 'pointer',
-
-    '& > div': {
-      overflow: 'hidden',
-      textOverflow: 'ellipsis',
-    },
-  },
-
-  empty: {
-    width: 20,
-  },
-});
-
 export function SortComponent<T>({ children }: { children: ReactNode }): JSX.Element {
-  const classes = useClasses();
   const state = useTableContext<T>();
   const columnId = useColumnContext();
   const { direction, index } = state.useState((state) => {
@@ -55,7 +35,21 @@ export function SortComponent<T>({ children }: { children: ReactNode }): JSX.Ele
   }
 
   return (
-    <div className={classes.sortView} onClick={toggle}>
+    <div
+      css={{
+        userSelect: 'none',
+        display: 'grid',
+        gridTemplateColumns: 'minmax(0, 1fr) max-content',
+        alignItems: 'center',
+        cursor: 'pointer',
+
+        '& > div': {
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+        },
+      }}
+      onClick={toggle}
+    >
       <div>{children}</div>
 
       <Badge badgeContent={index}>
@@ -64,7 +58,7 @@ export function SortComponent<T>({ children }: { children: ReactNode }): JSX.Ele
         ) : direction === 'desc' ? (
           <ArrowDownward fontSize="small" />
         ) : (
-          <div className={classes.empty} />
+          <div css={{ width: 20 }} />
         )}
       </Badge>
     </div>

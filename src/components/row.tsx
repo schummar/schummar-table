@@ -61,7 +61,7 @@ export const Row = memo(function Row<T>({ itemId, rowIndex }: { itemId: Id; rowI
       <div css={[defaultClasses.cellFill, className]} ref={divRef} />
 
       <div css={[defaultClasses.cell, defaultClasses.firstCell, className]}>
-        <div style={{ width: indent * 20 }} />
+        <div css={{ width: indent * 20 }} />
 
         {enableSelection && <SelectComponent itemId={itemId} />}
 

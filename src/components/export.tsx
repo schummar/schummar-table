@@ -11,8 +11,8 @@ export function Export<T>(): JSX.Element {
   const IconButton = state.useState((state) => state.theme.components.IconButton);
   const Button = state.useState((state) => state.theme.components.Button);
   const Popover = state.useState((state) => state.theme.components.Popover);
-  const exportIcon = state.useState((state) => state.theme.icons.exportIcon);
-  const clipboardIcon = state.useState((state) => state.theme.icons.clipboardIcon);
+  const ExportIcon = state.useState((state) => state.theme.icons.ExportIcon);
+  const ClipboardIcon = state.useState((state) => state.theme.icons.ClipboardIcon);
 
   const generate = (options?: CsvExportOptions) => {
     const { activeColumns, activeItems } = state.getState();
@@ -39,7 +39,9 @@ export function Export<T>(): JSX.Element {
 
   return (
     <>
-      <IconButton onClick={(e) => setAnchor(anchor ? null : e.currentTarget)}>{exportIcon}</IconButton>
+      <IconButton onClick={(e) => setAnchor(anchor ? null : e.currentTarget)}>
+        <ExportIcon />
+      </IconButton>
 
       <Popover open={!!anchor} onClose={() => setAnchor(null)} anchorEl={anchor}>
         <div
@@ -54,10 +56,10 @@ export function Export<T>(): JSX.Element {
           }}
         >
           <div>{textTitle}</div>
-          <Button startIcon={clipboardIcon} onClick={copy}>
+          <Button startIcon={<ClipboardIcon />} onClick={copy}>
             {textCopy}
           </Button>
-          <Button startIcon={exportIcon} onClick={download}>
+          <Button startIcon={<ExportIcon />} onClick={download}>
             {textDownload}
           </Button>
         </div>

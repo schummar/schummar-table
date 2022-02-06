@@ -1,18 +1,9 @@
-import { Checkbox, makeStyles } from '@material-ui/core';
 import React from 'react';
 import { getAncestors, getDescendants } from '../misc/helpers';
-import { useTableContext } from './table';
 import { Id } from '../types';
-
-const useClasses = makeStyles({
-  justifiedCheckbox: {
-    justifySelf: 'start',
-    color: 'inherit',
-  },
-});
+import { useTableContext } from './table';
 
 export function SelectComponent<T>({ itemId }: { itemId?: Id }): JSX.Element {
-  const classes = useClasses();
   const state = useTableContext<T>();
   const isSelected = state.useState(
     (state) => {
@@ -21,6 +12,7 @@ export function SelectComponent<T>({ itemId }: { itemId?: Id }): JSX.Element {
     },
     [itemId],
   );
+  const Checkbox = state.useState((state) => state.theme.components.Checkbox);
 
   function toggle(e: React.ChangeEvent<HTMLInputElement>) {
     const mouseEvent = e.nativeEvent as MouseEvent;
@@ -71,5 +63,14 @@ export function SelectComponent<T>({ itemId }: { itemId?: Id }): JSX.Element {
     });
   }
 
-  return <Checkbox className={classes.justifiedCheckbox} checked={isSelected} onChange={toggle} />;
+  return (
+    <Checkbox
+      css={{
+        justifySelf: 'start',
+        color: 'inherit',
+      }}
+      checked={isSelected}
+      onChange={toggle}
+    />
+  );
 }

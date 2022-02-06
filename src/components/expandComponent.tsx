@@ -1,5 +1,3 @@
-import { IconButton } from '@material-ui/core';
-import { ChevronRight } from '@material-ui/icons';
 import React from 'react';
 import { getAncestors } from '../misc/helpers';
 import { useTableContext } from './table';
@@ -8,6 +6,8 @@ import { Id } from '../types';
 export function ExpandComponent<T>({ itemId }: { itemId: Id }): JSX.Element {
   const state = useTableContext<T>();
   const isExpanded = state.useState((state) => state.expanded.has(itemId), [itemId]);
+  const IconButton = state.useState((state) => state.theme.components.IconButton);
+  const ChevronRightIcon = state.useState((state) => state.theme.icons.ChevronRightIcon);
 
   function toggle() {
     const {
@@ -38,9 +38,9 @@ export function ExpandComponent<T>({ itemId }: { itemId: Id }): JSX.Element {
   }
 
   return (
-    <IconButton size="small" onClick={toggle}>
-      <ChevronRight
-        style={{
+    <IconButton onClick={toggle}>
+      <ChevronRightIcon
+        css={{
           transition: 'all 500ms',
           transform: isExpanded ? 'rotate3d(0, 0, 1, 90deg)' : 'none',
         }}

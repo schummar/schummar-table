@@ -9,7 +9,7 @@ export function ColumnSelection<T>(): JSX.Element {
   const IconButton = state.useState((state) => state.theme.components.IconButton);
   const Popover = state.useState((state) => state.theme.components.Popover);
   const Checkbox = state.useState((state) => state.theme.components.Checkbox);
-  const settingsIcon = state.useState((state) => state.theme.icons.settingsIcon);
+  const SettingsIcon = state.useState((state) => state.theme.icons.SettingsIcon);
 
   const [anchorEl, setAnchorEl] = useState<Element | null>(null);
 
@@ -31,9 +31,13 @@ export function ColumnSelection<T>(): JSX.Element {
     onHiddenColumnsChange?.(newValue);
   };
 
+  console.log(SettingsIcon, <SettingsIcon />);
+
   return (
     <>
-      <IconButton onClick={(e) => setAnchorEl(anchorEl ? null : e.currentTarget)}>{settingsIcon}</IconButton>
+      <IconButton onClick={(e) => setAnchorEl(anchorEl ? null : e.currentTarget)}>
+        <SettingsIcon />
+      </IconButton>
 
       <Popover anchorEl={anchorEl} open={!!anchorEl} onClose={() => setAnchorEl(null)}>
         <div css={{ padding: `calc(var(--spacing) * 2)`, display: 'grid' }}>

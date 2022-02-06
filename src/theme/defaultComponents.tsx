@@ -56,8 +56,8 @@ const Button: TableTheme['components']['Button'] = ({ startIcon, children, ...pr
   );
 };
 
-const Checkbox: TableTheme['components']['Checkbox'] = ({ onChange, ...props }) => {
-  return <input type="checkbox" onChange={(e) => onChange(e.target.checked)} {...props} />;
+const Checkbox: TableTheme['components']['Checkbox'] = (props) => {
+  return <input type="checkbox" {...props} />;
 };
 
 const Popover: TableTheme['components']['Popover'] = ({ anchorEl, open, onClose, children }) => {
