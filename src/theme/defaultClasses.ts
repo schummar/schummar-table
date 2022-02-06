@@ -1,20 +1,18 @@
 import { css } from '@emotion/react';
-import { CssTheme } from '../types';
 
 const white = '#ffffff';
 const lightGray = '#eeeeee';
 const gray = '#bdbdbd';
 
-const cell = ({ spacing }: CssTheme) =>
-  css({
-    padding: `calc(${spacing} * 0.1) ${spacing}`,
-    display: 'flex',
-    alignItems: 'center',
-    borderBottom: `1px solid ${lightGray}`,
-    whiteSpace: 'nowrap',
-    overflow: 'hidden',
-    transition: 'transform 300ms',
-  });
+const cell = css({
+  padding: `calc(var(--spacing) * 0.1) var(--spacing)`,
+  display: 'flex',
+  alignItems: 'center',
+  borderBottom: `1px solid ${lightGray}`,
+  whiteSpace: 'nowrap',
+  overflow: 'hidden',
+  transition: 'transform 300ms',
+});
 
 export const defaultClasses = {
   table: css({
@@ -28,12 +26,11 @@ export const defaultClasses = {
     borderBottom: `1px solid ${lightGray}`,
   }),
 
-  headerCell: (theme: CssTheme) =>
-    css(cell(theme), {
-      borderBottom: `2px solid ${gray}`,
-      gridTemplateColumns: 'minmax(0, 1fr) max-content',
-      background: white,
-    }),
+  headerCell: css(cell, {
+    borderBottom: `2px solid ${gray}`,
+    gridTemplateColumns: 'minmax(0, 1fr) max-content',
+    background: white,
+  }),
 
   firstCell: css({
     justifyContent: 'start',

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { CssTheme, InternalColumn } from '../types';
+import { InternalColumn } from '../types';
 import { useTableContext } from './table';
 
 export function ColumnSelection<T>(): JSX.Element {
@@ -36,7 +36,7 @@ export function ColumnSelection<T>(): JSX.Element {
       <IconButton onClick={(e) => setAnchorEl(anchorEl ? null : e.currentTarget)}>{settingsIcon}</IconButton>
 
       <Popover anchorEl={anchorEl} open={!!anchorEl} onClose={() => setAnchorEl(null)}>
-        <div css={(theme: CssTheme) => ({ padding: `calc(${theme.spacing} * 2)`, display: 'grid' })}>
+        <div css={{ padding: `calc(var(--spacing) * 2)`, display: 'grid' }}>
           {columns.map((column) => (
             <div key={column.id}>
               <Checkbox checked={!hiddenColumns.has(column.id)} onChange={() => toggle(column)} disabled={column.cannotHide} />

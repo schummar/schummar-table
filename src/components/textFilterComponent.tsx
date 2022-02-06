@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { asString } from '../misc/helpers';
 import { textMatch } from '../misc/textMatch';
-import { CssTheme, InternalColumn } from '../types';
+import { InternalColumn } from '../types';
 import { Filter } from './filterComponent';
 import { useColumnContext, useTableContext } from './table';
 
@@ -59,14 +59,14 @@ export function TextFilterComponent<T, V>({
 
   return (
     <div
-      css={({ spacing }: CssTheme) => ({
-        padding: `calc(${spacing} * 2)`,
+      css={{
+        padding: `calc(var(--spacing) * 2)`,
         display: 'grid',
 
         '& > :first-child': {
-          marginBottom: `calc(${spacing} * 2)`,
+          marginBottom: `calc(var(--spacing) * 2)`,
         },
-      })}
+      }}
     >
       <input
         value={input ?? filter?.query ?? ''}

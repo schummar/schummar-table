@@ -1,4 +1,3 @@
-import { ThemeProvider } from '@emotion/react';
 import React, { createContext, memo, useContext } from 'react';
 import { Store } from 'schummar-state/react';
 import { useTableStateStorage } from '../internalState/tableStateStorage';
@@ -60,66 +59,64 @@ const TableInner = memo(function TableInner<T>(): JSX.Element {
   const enableSelection = state.useState('props.enableSelection');
   const enableColumnSelection = state.useState('props.enableColumnSelection');
   const enableExport = state.useState((state) => !!state.props.enableExport.copy || !!state.props.enableExport.download);
-  const cssTheme = state.useState((state) => ({ spacing: state.theme.spacing }));
+  const cssVariables = state.useState((state) => ({ '--spacing': state.theme.spacing }));
 
   state.getState().props.debug?.('render table inner');
 
   return (
-    <ThemeProvider theme={cssTheme}>
-      <Virtualized
-        css={[defaultClasses.table, css?.table]}
-        style={{
-          gridTemplateColumns: [
-            //
-            fullWidth === 'right' || fullWidth === true ? 'auto' : '0',
-            'max-content',
-            ...activeColumns.flatMap((column, index) => [
-              insertLine === index && '0',
-              columnWidths.get(column.id) ?? column.width ?? defaultWidth ?? 'max-content',
-            ]),
-            insertLine === activeColumns.length && '0',
-            fullWidth === 'left' || fullWidth === true ? 'auto' : '0',
-          ]
-            .filter(Boolean)
-            .join(' '),
-        }}
-        header={
-          <>
-            <div css={[defaultClasses.headerFill, stickyHeader && defaultClasses.sticky, css?.headerCell]} />
+    <Virtualized
+      css={[cssVariables, defaultClasses.table, css?.table]}
+      style={{
+        gridTemplateColumns: [
+          //
+          fullWidth === 'right' || fullWidth === true ? 'auto' : '0',
+          'max-content',
+          ...activeColumns.flatMap((column, index) => [
+            insertLine === index && '0',
+            columnWidths.get(column.id) ?? column.width ?? defaultWidth ?? 'max-content',
+          ]),
+          insertLine === activeColumns.length && '0',
+          fullWidth === 'left' || fullWidth === true ? 'auto' : '0',
+        ]
+          .filter(Boolean)
+          .join(' '),
+      }}
+      header={
+        <>
+          <div css={[defaultClasses.headerFill, stickyHeader && defaultClasses.sticky, css?.headerCell]} />
 
-            <div css={[defaultClasses.headerCell, stickyHeader && defaultClasses.sticky, css?.headerCell]}>
-              {enableSelection && <SelectComponent />}
+          <div css={[defaultClasses.headerCell, stickyHeader && defaultClasses.sticky, css?.headerCell]}>
+            {enableSelection && <SelectComponent />}
 
-              {enableColumnSelection && <ColumnSelection />}
+            {enableColumnSelection && <ColumnSelection />}
 
-              {enableExport && <Export />}
-            </div>
+            {enableExport && <Export />}
+          </div>
 
-            <ColumnHeaderContext.Provider>
-              {activeColumns.map((column, index) => (
-                <ColumnContext.Provider key={column.id} value={column.id}>
-                  {insertLine === index && <InsertLine />}
+          <ColumnHeaderContext.Provider>
+            {activeColumns.map((column, index) => (
+              <ColumnContext.Provider key={column.id} value={column.id}>
+                {insertLine === index && <InsertLine />}
 
-                  <ColumnHeader
-                    css={[defaultClasses.headerCell, stickyHeader && defaultClasses.sticky, css?.headerCell, column.css?.headerCell]}
-                    key={column.id}
-                  >
-                    <SortComponent>{column.header}</SortComponent>
-                    <FilterComponent />
-                    <ResizeHandle />
-                  </ColumnHeader>
-                </ColumnContext.Provider>
-              ))}
+                <ColumnHeader
+                  css={[defaultClasses.headerCell, stickyHeader && defaultClasses.sticky, css?.headerCell, column.css?.headerCell]}
+                  key={column.id}
+                >
+                  <SortComponent>{column.header}</SortComponent>
+                  <FilterComponent />
+                  <ResizeHandle />
+                </ColumnHeader>
+              </ColumnContext.Provider>
+            ))}
 
-              {insertLine === activeColumns.length && <InsertLine />}
-            </ColumnHeaderContext.Provider>
+            {insertLine === activeColumns.length && <InsertLine />}
+          </ColumnHeaderContext.Provider>
 
-            <div css={[defaultClasses.headerFill, stickyHeader && defaultClasses.sticky, css?.headerCell]} />
-          </>
-        }
-      >
-        {(itemIds, startIndex) => itemIds.map((itemId, index) => <Row key={itemId} itemId={itemId} rowIndex={startIndex + index} />)}
-      </Virtualized>
-    </ThemeProvider>
+          <div css={[defaultClasses.headerFill, stickyHeader && defaultClasses.sticky, css?.headerCell]} />
+        </>
+      }
+    >
+      {(itemIds, startIndex) => itemIds.map((itemId, index) => <Row key={itemId} itemId={itemId} rowIndex={startIndex + index} />)}
+    </Virtualized>
   );
 });

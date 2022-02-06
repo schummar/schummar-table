@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { csvExport, CsvExportOptions } from '../misc/csvExport';
-import { CssTheme } from '../types';
 import { useTableContext } from './table';
 
 export function Export<T>(): JSX.Element {
@@ -44,15 +43,15 @@ export function Export<T>(): JSX.Element {
 
       <Popover open={!!anchor} onClose={() => setAnchor(null)} anchorEl={anchor}>
         <div
-          css={(theme: CssTheme) => ({
-            padding: `calc(${theme.spacing} * 2)`,
+          css={{
+            padding: `calc(var(--spacing) * 2)`,
             display: 'grid',
             justifyItems: 'stretch',
 
             '& > *': {
               justifyContent: 'start',
             },
-          })}
+          }}
         >
           <div>{textTitle}</div>
           <Button startIcon={clipboardIcon} onClick={copy}>

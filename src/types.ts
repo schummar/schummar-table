@@ -175,7 +175,3 @@ export type InternalTableState<T> = {
   activeItemsById: Map<Id, TableItem<T>>;
   lastSelectedId?: Id;
 };
-
-export type CssTheme = {
-  spacing?: string | number;
-};

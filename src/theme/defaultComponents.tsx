@@ -1,5 +1,5 @@
 import { createPortal } from 'react-dom';
-import { CssTheme, TableTheme } from '../types';
+import { TableTheme } from '../types';
 
 const IconButton: TableTheme['components']['IconButton'] = (props) => {
   return (
@@ -31,8 +31,8 @@ const IconButton: TableTheme['components']['IconButton'] = (props) => {
 const Button: TableTheme['components']['Button'] = ({ startIcon, children, ...props }) => {
   return (
     <button
-      css={({ spacing }: CssTheme) => ({
-        padding: `${spacing} calc(${spacing} * 2)`,
+      css={{
+        padding: `var(--spacing) calc(var(--spacing) * 2)`,
         display: 'inline-flex',
         alignItems: 'center',
         transition: 'background-color 150ms',
@@ -47,10 +47,10 @@ const Button: TableTheme['components']['Button'] = ({ startIcon, children, ...pr
         '&:active': {
           transform: 'scale3d(0.95, 0.95, 1)',
         },
-      })}
+      }}
       {...props}
     >
-      {startIcon && <span css={({ spacing }: CssTheme) => ({ marginRight: `calc(${spacing} * 2)` })}>{startIcon}</span>}
+      {startIcon && <span css={{ marginRight: `calc(var(--spacing) * 2)` }}>{startIcon}</span>}
       <span>{children}</span>
     </button>
   );
