@@ -1,11 +1,10 @@
-import { CircularProgress, makeStyles } from '@material-ui/core';
-import { Link } from '@material-ui/icons';
 import React, { useEffect, useState } from 'react';
 import { Action } from 'schummar-state/react';
 import { DefaultFilterComponent, Table, TextFilterComponent } from '../../src';
 import { flatMap } from '../../src/misc/helpers';
 import { configureTables } from '../../src/table';
 import localforage from 'localforage';
+import { css } from '@emotion/react';
 
 const storage = localforage.createInstance({ name: 'xyz' });
 
@@ -14,23 +13,6 @@ configureTables({
     exportCopy: <pre style={{ color: 'red' }}>foo</pre>,
   },
 });
-
-const useClasses = makeStyles((theme) => ({
-  container: {
-    padding: 20,
-    // marginTop: '10vh',
-    // height: '70vh',
-    // overflow: 'auto',
-    display: 'grid',
-    gridTemplateRows: 'max-content 1fr',
-  },
-  oddCell: {
-    // background: theme.palette.grey[100],
-  },
-  inactive: {
-    background: 'lightGray',
-  },
-}));
 
 type TopItem = {
   type: 'top';
@@ -58,7 +40,6 @@ const loadTop = new Action(async () => {
 });
 
 function App(): JSX.Element {
-  const classes = useClasses();
   const [active, setActive] = useState<string[]>(['0']);
   const [selected, setSelected] = useState<Set<any>>(new Set());
   const [children, setChildren] = useState<SubItem[]>([]);
@@ -90,7 +71,13 @@ function App(): JSX.Element {
   }, [active]);
 
   return (
-    <div className={classes.container}>
+    <div
+      css={{
+        padding: 20,
+        display: 'grid',
+        gridTemplateRows: 'max-content 1fr',
+      }}
+    >
       <div style={{ height: 200 }}></div>
 
       <Table
@@ -111,7 +98,7 @@ function App(): JSX.Element {
         // expanded={new Set('0')}
         // wrapCell={(cell) => <div style={{ background: 'green' }}>{cell}</div>}
         enableExport
-        rowAction={(_item, index) => (index % 2 === 0 ? <Link /> : undefined)}
+        rowAction={(_item, index) => (index % 2 === 0 ? '🔍' : undefined)}
         columns={(col) => [
           col((x) => x.id, {
             header: 'Id',
@@ -145,8 +132,7 @@ function App(): JSX.Element {
           }),
         ]}
         classes={{
-          ...classes,
-          cell: (item) => (item.name.endsWith('10') ? classes.inactive : undefined),
+          cell: (item) => (item.name.endsWith('10') ? css({ background: 'lightGray' }) : undefined),
         }}
         stickyHeader
         // debug={(...args) => console.debug(...args)}

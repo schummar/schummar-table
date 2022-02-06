@@ -82,7 +82,7 @@ export function TextFilterComponent<T, V>({
               <Clear />
             </IconButton>
           ) : (
-            <Search />
+            '🔍'
           ),
         }}
       />

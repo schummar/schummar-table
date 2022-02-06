@@ -2,6 +2,7 @@ import { Button, IconButton, makeStyles, Popover, Typography } from '@material-u
 import { AssignmentReturn, CloudDownload } from '@material-ui/icons';
 import React, { useState } from 'react';
 import { csvExport, CsvExportOptions } from '../misc/csvExport';
+import { ExportIcon } from '../misc/icons';
 import { useTableContext } from '../table';
 
 const useClasses = makeStyles((theme) => ({
@@ -50,7 +51,7 @@ export function Export<T>(): JSX.Element {
   return (
     <>
       <IconButton color="inherit" size="small" onClick={(e) => setAnchor(e.currentTarget)}>
-        <CloudDownload />
+        <ExportIcon />
       </IconButton>
 
       <Popover

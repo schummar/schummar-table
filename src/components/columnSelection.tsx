@@ -1,6 +1,6 @@
 import { Checkbox, FormControlLabel, IconButton, makeStyles, Popover } from '@material-ui/core';
-import { Settings } from '@material-ui/icons';
 import React, { useState } from 'react';
+import { SettingsIcon } from '../misc/icons';
 import { useTableContext } from '../table';
 import { InternalColumn } from '../types';
 
@@ -39,7 +39,7 @@ export function ColumnSelection<T>(): JSX.Element {
   return (
     <>
       <IconButton color="inherit" size="small" onClick={(e) => setAnchor(e.currentTarget)}>
-        <Settings />
+        <SettingsIcon />
       </IconButton>
 
       <Popover
