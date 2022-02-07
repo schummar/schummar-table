@@ -12,7 +12,7 @@ const cell = css({
   borderBottom: `1px solid ${lightGray}`,
   whiteSpace: 'nowrap',
   overflow: 'hidden',
-  transition: 'transform 300ms',
+  background: 'white',
 });
 
 export const defaultClasses = {

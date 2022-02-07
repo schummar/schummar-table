@@ -107,7 +107,6 @@ export interface TableProps<T> extends Partial<TableTheme<T>> {
         overscanTop?: number;
       };
 
-  wrapCell?: (cell: ReactNode, item: T) => ReactNode;
   debug?: (...output: any) => void;
 
   enableSelection?: boolean;
@@ -191,7 +190,7 @@ export type InternalTableState<T> = {
   hiddenColumns: Set<Id>;
   columnWidths: Map<Id, string>;
   columnOrder: Id[];
-  insertLine?: number;
+  columnStyleOverride: Map<Id, CSSInterpolation>;
 
   // Helper data structures for efficient lookup etc.
   activeColumns: InternalColumn<T, unknown>[];

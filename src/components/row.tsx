@@ -4,7 +4,6 @@ import { defaultClasses } from '../theme/defaultClasses';
 import { Id, InternalColumn } from '../types';
 import { Cell } from './cell';
 import { ExpandComponent } from './expandComponent';
-import { InsertLine } from './inserLine';
 import { SelectComponent } from './selectComponent';
 import { ColumnContext, useTableContext } from './table';
 
@@ -19,7 +18,6 @@ export function calcClassNames<T>(css: InternalColumn<any, any>['css'] | undefin
 export const Row = memo(function Row<T>({ itemId, rowIndex }: { itemId: Id; rowIndex: number }): JSX.Element | null {
   const state = useTableContext<T>();
   const divRef = useRef<HTMLDivElement>(null);
-  const insertLine = state.useState('insertLine');
 
   const { className, indent, hasChildren, hasDeferredChildren, columnIds, enableSelection, rowAction } = state.useState(
     (state) => {
@@ -70,15 +68,11 @@ export const Row = memo(function Row<T>({ itemId, rowIndex }: { itemId: Id; rowI
         {rowAction}
       </div>
 
-      {columnIds.map((columnId, index) => (
+      {columnIds.map((columnId) => (
         <ColumnContext.Provider key={columnId} value={columnId}>
-          {insertLine === index && <InsertLine />}
-
           <Cell itemId={itemId} rowIndex={rowIndex} />
         </ColumnContext.Provider>
       ))}
-
-      {insertLine === columnIds.length && <InsertLine />}
 
       <div css={[defaultClasses.cellFill, className]} />
     </>

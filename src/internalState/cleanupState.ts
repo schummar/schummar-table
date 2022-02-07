@@ -36,7 +36,7 @@ export function cleanupState<T>(state: Store<InternalTableState<T>>): void {
 
           // Remove non existing columns from columnOrder
           for (const id of draft.columnOrder) {
-            if (!activeColumnIds.has(id)) draft.columnOrder = draft.columnOrder.filter((x) => x !== id);
+            if (!columnIds.has(id)) draft.columnOrder = draft.columnOrder.filter((x) => x !== id);
           }
 
           if (draft.props.items) {

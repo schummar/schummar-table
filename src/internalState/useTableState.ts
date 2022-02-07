@@ -35,6 +35,7 @@ export function useTableState<T>(_props: TableProps<T>): Store<InternalTableStat
         hiddenColumns: props.defaultHiddenColumns ?? new Set(),
         columnWidths: new Map(),
         columnOrder: props.columns.map((column) => column.id),
+        columnStyleOverride: new Map(),
 
         activeColumns: [],
         items: [],

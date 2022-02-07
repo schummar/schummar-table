@@ -3,18 +3,17 @@ import { Store } from 'schummar-state/react';
 import { useTableStateStorage } from '../internalState/tableStateStorage';
 import { useTableState } from '../internalState/useTableState';
 import { defaultClasses } from '../theme/defaultClasses';
+import { useCssVariables } from '../theme/useCssVariables';
 import { Id, InternalTableState, TableProps } from '../types';
 import { ColumnHeader, ColumnHeaderContext } from './columnHeader';
 import { ColumnSelection } from './columnSelection';
 import { Export } from './export';
 import { FilterComponent } from './filterComponent';
-import { InsertLine } from './inserLine';
 import { ResizeHandle } from './resizeHandle';
 import { Row } from './row';
 import { SelectComponent } from './selectComponent';
 import { SortComponent } from './sortComponent';
 import { Virtualized } from './virtualized';
-import { useCssVariables } from '../theme/useCssVariables';
 
 export const TableContext = createContext<Store<InternalTableState<any>> | null>(null);
 export const ColumnContext = createContext<Id | null>(null);
@@ -53,7 +52,7 @@ const TableInner = memo(function TableInner<T>(): JSX.Element {
     })),
   );
   const columnWidths = state.useState('columnWidths', { throttle: 16 });
-  const insertLine = state.useState('insertLine');
+  const columnStyleOverride = state.useState('columnStyleOverride', { throttle: 16 });
   const defaultWidth = state.useState('props.defaultWidth');
   const css = state.useState('props.css');
   const stickyHeader = state.useState('props.stickyHeader');
@@ -75,15 +74,9 @@ const TableInner = memo(function TableInner<T>(): JSX.Element {
             //
             fullWidth === 'right' || fullWidth === true ? 'auto' : '0',
             'max-content',
-            ...activeColumns.flatMap((column, index) => [
-              insertLine === index && '0',
-              columnWidths.get(column.id) ?? column.width ?? defaultWidth ?? 'max-content',
-            ]),
-            insertLine === activeColumns.length && '0',
+            ...activeColumns.map((column) => columnWidths.get(column.id) ?? column.width ?? defaultWidth ?? 'max-content'),
             fullWidth === 'left' || fullWidth === true ? 'auto' : '0',
-          ]
-            .filter(Boolean)
-            .join(' '),
+          ].join(' '),
         },
       ]}
       header={
@@ -99,12 +92,16 @@ const TableInner = memo(function TableInner<T>(): JSX.Element {
           </div>
 
           <ColumnHeaderContext.Provider>
-            {activeColumns.map((column, index) => (
+            {activeColumns.map((column) => (
               <ColumnContext.Provider key={column.id} value={column.id}>
-                {insertLine === index && <InsertLine />}
-
                 <ColumnHeader
-                  css={[defaultClasses.headerCell, stickyHeader && defaultClasses.sticky, css?.headerCell, column.css?.headerCell]}
+                  css={[
+                    defaultClasses.headerCell,
+                    stickyHeader && defaultClasses.sticky,
+                    css?.headerCell,
+                    column.css?.headerCell,
+                    columnStyleOverride.get(column.id),
+                  ]}
                   key={column.id}
                 >
                   <SortComponent>{column.header}</SortComponent>
@@ -114,8 +111,6 @@ const TableInner = memo(function TableInner<T>(): JSX.Element {
                 </ColumnHeader>
               </ColumnContext.Provider>
             ))}
-
-            {insertLine === activeColumns.length && <InsertLine />}
           </ColumnHeaderContext.Provider>
 
           <div css={[defaultClasses.headerFill, stickyHeader && defaultClasses.sticky, css?.headerCell]} />
