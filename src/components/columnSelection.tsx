@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
+import { useCssVariables } from '../theme/useCssVariables';
 import { InternalColumn } from '../types';
+import { FormControlLabel } from './formControlLabel';
 import { useTableContext } from './table';
 
 export function ColumnSelection<T>(): JSX.Element {
@@ -9,7 +11,8 @@ export function ColumnSelection<T>(): JSX.Element {
   const IconButton = state.useState((state) => state.theme.components.IconButton);
   const Popover = state.useState((state) => state.theme.components.Popover);
   const Checkbox = state.useState((state) => state.theme.components.Checkbox);
-  const SettingsIcon = state.useState((state) => state.theme.icons.SettingsIcon);
+  const SettingsIcon = state.useState((state) => state.theme.icons.Settings);
+  const cssVariables = useCssVariables();
 
   const [anchorEl, setAnchorEl] = useState<Element | null>(null);
 
@@ -31,21 +34,20 @@ export function ColumnSelection<T>(): JSX.Element {
     onHiddenColumnsChange?.(newValue);
   };
 
-  console.log(SettingsIcon, <SettingsIcon />);
-
   return (
     <>
       <IconButton onClick={(e) => setAnchorEl(anchorEl ? null : e.currentTarget)}>
         <SettingsIcon />
       </IconButton>
 
-      <Popover anchorEl={anchorEl} open={!!anchorEl} onClose={() => setAnchorEl(null)}>
+      <Popover anchorEl={anchorEl} open={!!anchorEl} onClose={() => setAnchorEl(null)} css={cssVariables}>
         <div css={{ padding: `calc(var(--spacing) * 2)`, display: 'grid' }}>
           {columns.map((column) => (
-            <div key={column.id}>
-              <Checkbox checked={!hiddenColumns.has(column.id)} onChange={() => toggle(column)} disabled={column.cannotHide} />
-              <span>{column.header}</span>
-            </div>
+            <FormControlLabel
+              key={column.id}
+              control={<Checkbox checked={!hiddenColumns.has(column.id)} onChange={() => toggle(column)} disabled={column.cannotHide} />}
+              label={column.header}
+            ></FormControlLabel>
           ))}
         </div>
       </Popover>

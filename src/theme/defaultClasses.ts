@@ -3,6 +3,7 @@ import { css } from '@emotion/react';
 export const white = '#ffffff';
 export const lightGray = '#eeeeee';
 export const gray = '#bdbdbd';
+export const darkGray = '#333';
 
 const cell = css({
   padding: `calc(var(--spacing) * 0.1) var(--spacing)`,
@@ -27,6 +28,7 @@ export const defaultClasses = {
   }),
 
   headerCell: css(cell, {
+    padding: `var(--spacing)`,
     borderBottom: `2px solid ${gray}`,
     gridTemplateColumns: 'minmax(0, 1fr) max-content',
     background: white,
@@ -51,5 +53,11 @@ export const defaultClasses = {
     minWidth: 0,
     overflow: 'hidden',
     textOverflow: 'ellipsis',
+  }),
+
+  card: css({
+    borderRadius: 4,
+    boxShadow: '0px 5px 5px -3px rgb(0 0 0 / 20%), 0px 8px 10px 1px rgb(0 0 0 / 14%), 0px 3px 14px 2px rgb(0 0 0 / 12%)',
+    background: 'white',
   }),
 };

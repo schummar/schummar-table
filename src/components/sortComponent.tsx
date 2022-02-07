@@ -1,5 +1,3 @@
-import { Badge } from '@material-ui/core';
-import { ArrowDownward, ArrowUpward } from '@material-ui/icons';
 import React, { ReactNode } from 'react';
 import { useColumnContext, useTableContext } from './table';
 
@@ -13,6 +11,8 @@ export function SortComponent<T>({ children }: { children: ReactNode }): JSX.Ele
       index: index >= 0 && state.sort.length > 1 ? index + 1 : undefined,
     };
   });
+  const Badge = state.useState((state) => state.theme.components.Badge);
+  const ArrowUpwardIcon = state.useState((state) => state.theme.icons.ArrowUpward);
 
   function toggle(e: React.MouseEvent) {
     const {
@@ -53,13 +53,15 @@ export function SortComponent<T>({ children }: { children: ReactNode }): JSX.Ele
       <div>{children}</div>
 
       <Badge badgeContent={index}>
-        {direction === 'asc' ? (
-          <ArrowUpward fontSize="small" />
-        ) : direction === 'desc' ? (
-          <ArrowDownward fontSize="small" />
-        ) : (
-          <div css={{ width: 20 }} />
-        )}
+        <span
+          css={[
+            { transition: 'all 300ms', fontSize: '0.8em' },
+            !direction && { opacity: 0 },
+            direction === 'desc' && { transform: 'rotate3d(0, 0, 1, 180deg)' },
+          ]}
+        >
+          <ArrowUpwardIcon />
+        </span>
       </Badge>
     </div>
   );

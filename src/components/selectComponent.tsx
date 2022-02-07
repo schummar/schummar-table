@@ -14,7 +14,7 @@ export function SelectComponent<T>({ itemId }: { itemId?: Id }): JSX.Element {
   );
   const Checkbox = state.useState((state) => state.theme.components.Checkbox);
 
-  function toggle(e: React.ChangeEvent<HTMLInputElement>) {
+  function toggle(e: React.ChangeEvent) {
     const mouseEvent = e.nativeEvent as MouseEvent;
 
     const {

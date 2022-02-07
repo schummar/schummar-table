@@ -7,7 +7,7 @@ export function ExpandComponent<T>({ itemId }: { itemId: Id }): JSX.Element {
   const state = useTableContext<T>();
   const isExpanded = state.useState((state) => state.expanded.has(itemId), [itemId]);
   const IconButton = state.useState((state) => state.theme.components.IconButton);
-  const ChevronRightIcon = state.useState((state) => state.theme.icons.ChevronRightIcon);
+  const ChevronRightIcon = state.useState((state) => state.theme.icons.ChevronRight);
 
   function toggle() {
     const {
@@ -39,12 +39,15 @@ export function ExpandComponent<T>({ itemId }: { itemId: Id }): JSX.Element {
 
   return (
     <IconButton onClick={toggle}>
-      <ChevronRightIcon
+      <span
         css={{
-          transition: 'all 500ms',
-          transform: isExpanded ? 'rotate3d(0, 0, 1, 90deg)' : 'none',
+          display: 'inline-flex',
+          transition: 'all 300ms',
+          transform: isExpanded ? 'rotate3d(0, 0, 1, 90deg)' : 'rotate3d(0, 0, 1, 0deg)',
         }}
-      />
+      >
+        <ChevronRightIcon />
+      </span>
     </IconButton>
   );
 }

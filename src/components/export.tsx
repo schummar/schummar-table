@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { csvExport, CsvExportOptions } from '../misc/csvExport';
+import { useCssVariables } from '../theme/useCssVariables';
 import { useTableContext } from './table';
 
 export function Export<T>(): JSX.Element {
@@ -11,8 +12,9 @@ export function Export<T>(): JSX.Element {
   const IconButton = state.useState((state) => state.theme.components.IconButton);
   const Button = state.useState((state) => state.theme.components.Button);
   const Popover = state.useState((state) => state.theme.components.Popover);
-  const ExportIcon = state.useState((state) => state.theme.icons.ExportIcon);
-  const ClipboardIcon = state.useState((state) => state.theme.icons.ClipboardIcon);
+  const ExportIcon = state.useState((state) => state.theme.icons.Export);
+  const ClipboardIcon = state.useState((state) => state.theme.icons.Clipboard);
+  const cssVariables = useCssVariables();
 
   const generate = (options?: CsvExportOptions) => {
     const { activeColumns, activeItems } = state.getState();
@@ -43,19 +45,20 @@ export function Export<T>(): JSX.Element {
         <ExportIcon />
       </IconButton>
 
-      <Popover open={!!anchor} onClose={() => setAnchor(null)} anchorEl={anchor}>
+      <Popover open={!!anchor} onClose={() => setAnchor(null)} anchorEl={anchor} css={cssVariables}>
         <div
           css={{
             padding: `calc(var(--spacing) * 2)`,
             display: 'grid',
             justifyItems: 'stretch',
+            gap: 'var(--spacing)',
 
             '& > *': {
               justifyContent: 'start',
             },
           }}
         >
-          <div>{textTitle}</div>
+          <div css={{ marginBottom: 'var(--spacing)' }}>{textTitle}</div>
           <Button startIcon={<ClipboardIcon />} onClick={copy}>
             {textCopy}
           </Button>

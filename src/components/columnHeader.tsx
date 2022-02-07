@@ -2,6 +2,7 @@ import { castDraft } from 'immer';
 import React, { HTMLProps, useEffect, useRef } from 'react';
 import { StoreScope } from 'schummar-state/react';
 import { useColumnContext, useTableContext } from '..';
+import { lightGray } from '../theme/defaultClasses';
 
 export const ColumnHeaderContext = new StoreScope({
   items: new Set<HTMLDivElement>(),
@@ -63,7 +64,7 @@ export function ColumnHeader(props: HTMLProps<HTMLDivElement>) {
   function onPointerMove(e: React.PointerEvent) {
     tableState.update((state) => {
       const div = ref.current;
-      if (!div || startX.current === undefined) return;
+      if (!div || startX.current === undefined || Math.abs(e.clientX - startX.current) < 5) return;
 
       e.stopPropagation();
       div.setPointerCapture(e.pointerId);
@@ -130,7 +131,7 @@ export function ColumnHeader(props: HTMLProps<HTMLDivElement>) {
         userSelect: 'none',
 
         '&:hover': {
-          background: 'gray', // TODO theme
+          background: lightGray,
         },
       }}
       ref={ref}

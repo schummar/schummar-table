@@ -33,11 +33,36 @@
     "test-watch": "cd test && ava --watch",
     "coverage": "nyc --include src --all npm run test"
   },
+  "dependencies": {
+    "@emotion/react": "^11.7.1"
+  },
   "peerDependencies": {
+    "@emotion/styled": "^11.6.0",
+    "@material-ui/core": "^4.12.3",
+    "@material-ui/icons": "^4.11.2",
+    "@mui/icons-material": "^5.3.1",
+    "@mui/material": "^5.4.0",
     "@types/react": ">=17.0.11",
     "immer": ">=9.0.3",
     "react": ">=16.8.0",
     "schummar-state": ">=0.0.36"
+  },
+  "peerDependenciesMeta": {
+    "@emotion/styled": {
+      "optional": true
+    },
+    "@material-ui/core": {
+      "optional": true
+    },
+    "@material-ui/icons": {
+      "optional": true
+    },
+    "@mui/icons-material": {
+      "optional": true
+    },
+    "@mui/material": {
+      "optional": true
+    }
   },
   "devDependencies": {
     "@testing-library/react": "^12.1.2",
@@ -65,10 +90,5 @@
   ],
   "workspaces": [
     "example"
-  ],
-  "dependencies": {
-    "@emotion/react": "^11.7.1",
-    "@material-ui/core": "^4.12.3",
-    "@material-ui/icons": "^4.11.2"
-  }
+  ]
 }

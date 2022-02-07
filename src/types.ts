@@ -1,5 +1,5 @@
 import { CSSInterpolation } from '@emotion/serialize';
-import React, { ComponentType, CSSProperties, HTMLProps, ReactNode } from 'react';
+import React, { ComponentType, CSSProperties, ReactNode } from 'react';
 import { Filter } from './components/filterComponent';
 import { TableStateStorage } from './internalState/tableStateStorage';
 import { CsvExportOptions } from './misc/csvExport';
@@ -24,12 +24,38 @@ export interface TableTheme<T = unknown> {
     oddCell?: CSSInterpolation;
   };
   components: {
-    IconButton: ComponentType<{ children: ReactNode; onClick?: (e: React.MouseEvent<Element>) => void }>;
-    Button: ComponentType<{ children: ReactNode; onClick?: (e: React.MouseEvent<Element>) => void; startIcon?: ReactNode }>;
-    Checkbox: ComponentType<HTMLProps<HTMLInputElement>>;
-    Popover: ComponentType<{ anchorEl: Element | null; open?: boolean; onClose?: () => void; children: ReactNode }>;
+    IconButton: ComponentType<{ children: ReactNode; onClick?: (e: React.MouseEvent<Element>) => void; className?: string }>;
+    Button: ComponentType<{
+      children: ReactNode;
+      onClick?: (e: React.MouseEvent<Element>) => void;
+      startIcon?: ReactNode;
+      variant?: 'text' | 'outlined';
+      disabled?: boolean;
+    }>;
+    Checkbox: ComponentType<{ checked: boolean; onChange: (e: React.ChangeEvent) => void; disabled?: boolean; className?: string }>;
+    Popover: ComponentType<{ anchorEl: Element | null; open: boolean; onClose: () => void; children: ReactNode; className?: string }>;
+    Badge: ComponentType<{ children: ReactNode; badgeContent: ReactNode }>;
+    TextField: ComponentType<{
+      value: string | null;
+      onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+      endIcon?: ReactNode;
+      className?: string;
+    }>;
   };
-  icons: { [K in 'SettingsIcon' | 'ExportIcon' | 'ClipboardIcon' | 'ChevronRightIcon']: ComponentType<HTMLProps<Element>> };
+  icons: {
+    [K in
+      | 'Settings'
+      | 'Export'
+      | 'Clipboard'
+      | 'ChevronRight'
+      | 'Search'
+      | 'Clear'
+      | 'ArrowDropDown'
+      | 'FilterList'
+      | 'ArrowUpward']: ComponentType<{
+      className?: string;
+    }>;
+  };
   primaryColor: string;
   spacing: string | number;
 }

@@ -18,6 +18,10 @@ export function TextFilterComponent<T, V>({
 }): JSX.Element {
   const state = useTableContext<T>();
   const columnId = useColumnContext();
+  const TextField = state.useState((state) => state.theme.components.TextField);
+  const IconButton = state.useState((state) => state.theme.components.IconButton);
+  const SearchIcon = state.useState((state) => state.theme.icons.Search);
+  const ClearIcon = state.useState((state) => state.theme.icons.Clear);
 
   const _filter = state.useState(
     (state) => {
@@ -62,16 +66,12 @@ export function TextFilterComponent<T, V>({
       css={{
         padding: `calc(var(--spacing) * 2)`,
         display: 'grid',
-
-        '& > :first-child': {
-          marginBottom: `calc(var(--spacing) * 2)`,
-        },
       }}
     >
-      <input
+      <TextField
         value={input ?? filter?.query ?? ''}
         onChange={(e) => setInput(e.target.value)}
-        // TODO icon and clear
+        endIcon={<IconButton onClick={() => setInput('')}>{!(input ?? filter?.query) ? <SearchIcon /> : <ClearIcon />}</IconButton>}
       />
     </div>
   );

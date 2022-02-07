@@ -14,6 +14,7 @@ import { Row } from './row';
 import { SelectComponent } from './selectComponent';
 import { SortComponent } from './sortComponent';
 import { Virtualized } from './virtualized';
+import { useCssVariables } from '../theme/useCssVariables';
 
 export const TableContext = createContext<Store<InternalTableState<any>> | null>(null);
 export const ColumnContext = createContext<Id | null>(null);
@@ -59,7 +60,7 @@ const TableInner = memo(function TableInner<T>(): JSX.Element {
   const enableSelection = state.useState('props.enableSelection');
   const enableColumnSelection = state.useState('props.enableColumnSelection');
   const enableExport = state.useState((state) => !!state.props.enableExport.copy || !!state.props.enableExport.download);
-  const cssVariables = state.useState((state) => ({ '--spacing': state.theme.spacing }));
+  const cssVariables = useCssVariables();
 
   state.getState().props.debug?.('render table inner');
 

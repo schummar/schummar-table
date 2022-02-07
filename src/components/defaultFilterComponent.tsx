@@ -1,9 +1,8 @@
-import { Button, Checkbox, FormControlLabel, IconButton, TextField } from '@material-ui/core';
-import { Clear, Search } from '@material-ui/icons';
 import React, { ReactNode, useCallback, useState } from 'react';
 import { asString, defaultEquals, flatMap, orderBy, uniq } from '../misc/helpers';
 import { InternalColumn } from '../types';
 import { Filter } from './filterComponent';
+import { FormControlLabel } from './formControlLabel';
 import { useColumnContext, useTableContext } from './table';
 
 export class DefaultFilter<T, O> implements Filter<T> {
@@ -40,6 +39,13 @@ export function DefaultFilterComponent<T, V, O>({
 }): JSX.Element {
   const state = useTableContext<T>();
   const columnId = useColumnContext();
+  const TextField = state.useState((state) => state.theme.components.TextField);
+  const Button = state.useState((state) => state.theme.components.Button);
+  const IconButton = state.useState((state) => state.theme.components.IconButton);
+  const Checkbox = state.useState((state) => state.theme.components.Checkbox);
+  const SearchIcon = state.useState((state) => state.theme.icons.Search);
+  const ClearIcon = state.useState((state) => state.theme.icons.Clear);
+  const deselectAllText = state.useState((state) => state.theme.text.deselectAll);
 
   const filterBy: (value: V, item: T) => O[] = useCallback(
     (value, item) => {
@@ -49,7 +55,7 @@ export function DefaultFilterComponent<T, V, O>({
     [_filterBy],
   );
 
-  const { text, options, filter } = state.useState(
+  const { options, filter } = state.useState(
     (state) => {
       const column = state.activeColumns.find((column) => column.id === columnId) as InternalColumn<T, V> | undefined;
       const _filter = state.filters.get(columnId);
@@ -57,7 +63,7 @@ export function DefaultFilterComponent<T, V, O>({
       let options = _options ?? orderBy(uniq(flatMap(state.items, (item) => (column ? filterBy(column.value(item), item) : []))));
       if (filter) options = options.concat([...filter.values].filter((value) => !options.includes(value)));
 
-      return { text: state.props.text, options, filter };
+      return { options, filter };
     },
     [_options, columnId, filterBy],
   );
@@ -109,28 +115,18 @@ export function DefaultFilterComponent<T, V, O>({
       css={{
         padding: 'calc(var(--spacing) * 2)',
         display: 'grid',
-
-        '& > :first-child': {
-          marginBottom: 'calc(var(--spacing) * 2)',
-        },
+        gap: 'var(--spacing)',
       }}
     >
       <TextField
         value={input}
         onChange={(e) => setInput(e.target.value)}
-        InputProps={{
-          endAdornment: input ? (
-            <IconButton onClick={() => setInput('')}>
-              <Clear />
-            </IconButton>
-          ) : (
-            <Search />
-          ),
-        }}
+        endIcon={<IconButton onClick={() => setInput('')}>{!input ? <SearchIcon /> : <ClearIcon />}</IconButton>}
+        css={{ marginBottom: 'var(--spacing)' }}
       />
 
       <Button variant="outlined" onClick={deselectAll} disabled={!filter}>
-        {text?.deselectAll ?? 'Deselect all'}
+        {deselectAllText}
       </Button>
 
       {filtered.map((value, index) => (
@@ -138,7 +134,7 @@ export function DefaultFilterComponent<T, V, O>({
           key={index}
           control={<Checkbox checked={filter?.values.has(value) ?? false} onChange={() => toggle(value)} />}
           label={render(value)}
-        />
+        ></FormControlLabel>
       ))}
     </div>
   );

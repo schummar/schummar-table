@@ -1,10 +1,11 @@
 import { css } from '@emotion/react';
+import { Link } from '@material-ui/icons';
 import localforage from 'localforage';
 import React, { useEffect, useState } from 'react';
 import { Action } from 'schummar-state/react';
 import { DefaultFilterComponent, Table, TextFilterComponent } from '../../src';
 import { flatMap } from '../../src/misc/helpers';
-import { configureTableTheme } from '../../src/theme/tableTheme';
+import { TableThemeContext } from '../../src/theme/tableTheme';
 
 const storage = localforage.createInstance({ name: 'xyz' });
 
@@ -71,76 +72,78 @@ function App(): JSX.Element {
   }, [active]);
 
   return (
-    <div
-      css={{
-        padding: 20,
-        display: 'grid',
-        gridTemplateRows: 'max-content 1fr',
-      }}
-    >
-      <div style={{ height: 200 }}></div>
-
-      <Table
-        items={topItems ? [...topItems, ...children] : undefined}
-        id="id"
-        parentId={(x) => (x.type === 'sub' ? x.parentId : undefined)}
-        hasDeferredChildren={(x) => !x.id.replace('_', '').includes('_')}
-        onExpandedChange={(e) => {
-          // setActive([...e].map(String));
-        }}
-        onSelectionChange={setSelected}
-        // disableSelection
-        expandOnlyOne
-        selectSyncChildren
-        defaultHiddenColumns={new Set([3])}
-        onHiddenColumnsChange={(...args) => console.log(...args)}
-        // defaultExpanded={new Set('0')}
-        // expanded={new Set('0')}
-        // wrapCell={(cell) => <div style={{ background: 'green' }}>{cell}</div>}
-        enableExport
-        rowAction={(_item, index) => (index % 2 === 0 ? '🔍' : undefined)}
-        columns={(col) => [
-          col((x) => x.id, {
-            header: 'Id',
-            filterComponent: <TextFilterComponent />,
-            renderCell: (id, x) => (x.type === 'top' ? <div>{id}</div> : id),
-            sortBy: (id) => id,
-          }),
-
-          col((x) => x.name, {
-            header: 'Name',
-            filterComponent: <TextFilterComponent />,
-          }),
-
-          col((x) => (x.type === 'sub' ? x.state : null), {
-            header: 'State',
-            filterComponent: <DefaultFilterComponent stringValue={(v) => v + '#'} />,
-            width: '20ch',
-          }),
-
-          col((x) => (x.type === 'sub' ? x.tags : []), {
-            header: 'Tags',
-            filterComponent: <TextFilterComponent />,
-            // filterComponent: <DefaultFilterComponent render={(x) => String(x)} />,
-            // defaultIsHidden: true,
-            sortBy: [(x) => x.includes('bar'), (x) => x[0]],
-          }),
-
-          col((x) => 'askdjfhdfjkgfhas kljfhsdkjfh dfkgjlhs dfkljhdfgk jdh', {
-            header: 'test',
-            width: '10ch',
-          }),
-        ]}
+    <TableThemeContext.Provider value={{}}>
+      <div
         css={{
-          cell: (item) => (item.name.endsWith('10') ? css({ background: 'lightGray' }) : undefined),
+          padding: 20,
+          display: 'grid',
+          gridTemplateRows: 'max-content 1fr',
         }}
-        stickyHeader
-        // debug={(...args) => console.debug(...args)}
-        virtual={{ throttleScroll: 16 }}
-        fullWidth="left"
-        revealFiltered
-      />
-    </div>
+      >
+        <div style={{ height: 200 }}></div>
+
+        <Table
+          items={topItems ? [...topItems, ...children] : undefined}
+          id="id"
+          parentId={(x) => (x.type === 'sub' ? x.parentId : undefined)}
+          hasDeferredChildren={(x) => !x.id.replace('_', '').includes('_')}
+          onExpandedChange={(e) => {
+            // setActive([...e].map(String));
+          }}
+          onSelectionChange={setSelected}
+          // disableSelection
+          expandOnlyOne
+          selectSyncChildren
+          defaultHiddenColumns={new Set([3])}
+          onHiddenColumnsChange={(...args) => console.log(...args)}
+          // defaultExpanded={new Set('0')}
+          // expanded={new Set('0')}
+          // wrapCell={(cell) => <div style={{ background: 'green' }}>{cell}</div>}
+          enableExport
+          rowAction={(_item, index) => (index % 2 === 0 ? <Link /> : undefined)}
+          columns={(col) => [
+            col((x) => x.id, {
+              header: 'Id',
+              filterComponent: <TextFilterComponent />,
+              renderCell: (id, x) => (x.type === 'top' ? <div>{id}</div> : id),
+              sortBy: (id) => id,
+            }),
+
+            col((x) => x.name, {
+              header: 'Name',
+              filterComponent: <TextFilterComponent />,
+            }),
+
+            col((x) => (x.type === 'sub' ? x.state : null), {
+              header: 'State',
+              filterComponent: <DefaultFilterComponent stringValue={(v) => v + '#'} />,
+              width: '20ch',
+            }),
+
+            col((x) => (x.type === 'sub' ? x.tags : []), {
+              header: 'Tags',
+              filterComponent: <TextFilterComponent />,
+              // filterComponent: <DefaultFilterComponent render={(x) => String(x)} />,
+              // defaultIsHidden: true,
+              sortBy: [(x) => x.includes('bar'), (x) => x[0]],
+            }),
+
+            col((x) => 'askdjfhdfjkgfhas kljfhsdkjfh dfkgjlhs dfkljhdfgk jdh', {
+              header: 'test',
+              width: '10ch',
+            }),
+          ]}
+          css={{
+            cell: (item) => (item.name.endsWith('10') ? css({ background: 'lightGray' }) : undefined),
+          }}
+          stickyHeader
+          // debug={(...args) => console.debug(...args)}
+          virtual={{ throttleScroll: 16 }}
+          fullWidth="left"
+          revealFiltered
+        />
+      </div>
+    </TableThemeContext.Provider>
   );
 }
 
