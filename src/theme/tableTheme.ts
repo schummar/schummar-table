@@ -9,7 +9,7 @@ const defaultTableTheme: TableTheme = {
   text: defaultTexts,
   components: defaultComponents,
   icons: defaultIcons,
-  primaryColor: 'green',
+  primaryColor: 'rgb(25, 118, 210)',
   spacing: '5px',
 };
 

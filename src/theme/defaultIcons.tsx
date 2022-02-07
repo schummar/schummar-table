@@ -1,12 +1,11 @@
 import { ClassNames, css } from '@emotion/react';
 import { cloneElement, HTMLProps } from 'react';
 import { TableTheme } from '../types';
-import { darkGray } from './defaultClasses';
 
 const IconDefaultStyle = css({
   width: '1.5em',
   height: '1.5em',
-  color: darkGray,
+  color: 'inherit',
 });
 
 function Icon(svg: JSX.Element) {

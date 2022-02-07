@@ -1,4 +1,4 @@
-export function throttle<Args extends any[]>(fn: (...args: Args) => void, ms: number): (...args: Args) => void {
+export function throttle<Args extends any[]>(fn: (...args: Args) => void, ms: number): { (...args: Args): void; flush(): void } {
   let last = 0;
   let lastArgs: Args | undefined;
   let timeout: NodeJS.Timeout | undefined;
@@ -14,16 +14,25 @@ export function throttle<Args extends any[]>(fn: (...args: Args) => void, ms: nu
     fn(...args!);
   }
 
-  return function (...args: Args) {
-    const now = Date.now();
-    lastArgs = args;
+  return Object.assign(
+    function (...args: Args) {
+      const now = Date.now();
+      lastArgs = args;
 
-    if (timeout) {
-      // do nothing
-    } else if (now < last + ms) {
-      timeout = setTimeout(run, last + ms - now);
-    } else {
-      run();
-    }
-  };
+      if (timeout) {
+        // do nothing
+      } else if (now < last + ms) {
+        timeout = setTimeout(run, last + ms - now);
+      } else {
+        run();
+      }
+    },
+    {
+      flush() {
+        if (lastArgs) {
+          run();
+        }
+      },
+    },
+  );
 }

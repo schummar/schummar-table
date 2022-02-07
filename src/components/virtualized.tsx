@@ -108,11 +108,11 @@ export function Virtualized<T>({
     <div {...props}>
       {header}
 
-      {virtual && <div css={{ gridColumn: '1 / -1', height: before }} ref={probeRef} />}
+      {virtual && <div style={{ gridColumn: '1 / -1', height: before }} ref={probeRef} />}
 
       {children(itemIds, from)}
 
-      {virtual && <div css={{ gridColumn: '1 / -1', height: after }} />}
+      {virtual && <div style={{ gridColumn: '1 / -1', height: after }} />}
     </div>
   );
 }

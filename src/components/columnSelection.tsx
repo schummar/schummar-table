@@ -12,6 +12,7 @@ export function ColumnSelection<T>(): JSX.Element {
   const Popover = state.useState((state) => state.theme.components.Popover);
   const Checkbox = state.useState((state) => state.theme.components.Checkbox);
   const SettingsIcon = state.useState((state) => state.theme.icons.Settings);
+  const selectColumnsText = state.useState((state) => state.theme.text.selectColumns);
   const cssVariables = useCssVariables();
 
   const [anchorEl, setAnchorEl] = useState<Element | null>(null);
@@ -41,7 +42,9 @@ export function ColumnSelection<T>(): JSX.Element {
       </IconButton>
 
       <Popover anchorEl={anchorEl} open={!!anchorEl} onClose={() => setAnchorEl(null)} css={cssVariables}>
-        <div css={{ padding: `calc(var(--spacing) * 2)`, display: 'grid' }}>
+        <div css={{ padding: `calc(var(--spacing) * 2)`, display: 'grid', gap: 'var(--spacing)' }}>
+          <div css={{ marginBottom: 'var(--spacing)' }}>{selectColumnsText}</div>
+
           {columns.map((column) => (
             <FormControlLabel
               key={column.id}

@@ -3,7 +3,7 @@ import { css } from '@emotion/react';
 export const white = '#ffffff';
 export const lightGray = '#eeeeee';
 export const gray = '#bdbdbd';
-export const darkGray = '#333';
+export const darkGray = '#777';
 
 const cell = css({
   padding: `calc(var(--spacing) * 0.1) var(--spacing)`,
@@ -28,7 +28,7 @@ export const defaultClasses = {
   }),
 
   headerCell: css(cell, {
-    padding: `var(--spacing)`,
+    padding: `var(--spacing) 0 var(--spacing) var(--spacing)`,
     borderBottom: `2px solid ${gray}`,
     gridTemplateColumns: 'minmax(0, 1fr) max-content',
     background: white,

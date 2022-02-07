@@ -12,14 +12,15 @@ export const IconButton: TableTheme['components']['IconButton'] = (props) => {
         transition: 'background-color 150ms',
         border: 'none',
         cursor: 'pointer',
+        color: 'inherit',
         background: 'transparent',
 
         '&:hover': {
-          background: 'rgba(0, 0, 0, 0.1)',
+          backgroundColor: 'rgba(0, 0, 0, 0.1)',
         },
 
         '&:active': {
-          transform: 'scale3d(0.95, 0.95, 1)',
+          transformColor: 'scale3d(0.95, 0.95, 1)',
         },
       }}
       {...props}

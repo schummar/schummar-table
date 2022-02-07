@@ -1,45 +1,89 @@
-import { useEffect, useRef } from 'react';
+import React, { useLayoutEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { TableTheme } from '../../types';
 import { defaultClasses } from '../defaultClasses';
 
-export const Popover: TableTheme['components']['Popover'] = ({ anchorEl, open, onClose, ...props }) => {
-  const ref = useRef<HTMLDivElement>(null);
+const MARGIN = 10;
+const MAX_OFFSET = 20;
 
-  useEffect(() => {
-    if (!open) return;
+export const Popover: TableTheme['components']['Popover'] = ({ anchorEl, open, onClose, children, className }) => {
+  const popper = useRef<HTMLDivElement>(null);
+  const [position, setPosition] = useState<{ left: number; top: number }>();
 
-    function click(e: MouseEvent) {
-      const inside = e.target instanceof Node && (ref.current?.contains(e.target) || anchorEl?.contains(e.target));
-
-      if (!inside) {
-        onClose();
-      }
+  useLayoutEffect(() => {
+    if (!anchorEl || !open) {
+      setPosition(undefined);
+      return;
     }
 
-    document.addEventListener('click', click, true);
+    let last: { left: number; top: number } | undefined;
 
+    function check() {
+      if (!anchorEl) return;
+      const { left: anchorLeft, bottom: anchorBottom, width: anchorWidth } = anchorEl.getBoundingClientRect();
+      const { width: popperWidth = 0, height: popperHeight = 0 } = popper.current?.getBoundingClientRect() ?? {};
+      const viewportWidth = document.documentElement.clientWidth;
+      const viewportHeight = document.documentElement.clientHeight;
+
+      const next = {
+        left: anchorLeft + anchorWidth / 2 - Math.min(popperWidth ? popperWidth / 2 : Infinity, MAX_OFFSET),
+        top: anchorBottom,
+      };
+
+      if (next.left + popperWidth + MARGIN > viewportWidth) {
+        next.left = viewportWidth - popperWidth - MARGIN;
+      }
+      if (next.top + popperHeight + MARGIN > viewportHeight) {
+        next.top = viewportHeight - popperHeight - MARGIN;
+      }
+
+      if (next.left !== last?.left || next.top !== last?.top) {
+        setPosition(next);
+      }
+
+      last = next;
+    }
+    check();
+
+    const handle = setInterval(check, 16);
     return () => {
-      document.removeEventListener('click', click, true);
+      clearInterval(handle);
     };
-  }, [open, ref.current, anchorEl, onClose]);
+  }, [anchorEl, open]);
 
-  if (!open) return null;
+  return !open || !position
+    ? null
+    : createPortal(
+        <>
+          <div
+            css={{
+              position: 'fixed',
+              left: 0,
+              right: 0,
+              top: 0,
+              bottom: 0,
+              zIndex: 1000,
+            }}
+            onClick={() => onClose()}
+          />
 
-  return createPortal(
-    <div
-      {...props}
-      ref={ref}
-      css={[
-        defaultClasses.card,
-        {
-          position: 'fixed',
-          left: anchorEl?.getBoundingClientRect().left,
-          top: anchorEl?.getBoundingClientRect().bottom,
-          zIndex: 1,
-        },
-      ]}
-    />,
-    document.body,
-  );
+          <div
+            ref={popper}
+            className={className}
+            css={[
+              defaultClasses.card,
+              {
+                position: 'fixed',
+                maxWidth: document.documentElement.clientWidth,
+                maxHeight: document.documentElement.clientHeight,
+                ...position,
+                zIndex: 1001,
+              },
+            ]}
+          >
+            {children}
+          </div>
+        </>,
+        document.body,
+      );
 };

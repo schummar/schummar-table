@@ -2,7 +2,7 @@ import { castDraft } from 'immer';
 import React, { HTMLProps, useEffect, useRef } from 'react';
 import { StoreScope } from 'schummar-state/react';
 import { useColumnContext, useTableContext } from '..';
-import { lightGray } from '../theme/defaultClasses';
+import { throttle } from '../misc/throttle';
 
 export const ColumnHeaderContext = new StoreScope({
   items: new Set<HTMLDivElement>(),
@@ -33,12 +33,6 @@ export function ColumnHeader(props: HTMLProps<HTMLDivElement>) {
   }, [ref.current, store]);
 
   function calcTargetIndex(div: HTMLDivElement, offset: number) {
-    // const x = div.offsetLeft + div.offsetWidth / 2 + offset;
-    // const items = [...store.getState().items].map((item) => item.offsetLeft + item.offsetWidth / 2).sort();
-    // const i = items.findIndex((itemX) => itemX > x);
-    // if (i === -1) return items.length - 1;
-    // return i;
-
     const items = [...store.getState().items].sort((a, b) => a.offsetLeft - b.offsetLeft);
     const index = items.indexOf(div);
     let targetIndex = index,
@@ -54,6 +48,12 @@ export function ColumnHeader(props: HTMLProps<HTMLDivElement>) {
 
     return targetIndex;
   }
+
+  const updateClone = throttle((left: number) => {
+    if (clone.current) {
+      clone.current.style.left = `${left}px`;
+    }
+  }, 16);
 
   function onPointerDown(e: React.PointerEvent) {
     const div = ref.current;
@@ -85,6 +85,7 @@ export function ColumnHeader(props: HTMLProps<HTMLDivElement>) {
         Object.assign(clone.current.style, {
           pointerEvents: 'none',
           position: 'fixed',
+          boxShadow: '0px 5px 5px -3px rgb(0 0 0 / 20%), 0px 8px 10px 1px rgb(0 0 0 / 14%), 0px 3px 14px 2px rgb(0 0 0 / 12%)',
           left: `${div.getBoundingClientRect().left}px`,
           top: `${div.getBoundingClientRect().top}px`,
         });
@@ -92,7 +93,7 @@ export function ColumnHeader(props: HTMLProps<HTMLDivElement>) {
         div.style.opacity = '0.2';
       }
 
-      clone.current.style.left = `${div.getBoundingClientRect().left + e.clientX - startX.current}px`;
+      updateClone(div.getBoundingClientRect().left + e.clientX - startX.current);
 
       const index = state.columnOrder.indexOf(columnId);
       const targetIndex = calcTargetIndex(div, e.clientX - startX.current);
@@ -127,12 +128,7 @@ export function ColumnHeader(props: HTMLProps<HTMLDivElement>) {
       {...props}
       css={{
         position: 'relative',
-        transition: 'background 300ms',
         userSelect: 'none',
-
-        '&:hover': {
-          background: lightGray,
-        },
       }}
       ref={ref}
       onPointerDown={onPointerDown}

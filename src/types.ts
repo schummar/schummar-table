@@ -11,10 +11,14 @@ export type KeyOfType<T, S> = { [K in keyof T]: T[K] extends S ? K : never }[key
 
 export interface TableTheme<T = unknown> {
   text: {
+    selectColumns: ReactNode;
     deselectAll: ReactNode;
+    noResults: ReactNode;
     exportTitle: ReactNode;
     exportCopy: ReactNode;
     exportDownload: ReactNode;
+    textFilter: ReactNode;
+    defaultFilter: ReactNode;
   };
   css?: {
     table?: CSSInterpolation;

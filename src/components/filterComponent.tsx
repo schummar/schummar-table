@@ -21,13 +21,25 @@ export function FilterComponent<T>(): JSX.Element | null {
 
   return (
     <>
-      <IconButton onClick={(e) => setAnchor(e.currentTarget)} css={[isActive && { background: 'var(--primaryColor)' }]}>
+      <IconButton
+        onClick={(e) => setAnchor(e.currentTarget)}
+        css={[isActive && { color: 'white !important', backgroundColor: 'var(--primaryColor) !important' }]}
+      >
         {isActive ? <FilterListIcon /> : <ArrowDropDownIcon />}
       </IconButton>
 
-      <Popover open={!!anchor} onClose={() => setAnchor(null)} anchorEl={anchor} css={cssVariables}>
-        {filterComponent}
-      </Popover>
+      <div
+        onPointerDown={(e) => {
+          e.stopPropagation();
+        }}
+        onPointerMove={(e) => {
+          e.stopPropagation();
+        }}
+      >
+        <Popover open={!!anchor} onClose={() => setAnchor(null)} anchorEl={anchor} css={cssVariables}>
+          {filterComponent}
+        </Popover>
+      </div>
     </>
   );
 }

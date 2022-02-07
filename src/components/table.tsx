@@ -109,6 +109,7 @@ const TableInner = memo(function TableInner<T>(): JSX.Element {
                 >
                   <SortComponent>{column.header}</SortComponent>
                   <FilterComponent />
+                  <div css={{ flex: 1 }} />
                   <ResizeHandle />
                 </ColumnHeader>
               </ColumnContext.Provider>

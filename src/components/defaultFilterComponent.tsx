@@ -46,6 +46,8 @@ export function DefaultFilterComponent<T, V, O>({
   const SearchIcon = state.useState((state) => state.theme.icons.Search);
   const ClearIcon = state.useState((state) => state.theme.icons.Clear);
   const deselectAllText = state.useState((state) => state.theme.text.deselectAll);
+  const noResultsText = state.useState((state) => state.theme.text.noResults);
+  const defaultFilterText = state.useState((state) => state.theme.text.defaultFilter);
 
   const filterBy: (value: V, item: T) => O[] = useCallback(
     (value, item) => {
@@ -118,6 +120,8 @@ export function DefaultFilterComponent<T, V, O>({
         gap: 'var(--spacing)',
       }}
     >
+      <div css={{ marginBottom: 'var(--spacing)' }}>{defaultFilterText}</div>
+
       <TextField
         value={input}
         onChange={(e) => setInput(e.target.value)}
@@ -136,6 +140,8 @@ export function DefaultFilterComponent<T, V, O>({
           label={render(value)}
         ></FormControlLabel>
       ))}
+
+      {filtered.length === 0 && <span css={{ textAlign: 'center' }}>{noResultsText}</span>}
     </div>
   );
 }

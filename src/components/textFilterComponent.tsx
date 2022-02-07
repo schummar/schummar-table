@@ -22,6 +22,7 @@ export function TextFilterComponent<T, V>({
   const IconButton = state.useState((state) => state.theme.components.IconButton);
   const SearchIcon = state.useState((state) => state.theme.icons.Search);
   const ClearIcon = state.useState((state) => state.theme.icons.Clear);
+  const textFilterText = state.useState((state) => state.theme.text.textFilter);
 
   const _filter = state.useState(
     (state) => {
@@ -66,8 +67,11 @@ export function TextFilterComponent<T, V>({
       css={{
         padding: `calc(var(--spacing) * 2)`,
         display: 'grid',
+        gap: 'var(--spacing)',
       }}
     >
+      <div css={{ marginBottom: 'var(--spacing)' }}>{textFilterText}</div>
+
       <TextField
         value={input ?? filter?.query ?? ''}
         onChange={(e) => setInput(e.target.value)}

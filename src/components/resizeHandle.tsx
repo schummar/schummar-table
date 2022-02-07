@@ -1,6 +1,5 @@
 import React from 'react';
 import { useColumnContext, useTableContext } from '..';
-import { gray } from '../theme/defaultClasses';
 
 export function ResizeHandle() {
   const columnId = useColumnContext();
@@ -20,7 +19,7 @@ export function ResizeHandle() {
     if (!div.hasPointerCapture(e.pointerId)) return;
 
     const parent = div.parentElement as HTMLDivElement;
-    const width = Math.max(e.clientX - parent.getBoundingClientRect().left, 50);
+    const width = Math.max(e.clientX - parent.getBoundingClientRect().left + 5, 50);
 
     tableState.update((state) => {
       state.columnWidths.set(columnId, `${width}px`);
@@ -47,19 +46,18 @@ export function ResizeHandle() {
   return (
     <div
       css={{
-        position: 'absolute',
-        top: 0,
-        right: 0,
-        width: 6,
-        height: '100%',
-        background: gray,
-        zIndex: 1,
-        opacity: 0,
-        transition: 'opactiy 300ms',
+        alignSelf: 'stretch',
+        padding: '0 5px',
         cursor: 'col-resize',
+        display: 'flex',
+        alignItems: 'center',
 
-        '&:hover, &:active': {
-          opacity: 1,
+        '&:after': {
+          content: '""',
+          width: 2,
+          height: '1em',
+          background: 'currentColor',
+          transition: 'transform 300ms',
         },
       }}
       onPointerDown={onPointerDown}
