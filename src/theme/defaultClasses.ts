@@ -41,7 +41,7 @@ export const defaultClasses = {
   sticky: css({
     position: 'sticky',
     top: 0,
-    zIndex: 1,
+    zIndex: 2,
   }),
 
   headerFill: css({

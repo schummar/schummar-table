@@ -97,15 +97,15 @@ const TableInner = memo(function TableInner<T>(): JSX.Element {
                 <ColumnHeader
                   css={[
                     defaultClasses.headerCell,
-                    stickyHeader && defaultClasses.sticky,
                     css?.headerCell,
                     column.css?.headerCell,
                     columnStyleOverride.get(column.id),
+                    stickyHeader && defaultClasses.sticky,
                   ]}
                   key={column.id}
                 >
-                  <SortComponent>{column.header}</SortComponent>
                   <FilterComponent />
+                  <SortComponent>{column.header}</SortComponent>
                   <div css={{ flex: 1 }} />
                   <ResizeHandle />
                 </ColumnHeader>

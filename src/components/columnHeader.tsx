@@ -88,7 +88,7 @@ export function ColumnHeader(props: HTMLProps<HTMLDivElement>) {
           top: `${draggingStart.current.bounds.top}px`,
         });
 
-        div.style.opacity = '0.2';
+        div.style.color = 'rgba(0, 0, 0, 0.2)';
       }
 
       // Update clone's position each time
@@ -123,7 +123,7 @@ export function ColumnHeader(props: HTMLProps<HTMLDivElement>) {
         state.columnStyleOverride.set(id, {
           transition: 'transform 500ms',
           transform: `translate3d(${offset}px, 0, 0)`,
-          zIndex: i === index ? 1 : 0,
+          zIndex: i === index ? 1 : undefined,
         });
       });
     });
@@ -144,7 +144,7 @@ export function ColumnHeader(props: HTMLProps<HTMLDivElement>) {
 
       // Cleanup
       clone.current?.remove();
-      div.style.opacity = '';
+      div.style.color = '';
       state.columnStyleOverride.clear();
       draggingStart.current = undefined;
       clone.current = undefined;
@@ -162,6 +162,9 @@ export function ColumnHeader(props: HTMLProps<HTMLDivElement>) {
       onPointerDown={onPointerDown}
       onPointerMove={onPointerMove}
       onPointerUp={onPointerUp}
+      // onPointerCancel={onPointerUp}
+      // onPointerOut={onPointerUp}
+      // onPointerLeave={onPointerUp}
     >
       {props.children}
     </div>

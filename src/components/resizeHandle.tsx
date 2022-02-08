@@ -54,8 +54,8 @@ export function ResizeHandle() {
 
         '&:after': {
           content: '""',
-          width: 2,
-          height: '1em',
+          width: 1,
+          height: '1.2em',
           background: 'currentColor',
           transition: 'transform 300ms',
         },
