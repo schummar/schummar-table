@@ -2,13 +2,11 @@ import React, { useState } from 'react';
 import { useCssVariables } from '../theme/useCssVariables';
 import { useColumnContext, useTableContext } from './table';
 
-export type Filter<T> = { filter(item: T): boolean };
-
-export function FilterComponent<T>(): JSX.Element | null {
+export function FilterControl<T>(): JSX.Element | null {
   const state = useTableContext<T>();
   const columnId = useColumnContext();
-  const isActive = state.useState((state) => !!state.filters.get(columnId), [columnId]);
-  const filterComponent = state.useState((state) => state.activeColumns.find((column) => column.id === columnId)?.filterComponent);
+  const isActive = state.useState((state) => !!state.filters.get(columnId)?.test, [columnId]);
+  const filter = state.useState((state) => state.activeColumns.find((column) => column.id === columnId)?.filter);
   const IconButton = state.useState((state) => state.theme.components.IconButton);
   const Popover = state.useState((state) => state.theme.components.Popover);
   const FilterListIcon = state.useState((state) => state.theme.icons.FilterList);
@@ -17,7 +15,7 @@ export function FilterComponent<T>(): JSX.Element | null {
 
   const [anchor, setAnchor] = useState<Element | null>(null);
 
-  if (!filterComponent) return null;
+  if (!filter) return null;
 
   return (
     <>
@@ -37,7 +35,7 @@ export function FilterComponent<T>(): JSX.Element | null {
         }}
       >
         <Popover open={!!anchor} onClose={() => setAnchor(null)} anchorEl={anchor} css={cssVariables}>
-          {filterComponent}
+          {filter}
         </Popover>
       </div>
     </>

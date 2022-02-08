@@ -61,10 +61,20 @@ export const getDescendants = <T>(...items: TableItem<T>[]): Set<Id> => {
 };
 
 export const identity = (x: unknown): any => x;
+
 export const asString = (x: unknown): string => {
   if (x instanceof Array) return x.map(asString).join(', ');
   if (x instanceof Object) return JSON.stringify(x);
   return String(x ?? '');
 };
+
+export const asStringOrArray = (x: unknown): string | string[] => {
+  if (x instanceof Array) return x.map(asString);
+  return asString(x);
+};
+
 export const defaultEquals = (a: unknown, b: unknown): boolean => a === b;
+
 export const subStringMatch = (a: string, b: string): boolean => a.toLowerCase().includes(b.toLowerCase());
+
+export const castArray = <T>(a: T | T[]) => (a instanceof Array ? a : [a]);

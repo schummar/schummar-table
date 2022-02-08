@@ -3,7 +3,7 @@ import { getAncestors } from '../misc/helpers';
 import { useTableContext } from './table';
 import { Id } from '../types';
 
-export function ExpandComponent<T>({ itemId }: { itemId: Id }): JSX.Element {
+export function ExpandControl<T>({ itemId }: { itemId: Id }): JSX.Element {
   const state = useTableContext<T>();
   const isExpanded = state.useState((state) => state.expanded.has(itemId), [itemId]);
   const IconButton = state.useState((state) => state.theme.components.IconButton);

@@ -51,39 +51,41 @@ export const Popover: TableTheme['components']['Popover'] = ({ anchorEl, open, o
     };
   }, [anchorEl, open]);
 
-  return !open || !position
-    ? null
-    : createPortal(
-        <>
-          <div
-            css={{
-              position: 'fixed',
-              left: 0,
-              right: 0,
-              top: 0,
-              bottom: 0,
-              zIndex: 1000,
-            }}
-            onClick={() => onClose()}
-          />
+  return createPortal(
+    <>
+      <div
+        css={[
+          {
+            position: 'fixed',
+            left: 0,
+            right: 0,
+            top: 0,
+            bottom: 0,
+            zIndex: 1000,
+          },
+          !position && { display: 'none' },
+        ]}
+        onClick={() => onClose()}
+      />
 
-          <div
-            ref={popper}
-            className={className}
-            css={[
-              defaultClasses.card,
-              {
-                position: 'fixed',
-                maxWidth: document.documentElement.clientWidth,
-                maxHeight: document.documentElement.clientHeight,
-                ...position,
-                zIndex: 1001,
-              },
-            ]}
-          >
-            {children}
-          </div>
-        </>,
-        document.body,
-      );
+      <div
+        ref={popper}
+        className={className}
+        css={[
+          defaultClasses.card,
+          {
+            position: 'fixed',
+            maxWidth: document.documentElement.clientWidth,
+            maxHeight: document.documentElement.clientHeight,
+            ...position,
+            zIndex: 1001,
+          },
+          !position && { display: 'none' },
+        ]}
+      >
+        {children}
+      </div>
+    </>,
+    document.body,
+  );
 };

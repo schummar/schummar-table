@@ -1,8 +1,8 @@
 import { CSSInterpolation } from '@emotion/serialize';
 import React, { ComponentType, CSSProperties, ReactNode } from 'react';
-import { Filter } from './components/filterComponent';
 import { TableStateStorage } from './internalState/tableStateStorage';
 import { CsvExportOptions } from './misc/csvExport';
+
 export type Sort = { columnId: string | number; direction: SortDirection };
 export type SortDirection = 'asc' | 'desc';
 
@@ -147,10 +147,7 @@ export type Column<T, V> = {
   exportCell?: (value: V, item: T) => string | number;
   sortBy?: ((value: V, item: T) => unknown) | ((value: V) => unknown)[];
 
-  filterComponent?: ReactNode;
-  defaultFilter?: Filter<V>;
-  filter?: Filter<V>;
-  onFilterChange?: (filter?: Filter<T>) => void;
+  filter?: ReactNode;
 
   cannotHide?: boolean;
 
@@ -176,6 +173,13 @@ type Required<T, S> = T & {
 
 export type Rows<T, V> = [{ value: V; item: T }, ...{ value: V; item: T }[]];
 
+export type Filter<T, V, S> = {
+  id: string;
+  test?: (value: V, item: T) => boolean;
+  serialize?: (state: S) => any;
+  deserialize?: (s: any) => S;
+};
+
 export type InternalTableState<T> = {
   // Basically the passed in props, but normalized
   props: InternalTableProps<T>;
@@ -186,7 +190,7 @@ export type InternalTableState<T> = {
   selection: Set<Id>;
   expanded: Set<Id>;
   rowHeights: Map<Id, number>;
-  filters: Map<Id, Filter<unknown> | undefined>;
+  filters: Map<Id, Filter<T, any, any>>;
   hiddenColumns: Set<Id>;
   columnWidths: Map<Id, string>;
   columnOrder: Id[];

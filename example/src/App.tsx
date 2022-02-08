@@ -3,11 +3,9 @@ import { Link } from '@material-ui/icons';
 import localforage from 'localforage';
 import React, { useEffect, useState } from 'react';
 import { Action } from 'schummar-state/react';
-import { DefaultFilterComponent, Table, TextFilterComponent } from '../../src';
+import { SelectFilter, Table, TextFilter } from '../../src';
 import { flatMap } from '../../src/misc/helpers';
 import { TableThemeContext } from '../../src/theme/tableTheme';
-import { materialUiTheme } from '../../src/theme/@material-ui-theme';
-import { muiTheme } from '../../src/theme/@mui-theme';
 
 const storage = localforage.createInstance({ name: 'xyz' });
 
@@ -92,7 +90,7 @@ function App(): JSX.Element {
       // disableSelection
       expandOnlyOne
       selectSyncChildren
-      defaultHiddenColumns={new Set([3])}
+      // defaultHiddenColumns={new Set([3])}
       onHiddenColumnsChange={(...args) => console.log(...args)}
       // defaultExpanded={new Set('0')}
       // expanded={new Set('0')}
@@ -102,26 +100,25 @@ function App(): JSX.Element {
       columns={(col) => [
         col((x) => x.id, {
           header: 'Id',
-          filterComponent: <TextFilterComponent />,
+          filter: <TextFilter />,
           renderCell: (id, x) => (x.type === 'top' ? <div>{id}</div> : id),
           sortBy: (id) => id,
         }),
 
         col((x) => x.name, {
           header: 'Name',
-          filterComponent: <TextFilterComponent />,
+          filter: <TextFilter />,
         }),
 
         col((x) => (x.type === 'sub' ? x.state : null), {
           header: 'State',
-          filterComponent: <DefaultFilterComponent stringValue={(v) => v + '#'} />,
+          // filterComponent: <DefaultFilterComponent stringValue={(v) => v + '#'} />,
           width: '20ch',
         }),
 
         col((x) => (x.type === 'sub' ? x.tags : []), {
           header: 'Tags',
-          filterComponent: <TextFilterComponent />,
-          // filterComponent: <DefaultFilterComponent render={(x) => String(x)} />,
+          filter: <SelectFilter render={(x) => String(x)} />,
           // defaultIsHidden: true,
           sortBy: [(x) => x.includes('bar'), (x) => x[0]],
         }),
@@ -133,6 +130,7 @@ function App(): JSX.Element {
         col((x) => (x.type === 'top' ? x.date : undefined), {
           header: 'Date',
           renderCell: (date) => date && date.toLocaleDateString(),
+          filter: <TextFilter />,
         }),
       ]}
       css={{

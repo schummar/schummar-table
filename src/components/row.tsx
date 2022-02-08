@@ -3,7 +3,7 @@ import { getAncestors } from '../misc/helpers';
 import { defaultClasses } from '../theme/defaultClasses';
 import { Id, InternalColumn } from '../types';
 import { Cell } from './cell';
-import { ExpandComponent } from './expandComponent';
+import { ExpandControl } from './expandControl';
 import { SelectComponent } from './selectComponent';
 import { ColumnContext, useTableContext } from './table';
 
@@ -63,7 +63,7 @@ export const Row = memo(function Row<T>({ itemId, rowIndex }: { itemId: Id; rowI
 
         {enableSelection && <SelectComponent itemId={itemId} />}
 
-        {(hasChildren || hasDeferredChildren) && <ExpandComponent itemId={itemId} />}
+        {(hasChildren || hasDeferredChildren) && <ExpandControl itemId={itemId} />}
 
         {rowAction}
       </div>

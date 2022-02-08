@@ -1,9 +1,8 @@
 import { castDraft } from 'immer';
 import { useEffect, useMemo } from 'react';
 import { Store } from 'schummar-state/react';
-import { Filter } from '../components/filterComponent';
 import { useTableTheme } from '../theme/tableTheme';
-import { Id, InternalTableState, TableProps } from '../types';
+import { InternalTableState, TableProps } from '../types';
 import { calcItems } from './calcItems';
 import { calcProps } from './calcProps';
 import { cleanupState } from './cleanupState';
@@ -24,14 +23,7 @@ export function useTableState<T>(_props: TableProps<T>): Store<InternalTableStat
         selection: props.defaultSelection ?? new Set(),
         expanded: props.defaultExpanded ?? new Set(),
         rowHeights: new Map(),
-        filters: (() => {
-          const filters = new Map<Id, Filter<unknown>>();
-          for (const column of props.columns)
-            if (column.defaultFilter) {
-              filters.set(column.id, column.defaultFilter);
-            }
-          return filters;
-        })(),
+        filters: new Map(),
         hiddenColumns: props.defaultHiddenColumns ?? new Set(),
         columnWidths: new Map(),
         columnOrder: props.columns.map((column) => column.id),
@@ -60,12 +52,12 @@ export function useTableState<T>(_props: TableProps<T>): Store<InternalTableStat
       if (props.expanded) state.expanded = props.expanded;
       if (props.hiddenColumns) state.hiddenColumns = props.hiddenColumns;
       for (const column of props.columns) {
-        if (column.filter) state.filters.set(column.id, column.filter);
         if (!state.columnOrder.includes(column.id)) {
           const index = props.columns.indexOf(column);
           state.columnOrder.splice(index, 0, column.id);
         }
       }
+      state.theme = theme;
     });
   }, [state, props]);
 

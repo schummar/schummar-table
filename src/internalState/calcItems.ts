@@ -76,7 +76,8 @@ export function calcItems<T>(state: Store<InternalTableState<T>>): void {
 
               isActive ||= activeColumns.every((column) => {
                 const filter = filters.get(column.id);
-                return filter?.filter(item) ?? true;
+                const value = column.value(item);
+                return filter?.test?.(value, item) ?? true;
               });
 
               if (isActive && item.parentId !== undefined) {

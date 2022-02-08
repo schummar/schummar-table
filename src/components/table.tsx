@@ -8,7 +8,7 @@ import { Id, InternalTableState, TableProps } from '../types';
 import { ColumnHeader, ColumnHeaderContext } from './columnHeader';
 import { ColumnSelection } from './columnSelection';
 import { Export } from './export';
-import { FilterComponent } from './filterComponent';
+import { FilterControl } from './filterControl';
 import { ResizeHandle } from './resizeHandle';
 import { Row } from './row';
 import { SelectComponent } from './selectComponent';
@@ -104,7 +104,7 @@ const TableInner = memo(function TableInner<T>(): JSX.Element {
                   ]}
                   key={column.id}
                 >
-                  <FilterComponent />
+                  <FilterControl />
                   <SortComponent>{column.header}</SortComponent>
                   <div css={{ flex: 1 }} />
                   <ResizeHandle />
