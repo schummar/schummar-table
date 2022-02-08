@@ -16,7 +16,9 @@
     "allowSyntheticDefaultImports": true,
     "noUncheckedIndexedAccess": true,
     "jsx": "react-jsx",
-    "jsxImportSource": "@emotion/react"
+    "jsxImportSource": "@emotion/react",
+    "skipLibCheck": true,
+    "sourceMap": true
   },
   "include": ["src"]
 }
