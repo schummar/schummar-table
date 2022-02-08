@@ -1,3 +1,4 @@
+export { DateFilter } from './components/dateFilter';
 export { SelectFilter } from './components/selectFilter';
 export { ColumnContext, Table, TableContext, useColumnContext, useTableContext } from './components/table';
 export { TextFilter } from './components/textFilter';

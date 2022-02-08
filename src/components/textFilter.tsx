@@ -21,16 +21,16 @@ export function TextFilter<T, V>({
   dependencies?: any[];
 }): JSX.Element {
   const {
-    components: { TextField, IconButton },
+    components: { TextField, IconButton, Button },
     icons: { Search, Clear },
-    text: { textFilter },
+    text,
   } = useTheme();
 
   const [stateValue, setStateValue] = useState<string>(defaultValue);
   const value = controlledValue ?? stateValue;
   const debouncedValue = useDebounced(value, 500);
 
-  function setValue(value: string) {
+  function update(value: string) {
     if (controlledValue === undefined) {
       setStateValue(value);
     }
@@ -43,7 +43,7 @@ export function TextFilter<T, V>({
       id: 'textFilter',
       test: debouncedValue ? (value, item) => castArray(filterBy(value, item)).some((text) => compare(text, debouncedValue)) : undefined,
       serialize: () => value,
-      deserialize: setValue,
+      deserialize: update,
     },
     [debouncedValue, ...dependencies],
   );
@@ -56,12 +56,26 @@ export function TextFilter<T, V>({
         gap: 'var(--spacing)',
       }}
     >
-      <div css={{ marginBottom: 'var(--spacing)' }}>{textFilter}</div>
+      <div
+        css={{
+          marginBottom: 'var(--spacing)',
+          display: 'grid',
+          gridAutoFlow: 'column',
+          gap: 'var(--spacing)',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+        }}
+      >
+        <div>{text.textFilter}</div>
+        <Button variant="contained" onClick={() => update('')} disabled={!value}>
+          {text.reset}
+        </Button>
+      </div>
 
       <TextField
         value={value}
-        onChange={(e) => setValue(e.target.value)}
-        endIcon={<IconButton onClick={() => setValue('')}>{!value ? <Search /> : <Clear />}</IconButton>}
+        onChange={(e) => update(e.target.value)}
+        endIcon={<IconButton onClick={() => update('')}>{!value ? <Search /> : <Clear />}</IconButton>}
       />
     </div>
   );

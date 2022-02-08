@@ -43,6 +43,7 @@
     "@mui/icons-material": "^5.3.1",
     "@mui/material": "^5.4.0",
     "@types/react": ">=17.0.11",
+    "@types/react-datepicker": "^4.3.4",
     "immer": ">=9.0.3",
     "react": ">=16.8.0",
     "react-datepicker": "^4.6.0",
@@ -62,6 +63,9 @@
       "optional": true
     },
     "@mui/material": {
+      "optional": true
+    },
+    "@types/react-datepicker": {
       "optional": true
     },
     "react-datepicker": {

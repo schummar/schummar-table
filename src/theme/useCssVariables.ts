@@ -5,5 +5,6 @@ export function useCssVariables() {
   return state.useState((state) => ({
     '--spacing': state.theme.spacing,
     '--primaryColor': state.theme.primaryColor,
+    '--primaryContrastColor': state.theme.primaryContrastColor,
   }));
 }

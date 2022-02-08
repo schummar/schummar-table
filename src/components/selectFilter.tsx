@@ -30,7 +30,7 @@ export function SelectFilter<T, V, O>({
   const {
     components: { TextField, Button, IconButton, Checkbox },
     icons: { Search, Clear },
-    text: { deselectAll, noResults, defaultFilter },
+    text,
   } = useTheme();
 
   const table = useTableContext<T>();
@@ -80,7 +80,7 @@ export function SelectFilter<T, V, O>({
         ? (value, item) => castArray(filterBy(value, item)).some((x) => [...debouncedValue].some((y) => compare(x, y)))
         : undefined,
       serialize: () => [...value],
-      deserialize: (value) => new Set(value),
+      deserialize: (value) => update(new Set(value)),
     },
     [debouncedValue, ...dependencies],
   );
@@ -93,7 +93,21 @@ export function SelectFilter<T, V, O>({
         gap: 'var(--spacing)',
       }}
     >
-      <div css={{ marginBottom: 'var(--spacing)' }}>{defaultFilter}</div>
+      <div
+        css={{
+          marginBottom: 'var(--spacing)',
+          display: 'grid',
+          gridAutoFlow: 'column',
+          gap: 'var(--spacing)',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+        }}
+      >
+        <div>{text.selectFilter}</div>
+        <Button variant="contained" onClick={() => update(new Set())} disabled={value.size === 0}>
+          {text.reset}
+        </Button>
+      </div>
 
       <TextField
         value={query}
@@ -101,10 +115,6 @@ export function SelectFilter<T, V, O>({
         endIcon={<IconButton onClick={() => setQuery('')}>{!query ? <Search /> : <Clear />}</IconButton>}
         css={{ marginBottom: 'var(--spacing)' }}
       />
-
-      <Button variant="outlined" onClick={() => update(new Set())} disabled={value.size === 0}>
-        {deselectAll}
-      </Button>
 
       {filtered.map((option, index) => (
         <FormControlLabel
@@ -114,7 +124,7 @@ export function SelectFilter<T, V, O>({
         ></FormControlLabel>
       ))}
 
-      {filtered.length === 0 && <span css={{ textAlign: 'center' }}>{noResults}</span>}
+      {filtered.length === 0 && <span css={{ textAlign: 'center' }}>{text.noResults}</span>}
     </div>
   );
 }

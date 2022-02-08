@@ -3,7 +3,7 @@ import { Link } from '@material-ui/icons';
 import localforage from 'localforage';
 import React, { useEffect, useState } from 'react';
 import { Action } from 'schummar-state/react';
-import { SelectFilter, Table, TextFilter } from '../../src';
+import { DateFilter, SelectFilter, Table, TextFilter } from '../../src';
 import { flatMap } from '../../src/misc/helpers';
 import { TableThemeContext } from '../../src/theme/tableTheme';
 
@@ -130,7 +130,7 @@ function App(): JSX.Element {
         col((x) => (x.type === 'top' ? x.date : undefined), {
           header: 'Date',
           renderCell: (date) => date && date.toLocaleDateString(),
-          filter: <TextFilter />,
+          filter: <DateFilter />,
         }),
       ]}
       css={{

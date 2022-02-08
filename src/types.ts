@@ -12,13 +12,15 @@ export type KeyOfType<T, S> = { [K in keyof T]: T[K] extends S ? K : never }[key
 export interface TableTheme<T = unknown> {
   text: {
     selectColumns: ReactNode;
-    deselectAll: ReactNode;
     noResults: ReactNode;
     exportTitle: ReactNode;
     exportCopy: ReactNode;
     exportDownload: ReactNode;
     textFilter: ReactNode;
-    defaultFilter: ReactNode;
+    selectFilter: ReactNode;
+    dateFilter: ReactNode;
+    today: ReactNode;
+    reset: ReactNode;
   };
   css?: {
     table?: CSSInterpolation;
@@ -33,7 +35,7 @@ export interface TableTheme<T = unknown> {
       children: ReactNode;
       onClick?: (e: React.MouseEvent<Element>) => void;
       startIcon?: ReactNode;
-      variant?: 'text' | 'outlined';
+      variant?: 'text' | 'outlined' | 'contained';
       disabled?: boolean;
     }>;
     Checkbox: ComponentType<{ checked: boolean; onChange: (e: React.ChangeEvent) => void; disabled?: boolean; className?: string }>;
@@ -61,6 +63,7 @@ export interface TableTheme<T = unknown> {
     }>;
   };
   primaryColor: string;
+  primaryContrastColor: string;
   spacing: string | number;
 }
 

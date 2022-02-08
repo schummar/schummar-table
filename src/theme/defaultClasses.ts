@@ -32,6 +32,7 @@ export const defaultClasses = {
     borderBottom: `2px solid ${gray}`,
     gridTemplateColumns: 'minmax(0, 1fr) max-content',
     background: white,
+    gap: 'var(--spacing)',
   }),
 
   firstCell: css({
