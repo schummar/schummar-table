@@ -103,6 +103,7 @@ function App(): JSX.Element {
       // wrapCell={(cell) => <div style={{ background: 'green' }}>{cell}</div>}
       enableExport
       rowAction={(_item, index) => (index % 2 === 0 ? <Link /> : undefined)}
+      storeState={{ storage }}
       columns={(col) => [
         col((x) => x.id, {
           header: 'Id',

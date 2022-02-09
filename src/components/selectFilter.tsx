@@ -2,7 +2,7 @@ import React, { ReactNode, useState } from 'react';
 import { useColumnContext, useFilter, useTheme } from '..';
 import { useDebounced } from '../hooks/useDebounced';
 import { asString, castArray, defaultEquals, flatMap, uniq } from '../misc/helpers';
-import { InternalColumn } from '../types';
+import { InternalColumn, JSON_Value } from '../types';
 import { FormControlLabel } from './formControlLabel';
 import { useTableContext } from './table';
 
@@ -11,6 +11,8 @@ export function SelectFilter<T, V, O>({
   filterBy = (x) => x as unknown as O | O[],
   stringValue = asString,
   render = stringValue,
+  serialize = (x) => JSON.stringify(x),
+  deserialize = (x) => JSON.parse(x as string),
   compare = defaultEquals,
   value: controlledValue,
   defaultValue = new Set(),
@@ -21,6 +23,8 @@ export function SelectFilter<T, V, O>({
   filterBy?: (value: V, item: T) => O | O[];
   stringValue?: (value: O) => string;
   render?: (value: O) => ReactNode;
+  serialize?: (value: O) => JSON_Value;
+  deserialize?: (json: JSON_Value) => O;
   compare?: (a: O, b: O) => boolean;
   value?: Set<O>;
   defaultValue?: Set<O>;
@@ -73,7 +77,7 @@ export function SelectFilter<T, V, O>({
     onChange?.(newValue);
   }
 
-  useFilter<T, V>(
+  useFilter<T, V, JSON_Value[]>(
     {
       id: 'selectFilter',
 
@@ -83,8 +87,8 @@ export function SelectFilter<T, V, O>({
             return castArray(filterBy(value, item)).some((x) => [...debouncedValue].some((y) => compare(x, y)));
           },
 
-      serialize: () => [...value],
-      deserialize: (value) => update(new Set(value)),
+      serialize: () => [...value].map(serialize),
+      deserialize: (value) => update(new Set(value.map(deserialize))),
     },
     [debouncedValue, ...dependencies],
   );

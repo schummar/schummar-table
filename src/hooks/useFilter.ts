@@ -1,9 +1,9 @@
 import { castDraft } from 'immer';
 import { DependencyList, useEffect } from 'react';
 import { useColumnContext, useTableContext } from '..';
-import { Filter } from '../types';
+import { Filter, JSON_Value } from '../types';
 
-export function useFilter<T, V>(filter: Filter<T, V, any>, deps: DependencyList) {
+export function useFilter<T, V, S extends JSON_Value>(filter: Filter<T, V, S>, deps: DependencyList) {
   const table = useTableContext<T>();
   const columnId = useColumnContext();
 

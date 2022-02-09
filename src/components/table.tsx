@@ -1,5 +1,6 @@
-import React, { createContext, memo, useContext } from 'react';
+import React, { createContext, memo, useContext, useEffect, useState } from 'react';
 import { Store } from 'schummar-state/react';
+import { useTheme } from '..';
 import { useTableStateStorage } from '../internalState/tableStateStorage';
 import { useTableState } from '../internalState/useTableState';
 import { defaultClasses } from '../theme/defaultClasses';
@@ -29,18 +30,36 @@ export function useColumnContext(): Id {
 }
 
 export function Table<T>(props: TableProps<T>): JSX.Element {
-  const state = useTableState(props);
-  state.getState().props.debug?.('render table');
+  const table = useTableState(props);
+
+  table.getState().props.debug?.('render table');
 
   return (
-    <TableContext.Provider value={state}>
-      <TableInner />
+    <TableContext.Provider value={table}>
+      <TableLoadingState />
     </TableContext.Provider>
   );
 }
 
-const TableInner = memo(function TableInner<T>(): JSX.Element {
-  useTableStateStorage();
+function TableLoadingState() {
+  const { text } = useTheme();
+  const isHydrated = useTableStateStorage();
+  const [showLoading, setShowLoading] = useState(false);
+
+  useEffect(() => {
+    const handle = setTimeout(() => setShowLoading(true), 500);
+    return () => clearTimeout(handle);
+  });
+
+  return (
+    <>
+      {!isHydrated && showLoading && <div>{text.loading}</div>}
+      <TableInner hidden={!isHydrated} />
+    </>
+  );
+}
+
+const TableInner = memo(function TableInner<T>({ hidden }: { hidden: boolean }) {
   const state = useTableContext<T>();
   const fullWidth = state.useState('props.fullWidth');
   const activeColumns = state.useState((state) =>
@@ -78,6 +97,7 @@ const TableInner = memo(function TableInner<T>(): JSX.Element {
             fullWidth === 'left' || fullWidth === true ? 'auto' : '0',
           ].join(' '),
         },
+        hidden && { visibility: 'hidden' },
       ]}
       header={
         <>

@@ -42,8 +42,6 @@ export function ExpandControl<T>({ itemId, hasDeferredChildren }: { itemId: Id; 
     }
   }
 
-  if (isExpanded) console.log(hasDeferredChildren, hasChildren);
-
   if (isExpanded && hasDeferredChildren && !hasChildren) {
     return <Spinner css={{ margin: '0 var(--spacing)' }} />;
   }

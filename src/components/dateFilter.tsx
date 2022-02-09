@@ -62,7 +62,7 @@ export function DateFilter<T, V>({
     onChange?.(value);
   }
 
-  useFilter<T, V>(
+  useFilter<T, V, number | { min: number; max: number } | null>(
     {
       id: 'dateFilter',
 

@@ -11,4 +11,5 @@ export const defaultTexts: TableTheme['text'] = {
   textFilter: 'Type to filter',
   reset: 'Reset',
   today: 'Today',
+  loading: 'Loading',
 };

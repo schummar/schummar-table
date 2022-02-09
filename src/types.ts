@@ -21,6 +21,7 @@ export interface TableTheme<T = unknown> {
     dateFilter: ReactNode;
     today: ReactNode;
     reset: ReactNode;
+    loading: ReactNode;
   };
   css?: {
     table?: CSSInterpolation;
@@ -135,6 +136,9 @@ export interface TableProps<T> extends Partial<TableTheme<T>> {
       selection?: boolean;
       expanded?: boolean;
       hiddenColumns?: boolean;
+      filters?: boolean;
+      columnWidths?: boolean;
+      columnOrder?: boolean;
     };
   };
 }
@@ -187,11 +191,15 @@ type Required<T, S> = T & {
 
 export type Rows<T, V> = [{ value: V; item: T }, ...{ value: V; item: T }[]];
 
-export type Filter<T, V, S> = {
+export type JSON_Value = string | number | boolean | null | JSON_Array | JSON_Object;
+export type JSON_Object = { [key: string]: JSON_Value };
+export type JSON_Array = JSON_Value[];
+
+export type Filter<T, V, S extends JSON_Value> = {
   id: string;
   test?: (value: V, item: T) => boolean;
-  serialize?: (state: S) => any;
-  deserialize?: (s: any) => S;
+  serialize?: () => S;
+  deserialize?: (s: S) => void;
 };
 
 export type InternalTableState<T> = {

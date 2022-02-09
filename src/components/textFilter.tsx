@@ -38,7 +38,7 @@ export function TextFilter<T, V>({
     onChange?.(value);
   }
 
-  useFilter<T, V>(
+  useFilter<T, V, string>(
     {
       id: 'textFilter',
 

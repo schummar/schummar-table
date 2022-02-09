@@ -2,8 +2,11 @@ export class Queue {
   private q = new Array<{ job: () => Promise<any>; resolve: (value: any) => void; reject: (reason?: any) => void }>();
   private isRunning = false;
 
-  run<T>(job: () => Promise<T>) {
+  run<T>(job: () => Promise<T>, replace?: boolean) {
     return new Promise<T>((resolve, reject) => {
+      if (replace) {
+        this.q = [];
+      }
       this.q.push({ job, resolve, reject });
 
       if (!this.isRunning) this.start();
