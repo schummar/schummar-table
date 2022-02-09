@@ -10,7 +10,7 @@ export const ColumnHeaderContext = new StoreScope({
 export function ColumnHeader(props: HTMLProps<HTMLDivElement>) {
   const ref = useRef<HTMLDivElement>(null);
   const columnId = useColumnContext();
-  const tableState = useTableContext();
+  const table = useTableContext();
 
   const store = ColumnHeaderContext.useStore();
   const draggingStart = useRef<{ mouseX: number; bounds: DOMRect }>();
@@ -34,7 +34,7 @@ export function ColumnHeader(props: HTMLProps<HTMLDivElement>) {
 
   // Calculate which index the current header would get, given the current offset
   function calcTargetIndex(offsetLeft: number) {
-    const cols = tableState.getState().columnOrder.map((id) => ({ id, div: store.getState().items.get(id) }));
+    const cols = table.getState().columnOrder.map((id) => ({ id, div: store.getState().items.get(id) }));
 
     const otherCols = cols.filter((col) => col.id !== columnId);
 
@@ -60,7 +60,7 @@ export function ColumnHeader(props: HTMLProps<HTMLDivElement>) {
 
   // When mouse moves while clicked: Calculate transforms
   function onPointerMove(e: React.PointerEvent) {
-    tableState.update((state) => {
+    table.update((state) => {
       const div = ref.current;
       if (!div || draggingStart.current === undefined || Math.abs(e.clientX - draggingStart.current.mouseX) < 5) return;
 
@@ -99,7 +99,7 @@ export function ColumnHeader(props: HTMLProps<HTMLDivElement>) {
       const targetIndex = calcTargetIndex(div.offsetLeft + e.clientX - draggingStart.current.mouseX);
 
       // Apply transforms to each column
-      const columns = tableState
+      const columns = table
         .getState()
         .columnOrder.map((id, index) => ({ id, index, width: store.getState().items.get(id)?.offsetWidth ?? 0 }));
 
@@ -131,7 +131,7 @@ export function ColumnHeader(props: HTMLProps<HTMLDivElement>) {
 
   // When releasing mouse: Reset draggin state and apply column move
   function onPointerUp(e: React.PointerEvent) {
-    tableState.update((state) => {
+    table.update((state) => {
       const div = ref.current;
       if (!div || draggingStart.current === undefined) return;
 

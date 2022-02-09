@@ -60,9 +60,9 @@ function TableLoadingState() {
 }
 
 const TableInner = memo(function TableInner<T>({ hidden }: { hidden: boolean }) {
-  const state = useTableContext<T>();
-  const fullWidth = state.useState('props.fullWidth');
-  const activeColumns = state.useState((state) =>
+  const table = useTableContext<T>();
+  const fullWidth = table.useState('props.fullWidth');
+  const activeColumns = table.useState((state) =>
     state.activeColumns.map((column) => ({
       id: column.id,
       width: column.width,
@@ -70,17 +70,17 @@ const TableInner = memo(function TableInner<T>({ hidden }: { hidden: boolean }) 
       header: column.header,
     })),
   );
-  const columnWidths = state.useState('columnWidths', { throttle: 16 });
-  const columnStyleOverride = state.useState('columnStyleOverride', { throttle: 16 });
-  const defaultWidth = state.useState('props.defaultWidth');
-  const css = state.useState('props.css');
-  const stickyHeader = state.useState('props.stickyHeader');
-  const enableSelection = state.useState('props.enableSelection');
-  const enableColumnSelection = state.useState('props.enableColumnSelection');
-  const enableExport = state.useState((state) => !!state.props.enableExport.copy || !!state.props.enableExport.download);
+  const columnWidths = table.useState('columnWidths', { throttle: 16 });
+  const columnStyleOverride = table.useState('columnStyleOverride', { throttle: 16 });
+  const defaultWidth = table.useState('props.defaultWidth');
+  const css = table.useState('props.css');
+  const stickyHeader = table.useState('props.stickyHeader');
+  const enableSelection = table.useState('props.enableSelection');
+  const enableColumnSelection = table.useState('props.enableColumnSelection');
+  const enableExport = table.useState((state) => !!state.props.enableExport.copy || !!state.props.enableExport.download);
   const cssVariables = useCssVariables();
 
-  state.getState().props.debugRender?.('render table inner');
+  table.getState().props.debugRender?.('render table inner');
 
   return (
     <Virtualized

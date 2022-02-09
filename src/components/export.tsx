@@ -1,23 +1,22 @@
 import React, { useState } from 'react';
+import { useTheme } from '..';
 import { csvExport, CsvExportOptions } from '../misc/csvExport';
 import { useCssVariables } from '../theme/useCssVariables';
 import { useTableContext } from './table';
 
 export function Export<T>(): JSX.Element {
-  const [anchor, setAnchor] = useState<Element | null>(null);
-  const state = useTableContext<T>();
-  const textTitle = state.useState((state) => state.theme.text.exportTitle);
-  const textCopy = state.useState((state) => state.theme.text.exportCopy);
-  const textDownload = state.useState((state) => state.theme.text.exportDownload);
-  const IconButton = state.useState((state) => state.theme.components.IconButton);
-  const Button = state.useState((state) => state.theme.components.Button);
-  const Popover = state.useState((state) => state.theme.components.Popover);
-  const ExportIcon = state.useState((state) => state.theme.icons.Export);
-  const ClipboardIcon = state.useState((state) => state.theme.icons.Clipboard);
+  const table = useTableContext<T>();
+  const {
+    components: { Button, IconButton, Popover },
+    icons: { Export, Clipboard },
+    text,
+  } = useTheme();
   const cssVariables = useCssVariables();
 
+  const [anchor, setAnchor] = useState<Element | null>(null);
+
   const generate = (options?: CsvExportOptions) => {
-    const { activeColumns, activeItems } = state.getState();
+    const { activeColumns, activeItems } = table.getState();
 
     const data = [
       activeColumns.map((column) => String(column.id)),
@@ -27,12 +26,12 @@ export function Export<T>(): JSX.Element {
   };
 
   const copy = () => {
-    navigator.clipboard.writeText(generate(state.getState().props.enableExport.copy));
+    navigator.clipboard.writeText(generate(table.getState().props.enableExport.copy));
   };
 
   const download = () => {
     const a = document.createElement('a');
-    a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(generate(state.getState().props.enableExport.download));
+    a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(generate(table.getState().props.enableExport.download));
     a.download = 'export.csv';
     document.body.appendChild(a);
     a.click();
@@ -42,7 +41,7 @@ export function Export<T>(): JSX.Element {
   return (
     <>
       <IconButton onClick={(e) => setAnchor(anchor ? null : e.currentTarget)}>
-        <ExportIcon />
+        <Export />
       </IconButton>
 
       <Popover open={!!anchor} onClose={() => setAnchor(null)} anchorEl={anchor} css={cssVariables}>
@@ -58,12 +57,12 @@ export function Export<T>(): JSX.Element {
             },
           }}
         >
-          <div css={{ marginBottom: 'var(--spacing)' }}>{textTitle}</div>
-          <Button startIcon={<ClipboardIcon />} onClick={copy}>
-            {textCopy}
+          <div css={{ marginBottom: 'var(--spacing)' }}>{text.exportTitle}</div>
+          <Button startIcon={<Clipboard />} onClick={copy}>
+            {text.exportCopy}
           </Button>
-          <Button startIcon={<ExportIcon />} onClick={download}>
-            {textDownload}
+          <Button startIcon={<Export />} onClick={download}>
+            {text.exportDownload}
           </Button>
         </div>
       </Popover>

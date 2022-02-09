@@ -2,8 +2,8 @@ import React from 'react';
 import { useColumnContext, useTableContext } from '..';
 
 export function ResizeHandle() {
+  const table = useTableContext();
   const columnId = useColumnContext();
-  const tableState = useTableContext();
 
   function onPointerDown(e: React.PointerEvent) {
     e.stopPropagation();
@@ -21,7 +21,7 @@ export function ResizeHandle() {
     const parent = div.parentElement as HTMLDivElement;
     const width = Math.max(e.clientX - parent.getBoundingClientRect().left + 5, 50);
 
-    tableState.update((state) => {
+    table.update((state) => {
       state.columnWidths.set(columnId, `${width}px`);
     });
   }
@@ -34,7 +34,7 @@ export function ResizeHandle() {
   }
 
   function onDoubleClick(e: React.MouseEvent) {
-    tableState.update((state) => {
+    table.update((state) => {
       if (e.getModifierState('Control')) {
         state.columnWidths.delete(columnId);
       } else {

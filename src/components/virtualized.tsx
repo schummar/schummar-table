@@ -35,8 +35,8 @@ export function Virtualized<T>({
   children,
   ...props
 }: { header: ReactNode; children: (itemIds: Id[], startIndex: number) => ReactNode } & HTMLProps<HTMLDivElement>): JSX.Element {
-  const state = useTableContext<T>();
-  const virtual = state.useState('props.virtual');
+  const table = useTableContext<T>();
+  const virtual = table.useState('props.virtual');
   const probeRef = useRef<HTMLDivElement>(null);
   const [, setCounter] = useState(0);
 
@@ -46,7 +46,7 @@ export function Virtualized<T>({
     to,
     before = 0,
     after = 0,
-  } = state.useState((state) => {
+  } = table.useState((state) => {
     const itemIds = state.activeItems.map((item) => item.id);
     const root = probeRef.current && findScrollRoot(probeRef.current);
     if (!state.props.virtual) return { itemIds };
@@ -99,7 +99,7 @@ export function Virtualized<T>({
     return onAncestorScroll(probeRef.current, incCounter);
   }, [probeRef.current, incCounter]);
 
-  state.getState().props.debugRender?.(`Virtualalized render ${from} to ${to}`);
+  table.getState().props.debugRender?.(`Virtualalized render ${from} to ${to}`);
 
   return (
     <div {...props}>

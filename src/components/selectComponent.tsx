@@ -1,15 +1,19 @@
 import React from 'react';
+import { useTheme } from '..';
 import { getAncestors, getDescendants } from '../misc/helpers';
 import { Id } from '../types';
 import { useTableContext } from './table';
 
 export function SelectComponent<T>({ itemId }: { itemId?: Id }): JSX.Element {
-  const state = useTableContext<T>();
-  const isSelected = state.useState((state) => {
+  const table = useTableContext<T>();
+  const {
+    components: { Checkbox },
+  } = useTheme();
+
+  const isSelected = table.useState((state) => {
     const itemIds = itemId ? [itemId] : [...state.activeItemsById.keys()];
     return state.activeItemsById.size > 0 && itemIds.every((itemId) => state.selection.has(itemId));
   });
-  const Checkbox = state.useState((state) => state.theme.components.Checkbox);
 
   function toggle(e: React.ChangeEvent) {
     const mouseEvent = e.nativeEvent as MouseEvent;
@@ -20,7 +24,7 @@ export function SelectComponent<T>({ itemId }: { itemId?: Id }): JSX.Element {
       lastSelectedId,
       selection,
       props: { selectSyncChildren, selection: controlledSelection, onSelectionChange },
-    } = state.getState();
+    } = table.getState();
 
     let range;
     if (mouseEvent.shiftKey && itemId) {
@@ -50,12 +54,12 @@ export function SelectComponent<T>({ itemId }: { itemId?: Id }): JSX.Element {
     onSelectionChange?.(newSelection);
 
     if (!controlledSelection) {
-      state.update((state) => {
+      table.update((state) => {
         state.selection = newSelection;
       });
     }
 
-    state.update((state) => {
+    table.update((state) => {
       state.lastSelectedId = itemId;
     });
   }

@@ -16,10 +16,10 @@ export function calcClassNames<T>(css: InternalColumn<any, any>['css'] | undefin
 }
 
 export const Row = memo(function Row<T>({ itemId, rowIndex }: { itemId: Id; rowIndex: number }): JSX.Element | null {
-  const state = useTableContext<T>();
+  const table = useTableContext<T>();
   const divRef = useRef<HTMLDivElement>(null);
 
-  const { className, indent, hasChildren, hasDeferredChildren, columnIds, enableSelection, rowAction } = state.useState((state) => {
+  const { className, indent, hasChildren, hasDeferredChildren, columnIds, enableSelection, rowAction } = table.useState((state) => {
     const item = state.activeItemsById.get(itemId);
     const index = !item ? -1 : state.activeItems.indexOf(item);
 
@@ -40,7 +40,7 @@ export const Row = memo(function Row<T>({ itemId, rowIndex }: { itemId: Id; rowI
 
     const o = new ResizeObserver(() => {
       if (!document.contains(div)) return;
-      state.update((state) => {
+      table.update((state) => {
         state.rowHeights.set(itemId, div.offsetHeight);
       });
     });
@@ -49,7 +49,7 @@ export const Row = memo(function Row<T>({ itemId, rowIndex }: { itemId: Id; rowI
     return () => o.disconnect();
   }, [divRef.current]);
 
-  state.getState().props.debugRender?.('render row', itemId);
+  table.getState().props.debugRender?.('render row', itemId);
 
   return (
     <>

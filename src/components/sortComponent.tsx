@@ -1,26 +1,30 @@
 import React, { ReactNode } from 'react';
+import { useTheme } from '..';
 import { useColumnContext, useTableContext } from './table';
 
 export function SortComponent<T>({ children }: { children: ReactNode }): JSX.Element {
-  const state = useTableContext<T>();
+  const table = useTableContext<T>();
   const columnId = useColumnContext();
-  const { direction, index } = state.useState((state) => {
+  const {
+    components: { Badge },
+    icons: { ArrowUpward },
+  } = useTheme();
+
+  const { direction, index } = table.useState((state) => {
     const index = state.sort.findIndex((s) => s.columnId === columnId) ?? -1;
     return {
       direction: state.sort[index]?.direction,
       index: index >= 0 && state.sort.length > 1 ? index + 1 : undefined,
     };
   });
-  const Badge = state.useState((state) => state.theme.components.Badge);
-  const ArrowUpwardIcon = state.useState((state) => state.theme.icons.ArrowUpward);
 
   function toggle(e: React.MouseEvent) {
     const {
       props: { sort: controlledSort, onSortChange },
-    } = state.getState();
+    } = table.getState();
 
     const newDirection = direction === 'asc' ? 'desc' : 'asc';
-    const newSort = (e.getModifierState('Control') ? state.getState().sort.filter((s) => s.columnId !== columnId) : []).concat({
+    const newSort = (e.getModifierState('Control') ? table.getState().sort.filter((s) => s.columnId !== columnId) : []).concat({
       columnId,
       direction: newDirection,
     });
@@ -28,7 +32,7 @@ export function SortComponent<T>({ children }: { children: ReactNode }): JSX.Ele
     onSortChange?.(newSort);
 
     if (!controlledSort) {
-      state.update((state) => {
+      table.update((state) => {
         state.sort = newSort;
       });
     }
@@ -60,7 +64,7 @@ export function SortComponent<T>({ children }: { children: ReactNode }): JSX.Ele
             direction === 'desc' && { transform: 'rotate3d(0, 0, 1, 180deg)' },
           ]}
         >
-          <ArrowUpwardIcon />
+          <ArrowUpward />
         </span>
       </Badge>
     </div>
