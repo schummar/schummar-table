@@ -1,6 +1,7 @@
 import { createContext, useContext } from 'react';
 import { DeepPartial } from '../misc/deepPartial';
 import { InternalTableProps, TableTheme } from '../types';
+import { defaultColors } from './defaultColors';
 import { defaultComponents } from './defaultComponents';
 import { defaultIcons } from './defaultIcons';
 import { defaultTexts } from './defaultTexts';
@@ -9,8 +10,7 @@ const defaultTableTheme: TableTheme = {
   text: defaultTexts,
   components: defaultComponents,
   icons: defaultIcons,
-  primaryColor: 'rgb(25, 118, 210)',
-  primaryContrastColor: 'white',
+  colors: defaultColors,
   spacing: '5px',
 };
 

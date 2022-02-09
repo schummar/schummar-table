@@ -81,7 +81,7 @@ export function calcItems<T>(state: Store<InternalTableState<T>>): void {
               });
 
               if (isActive && item.parentId !== undefined) {
-                if (revealFiltered && filters.size > 0) {
+                if (revealFiltered && [...filters.values()].some((filter) => filter.test)) {
                   draft.expanded.add(item.parentId);
                 } else if (!draft.expanded.has(item.parentId)) {
                   isActive = false;

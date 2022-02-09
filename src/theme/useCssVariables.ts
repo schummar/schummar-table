@@ -4,7 +4,8 @@ export function useCssVariables() {
   const state = useTableContext();
   return state.useState((state) => ({
     '--spacing': state.theme.spacing,
-    '--primaryColor': state.theme.primaryColor,
-    '--primaryContrastColor': state.theme.primaryContrastColor,
+    '--primary': state.theme.colors.primary,
+    '--primaryLight': state.theme.colors.primaryLight,
+    '--primaryContrastText': state.theme.colors.primaryContrastText,
   }));
 }

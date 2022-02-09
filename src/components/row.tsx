@@ -63,7 +63,7 @@ export const Row = memo(function Row<T>({ itemId, rowIndex }: { itemId: Id; rowI
 
         {enableSelection && <SelectComponent itemId={itemId} />}
 
-        {(hasChildren || hasDeferredChildren) && <ExpandControl itemId={itemId} />}
+        {(hasChildren || hasDeferredChildren) && <ExpandControl itemId={itemId} hasDeferredChildren={hasDeferredChildren} />}
 
         {rowAction}
       </div>

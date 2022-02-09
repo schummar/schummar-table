@@ -1,20 +1,25 @@
 import React from 'react';
+import { useTheme } from '..';
 import { getAncestors } from '../misc/helpers';
-import { useTableContext } from './table';
 import { Id } from '../types';
+import { useTableContext } from './table';
 
-export function ExpandControl<T>({ itemId }: { itemId: Id }): JSX.Element {
-  const state = useTableContext<T>();
-  const isExpanded = state.useState((state) => state.expanded.has(itemId), [itemId]);
-  const IconButton = state.useState((state) => state.theme.components.IconButton);
-  const ChevronRightIcon = state.useState((state) => state.theme.icons.ChevronRight);
+export function ExpandControl<T>({ itemId, hasDeferredChildren }: { itemId: Id; hasDeferredChildren?: boolean }): JSX.Element {
+  const {
+    components: { IconButton, Spinner },
+    icons: { ChevronRight },
+  } = useTheme();
+
+  const table = useTableContext<T>();
+  const isExpanded = table.useState((state) => state.expanded.has(itemId), [itemId]);
+  const hasChildren = table.useState((state) => !!state.activeItemsById.get(itemId)?.children.length, [itemId]);
 
   function toggle() {
     const {
       props: { expanded: controlledExpanded, expandOnlyOne, onExpandedChange },
       expanded,
       activeItemsById,
-    } = state.getState();
+    } = table.getState();
 
     const newExpanded = new Set(expanded);
     if (expandOnlyOne) newExpanded.clear();
@@ -31,10 +36,16 @@ export function ExpandControl<T>({ itemId }: { itemId: Id }): JSX.Element {
     onExpandedChange?.(newExpanded);
 
     if (!controlledExpanded) {
-      state.update((state) => {
+      table.update((state) => {
         state.expanded = newExpanded;
       });
     }
+  }
+
+  if (isExpanded) console.log(hasDeferredChildren, hasChildren);
+
+  if (isExpanded && hasDeferredChildren && !hasChildren) {
+    return <Spinner css={{ margin: '0 var(--spacing)' }} />;
   }
 
   return (
@@ -46,7 +57,7 @@ export function ExpandControl<T>({ itemId }: { itemId: Id }): JSX.Element {
           transform: isExpanded ? 'rotate3d(0, 0, 1, 90deg)' : 'rotate3d(0, 0, 1, 0deg)',
         }}
       >
-        <ChevronRightIcon />
+        <ChevronRight />
       </span>
     </IconButton>
   );

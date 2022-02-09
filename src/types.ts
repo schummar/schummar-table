@@ -39,7 +39,14 @@ export interface TableTheme<T = unknown> {
       disabled?: boolean;
     }>;
     Checkbox: ComponentType<{ checked: boolean; onChange: (e: React.ChangeEvent) => void; disabled?: boolean; className?: string }>;
-    Popover: ComponentType<{ anchorEl: Element | null; open: boolean; onClose: () => void; children: ReactNode; className?: string }>;
+    Popover: ComponentType<{
+      anchorEl: Element | null;
+      open: boolean;
+      onClose: () => void;
+      children: ReactNode;
+      className?: string;
+      align?: 'center' | 'left';
+    }>;
     Badge: ComponentType<{ children: ReactNode; badgeContent: ReactNode }>;
     TextField: ComponentType<{
       value: string | null;
@@ -47,6 +54,7 @@ export interface TableTheme<T = unknown> {
       endIcon?: ReactNode;
       className?: string;
     }>;
+    Spinner: (props: { className?: string }) => JSX.Element;
   };
   icons: {
     [K in
@@ -62,8 +70,11 @@ export interface TableTheme<T = unknown> {
       className?: string;
     }>;
   };
-  primaryColor: string;
-  primaryContrastColor: string;
+  colors: {
+    primary: string;
+    primaryLight: string;
+    primaryContrastText: string;
+  };
   spacing: string | number;
 }
 

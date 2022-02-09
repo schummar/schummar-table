@@ -34,7 +34,8 @@
     "coverage": "nyc --include src --all npm run test"
   },
   "dependencies": {
-    "@emotion/react": "^11.7.1"
+    "@emotion/react": "^11.7.1",
+    "dayzed": "^3.2.2"
   },
   "peerDependencies": {
     "@emotion/styled": "^11.6.0",
@@ -43,10 +44,8 @@
     "@mui/icons-material": "^5.3.1",
     "@mui/material": "^5.4.0",
     "@types/react": ">=17.0.11",
-    "@types/react-datepicker": "^4.3.4",
     "immer": ">=9.0.3",
     "react": ">=16.8.0",
-    "react-datepicker": "^4.6.0",
     "schummar-state": ">=0.0.36"
   },
   "peerDependenciesMeta": {
@@ -63,12 +62,6 @@
       "optional": true
     },
     "@mui/material": {
-      "optional": true
-    },
-    "@types/react-datepicker": {
-      "optional": true
-    },
-    "react-datepicker": {
       "optional": true
     }
   },

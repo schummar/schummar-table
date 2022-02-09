@@ -1,4 +1,4 @@
-import React, { useLayoutEffect, useRef, useState } from 'react';
+import React, { createContext, useContext, useLayoutEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { TableTheme } from '../../types';
 import { defaultClasses } from '../defaultClasses';
@@ -6,7 +6,9 @@ import { defaultClasses } from '../defaultClasses';
 const MARGIN = 10;
 const MAX_OFFSET = 20;
 
-export const Popover: TableTheme['components']['Popover'] = ({ anchorEl, open, onClose, children, className }) => {
+export const PopoverContext = createContext(0);
+
+export const Popover: TableTheme['components']['Popover'] = ({ anchorEl, open, onClose, children, className, align }) => {
   const popper = useRef<HTMLDivElement>(null);
   const [position, setPosition] = useState<{ left: number; top: number }>();
 
@@ -26,7 +28,10 @@ export const Popover: TableTheme['components']['Popover'] = ({ anchorEl, open, o
       const viewportHeight = document.documentElement.clientHeight;
 
       const next = {
-        left: anchorLeft + anchorWidth / 2 - Math.min(popperWidth ? popperWidth / 2 : Infinity, MAX_OFFSET),
+        left:
+          align === 'center'
+            ? anchorLeft + anchorWidth / 2 - popperWidth / 2
+            : anchorLeft - Math.min(popperWidth ? popperWidth / 2 : Infinity, MAX_OFFSET),
         top: anchorBottom,
       };
 
@@ -51,41 +56,48 @@ export const Popover: TableTheme['components']['Popover'] = ({ anchorEl, open, o
     };
   }, [anchorEl, open]);
 
-  return createPortal(
-    <>
-      <div
-        css={[
-          {
-            position: 'fixed',
-            left: 0,
-            right: 0,
-            top: 0,
-            bottom: 0,
-            zIndex: 1000,
-          },
-          !position && { display: 'none' },
-        ]}
-        onClick={() => onClose()}
-      />
+  const depth = useContext(PopoverContext);
 
-      <div
-        ref={popper}
-        className={className}
-        css={[
-          defaultClasses.card,
-          {
-            position: 'fixed',
-            maxWidth: document.documentElement.clientWidth,
-            maxHeight: document.documentElement.clientHeight,
-            ...position,
-            zIndex: 1001,
-          },
-          !position && { display: 'none' },
-        ]}
-      >
-        {children}
-      </div>
-    </>,
-    document.body,
+  return (
+    <PopoverContext.Provider value={depth + 1}>
+      {createPortal(
+        <>
+          <div
+            css={[
+              {
+                position: 'fixed',
+                left: 0,
+                right: 0,
+                top: 0,
+                bottom: 0,
+                zIndex: 1000 + depth * 2,
+              },
+              !open && { display: 'none' },
+            ]}
+            onClick={() => onClose()}
+          />
+
+          <div
+            ref={popper}
+            className={className}
+            css={[
+              defaultClasses.card,
+              {
+                position: 'fixed',
+                maxWidth: document.documentElement.clientWidth,
+                maxHeight: document.documentElement.clientHeight,
+                ...position,
+                zIndex: 1001 + depth * 2,
+              },
+              !open && { display: 'none' },
+              !position && { visibility: 'hidden' },
+            ]}
+          >
+            {children}
+          </div>
+        </>,
+        document.body,
+      )}
+    </PopoverContext.Provider>
   );
 };

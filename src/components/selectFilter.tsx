@@ -76,9 +76,13 @@ export function SelectFilter<T, V, O>({
   useFilter<T, V>(
     {
       id: 'selectFilter',
-      test: debouncedValue.size
-        ? (value, item) => castArray(filterBy(value, item)).some((x) => [...debouncedValue].some((y) => compare(x, y)))
-        : undefined,
+
+      test: !debouncedValue.size
+        ? undefined
+        : (value, item) => {
+            return castArray(filterBy(value, item)).some((x) => [...debouncedValue].some((y) => compare(x, y)));
+          },
+
       serialize: () => [...value],
       deserialize: (value) => update(new Set(value)),
     },

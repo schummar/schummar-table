@@ -1,36 +1,48 @@
-import React, { useState } from 'react';
-import ReactDatePicker from 'react-datepicker';
-import 'react-datepicker/dist/react-datepicker.css';
+import React, { useMemo, useState } from 'react';
 import { useFilter, useTheme } from '..';
 import { useDebounced } from '../hooks/useDebounced';
+import { castArray } from '../misc/helpers';
+import { dateIntersect, DatePicker, DatePickerProps, DateRange, today } from './datePicker';
 
-type Range = [Date, Date];
-type PartialRange = [Date | null, Date | null];
+function convertDate(x: unknown): Date | null {
+  if (x instanceof Date) return x;
+  if (typeof x === 'number' || typeof x === 'string') return new Date(x);
+  return null;
+}
 
-const startOfDay = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate());
-const endOfDay = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate() + 1, 0, 0, 0, -1);
+function convertDateOrRange(x: unknown): Date | DateRange | null {
+  if (x instanceof Object && 'min' in x && 'max' in x) {
+    const range = {
+      min: convertDate((x as any).min),
+      max: convertDate((x as any).max),
+    };
+    return range.min && range.max ? (range as DateRange) : null;
+  }
+  return convertDate(x);
+}
 
-const today = (): Range => {
-  const now = new Date();
-  return [startOfDay(now), endOfDay(now)];
-};
+function convertDateOrArray(x: unknown): Date | DateRange | (Date | DateRange)[] | null {
+  if (x instanceof Array) return x.map(convertDateOrRange).filter(Boolean) as (Date | DateRange)[];
+  return convertDateOrRange(x);
+}
 
 export function DateFilter<T, V>({
-  filterBy = (value) =>
-    value instanceof Date ? value : typeof value === 'number' || typeof value === 'string' ? new Date(value) : new Date(0),
+  filterBy = convertDateOrArray,
   value: controlledValue,
   defaultValue,
   onChange,
   locale,
-  singleDate,
+  firstDayOfWeek,
+  range = true,
   dependencies = [],
 }: {
-  filterBy?: (value: V, item: T) => Date | Range;
-  value?: PartialRange;
-  defaultValue?: Range;
-  onChange?: (value?: PartialRange) => void;
-  locale?: Locale;
-  singleDate?: boolean;
+  filterBy?: (value: V, item: T) => Date | DateRange | (Date | DateRange)[] | null;
+  value?: Date | DateRange | null;
+  defaultValue?: Date | DateRange | null;
+  onChange?: (value?: Date | DateRange | null) => void;
+  locale?: string;
+  firstDayOfWeek?: DatePickerProps['firstDayOfWeek'];
+  range?: boolean;
   dependencies?: any[];
 }): JSX.Element {
   const {
@@ -38,11 +50,11 @@ export function DateFilter<T, V>({
     text,
   } = useTheme();
 
-  const [stateValue, setStateValue] = useState<PartialRange>(defaultValue ?? [null, null]);
+  const [stateValue, setStateValue] = useState<Date | DateRange | null>(defaultValue ?? null);
   const value = controlledValue ?? stateValue;
   const debouncedValue = useDebounced(value, 500);
 
-  function update(value: PartialRange) {
+  function update(value: Date | DateRange | null) {
     if (controlledValue === undefined) {
       setStateValue(value);
     }
@@ -53,22 +65,30 @@ export function DateFilter<T, V>({
   useFilter<T, V>(
     {
       id: 'dateFilter',
-      test:
-        debouncedValue[0] && debouncedValue[1]
-          ? (value, item) => {
-              const x = filterBy(value, item);
-              const [min0, max0] = x instanceof Array ? x : [x, x];
-              const [min1, max1] = debouncedValue;
-              return !!min1 && !!max1 && !(max0 < min1 || min0 >= max1);
-            }
-          : undefined,
-      serialize: () => value.map((x) => x?.toISOString() ?? null),
-      deserialize: ([start, end]) => update([start ? new Date(start) : null, end ? new Date(end) : null]),
+
+      test: !debouncedValue
+        ? undefined
+        : (value, item) => {
+            return castArray(filterBy(value, item)).some((x) => dateIntersect(x, debouncedValue));
+          },
+
+      serialize() {
+        return value === null ? null : value instanceof Date ? value.getTime() : { min: value.min.getTime(), max: value.max.getTime() };
+      },
+
+      deserialize(value) {
+        update(
+          value === null ? null : typeof value === 'number' ? new Date(value) : { min: new Date(value.min), max: new Date(value.max) },
+        );
+      },
     },
     [debouncedValue, ...dependencies],
   );
 
-  const [start, end] = value ?? [];
+  const formatDate = useMemo(() => {
+    const { format } = new Intl.DateTimeFormat(locale, { dateStyle: 'medium' });
+    return format;
+  }, [locale]);
 
   return (
     <div
@@ -84,49 +104,30 @@ export function DateFilter<T, V>({
           marginBottom: 'var(--spacing)',
           display: 'grid',
           gridAutoFlow: 'column',
-          gap: 'var(--spacing)',
+          gap: 'calc(var(--spacing) * 4)',
           justifyContent: 'space-between',
           alignItems: 'center',
         }}
       >
-        <div>{text.dateFilter}</div>
+        <div css={{ minWidth: '22ch' }}>
+          {value === null
+            ? text.dateFilter
+            : value instanceof Date
+            ? formatDate(value)
+            : [formatDate(value.min), formatDate(value.max)].join(' - ')}
+        </div>
 
         <div css={{ display: 'grid', gridAutoFlow: 'column', gap: 'var(--spacing)' }}>
           <Button variant="contained" onClick={() => update(today())}>
             {text.today}
           </Button>
-          <Button variant="contained" onClick={() => update([null, null])}>
+          <Button variant="contained" onClick={() => update(null)}>
             {text.reset}
           </Button>
         </div>
       </div>
 
-      {singleDate ? (
-        <ReactDatePicker
-          selected={start}
-          onChange={(d) => update([d, d ? endOfDay(d) : null])}
-          startDate={start}
-          endDate={end}
-          inline
-          showYearDropdown
-          showMonthDropdown
-          locale={locale}
-          dateFormat="P"
-        />
-      ) : (
-        <ReactDatePicker
-          selected={start}
-          onChange={([start, end]) => update([start, end ? endOfDay(end) : null])}
-          startDate={start}
-          endDate={end}
-          inline
-          showYearDropdown
-          // showMonthDropdown
-          selectsRange
-          locale={locale}
-          dateFormat="P"
-        />
-      )}
+      <DatePicker range={range} value={value} onChange={update} locale={locale} firstDayOfWeek={firstDayOfWeek} />
     </div>
   );
 }

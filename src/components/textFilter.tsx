@@ -41,7 +41,13 @@ export function TextFilter<T, V>({
   useFilter<T, V>(
     {
       id: 'textFilter',
-      test: debouncedValue ? (value, item) => castArray(filterBy(value, item)).some((text) => compare(text, debouncedValue)) : undefined,
+
+      test: !debouncedValue
+        ? undefined
+        : (value, item) => {
+            return castArray(filterBy(value, item)).some((text) => compare(text, debouncedValue));
+          },
+
       serialize: () => value,
       deserialize: update,
     },

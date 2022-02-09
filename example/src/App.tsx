@@ -1,9 +1,10 @@
 import { css } from '@emotion/react';
 import { Link } from '@material-ui/icons';
 import localforage from 'localforage';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Action } from 'schummar-state/react';
 import { DateFilter, SelectFilter, Table, TextFilter } from '../../src';
+import { DateRange } from '../../src/components/datePicker';
 import { flatMap } from '../../src/misc/helpers';
 import { TableThemeContext } from '../../src/theme/tableTheme';
 
@@ -20,7 +21,7 @@ type TopItem = {
   id: string;
   name: string;
   h: number;
-  date: Date;
+  date: DateRange;
 };
 
 type SubItem = {
@@ -41,7 +42,7 @@ const loadTop = new Action(async () => {
     id: String(index),
     name: `top item ${index}`,
     h: (index % 4) * 30,
-    date: new Date(2022, 0, index),
+    date: { min: new Date(2022, 0, index, 12), max: new Date(2022, 0, index + 7, 12) },
   }));
 });
 
@@ -53,6 +54,11 @@ function App(): JSX.Element {
   const [big, setBig] = useState(true);
 
   // console.log(active, children1, children2);
+
+  const formatDate = useMemo(() => {
+    const { format } = new Intl.DateTimeFormat(undefined, { dateStyle: 'medium' });
+    return format;
+  }, []);
 
   useEffect(() => {
     setChildren((c) => c.filter((c) => active.includes(c.parentId)));
@@ -72,7 +78,7 @@ function App(): JSX.Element {
       );
       i = (i + 1) % M;
       clearInterval(handle);
-    }, 100);
+    }, 1000);
     return () => clearInterval(handle);
   }, [active]);
 
@@ -84,7 +90,7 @@ function App(): JSX.Element {
       parentId={(x) => (x.type === 'sub' ? x.parentId : undefined)}
       hasDeferredChildren={(x) => !x.id.replace('_', '').includes('_')}
       onExpandedChange={(e) => {
-        // setActive([...e].map(String));
+        setActive([...e].map(String));
       }}
       onSelectionChange={setSelected}
       // disableSelection
@@ -93,7 +99,7 @@ function App(): JSX.Element {
       // defaultHiddenColumns={new Set([3])}
       onHiddenColumnsChange={(...args) => console.log(...args)}
       // defaultExpanded={new Set('0')}
-      // expanded={new Set('0')}
+      // expanded={new Set()}
       // wrapCell={(cell) => <div style={{ background: 'green' }}>{cell}</div>}
       enableExport
       rowAction={(_item, index) => (index % 2 === 0 ? <Link /> : undefined)}
@@ -129,8 +135,8 @@ function App(): JSX.Element {
         }),
         col((x) => (x.type === 'top' ? x.date : undefined), {
           header: 'Date',
-          renderCell: (date) => date && date.toLocaleDateString(),
-          filter: <DateFilter />,
+          renderCell: (date) => date && [formatDate(date.min), formatDate(date.max)].join(' - '),
+          filter: <DateFilter defaultValue={new Date()} />,
         }),
       ]}
       css={{

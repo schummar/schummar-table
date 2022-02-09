@@ -7,7 +7,7 @@ export function InsertLine() {
         position: 'relative',
         width: 2,
         margin: '0 -1px 0 -1px',
-        background: 'var(--primaryColor)',
+        background: 'var(--primary)',
       }}
     />
   );

@@ -1,3 +1,4 @@
+import { Spinner } from '../components/spinnner';
 import { TableTheme } from '../types';
 import { Badge } from './components/badge';
 import { Button } from './components/button';
@@ -13,4 +14,5 @@ export const defaultComponents: TableTheme['components'] = {
   Button,
   Badge,
   TextField,
+  Spinner,
 };
