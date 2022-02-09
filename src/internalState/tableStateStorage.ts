@@ -25,7 +25,7 @@ export function useTableStateStorage() {
 
   // On mount: load
   useEffect(() => {
-    const { storeState, debug } = table.getState().props;
+    const { storeState } = table.getState().props;
     if (!storeState) {
       setIsHydrated(true);
       return;
@@ -47,18 +47,11 @@ export function useTableStateStorage() {
             if (!include || include[key]) {
               let value;
               if (key === 'sort' || key === 'columnOrder') {
-                value = data.sort;
+                value = data[key];
               } else if (key === 'columnWidths') {
-                value = new Map(data.columnWidths);
+                value = new Map(data[key]);
               } else if (key === 'filters') {
-                value = state.filters;
-                for (const [columId, filter] of value) {
-                  const serialized = data.filters?.find((x: any) => x.columnId === columId && x.filterId === filter.id);
-
-                  if (serialized) {
-                    filter.deserialize?.(serialized.value);
-                  }
-                }
+                continue;
               } else {
                 value = new Set(data[key]);
               }
@@ -68,9 +61,17 @@ export function useTableStateStorage() {
           }
         });
 
-        setIsHydrated(true);
+        for (const [columId, filter] of table.getState().filters) {
+          const serialized = data.filters?.find((x: any) => x.columnId === columId && x.filterId === filter.id);
+
+          if (serialized) {
+            table.getState().filters.get(columId)?.deserialize?.(serialized.value);
+          }
+        }
       } catch (e) {
-        debug?.('Failed to load table state:', e);
+        console.error('Failed to load table state:', e);
+      } finally {
+        setIsHydrated(true);
       }
     })();
 
@@ -95,11 +96,11 @@ export function useTableStateStorage() {
           if (!state.props.storeState.include || state.props.storeState.include[key]) {
             let value;
             if (key === 'sort' || key === 'columnOrder') {
-              value = state.sort;
+              value = state[key];
             } else if (key === 'columnWidths') {
-              value = [...state.columnWidths.entries()];
+              value = [...state[key].entries()];
             } else if (key === 'filters') {
-              value = [...state.filters.entries()]
+              value = [...state[key].entries()]
                 .map(
                   ([columnId, { id, serialize }]) =>
                     serialize && {

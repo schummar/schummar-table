@@ -19,23 +19,20 @@ export const Row = memo(function Row<T>({ itemId, rowIndex }: { itemId: Id; rowI
   const state = useTableContext<T>();
   const divRef = useRef<HTMLDivElement>(null);
 
-  const { className, indent, hasChildren, hasDeferredChildren, columnIds, enableSelection, rowAction } = state.useState(
-    (state) => {
-      const item = state.activeItemsById.get(itemId);
-      const index = !item ? -1 : state.activeItems.indexOf(item);
+  const { className, indent, hasChildren, hasDeferredChildren, columnIds, enableSelection, rowAction } = state.useState((state) => {
+    const item = state.activeItemsById.get(itemId);
+    const index = !item ? -1 : state.activeItems.indexOf(item);
 
-      return {
-        className: calcClassNames(state.props.css, item, index),
-        indent: item ? getAncestors(state.activeItemsById, item).size : 0,
-        hasChildren: !!item?.children.length,
-        hasDeferredChildren: item && state.props.hasDeferredChildren?.(item),
-        columnIds: state.activeColumns.map((column) => column.id),
-        enableSelection: state.props.enableSelection,
-        rowAction: state.props.rowAction instanceof Function ? (item ? state.props.rowAction(item, index) : null) : state.props.rowAction,
-      };
-    },
-    [itemId],
-  );
+    return {
+      className: calcClassNames(state.props.css, item, index),
+      indent: item ? getAncestors(state.activeItemsById, item).size : 0,
+      hasChildren: !!item?.children.length,
+      hasDeferredChildren: item && state.props.hasDeferredChildren?.(item),
+      columnIds: state.activeColumns.map((column) => column.id),
+      enableSelection: state.props.enableSelection,
+      rowAction: state.props.rowAction instanceof Function ? (item ? state.props.rowAction(item, index) : null) : state.props.rowAction,
+    };
+  });
 
   useEffect(() => {
     const div = divRef.current;
@@ -52,7 +49,7 @@ export const Row = memo(function Row<T>({ itemId, rowIndex }: { itemId: Id; rowI
     return () => o.disconnect();
   }, [divRef.current]);
 
-  state.getState().props.debug?.('render row', itemId);
+  state.getState().props.debugRender?.('render row', itemId);
 
   return (
     <>

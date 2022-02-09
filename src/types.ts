@@ -123,6 +123,7 @@ export interface TableProps<T> extends Partial<TableTheme<T>> {
       };
 
   debug?: (...output: any) => void;
+  debugRender?: (...output: any) => void;
 
   enableSelection?: boolean;
   enableColumnSelection?: boolean;

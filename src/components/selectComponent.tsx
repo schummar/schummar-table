@@ -5,13 +5,10 @@ import { useTableContext } from './table';
 
 export function SelectComponent<T>({ itemId }: { itemId?: Id }): JSX.Element {
   const state = useTableContext<T>();
-  const isSelected = state.useState(
-    (state) => {
-      const itemIds = itemId ? [itemId] : [...state.activeItemsById.keys()];
-      return state.activeItemsById.size > 0 && itemIds.every((itemId) => state.selection.has(itemId));
-    },
-    [itemId],
-  );
+  const isSelected = state.useState((state) => {
+    const itemIds = itemId ? [itemId] : [...state.activeItemsById.keys()];
+    return state.activeItemsById.size > 0 && itemIds.every((itemId) => state.selection.has(itemId));
+  });
   const Checkbox = state.useState((state) => state.theme.components.Checkbox);
 
   function toggle(e: React.ChangeEvent) {

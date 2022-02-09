@@ -28,7 +28,7 @@ export function TextFilter<T, V>({
 
   const [stateValue, setStateValue] = useState<string>(defaultValue);
   const value = controlledValue ?? stateValue;
-  const debouncedValue = useDebounced(value, 500);
+  const [debouncedValue, flush] = useDebounced(value, 500);
 
   function update(value: string) {
     if (controlledValue === undefined) {
@@ -48,8 +48,14 @@ export function TextFilter<T, V>({
             return castArray(filterBy(value, item)).some((text) => compare(text, debouncedValue));
           },
 
-      serialize: () => value,
-      deserialize: update,
+      serialize() {
+        return value;
+      },
+
+      deserialize(value) {
+        update(value);
+        flush();
+      },
     },
     [debouncedValue, ...dependencies],
   );

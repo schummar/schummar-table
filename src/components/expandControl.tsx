@@ -11,8 +11,8 @@ export function ExpandControl<T>({ itemId, hasDeferredChildren }: { itemId: Id; 
   } = useTheme();
 
   const table = useTableContext<T>();
-  const isExpanded = table.useState((state) => state.expanded.has(itemId), [itemId]);
-  const hasChildren = table.useState((state) => !!state.activeItemsById.get(itemId)?.children.length, [itemId]);
+  const isExpanded = table.useState((state) => state.expanded.has(itemId));
+  const hasChildren = table.useState((state) => !!state.activeItemsById.get(itemId)?.children.length);
 
   function toggle() {
     const {

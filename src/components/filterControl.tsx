@@ -5,7 +5,7 @@ import { useColumnContext, useTableContext } from './table';
 export function FilterControl<T>(): JSX.Element | null {
   const state = useTableContext<T>();
   const columnId = useColumnContext();
-  const isActive = state.useState((state) => !!state.filters.get(columnId)?.test, [columnId]);
+  const isActive = state.useState((state) => !!state.filters.get(columnId)?.test);
   const filter = state.useState((state) => state.activeColumns.find((column) => column.id === columnId)?.filter);
   const IconButton = state.useState((state) => state.theme.components.IconButton);
   const Popover = state.useState((state) => state.theme.components.Popover);

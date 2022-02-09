@@ -38,7 +38,7 @@ export function Virtualized<T>({
   const state = useTableContext<T>();
   const virtual = state.useState('props.virtual');
   const probeRef = useRef<HTMLDivElement>(null);
-  const [counter, setCounter] = useState(0);
+  const [, setCounter] = useState(0);
 
   const {
     itemIds = [],
@@ -46,53 +46,50 @@ export function Virtualized<T>({
     to,
     before = 0,
     after = 0,
-  } = state.useState(
-    (state) => {
-      const itemIds = state.activeItems.map((item) => item.id);
-      const root = probeRef.current && findScrollRoot(probeRef.current);
-      if (!state.props.virtual) return { itemIds };
-      if (!probeRef.current || !root || !document.contains(root)) return {};
+  } = state.useState((state) => {
+    const itemIds = state.activeItems.map((item) => item.id);
+    const root = probeRef.current && findScrollRoot(probeRef.current);
+    if (!state.props.virtual) return { itemIds };
+    if (!probeRef.current || !root || !document.contains(root)) return {};
 
-      const {
-        rowHeight,
-        initalRowHeight,
-        overscan = 200,
-        overscanTop,
-        overscanBottom,
-      } = (state.props.virtual instanceof Object ? state.props.virtual : undefined) ?? {};
+    const {
+      rowHeight,
+      initalRowHeight,
+      overscan = 200,
+      overscanTop,
+      overscanBottom,
+    } = (state.props.virtual instanceof Object ? state.props.virtual : undefined) ?? {};
 
-      let totalHeight = 0;
-      const rowHeights = itemIds.map((itemId, index) => {
-        const h = rowHeight ?? state.rowHeights.get(itemId) ?? initalRowHeight ?? (index === 0 ? 100 : totalHeight / index);
-        totalHeight += h;
-        return h;
-      });
+    let totalHeight = 0;
+    const rowHeights = itemIds.map((itemId, index) => {
+      const h = rowHeight ?? state.rowHeights.get(itemId) ?? initalRowHeight ?? (index === 0 ? 100 : totalHeight / index);
+      totalHeight += h;
+      return h;
+    });
 
-      const probeOffset = relativeOffset(probeRef.current, root);
-      const headerHeight = probeRef.current.offsetTop;
-      const topOfTable = root.scrollTop - probeOffset + headerHeight;
-      const bottomOfTable = topOfTable + root.clientHeight - headerHeight;
+    const probeOffset = relativeOffset(probeRef.current, root);
+    const headerHeight = probeRef.current.offsetTop;
+    const topOfTable = root.scrollTop - probeOffset + headerHeight;
+    const bottomOfTable = topOfTable + root.clientHeight - headerHeight;
 
-      let from = 0,
-        to = itemIds.length,
-        before = 0,
-        after = 0;
-      for (const h of rowHeights) {
-        if (before + h > topOfTable - (overscanTop ?? overscan)) break;
-        from++;
-        before += h;
-      }
+    let from = 0,
+      to = itemIds.length,
+      before = 0,
+      after = 0;
+    for (const h of rowHeights) {
+      if (before + h > topOfTable - (overscanTop ?? overscan)) break;
+      from++;
+      before += h;
+    }
 
-      for (const h of rowHeights.reverse()) {
-        if (after + h > totalHeight - bottomOfTable - (overscanBottom ?? overscan)) break;
-        to--;
-        after += h;
-      }
+    for (const h of rowHeights.reverse()) {
+      if (after + h > totalHeight - bottomOfTable - (overscanBottom ?? overscan)) break;
+      to--;
+      after += h;
+    }
 
-      return { itemIds: itemIds.slice(from, to), from, to, before, after };
-    },
-    [probeRef.current, counter],
-  );
+    return { itemIds: itemIds.slice(from, to), from, to, before, after };
+  });
 
   const throttleScroll = (typeof virtual === 'boolean' ? undefined : virtual)?.throttleScroll ?? 500;
   const incCounter = useMemo(() => throttle(() => setCounter((c) => c + 1), throttleScroll), [throttleScroll]);
@@ -102,7 +99,7 @@ export function Virtualized<T>({
     return onAncestorScroll(probeRef.current, incCounter);
   }, [probeRef.current, incCounter]);
 
-  state.getState().props.debug?.(`Virtualalized render ${from} to ${to}`);
+  state.getState().props.debugRender?.(`Virtualalized render ${from} to ${to}`);
 
   return (
     <div {...props}>

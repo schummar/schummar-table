@@ -52,7 +52,7 @@ export function DateFilter<T, V>({
 
   const [stateValue, setStateValue] = useState<Date | DateRange | null>(defaultValue ?? null);
   const value = controlledValue ?? stateValue;
-  const debouncedValue = useDebounced(value, 500);
+  const [debouncedValue, flush] = useDebounced(value, 500);
 
   function update(value: Date | DateRange | null) {
     if (controlledValue === undefined) {
@@ -80,6 +80,7 @@ export function DateFilter<T, V>({
         update(
           value === null ? null : typeof value === 'number' ? new Date(value) : { min: new Date(value.min), max: new Date(value.max) },
         );
+        flush();
       },
     },
     [debouncedValue, ...dependencies],

@@ -32,7 +32,7 @@ export function useColumnContext(): Id {
 export function Table<T>(props: TableProps<T>): JSX.Element {
   const table = useTableState(props);
 
-  table.getState().props.debug?.('render table');
+  table.getState().props.debugRender?.('render table');
 
   return (
     <TableContext.Provider value={table}>
@@ -80,7 +80,7 @@ const TableInner = memo(function TableInner<T>({ hidden }: { hidden: boolean }) 
   const enableExport = state.useState((state) => !!state.props.enableExport.copy || !!state.props.enableExport.download);
   const cssVariables = useCssVariables();
 
-  state.getState().props.debug?.('render table inner');
+  state.getState().props.debugRender?.('render table inner');
 
   return (
     <Virtualized

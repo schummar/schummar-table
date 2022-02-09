@@ -2,7 +2,8 @@ import { css } from '@emotion/react';
 import { Link } from '@material-ui/icons';
 import localforage from 'localforage';
 import React, { useEffect, useMemo, useState } from 'react';
-import { Action } from 'schummar-state/react';
+import { createResource } from 'schummar-state';
+import { useResource } from 'schummar-state/react';
 import { DateFilter, SelectFilter, Table, TextFilter } from '../../src';
 import { DateRange } from '../../src/components/datePicker';
 import { flatMap } from '../../src/misc/helpers';
@@ -35,7 +36,7 @@ type SubItem = {
 
 const N = 1000,
   M = 10;
-const loadTop = new Action(async () => {
+const loadTop = createResource(async () => {
   // await new Promise((r) => setTimeout(r, 1000));
   return new Array(N).fill(0).map<TopItem>((_d, index) => ({
     type: 'top',
@@ -50,7 +51,7 @@ function App(): JSX.Element {
   const [active, setActive] = useState<string[]>(['0']);
   const [selected, setSelected] = useState<Set<any>>(new Set());
   const [children, setChildren] = useState<SubItem[]>([]);
-  const [topItems] = loadTop.useAction(undefined);
+  const { value: topItems } = useResource(loadTop());
   const [big, setBig] = useState(true);
 
   // console.log(active, children1, children2);
@@ -144,7 +145,7 @@ function App(): JSX.Element {
         cell: (item) => (item.name.endsWith('10') ? css({ background: 'lightGray' }) : undefined),
       }}
       stickyHeader
-      // debug={(...args) => console.debug(...args)}
+      debug={(...args) => console.debug(...args)}
       virtual={{ throttleScroll: 16 }}
       fullWidth="left"
       revealFiltered

@@ -40,24 +40,21 @@ export function SelectFilter<T, V, O>({
   const table = useTableContext<T>();
   const columnId = useColumnContext();
 
-  const options = table.useState(
-    (state) => {
-      if (providedOptions) return uniq(providedOptions);
+  const options = table.useState((state) => {
+    if (providedOptions) return uniq(providedOptions);
 
-      const column = state.activeColumns.find((column) => column.id === columnId) as InternalColumn<T, V> | undefined;
-      if (!column) return [];
+    const column = state.activeColumns.find((column) => column.id === columnId) as InternalColumn<T, V> | undefined;
+    if (!column) return [];
 
-      return uniq(flatMap(state.items, (item) => castArray(filterBy(column.value(item), item))));
-    },
-    [table, columnId, providedOptions],
-  );
+    return uniq(flatMap(state.items, (item) => castArray(filterBy(column.value(item), item))));
+  });
 
   const [query, setQuery] = useState('');
   const filtered = options.filter((option) => !query || stringValue(option).toLowerCase().includes(query.toLowerCase()));
 
   const [stateValue, setStateValue] = useState(defaultValue);
   const value = controlledValue ?? stateValue;
-  const debouncedValue = useDebounced(value, 500);
+  const [debouncedValue, flush] = useDebounced(value, 500);
 
   function update(update: O | Set<O>) {
     let newValue;
@@ -87,8 +84,14 @@ export function SelectFilter<T, V, O>({
             return castArray(filterBy(value, item)).some((x) => [...debouncedValue].some((y) => compare(x, y)));
           },
 
-      serialize: () => [...value].map(serialize),
-      deserialize: (value) => update(new Set(value.map(deserialize))),
+      serialize() {
+        return [...value].map(serialize);
+      },
+
+      deserialize(value) {
+        update(new Set(value.map(deserialize)));
+        flush();
+      },
     },
     [debouncedValue, ...dependencies],
   );
