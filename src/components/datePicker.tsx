@@ -162,8 +162,8 @@ export function DatePicker({ value, onChange, range, locale, firstDayOfWeek = 0 
                         setCurrentMin(date);
                       }
                     }}
-                    onMouseOver={() => setHovered(date)}
-                    onMouseOut={() => setHovered(undefined)}
+                    onPointerOver={() => setHovered(date)}
+                    onPointerOut={() => setHovered(undefined)}
                   >
                     {date.getDate()}
                   </button>

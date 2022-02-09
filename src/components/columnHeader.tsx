@@ -162,9 +162,6 @@ export function ColumnHeader(props: HTMLProps<HTMLDivElement>) {
       onPointerDown={onPointerDown}
       onPointerMove={onPointerMove}
       onPointerUp={onPointerUp}
-      // onPointerCancel={onPointerUp}
-      // onPointerOut={onPointerUp}
-      // onPointerLeave={onPointerUp}
     >
       {props.children}
     </div>
