@@ -15,11 +15,10 @@
     "downlevelIteration": true,
     "allowSyntheticDefaultImports": true,
     "noUncheckedIndexedAccess": true,
-    "jsx": "react-jsx",
     "jsxImportSource": "@emotion/react",
     "skipLibCheck": true,
     "sourceMap": true,
     "emitDeclarationOnly": true
   },
-  "include": ["src", "example"]
+  "include": ["src"]
 }

@@ -2,7 +2,7 @@ import { createContext, useContext } from 'react';
 import { DeepPartial } from '../misc/deepPartial';
 import { InternalTableProps, TableTheme } from '../types';
 import { defaultColors } from './defaultColors';
-import { defaultComponents } from './defaultComponents';
+import { defaultComponents } from './defaultTheme';
 import { defaultIcons } from './defaultIcons';
 import { defaultTexts } from './defaultTexts';
 

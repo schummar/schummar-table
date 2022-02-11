@@ -1,24 +1,31 @@
+import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react-refresh';
+import pkg from './package.json';
 
 // https://vitejs.dev/config/
-export default defineConfig({
-  plugins: [react()],
 
-  esbuild: {
-    jsxFactory: `jsx`,
-    jsxInject: `import { jsx } from '@emotion/react'`,
-  },
+const formats = ['esm', 'cjs'] as const;
+
+export default defineConfig({
+  plugins: [
+    react({
+      jsxImportSource: `@emotion/react`,
+    }),
+  ],
 
   build: {
-    lib: {
-      entry: 'src/index.ts',
-      name: 'foo',
-      fileName: (format) => `foo-${format}.js`,
-      formats: ['es', 'cjs'],
-    },
     rollupOptions: {
-      external: ['react', 'react-dom'],
+      input: {
+        'schummar-table': 'src/index.ts',
+        mui5Theme: 'src/theme/mui5Theme/index.tsx',
+      },
+
+      output: formats.map((format) => ({
+        format,
+        entryFileNames: ({ name }) => `${name}.${format}.js`,
+      })),
+
+      external: Object.keys(pkg.peerDependencies),
     },
   },
 });

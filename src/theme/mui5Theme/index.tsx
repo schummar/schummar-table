@@ -1,8 +1,8 @@
-import { Badge, Button, Checkbox, CircularProgress, IconButton, Popover, TextField } from '@material-ui/core';
-import { ArrowDropDown, ArrowUpward, AssignmentReturn, ChevronRight, Clear, FilterList, GetApp, Search, Tune } from '@material-ui/icons';
-import { TableTheme } from '../types';
+import { ArrowDropDown, ArrowUpward, ChevronRight, Clear, ContentPaste, FileDownload, FilterList, Search, Tune } from '@mui/icons-material';
+import { Badge, Button, Checkbox, CircularProgress, IconButton, Popover, TextField } from '@mui/material';
+import { TableTheme } from '../../types';
 
-export const materialUiTheme: Partial<TableTheme> = {
+export const mui5Theme: Partial<TableTheme> = {
   components: {
     Button: (props) => <Button {...props} size="small" fullWidth css={{ justifyContent: 'start !important' }} />,
     IconButton: (props) => <IconButton {...props} size="small" color="inherit" />,
@@ -27,8 +27,8 @@ export const materialUiTheme: Partial<TableTheme> = {
   },
   icons: {
     ChevronRight,
-    Clipboard: AssignmentReturn,
-    Export: GetApp,
+    Clipboard: ContentPaste,
+    Export: FileDownload,
     Settings: Tune,
     ArrowDropDown,
     ArrowUpward,
