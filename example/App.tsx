@@ -4,10 +4,10 @@ import localforage from 'localforage';
 import React, { useEffect, useMemo, useState } from 'react';
 import { createResource } from 'schummar-state';
 import { useResource } from 'schummar-state/react';
-import { DateFilter, SelectFilter, Table, TextFilter } from '../../src';
-import { DateRange } from '../../src/components/datePicker';
-import { flatMap } from '../../src/misc/helpers';
-import { TableThemeContext } from '../../src/theme/tableTheme';
+import { DateFilter, SelectFilter, Table, TextFilter } from '../src';
+import { DateRange } from '../src/components/datePicker';
+import { flatMap } from '../src/misc/helpers';
+import { TableThemeContext } from '../src/theme/tableTheme';
 
 const storage = localforage.createInstance({ name: 'xyz' });
 

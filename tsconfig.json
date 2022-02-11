@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "outDir": "dist/esm",
+    "outDir": "dist/types",
     "module": "ES2020",
     "moduleResolution": "node",
     "esModuleInterop": true,
@@ -18,7 +18,8 @@
     "jsx": "react-jsx",
     "jsxImportSource": "@emotion/react",
     "skipLibCheck": true,
-    "sourceMap": true
+    "sourceMap": true,
+    "emitDeclarationOnly": true
   },
-  "include": ["src"]
+  "include": ["src", "example"]
 }
