@@ -1,7 +1,7 @@
 import { castDraft } from 'immer';
 import { useEffect } from 'react';
 import { Store } from 'schummar-state/react';
-import { flatMap, orderBy } from '../misc/helpers';
+import { castArray, flatMap, orderBy } from '../misc/helpers';
 import { Id, InternalTableState, TableItem } from '../types';
 
 export function calcItems<T>(state: Store<InternalTableState<T>>): void {
@@ -85,7 +85,7 @@ export function calcItems<T>(state: Store<InternalTableState<T>>): void {
 
                 const filterBy = filter.filterBy ?? ((x) => x);
                 const value = filterBy(column.value(item), item);
-                return filter.test(filterValue, value);
+                return castArray(value).some((value) => filter.test(filterValue, value));
               });
 
               if (isActive && item.parentId !== undefined) {

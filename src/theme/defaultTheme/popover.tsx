@@ -8,7 +8,7 @@ const MAX_OFFSET = 20;
 
 export const PopoverContext = createContext(0);
 
-export const Popover: TableTheme['components']['Popover'] = ({ anchorEl, open, onClose, children, className, align }) => {
+export const Popover: TableTheme['components']['Popover'] = ({ anchorEl, open, hidden, onClose, children, className, align }) => {
   const popper = useRef<HTMLDivElement>(null);
   const [position, setPosition] = useState<{ left: number; top: number }>();
 
@@ -58,6 +58,8 @@ export const Popover: TableTheme['components']['Popover'] = ({ anchorEl, open, o
 
   const depth = useContext(PopoverContext);
 
+  if (!open) return null;
+
   return (
     <PopoverContext.Provider value={depth + 1}>
       {createPortal(
@@ -72,7 +74,7 @@ export const Popover: TableTheme['components']['Popover'] = ({ anchorEl, open, o
                 bottom: 0,
                 zIndex: 1000 + depth * 2,
               },
-              !open && { display: 'none' },
+              hidden && { display: 'none' },
             ]}
             onClick={() => onClose()}
           />
@@ -89,7 +91,7 @@ export const Popover: TableTheme['components']['Popover'] = ({ anchorEl, open, o
                 ...position,
                 zIndex: 1001 + depth * 2,
               },
-              !open && { display: 'none' },
+              hidden && { display: 'none' },
               !position && { visibility: 'hidden' },
             ]}
           >

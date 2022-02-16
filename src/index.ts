@@ -6,5 +6,5 @@ export { useFilter } from './hooks/useFilter';
 export { useTheme } from './hooks/useTheme';
 export type { TableStateStorage } from './internalState/tableStateStorage';
 export { termMatch, textMatch } from './misc/textMatch';
-export { configureTableTheme } from './theme/tableTheme';
+export { configureTableTheme, TableThemeContext } from './theme/tableTheme';
 export type { Column, Id, InternalColumn, Rows, Sort, SortDirection, TableProps } from './types';

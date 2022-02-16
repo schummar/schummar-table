@@ -10,6 +10,7 @@ export type Id = string | number;
 export type KeyOfType<T, S> = { [K in keyof T]: T[K] extends S ? K : never }[keyof T];
 
 export interface TableTheme<T = unknown> {
+  /** Define display texts. */
   text: {
     selectColumns: ReactNode;
     noResults: ReactNode;
@@ -23,6 +24,7 @@ export interface TableTheme<T = unknown> {
     reset: ReactNode;
     loading: ReactNode;
   };
+  /** Define styles. */
   css?: {
     table?: CSSInterpolation;
     headerCell?: CSSInterpolation;
@@ -30,6 +32,7 @@ export interface TableTheme<T = unknown> {
     evenCell?: CSSInterpolation;
     oddCell?: CSSInterpolation;
   };
+  /** Defined components to be used in the table. */
   components: {
     IconButton: ComponentType<{ children: ReactNode; onClick?: (e: React.MouseEvent<Element>) => void; className?: string }>;
     Button: ComponentType<{
@@ -43,6 +46,7 @@ export interface TableTheme<T = unknown> {
     Popover: ComponentType<{
       anchorEl: Element | null;
       open: boolean;
+      hidden?: boolean;
       onClose: () => void;
       children: ReactNode;
       className?: string;
@@ -57,6 +61,7 @@ export interface TableTheme<T = unknown> {
     }>;
     Spinner: (props: { className?: string }) => JSX.Element;
   };
+  /** Define icons for the table. */
   icons: {
     [K in
       | 'Settings'
@@ -71,10 +76,12 @@ export interface TableTheme<T = unknown> {
       className?: string;
     }>;
   };
+  /** Define colors */
   colors: {
     primary: { main: string; light: string; contrastText: string };
     secondary: { main: string; light: string; contrastText: string };
   };
+  /** Spacing. */
   spacing: string | number;
 }
 

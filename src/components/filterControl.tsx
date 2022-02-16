@@ -39,7 +39,7 @@ export function FilterControl<T>(): JSX.Element | null {
           e.stopPropagation();
         }}
       >
-        <Popover open={!!anchor} onClose={() => setAnchor(null)} anchorEl={anchor} css={cssVariables}>
+        <Popover open hidden={!anchor} onClose={() => setAnchor(null)} anchorEl={anchor ?? document.body} css={cssVariables}>
           {filter}
         </Popover>
       </div>

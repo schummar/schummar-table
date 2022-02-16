@@ -1,5 +1,8 @@
 import { css } from '@emotion/react';
+import { createTheme as mui4CreateTheme, ThemeProvider as Mui4ThemeProvider } from '@material-ui/core';
 import { Link } from '@material-ui/icons';
+import { createTheme as mui5CreateTheme } from '@mui/material';
+import { ThemeProvider as Mui5ThemeProvider } from '@mui/system';
 import localforage from 'localforage';
 import React, { useEffect, useMemo, useState } from 'react';
 import { createResource } from 'schummar-state';
@@ -7,7 +10,8 @@ import { useResource } from 'schummar-state/react';
 import { DateFilter, SelectFilter, Table, TextFilter } from '../src';
 import { DateRange } from '../src/components/datePicker';
 import { flatMap } from '../src/misc/helpers';
-import { TableThemeContext } from '../src/theme/tableTheme';
+import { Mui4TableThemeProvider } from '../src/theme/mui4Theme';
+import { Mui5TableThemeProvider } from '../src/theme/mui5Theme';
 
 const storage = localforage.createInstance({ name: 'xyz' });
 
@@ -16,6 +20,9 @@ const storage = localforage.createInstance({ name: 'xyz' });
 //     exportCopy: <pre style={{ color: 'red' }}>foo</pre>,
 //   },
 // });
+
+const mui5Theme = mui5CreateTheme();
+const mui4Theme = mui4CreateTheme();
 
 type TopItem = {
   type: 'top';
@@ -63,7 +70,6 @@ function App(): JSX.Element {
   useEffect(() => {
     setChildren((c) => c.filter((c) => active.includes(c.parentId)));
     let i = 0;
-    console.log('create', active);
 
     const handle = setInterval(() => {
       setChildren(
@@ -93,8 +99,6 @@ function App(): JSX.Element {
       parentId={(x) => (x.type === 'sub' ? x.parentId : undefined)}
       hasDeferredChildren={(x) => !x.id.replace('_', '').includes('_')}
       onExpandedChange={(e) => {
-        console.log('change', e);
-
         setActive([...e].map(String));
       }}
       // onSelectionChange={setSelected}
@@ -102,7 +106,6 @@ function App(): JSX.Element {
       expandOnlyOne
       // selectSyncChildren
       // defaultHiddenColumns={new Set([3])}
-      // onHiddenColumnsChange={(...args) => console.log(...args)}
       // defaultExpanded={new Set('0')}
       // expanded={new Set()}
       // wrapCell={(cell) => <div style={{ background: 'green' }}>{cell}</div>}
@@ -124,7 +127,7 @@ function App(): JSX.Element {
           filter: <TextFilter />,
         }),
 
-        col((x) => (x.type === 'sub' ? x.state : null), {
+        col((x) => (x.type === 'sub' ? x.state : []), {
           header: 'State',
           width: '20ch',
           filter: <SelectFilter singleSelect />,
@@ -160,6 +163,7 @@ function App(): JSX.Element {
   );
 
   return (
+    // <ThemeProvider theme={muiTheme}>
     <div
       css={{
         padding: 20,
@@ -168,12 +172,21 @@ function App(): JSX.Element {
     >
       {/* <div style={{ height: 200 }}></div> */}
 
-      <TableThemeContext.Provider value={{}}>{table}</TableThemeContext.Provider>
+      <Mui5ThemeProvider theme={mui5Theme}>
+        <Mui5TableThemeProvider>{table}</Mui5TableThemeProvider>
+      </Mui5ThemeProvider>
+
+      <Mui4ThemeProvider theme={mui4Theme}>
+        <Mui4TableThemeProvider>{table}</Mui4TableThemeProvider>
+      </Mui4ThemeProvider>
+
+      {table}
 
       {/* <TableThemeContext.Provider value={muiTheme}>{table}</TableThemeContext.Provider>
 
-      <TableThemeContext.Provider value={materialUiTheme}>{table}</TableThemeContext.Provider> */}
+<TableThemeContext.Provider value={materialUiTheme}>{table}</TableThemeContext.Provider> */}
     </div>
+    // </ThemeProvider>
   );
 }
 
