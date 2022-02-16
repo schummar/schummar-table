@@ -9,7 +9,7 @@ export type DateRange = { min: Date; max: Date };
 export type DatePickerProps = {
   value: Date | DateRange | null;
   onChange: (value: Date | DateRange | null) => void;
-  range?: boolean;
+  rangeSelect?: boolean;
   locale?: string;
   firstDayOfWeek?: 0 | 1 | 2 | 3 | 4 | 5 | 6;
 };
@@ -41,7 +41,7 @@ export function dateIntersect(a: Date | null | DateRange, b: Date | null | DateR
   return !(endOfDay(a.max) < startOfDay(b.min) || startOfDay(a.min) > endOfDay(b.max));
 }
 
-export function DatePicker({ value, onChange, range, locale, firstDayOfWeek = 0 }: DatePickerProps) {
+export function DatePicker({ value, onChange, rangeSelect, locale, firstDayOfWeek = 0 }: DatePickerProps) {
   const {
     components: { IconButton },
     icons: { ChevronRight },
@@ -148,7 +148,7 @@ export function DatePicker({ value, onChange, range, locale, firstDayOfWeek = 0 
                     ]}
                     {...getDateProps({ dateObj })}
                     onClick={() => {
-                      if (!range) {
+                      if (!rangeSelect) {
                         setCurrentMin(undefined);
                         onChange(date);
                       } else if (min && !max) {

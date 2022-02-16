@@ -24,6 +24,11 @@ export function cleanupState<T>(state: Store<InternalTableState<T>>): void {
             if (!activeColumnIds.has(id)) draft.filters.delete(id);
           }
 
+          // Remove filterValues for non active columns
+          for (const id of draft.filterValues.keys()) {
+            if (!activeColumnIds.has(id)) draft.filterValues.delete(id);
+          }
+
           // Remove hiddenColumns for non existing columns
           for (const id of draft.hiddenColumns.keys()) {
             if (!columnIds.has(id)) draft.hiddenColumns.delete(id);

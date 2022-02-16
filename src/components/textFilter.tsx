@@ -1,64 +1,37 @@
-import React, { useState } from 'react';
-import { useDebounced } from '../hooks/useDebounced';
+import React from 'react';
 import { useFilter } from '../hooks/useFilter';
 import { useTheme } from '../hooks/useTheme';
-import { asStringOrArray, castArray } from '../misc/helpers';
+import { asStringOrArray } from '../misc/helpers';
 import { textMatch } from '../misc/textMatch';
+import { CommonFilterProps } from '../types';
 
 export function TextFilter<T, V>({
-  filterBy = asStringOrArray,
   compare = textMatch,
-  value: controlledValue,
-  defaultValue = '',
-  onChange,
-  dependencies = [],
+  filterBy = asStringOrArray,
+  ...props
 }: {
-  filterBy?: (value: V, item: T) => string | string[];
   compare?: (a: string, b: string) => boolean;
-  value?: string;
-  defaultValue?: string;
-  onChange?: (value: string) => void;
-  dependencies?: any[];
-}): JSX.Element {
+} & CommonFilterProps<T, V, string, string>): JSX.Element {
   const {
     components: { TextField, IconButton, Button },
     icons: { Search, Clear },
     text,
   } = useTheme();
 
-  const [stateValue, setStateValue] = useState<string>(defaultValue);
-  const value = controlledValue ?? stateValue;
-  const [debouncedValue, flush] = useDebounced(value, 500);
+  const { value = '', onChange } = useFilter({
+    ...props,
+    filterBy,
 
-  function update(value: string) {
-    if (controlledValue === undefined) {
-      setStateValue(value);
-    }
+    id: 'textFilter',
 
-    onChange?.(value);
-  }
-
-  useFilter<T, V, string>(
-    {
-      id: 'textFilter',
-
-      test: !debouncedValue
-        ? undefined
-        : (value, item) => {
-            return castArray(filterBy(value, item)).some((text) => compare(text, debouncedValue));
-          },
-
-      serialize() {
-        return value;
-      },
-
-      deserialize(value) {
-        update(value);
-        flush();
-      },
+    isActive(filterValue) {
+      return !!filterValue;
     },
-    [debouncedValue, ...dependencies],
-  );
+
+    test(filterValue, value) {
+      return compare(value, filterValue);
+    },
+  });
 
   return (
     <div
@@ -79,15 +52,15 @@ export function TextFilter<T, V>({
         }}
       >
         <div>{text.textFilter}</div>
-        <Button variant="contained" onClick={() => update('')} disabled={!value}>
+        <Button variant="contained" onClick={() => onChange('')} disabled={!value}>
           {text.reset}
         </Button>
       </div>
 
       <TextField
         value={value}
-        onChange={(e) => update(e.target.value)}
-        endIcon={<IconButton onClick={() => update('')}>{!value ? <Search /> : <Clear />}</IconButton>}
+        onChange={(e) => onChange(e.target.value)}
+        endIcon={<IconButton onClick={() => onChange('')}>{!value ? <Search /> : <Clear />}</IconButton>}
       />
     </div>
   );

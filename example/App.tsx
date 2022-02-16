@@ -104,7 +104,7 @@ function App(): JSX.Element {
       // wrapCell={(cell) => <div style={{ background: 'green' }}>{cell}</div>}
       enableExport
       rowAction={(_item, index) => (index % 2 === 0 ? <Link /> : undefined)}
-      storeState={{ storage }}
+      persist={{ storage, exclude: ['selection'] }}
       columns={(col) => [
         col((x) => x.id, {
           header: 'Id',
@@ -138,7 +138,7 @@ function App(): JSX.Element {
         col((x) => (x.type === 'top' ? x.date : undefined), {
           header: 'Date',
           renderCell: (date) => date && [formatDate(date.min), formatDate(date.max)].join(' - '),
-          filter: <DateFilter defaultValue={new Date()} />,
+          filter: <DateFilter defaultValue={new Date()} persist={false} />,
         }),
       ]}
       css={{

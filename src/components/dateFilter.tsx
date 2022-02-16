@@ -1,7 +1,6 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import { useFilter, useTheme } from '..';
-import { useDebounced } from '../hooks/useDebounced';
-import { castArray } from '../misc/helpers';
+import { CommonFilterProps } from '../types';
 import { dateIntersect, DatePicker, DatePickerProps, DateRange, today } from './datePicker';
 
 function convertDate(x: unknown): Date | null {
@@ -27,64 +26,35 @@ function convertDateOrArray(x: unknown): Date | DateRange | (Date | DateRange)[]
 }
 
 export function DateFilter<T, V>({
-  filterBy = convertDateOrArray,
-  value: controlledValue,
-  defaultValue,
-  onChange,
   locale,
   firstDayOfWeek,
-  range = true,
-  dependencies = [],
+  rangeSelect = true,
+  filterBy = convertDateOrArray,
+  ...props
 }: {
-  filterBy?: (value: V, item: T) => Date | DateRange | (Date | DateRange)[] | null;
-  value?: Date | DateRange | null;
-  defaultValue?: Date | DateRange | null;
-  onChange?: (value?: Date | DateRange | null) => void;
   locale?: string;
   firstDayOfWeek?: DatePickerProps['firstDayOfWeek'];
-  range?: boolean;
-  dependencies?: any[];
-}): JSX.Element {
+  rangeSelect?: boolean;
+} & CommonFilterProps<T, V, Date | DateRange | null, Date | DateRange | null>): JSX.Element {
   const {
     components: { Button },
     text,
   } = useTheme();
 
-  const [stateValue, setStateValue] = useState<Date | DateRange | null>(defaultValue ?? null);
-  const value = controlledValue ?? stateValue;
-  const [debouncedValue, flush] = useDebounced(value, 500);
+  const { value = null, onChange } = useFilter({
+    ...props,
+    filterBy,
 
-  function update(value: Date | DateRange | null) {
-    if (controlledValue === undefined) {
-      setStateValue(value);
-    }
+    id: 'dateFilter',
 
-    onChange?.(value);
-  }
-
-  useFilter<T, V, number | { min: number; max: number } | null>(
-    {
-      id: 'dateFilter',
-
-      test: !debouncedValue
-        ? undefined
-        : (value, item) => {
-            return castArray(filterBy(value, item)).some((x) => dateIntersect(x, debouncedValue));
-          },
-
-      serialize() {
-        return value === null ? null : value instanceof Date ? value.getTime() : { min: value.min.getTime(), max: value.max.getTime() };
-      },
-
-      deserialize(value) {
-        update(
-          value === null ? null : typeof value === 'number' ? new Date(value) : { min: new Date(value.min), max: new Date(value.max) },
-        );
-        flush();
-      },
+    isActive(filterValue) {
+      return !!filterValue;
     },
-    [debouncedValue, ...dependencies],
-  );
+
+    test(filterValue, value) {
+      return dateIntersect(filterValue, value);
+    },
+  });
 
   const formatDate = useMemo(() => {
     const { format } = new Intl.DateTimeFormat(locale, { dateStyle: 'medium' });
@@ -111,7 +81,7 @@ export function DateFilter<T, V>({
         }}
       >
         <div css={{ minWidth: '22ch' }}>
-          {value === null
+          {!value
             ? text.dateFilter
             : value instanceof Date
             ? formatDate(value)
@@ -119,16 +89,16 @@ export function DateFilter<T, V>({
         </div>
 
         <div css={{ display: 'grid', gridAutoFlow: 'column', gap: 'var(--spacing)' }}>
-          <Button variant="contained" onClick={() => update(today())}>
+          <Button variant="contained" onClick={() => onChange(today())}>
             {text.today}
           </Button>
-          <Button variant="contained" onClick={() => update(null)}>
+          <Button variant="contained" onClick={() => onChange(null)}>
             {text.reset}
           </Button>
         </div>
       </div>
 
-      <DatePicker range={range} value={value} onChange={update} locale={locale} firstDayOfWeek={firstDayOfWeek} />
+      <DatePicker rangeSelect={rangeSelect} value={value} onChange={onChange} locale={locale} firstDayOfWeek={firstDayOfWeek} />
     </div>
   );
 }

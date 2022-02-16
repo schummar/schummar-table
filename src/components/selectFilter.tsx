@@ -1,36 +1,33 @@
 import React, { ReactNode, useState } from 'react';
 import { useColumnContext, useFilter, useTheme } from '..';
-import { useDebounced } from '../hooks/useDebounced';
-import { asString, castArray, defaultEquals, flatMap, uniq } from '../misc/helpers';
-import { InternalColumn, JSON_Value } from '../types';
+import { asString, castArray, flatMap, uniq } from '../misc/helpers';
+import { CommonFilterProps, InternalColumn, SerializableValue } from '../types';
 import { FormControlLabel } from './formControlLabel';
 import { useTableContext } from './table';
 
-export function SelectFilter<T, V, O>({
+function toggle<T>(set: Set<T>, value: T) {
+  const newSet = new Set(set);
+  if (newSet.has(value)) {
+    newSet.delete(value);
+  } else {
+    newSet.add(value);
+  }
+
+  return newSet;
+}
+
+export function SelectFilter<T, V, F extends SerializableValue>({
   options: providedOptions,
-  filterBy = (x) => x as unknown as O | O[],
   stringValue = asString,
   render = stringValue,
-  serialize = (x) => JSON.stringify(x),
-  deserialize = (x) => JSON.parse(x as string),
-  compare = defaultEquals,
-  value: controlledValue,
-  defaultValue = new Set(),
-  onChange,
-  dependencies = [],
+  singleSelect,
+  ...props
 }: {
-  options?: O[];
-  filterBy?: (value: V, item: T) => O | O[];
-  stringValue?: (value: O) => string;
-  render?: (value: O) => ReactNode;
-  serialize?: (value: O) => JSON_Value;
-  deserialize?: (json: JSON_Value) => O;
-  compare?: (a: O, b: O) => boolean;
-  value?: Set<O>;
-  defaultValue?: Set<O>;
-  onChange?: (value: Set<O>) => void;
-  dependencies?: any[];
-}): JSX.Element {
+  options?: F[];
+  stringValue?: (value: F) => string;
+  render?: (value: F) => ReactNode;
+  singleSelect?: boolean;
+} & CommonFilterProps<T, V, F, Set<F>>): JSX.Element {
   const {
     components: { TextField, Button, IconButton, Checkbox },
     icons: { Search, Clear },
@@ -46,55 +43,27 @@ export function SelectFilter<T, V, O>({
     const column = state.activeColumns.find((column) => column.id === columnId) as InternalColumn<T, V> | undefined;
     if (!column) return [];
 
+    const filterBy = props.filterBy ?? ((x) => x as unknown as F | F[]);
+
     return uniq(flatMap(state.items, (item) => castArray(filterBy(column.value(item), item))));
   });
 
   const [query, setQuery] = useState('');
   const filtered = options.filter((option) => !query || stringValue(option).toLowerCase().includes(query.toLowerCase()));
 
-  const [stateValue, setStateValue] = useState(defaultValue);
-  const value = controlledValue ?? stateValue;
-  const [debouncedValue, flush] = useDebounced(value, 500);
+  const { value = new Set<F>(), onChange } = useFilter({
+    ...props,
 
-  function update(update: O | Set<O>) {
-    let newValue;
+    id: 'selectFilter',
 
-    if (update instanceof Set) {
-      newValue = update;
-    } else {
-      newValue = new Set(value);
-      if (newValue.has(update)) newValue.delete(update);
-      else newValue.add(update);
-    }
-
-    if (controlledValue === undefined) {
-      setStateValue(newValue);
-    }
-
-    onChange?.(newValue);
-  }
-
-  useFilter<T, V, JSON_Value[]>(
-    {
-      id: 'selectFilter',
-
-      test: !debouncedValue.size
-        ? undefined
-        : (value, item) => {
-            return castArray(filterBy(value, item)).some((x) => [...debouncedValue].some((y) => compare(x, y)));
-          },
-
-      serialize() {
-        return [...value].map(serialize);
-      },
-
-      deserialize(value) {
-        update(new Set(value.map(deserialize)));
-        flush();
-      },
+    isActive(filterValue) {
+      return filterValue.size > 0;
     },
-    [debouncedValue, ...dependencies],
-  );
+
+    test(filterValue, value) {
+      return filterValue.has(value);
+    },
+  });
 
   return (
     <div
@@ -115,7 +84,7 @@ export function SelectFilter<T, V, O>({
         }}
       >
         <div>{text.selectFilter}</div>
-        <Button variant="contained" onClick={() => update(new Set())} disabled={value.size === 0}>
+        <Button variant="contained" onClick={() => onChange(new Set())} disabled={value.size === 0}>
           {text.reset}
         </Button>
       </div>
@@ -130,7 +99,9 @@ export function SelectFilter<T, V, O>({
       {filtered.map((option, index) => (
         <FormControlLabel
           key={index}
-          control={<Checkbox checked={value.has(option)} onChange={() => update(option)} />}
+          control={
+            <Checkbox checked={value.has(option)} onChange={() => onChange(singleSelect ? new Set([option]) : toggle(value, option))} />
+          }
           label={render(option)}
         ></FormControlLabel>
       ))}

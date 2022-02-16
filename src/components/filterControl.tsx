@@ -13,7 +13,11 @@ export function FilterControl<T>(): JSX.Element | null {
   const cssVariables = useCssVariables();
 
   const [anchor, setAnchor] = useState<Element | null>(null);
-  const isActive = table.useState((state) => !!state.filters.get(columnId)?.test);
+  const isActive = table.useState((state) => {
+    const filter = state.filters.get(columnId);
+    const filterValue = state.filterValues.get(columnId);
+    return filter !== undefined && filterValue !== undefined && filter.isActive(filterValue);
+  });
   const filter = table.useState((state) => state.activeColumns.find((column) => column.id === columnId)?.filter);
 
   if (!filter) return null;

@@ -129,18 +129,11 @@ export interface TableProps<T> extends Partial<TableTheme<T>> {
   enableColumnSelection?: boolean;
   enableExport?: boolean | { copy?: boolean | CsvExportOptions; download?: boolean | CsvExportOptions };
 
-  storeState?: {
+  persist?: {
     storage: TableStateStorage;
     id?: string;
-    include?: {
-      sort?: boolean;
-      selection?: boolean;
-      expanded?: boolean;
-      hiddenColumns?: boolean;
-      filters?: boolean;
-      columnWidths?: boolean;
-      columnOrder?: boolean;
-    };
+    include?: ('sort' | 'selection' | 'expanded' | 'hiddenColumns' | 'filterValues' | 'columnWidths' | 'columnOrder')[];
+    exclude?: ('sort' | 'selection' | 'expanded' | 'hiddenColumns' | 'filterValues' | 'columnWidths' | 'columnOrder')[];
   };
 }
 
@@ -192,17 +185,6 @@ type Required<T, S> = T & {
 
 export type Rows<T, V> = [{ value: V; item: T }, ...{ value: V; item: T }[]];
 
-export type JSON_Value = string | number | boolean | null | JSON_Array | JSON_Object;
-export type JSON_Object = { [key: string]: JSON_Value };
-export type JSON_Array = JSON_Value[];
-
-export type Filter<T, V, S extends JSON_Value> = {
-  id: string;
-  test?: (value: V, item: T) => boolean;
-  serialize?: () => S;
-  deserialize?: (s: S) => void;
-};
-
 export type InternalTableState<T> = {
   // Basically the passed in props, but normalized
   props: InternalTableProps<T>;
@@ -213,7 +195,8 @@ export type InternalTableState<T> = {
   selection: Set<Id>;
   expanded: Set<Id>;
   rowHeights: Map<Id, number>;
-  filters: Map<Id, Filter<T, any, any>>;
+  filters: Map<Id, FilterImplementation<T, any, any, any>>;
+  filterValues: Map<Id, any>;
   hiddenColumns: Set<Id>;
   columnWidths: Map<Id, string>;
   columnOrder: Id[];
@@ -227,3 +210,33 @@ export type InternalTableState<T> = {
   activeItemsById: Map<Id, TableItem<T>>;
   lastSelectedId?: Id;
 };
+
+export type CommonFilterProps<T, V, F, S extends SerializableValue> = {
+  filterBy?: (value: V, item: T) => F | F[];
+  defaultValue?: S;
+  value?: S;
+  onChange?: (value?: S) => void;
+  dependencies?: any[];
+  persist?: boolean;
+};
+
+export type FilterImplementation<T, V, F, S extends SerializableValue> = CommonFilterProps<T, V, F, S> & {
+  id: string;
+  isActive: (filterValue: S) => boolean;
+  test: (filterValue: S, value: F) => boolean;
+};
+
+export type SerializableValue =
+  | string
+  | number
+  | boolean
+  | null
+  | Date
+  | SerializableArray
+  | SerializableObject
+  | SerializableSet
+  | SerializableMap;
+export type SerializableObject = { [key: string]: SerializableValue };
+export type SerializableArray = SerializableValue[];
+export type SerializableSet = Set<SerializableValue>;
+export type SerializableMap = Map<SerializableValue, SerializableValue>;

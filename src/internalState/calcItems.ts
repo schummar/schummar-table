@@ -16,10 +16,11 @@ export function calcItems<T>(state: Store<InternalTableState<T>>): void {
             state.props.revealFiltered,
             state.sort,
             state.filters,
+            state.filterValues,
             state.activeColumns,
             state.expanded,
           ] as const,
-        ([items = [], id, parentId, revealFiltered, sort, filters, activeColumns], draft) => {
+        ([items = [], id, parentId, revealFiltered, sort, filters, filterValues, activeColumns], draft) => {
           const tableItems = items.map<TableItem<T>>((item) => ({
             ...item,
             id: id(item),
@@ -76,8 +77,14 @@ export function calcItems<T>(state: Store<InternalTableState<T>>): void {
 
               isActive ||= activeColumns.every((column) => {
                 const filter = filters.get(column.id);
-                const value = column.value(item);
-                return filter?.test?.(value, item) ?? true;
+                if (!filter) return true;
+
+                const filterValue = filterValues.get(column.id);
+                if (filterValue === undefined || !filter.isActive(filterValue)) return true;
+
+                const filterBy = filter.filterBy ?? ((x) => x);
+                const value = filterBy(column.value(item), item);
+                return filter.test(filterValue, value);
               });
 
               if (isActive && item.parentId !== undefined) {

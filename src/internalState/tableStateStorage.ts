@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useTableContext } from '..';
-import { orderBy } from '../misc/helpers';
 import { Queue } from '../misc/queue';
+import { SerializableValue } from '../types';
 
-const KEYS = ['sort', 'selection', 'expanded', 'hiddenColumns', 'filters', 'columnWidths', 'columnOrder'] as const;
+const KEYS = ['sort', 'selection', 'expanded', 'hiddenColumns', 'filterValues', 'columnWidths', 'columnOrder'] as const;
 
 export type TableStateStorage = {
   getItem: (key: string) => string | null | Promise<string | null>;
@@ -19,14 +19,60 @@ export type TableStateStorage = {
     }
 );
 
+function stringify(value: SerializableValue) {
+  function prepare(value: SerializableValue): any {
+    if (value instanceof Date) {
+      return { __date: value.toJSON() };
+    }
+
+    if (value instanceof Set) {
+      return { __set: Array.from(value).map(prepare) };
+    }
+
+    if (value instanceof Map) {
+      return { __map: Array.from(value.entries()).map((entry) => entry.map(prepare)) };
+    }
+
+    if (value instanceof Array) {
+      return value.map(prepare);
+    }
+
+    if (value instanceof Object) {
+      return Object.fromEntries(Object.entries(value).map(([k, v]) => [k, prepare(v)]));
+    }
+
+    return value;
+  }
+
+  return JSON.stringify(prepare(value));
+}
+
+function parse(value: string) {
+  return JSON.parse(value, (_key, value) => {
+    if (value instanceof Object && '__date' in value) {
+      return new Date(value.__date);
+    }
+
+    if (value instanceof Object && '__set' in value) {
+      return new Set(value.__set);
+    }
+
+    if (value instanceof Object && '__map' in value) {
+      return new Map(value.__map);
+    }
+
+    return value;
+  });
+}
+
 export function useTableStateStorage() {
   const table = useTableContext();
   const [isHydrated, setIsHydrated] = useState(false);
 
   // On mount: load
   useEffect(() => {
-    const { storeState } = table.getState().props;
-    if (!storeState) {
+    const { persist } = table.getState().props;
+    if (!persist) {
       setIsHydrated(true);
       return;
     }
@@ -35,39 +81,33 @@ export function useTableStateStorage() {
 
     (async () => {
       try {
-        const { storage, id = 'table', include } = storeState;
+        const { storage, id = 'table', include, exclude } = persist;
         const json = await storage.getItem(`${id}_state`);
         if (isCanceled || !json) return;
 
-        const data = JSON.parse(json);
-        table.getState().props.debug?.('load', data);
+        const data = parse(json);
+        table.getState().props.debug?.('load', json, data);
 
         table.update((state) => {
           for (const key of KEYS) {
-            if (!include || include[key]) {
-              let value;
-              if (key === 'sort' || key === 'columnOrder') {
-                value = data[key];
-              } else if (key === 'columnWidths') {
-                value = new Map(data[key]);
-              } else if (key === 'filters') {
-                continue;
+            if (
+              //
+              (!include || include.includes(key)) &&
+              !exclude?.includes(key) &&
+              key in data
+            ) {
+              if (key === 'filterValues') {
+                for (const [id, value] of data[key]) {
+                  if (state.filters.get(id)?.persist ?? true) {
+                    state.filterValues.set(id, value);
+                  }
+                }
               } else {
-                value = new Set(data[key]);
+                state[key] = data[key];
               }
-
-              state[key] = value;
             }
           }
         });
-
-        for (const [columId, filter] of table.getState().filters) {
-          const serialized = data.filters?.find((x: any) => x.columnId === columId && x.filterId === filter.id);
-
-          if (serialized) {
-            table.getState().filters.get(columId)?.deserialize?.(serialized.value);
-          }
-        }
       } catch (e) {
         console.error('Failed to load table state:', e);
       } finally {
@@ -88,49 +128,39 @@ export function useTableStateStorage() {
 
     return table.subscribe(
       (state) => {
-        if (!state.props.storeState) return;
+        if (!state.props.persist) return;
 
+        const { storage, id = 'table', include, exclude } = state.props.persist;
         const data: any = {};
 
         for (const key of KEYS) {
-          if (!state.props.storeState.include || state.props.storeState.include[key]) {
-            let value;
-            if (key === 'sort' || key === 'columnOrder') {
-              value = state[key];
-            } else if (key === 'columnWidths') {
-              value = [...state[key].entries()];
-            } else if (key === 'filters') {
-              value = [...state[key].entries()]
-                .map(
-                  ([columnId, { id, serialize }]) =>
-                    serialize && {
-                      columnId,
-                      filterId: id,
-                      value: serialize?.(),
-                    },
-                )
-                .filter(Boolean);
-              value = orderBy(value, [(x) => x?.columnId]);
+          if (
+            //
+            (!include || include.includes(key)) &&
+            !exclude?.includes(key)
+          ) {
+            if (key === 'filterValues') {
+              data[key] = new Map();
+              for (const [id, value] of state.filterValues) {
+                if (state.filters.get(id)?.persist ?? true) {
+                  data.filterValues.set(id, value);
+                }
+              }
             } else {
-              [...state[key]];
+              data[key] = state[key];
             }
-            data[key] = value;
           }
         }
 
-        return {
-          storage: state.props.storeState.storage,
-          id: state.props.storeState.id,
-          data,
-        };
+        return { storage, id, data };
       },
       (props) => {
         if (!props) return;
-        const { storage, id = 'table', data } = props;
+        const { storage, id, data } = props;
 
-        table.getState().props.debug?.('save', data);
+        table.getState().props.debug?.('save', data, stringify(data));
         q.run(async () => {
-          await storage.setItem(`${id}_state`, JSON.stringify(data));
+          await storage.setItem(`${id}_state`, stringify(data));
         }, true);
       },
       { throttle: 1000 },
