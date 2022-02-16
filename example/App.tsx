@@ -32,6 +32,7 @@ type SubItem = {
   name: string;
   state: string;
   tags: string[];
+  date: DateRange;
 };
 
 const N = 1000,
@@ -54,8 +55,6 @@ function App(): JSX.Element {
   const { value: topItems } = useResource(loadTop());
   const [big, setBig] = useState(true);
 
-  // console.log(active, children1, children2);
-
   const formatDate = useMemo(() => {
     const { format } = new Intl.DateTimeFormat(undefined, { dateStyle: 'medium' });
     return format;
@@ -64,6 +63,8 @@ function App(): JSX.Element {
   useEffect(() => {
     setChildren((c) => c.filter((c) => active.includes(c.parentId)));
     let i = 0;
+    console.log('create', active);
+
     const handle = setInterval(() => {
       setChildren(
         flatMap(active, (parentId) =>
@@ -74,6 +75,7 @@ function App(): JSX.Element {
             name: `sub item ${parentId}_${index}`,
             state: `foo--${i === index ? 1 : 0}`,
             tags: [`foo${index}`, index % 2 === 0 ? 'bar' : 'baz'],
+            date: topItems?.find((i) => i.id === parentId)?.date ?? { min: new Date(), max: new Date() },
           })),
         ),
       );
@@ -81,7 +83,7 @@ function App(): JSX.Element {
       clearInterval(handle);
     }, 1000);
     return () => clearInterval(handle);
-  }, [active]);
+  }, [active, topItems]);
 
   const table = (
     // <div css={{ height: 300, overflowY: 'auto', margin: 10 }}>
@@ -91,17 +93,21 @@ function App(): JSX.Element {
       parentId={(x) => (x.type === 'sub' ? x.parentId : undefined)}
       hasDeferredChildren={(x) => !x.id.replace('_', '').includes('_')}
       onExpandedChange={(e) => {
+        console.log('change', e);
+
         setActive([...e].map(String));
       }}
-      onSelectionChange={setSelected}
+      // onSelectionChange={setSelected}
       // disableSelection
       expandOnlyOne
-      selectSyncChildren
+      // selectSyncChildren
       // defaultHiddenColumns={new Set([3])}
-      onHiddenColumnsChange={(...args) => console.log(...args)}
+      // onHiddenColumnsChange={(...args) => console.log(...args)}
       // defaultExpanded={new Set('0')}
       // expanded={new Set()}
       // wrapCell={(cell) => <div style={{ background: 'green' }}>{cell}</div>}
+      // enableColumnResize={false}
+      // enableColumnReorder={false}
       enableExport
       rowAction={(_item, index) => (index % 2 === 0 ? <Link /> : undefined)}
       persist={{ storage, exclude: ['selection'] }}
@@ -120,8 +126,8 @@ function App(): JSX.Element {
 
         col((x) => (x.type === 'sub' ? x.state : null), {
           header: 'State',
-          // filterComponent: <DefaultFilterComponent stringValue={(v) => v + '#'} />,
           width: '20ch',
+          filter: <SelectFilter singleSelect />,
         }),
 
         col((x) => (x.type === 'sub' ? x.tags : []), {
@@ -135,7 +141,7 @@ function App(): JSX.Element {
           header: 'test',
           width: '10ch',
         }),
-        col((x) => (x.type === 'top' ? x.date : undefined), {
+        col((x) => x.date, {
           header: 'Date',
           renderCell: (date) => date && [formatDate(date.min), formatDate(date.max)].join(' - '),
           filter: <DateFilter defaultValue={new Date()} persist={false} />,
@@ -144,11 +150,11 @@ function App(): JSX.Element {
       css={{
         cell: (item) => (item.name.endsWith('10') ? css({ background: 'lightGray' }) : undefined),
       }}
-      stickyHeader
+      // stickyHeader
       debug={(...args) => console.debug(...args)}
       virtual={{ throttleScroll: 16 }}
       fullWidth="left"
-      revealFiltered
+      // revealFiltered
     />
     // </div>
   );

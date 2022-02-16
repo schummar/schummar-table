@@ -72,45 +72,104 @@ export interface TableTheme<T = unknown> {
     }>;
   };
   colors: {
-    primary: string;
-    primaryLight: string;
-    primaryContrastText: string;
+    primary: { main: string; light: string; contrastText: string };
+    secondary: { main: string; light: string; contrastText: string };
   };
   spacing: string | number;
 }
 
 export interface TableProps<T> extends Partial<TableTheme<T>> {
+  //////////////////////////////////////////////////
+  // Table data
+  //////////////////////////////////////////////////
+
+  /** The data to be rendered. One item per row. */
   items?: T[];
+  /** Unique id for each item/row. */
   id: ((item: T) => Id) | KeyOfType<T, Id>;
+  /** Create a nested structure by assigning parents to items. Child items are hidden until the parent is expanded. */
   parentId?: ((item: T) => Id | undefined) | KeyOfType<T, Id | undefined>;
+  /** If true for an item, it means that children will be loaded asynchronously as soon as item is expanded. */
   hasDeferredChildren?: (item: T) => boolean;
 
+  //////////////////////////////////////////////////
+  // Columns and rows
+  //////////////////////////////////////////////////
+  /** Column definitions. */
   columns: Column<T, any>[] | ((col: <V>(value: (item: T) => V, column: Omit<Column<T, V>, 'value'>) => Column<T, V>) => Column<T, any>[]);
-
+  /** Display a cell at the start of each row. Useful for "go to details" button for example. */
   rowAction?: ReactNode | ((item: T, index: number) => ReactNode);
 
+  //////////////////////////////////////////////////
+  // Sorting
+  //////////////////////////////////////////////////
+  /** Default sort order. */
   defaultSort?: Sort[];
+  /** If given, controls the sort order. */
   sort?: Sort[];
+  /** Called when sort order changes. */
   onSortChange?: (sort: Sort[]) => void;
 
+  //////////////////////////////////////////////////
+  // Selection
+  //////////////////////////////////////////////////
+  /** Default selection. */
   defaultSelection?: Set<Id>;
+  /** If given, controls the selection. */
   selection?: Set<Id>;
+  /** Called when selection changes. */
   onSelectionChange?: (selection: Set<Id>) => void;
+  /** Whether to show checkboxes at the start of each row.
+   * @default true
+   */
+  enableSelection?: boolean;
+  /** Select and deselect children if a parent is selected or deselected.
+   * @default true
+   */
   selectSyncChildren?: boolean;
+  /** Expand parents whose children fit a newly selected filter
+   * @default false
+   */
   revealFiltered?: boolean;
 
+  //////////////////////////////////////////////////
+  // Expansion
+  //////////////////////////////////////////////////
+  /** Default expanded rows. */
   defaultExpanded?: Set<Id>;
+  /** If given, controls expanded rows. */
   expanded?: Set<Id>;
+  /** Called when expanded rows change. */
   onExpandedChange?: (expanded: Set<Id>) => void;
+  /** If enabled and one row is expanded, other rows will be closed.
+   * @default false
+   */
   expandOnlyOne?: boolean;
 
+  //////////////////////////////////////////////////
+  // Hidden columns
+  //////////////////////////////////////////////////
+  /** Default hidden columns. */
   defaultHiddenColumns?: Set<Id>;
+  /** If given, controls hidden columns. */
   hiddenColumns?: Set<Id>;
+  /** Called when hidden columns change. */
   onHiddenColumnsChange?: (hiddenColumns: Set<Id>) => void;
 
+  //////////////////////////////////////////////////
+  // Layout
+  //////////////////////////////////////////////////
+  /** Default width for columns. */
   defaultWidth?: string;
+  /** Whether to stretch the table component over the available space. If value is "left" or "right", align accordingly. */
   fullWidth?: boolean | 'left' | 'right';
+  /** Whether the table header should be sticky.
+   * @default false
+   */
   stickyHeader?: boolean;
+  /** Whether the table cells should only be rendered when in viewport.
+   * @default true
+   */
   virtual?:
     | boolean
     | {
@@ -122,30 +181,40 @@ export interface TableProps<T> extends Partial<TableTheme<T>> {
         overscanTop?: number;
       };
 
-  debug?: (...output: any) => void;
-  debugRender?: (...output: any) => void;
-
-  enableSelection?: boolean;
+  //////////////////////////////////////////////////
+  // Misc
+  //////////////////////////////////////////////////
+  /** Enable menu to select which columns are visible.
+   * @default true
+   */
   enableColumnSelection?: boolean;
+  /** Enable exporting to csv.
+   * @default false
+   */
   enableExport?: boolean | { copy?: boolean | CsvExportOptions; download?: boolean | CsvExportOptions };
-
+  /** Allow to drag and drop column separators to resize the column left of it.
+   * @default true
+   */
+  enableColumnResize?: boolean;
+  /** Allow to drag and drop column header to reorder columns.
+   * @default true
+   */
+  enableColumnReorder?: boolean;
+  /** If enabled, automatically store table state in localStorage, localForage or another compatible storage. */
   persist?: {
     storage: TableStateStorage;
     id?: string;
     include?: ('sort' | 'selection' | 'expanded' | 'hiddenColumns' | 'filterValues' | 'columnWidths' | 'columnOrder')[];
     exclude?: ('sort' | 'selection' | 'expanded' | 'hiddenColumns' | 'filterValues' | 'columnWidths' | 'columnOrder')[];
   };
+  debug?: (...output: any) => void;
+  debugRender?: (...output: any) => void;
 }
 
-export type InternalTableProps<T> = Omit<
-  TableProps<T>,
-  'id' | 'parentId' | 'columns' | 'enableSelection' | 'enableColumnSelection' | 'enableExport'
-> & {
+export type InternalTableProps<T> = Omit<TableProps<T>, 'id' | 'parentId' | 'columns' | 'enableExport'> & {
   id: (item: T) => Id;
   parentId?: (item: T) => Id | undefined;
   columns: InternalColumn<T, unknown>[];
-  enableSelection: boolean;
-  enableColumnSelection: boolean;
   enableExport: { copy?: CsvExportOptions; download?: CsvExportOptions };
 };
 
@@ -172,12 +241,9 @@ export type Column<T, V> = {
   dependencies?: any[];
 };
 
-export type InternalColumn<T, V> = Required<
-  Omit<Column<T, V>, 'id'> & {
-    id: Id;
-  },
-  'header' | 'stringValue' | 'sortBy' | 'renderValue' | 'renderCell' | 'exportCell'
->;
+export type InternalColumn<T, V> = Required<Omit<Column<T, V>, 'id'>, 'header' | 'renderCell' | 'exportCell' | 'sortBy'> & {
+  id: Id;
+};
 
 type Required<T, S> = T & {
   [P in keyof T as P extends S ? P : never]-?: T[P];

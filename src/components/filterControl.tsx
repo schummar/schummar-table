@@ -26,7 +26,7 @@ export function FilterControl<T>(): JSX.Element | null {
     <>
       <IconButton
         onClick={(e) => setAnchor(e.currentTarget)}
-        css={[isActive && { color: 'white !important', backgroundColor: 'var(--primary) !important' }]}
+        css={[isActive && { color: 'white !important', backgroundColor: 'var(--primaryMain) !important' }]}
       >
         {isActive ? <FilterList /> : <ArrowDropDown />}
       </IconButton>

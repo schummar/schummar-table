@@ -104,6 +104,10 @@ export function useTableStateStorage() {
                 }
               } else {
                 state[key] = data[key];
+
+                if (key === 'expanded' || key === 'hiddenColumns' || key === 'selection' || key === 'sort') {
+                  state.props[`on${(key.slice(0, 1).toUpperCase() + key.slice(1)) as Capitalize<typeof key>}Change`]?.(data[key]);
+                }
               }
             }
           }

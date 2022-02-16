@@ -68,6 +68,7 @@ export function calcItems<T>(state: Store<InternalTableState<T>>): void {
           };
           traverse(sorted.filter((item) => item.parentId === undefined));
 
+          let expandedChanged = false;
           const activeItemsById = new Map<Id, TableItem<T>>();
           const activeSet = new Set<Id>();
           const activeItems = [...allItems]
@@ -88,7 +89,14 @@ export function calcItems<T>(state: Store<InternalTableState<T>>): void {
               });
 
               if (isActive && item.parentId !== undefined) {
-                if (revealFiltered && [...filters.values()].some((filter) => filter.test)) {
+                if (
+                  revealFiltered &&
+                  [...filters.entries()].some(([id, filter]) => {
+                    const filterValue = filterValues.get(id);
+                    return !!filter && filterValue !== undefined && filter.isActive(filterValue);
+                  })
+                ) {
+                  expandedChanged ||= !draft.expanded.has(item.parentId);
                   draft.expanded.add(item.parentId);
                 } else if (!draft.expanded.has(item.parentId)) {
                   isActive = false;
@@ -101,6 +109,7 @@ export function calcItems<T>(state: Store<InternalTableState<T>>): void {
               if (isActive) {
                 activeItemsById.set(item.id, item);
               }
+
               return isActive;
             })
             .reverse();
@@ -109,6 +118,12 @@ export function calcItems<T>(state: Store<InternalTableState<T>>): void {
           draft.itemsById = castDraft(allItemsById);
           draft.activeItems = castDraft(activeItems);
           draft.activeItemsById = castDraft(activeItemsById);
+
+          if (expandedChanged) {
+            setTimeout(() => {
+              state.getState().props.onExpandedChange?.(state.getState().expanded);
+            });
+          }
         },
         { runNow: true },
       ),

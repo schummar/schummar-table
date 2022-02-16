@@ -18,7 +18,7 @@ export const Checkbox: TableTheme['components']['Checkbox'] = (props) => {
 
       {props.checked ? (
         <svg
-          css={{ fontSize: '1.5rem', width: '1em', height: '1em', fill: 'var(--primary)' }}
+          css={{ fontSize: '1.5rem', width: '1em', height: '1em', fill: 'var(--primaryMain)' }}
           focusable="false"
           viewBox="0 0 24 24"
           aria-hidden="true"

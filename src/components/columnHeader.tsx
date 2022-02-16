@@ -11,6 +11,7 @@ export function ColumnHeader(props: HTMLProps<HTMLDivElement>) {
   const ref = useRef<HTMLDivElement>(null);
   const columnId = useColumnContext();
   const table = useTableContext();
+  const enabled = table.useState('props.enableColumnReorder');
 
   const store = ColumnHeaderContext.useStore();
   const draggingStart = useRef<{ mouseX: number; bounds: DOMRect }>();
@@ -159,9 +160,9 @@ export function ColumnHeader(props: HTMLProps<HTMLDivElement>) {
         userSelect: 'none',
       }}
       ref={ref}
-      onPointerDown={onPointerDown}
-      onPointerMove={onPointerMove}
-      onPointerUp={onPointerUp}
+      onPointerDown={enabled ? onPointerDown : undefined}
+      onPointerMove={enabled ? onPointerMove : undefined}
+      onPointerUp={enabled ? onPointerUp : undefined}
     >
       {props.children}
     </div>

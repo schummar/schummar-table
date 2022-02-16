@@ -28,13 +28,13 @@ function convertDateOrArray(x: unknown): Date | DateRange | (Date | DateRange)[]
 export function DateFilter<T, V>({
   locale,
   firstDayOfWeek,
-  rangeSelect = true,
+  singleSelect,
   filterBy = convertDateOrArray,
   ...props
 }: {
   locale?: string;
   firstDayOfWeek?: DatePickerProps['firstDayOfWeek'];
-  rangeSelect?: boolean;
+  singleSelect?: boolean;
 } & CommonFilterProps<T, V, Date | DateRange | null, Date | DateRange | null>): JSX.Element {
   const {
     components: { Button },
@@ -98,7 +98,7 @@ export function DateFilter<T, V>({
         </div>
       </div>
 
-      <DatePicker rangeSelect={rangeSelect} value={value} onChange={onChange} locale={locale} firstDayOfWeek={firstDayOfWeek} />
+      <DatePicker rangeSelect={!singleSelect} value={value} onChange={onChange} locale={locale} firstDayOfWeek={firstDayOfWeek} />
     </div>
   );
 }

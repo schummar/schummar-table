@@ -118,7 +118,7 @@ export function DatePicker({ value, onChange, rangeSelect, locale, firstDayOfWee
                   return <div />;
                 }
 
-                const { prevMonth, nextMonth, date } = dateObj;
+                const { prevMonth, nextMonth, date, today } = dateObj;
 
                 const selected = date.getTime() === min?.getTime() || (min && max && dateIntersect(date, { min, max }));
                 const preSelected =
@@ -132,18 +132,23 @@ export function DatePicker({ value, onChange, rangeSelect, locale, firstDayOfWee
                     css={[
                       {
                         padding: 10,
-                        border: 'none',
+                        border: '1px solid transparent',
                         background: 'transparent',
                         cursor: 'pointer',
                       },
+                      (prevMonth || nextMonth) && {
+                        color: gray,
+                      },
+                      today && {
+                        border: '1px solid var(--secondaryMain)',
+                      },
                       selected && {
-                        background: 'var(--primary)',
+                        background: 'var(--primaryMain)',
+                        color: 'var(--primaryContrastText)',
                       },
                       preSelected && {
                         background: 'var(--primaryLight)',
-                      },
-                      (prevMonth || nextMonth) && {
-                        color: gray,
+                        color: 'var(--primaryContrastText)',
                       },
                     ]}
                     {...getDateProps({ dateObj })}
@@ -223,7 +228,7 @@ function MonthSelector({ value, onChange, locale }: { value: number; onChange: (
                     background: 'var(--primaryLight)',
                   },
                 },
-                month === value && { background: 'var(--primary)' },
+                month === value && { background: 'var(--primaryMain)' },
               ]}
               onClick={() => onChange(month)}
             >

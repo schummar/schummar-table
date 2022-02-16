@@ -4,6 +4,7 @@ import { useColumnContext, useTableContext } from '..';
 export function ResizeHandle() {
   const table = useTableContext();
   const columnId = useColumnContext();
+  const enabled = table.useState('props.enableColumnResize');
 
   function onPointerDown(e: React.PointerEvent) {
     e.stopPropagation();
@@ -48,7 +49,7 @@ export function ResizeHandle() {
       css={{
         alignSelf: 'stretch',
         padding: '0 5px',
-        cursor: 'col-resize',
+        cursor: enabled ? 'col-resize' : 'initial',
         display: 'flex',
         alignItems: 'center',
 
@@ -60,10 +61,10 @@ export function ResizeHandle() {
           transition: 'transform 300ms',
         },
       }}
-      onPointerDown={onPointerDown}
-      onPointerMove={onPointerMove}
-      onPointerUp={onPointerUp}
-      onDoubleClick={onDoubleClick}
+      onPointerDown={enabled ? onPointerDown : undefined}
+      onPointerMove={enabled ? onPointerMove : undefined}
+      onPointerUp={enabled ? onPointerUp : undefined}
+      onDoubleClick={enabled ? onDoubleClick : undefined}
     />
   );
 }

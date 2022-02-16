@@ -5,9 +5,9 @@ import { CommonFilterProps, InternalColumn, SerializableValue } from '../types';
 import { FormControlLabel } from './formControlLabel';
 import { useTableContext } from './table';
 
-function toggle<T>(set: Set<T>, value: T) {
-  const newSet = new Set(set);
-  if (newSet.has(value)) {
+function toggle<T>(set: Set<T>, value: T, singleSelect?: boolean) {
+  const newSet = new Set(singleSelect ? [] : set);
+  if (set.has(value)) {
     newSet.delete(value);
   } else {
     newSet.add(value);
@@ -99,9 +99,7 @@ export function SelectFilter<T, V, F extends SerializableValue>({
       {filtered.map((option, index) => (
         <FormControlLabel
           key={index}
-          control={
-            <Checkbox checked={value.has(option)} onChange={() => onChange(singleSelect ? new Set([option]) : toggle(value, option))} />
-          }
+          control={<Checkbox checked={value.has(option)} onChange={() => onChange(toggle(value, option, singleSelect))} />}
           label={render(option)}
         ></FormControlLabel>
       ))}
