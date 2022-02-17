@@ -42,7 +42,9 @@
   "license": "ISC",
   "scripts": {
     "start": "vite",
-    "build": "vite build",
+    "build": "npm-run-all build:clean -p build:compile:*",
+    "build:clean": "rimraf \"dist/**\"",
+    "build:compile:js": "vite build",
     "build:compile:types": "tsc --outDir dist/types --declaration --emitDeclarationOnly",
     "lint": "run-p lint:*",
     "lint:eslint": "eslint src",
