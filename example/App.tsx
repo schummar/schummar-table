@@ -1,6 +1,4 @@
 import { css } from '@emotion/react';
-import { createTheme as mui4CreateTheme, ThemeProvider as Mui4ThemeProvider } from '@material-ui/core';
-import { Link } from '@material-ui/icons';
 import { createTheme as mui5CreateTheme } from '@mui/material';
 import { ThemeProvider as Mui5ThemeProvider } from '@mui/system';
 import localforage from 'localforage';
@@ -10,19 +8,11 @@ import { useResource } from 'schummar-state/react';
 import { DateFilter, SelectFilter, Table, TextFilter } from '../src';
 import { DateRange } from '../src/components/datePicker';
 import { flatMap } from '../src/misc/helpers';
-import { Mui4TableThemeProvider } from '../src/theme/mui4Theme';
 import { Mui5TableThemeProvider } from '../src/theme/mui5Theme';
 
 const storage = localforage.createInstance({ name: 'xyz' });
 
-// configureTableTheme({
-//   text: {
-//     exportCopy: <pre style={{ color: 'red' }}>foo</pre>,
-//   },
-// });
-
 const mui5Theme = mui5CreateTheme();
-const mui4Theme = mui4CreateTheme();
 
 type TopItem = {
   type: 'top';
@@ -112,7 +102,7 @@ function App(): JSX.Element {
       // enableColumnResize={false}
       // enableColumnReorder={false}
       enableExport
-      rowAction={(_item, index) => (index % 2 === 0 ? <Link /> : undefined)}
+      rowAction={(_item, index) => (index % 2 === 0 ? '?' : undefined)}
       persist={{ storage, exclude: ['selection'] }}
       columns={(col) => [
         col((x) => x.id, {
@@ -163,30 +153,22 @@ function App(): JSX.Element {
   );
 
   return (
-    // <ThemeProvider theme={muiTheme}>
     <div
       css={{
         padding: 20,
         display: 'grid',
       }}
     >
-      {/* <div style={{ height: 200 }}></div> */}
-
       <Mui5ThemeProvider theme={mui5Theme}>
         <Mui5TableThemeProvider>{table}</Mui5TableThemeProvider>
       </Mui5ThemeProvider>
 
-      <Mui4ThemeProvider theme={mui4Theme}>
+      {/* <Mui4ThemeProvider theme={mui4Theme}>
         <Mui4TableThemeProvider>{table}</Mui4TableThemeProvider>
-      </Mui4ThemeProvider>
+      </Mui4ThemeProvider> */}
 
       {table}
-
-      {/* <TableThemeContext.Provider value={muiTheme}>{table}</TableThemeContext.Provider>
-
-<TableThemeContext.Provider value={materialUiTheme}>{table}</TableThemeContext.Provider> */}
     </div>
-    // </ThemeProvider>
   );
 }
 

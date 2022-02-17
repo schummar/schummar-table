@@ -14,10 +14,14 @@ export default defineConfig({
   ],
 
   build: {
+    sourcemap: true,
+    minify: false,
+
     rollupOptions: {
       input: {
         'schummar-table': 'src/index.ts',
         mui5Theme: 'src/theme/mui5Theme/index.tsx',
+        mui4Theme: 'src/theme/mui4Theme/index.tsx',
       },
 
       output: formats.map((format) => ({

@@ -21,6 +21,20 @@
       "require": "./dist/cjs/theme/mui4Theme/index.js"
     }
   },
+  "types": "dist/types/index.d.ts",
+  "typesVersions": {
+    "*": {
+      "*": [
+        "dist/types/index.d.ts"
+      ],
+      "theme/mui5Theme": [
+        "dist/types/theme/mui5Theme/index.d.ts"
+      ],
+      "theme/mui4Theme": [
+        "dist/types/theme/mui4Theme/index.d.ts"
+      ]
+    }
+  },
   "author": {
     "name": "Marco Schumacher",
     "email": "marco@schumacher.dev"
@@ -29,7 +43,7 @@
   "scripts": {
     "start": "vite",
     "build": "vite build",
-    "build:compile:types": "tsc",
+    "build:compile:types": "tsc --outDir dist/types --declaration --emitDeclarationOnly",
     "lint": "run-p lint:*",
     "lint:eslint": "eslint src",
     "lint:tsc": "tsc --noEmit",
@@ -44,8 +58,6 @@
   "peerDependencies": {
     "@emotion/styled": "^11.6.0",
     "@material-ui/core": "^4.12.3",
-    "@material-ui/icons": "^4.11.2",
-    "@mui/icons-material": "^5.3.1",
     "@mui/material": "^5.4.0",
     "@types/react": ">=17",
     "@types/react-dom": ">=17",
@@ -59,12 +71,6 @@
     "@material-ui/core": {
       "optional": true
     },
-    "@material-ui/icons": {
-      "optional": true
-    },
-    "@mui/icons-material": {
-      "optional": true
-    },
     "@mui/material": {
       "optional": true
     }
@@ -73,8 +79,6 @@
     "@emotion/styled": "^11.6.0",
     "@fontsource/fira-sans": "^4.5.2",
     "@material-ui/core": "^4.12.3",
-    "@material-ui/icons": "^4.11.2",
-    "@mui/icons-material": "^5.4.1",
     "@mui/material": "^5.4.1",
     "@types/react": "17",
     "@types/react-dom": "17",

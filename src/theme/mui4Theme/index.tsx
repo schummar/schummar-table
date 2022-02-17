@@ -1,8 +1,8 @@
-import { Badge, Button, Checkbox, CircularProgress, IconButton, Popover, TextField, useTheme } from '@material-ui/core';
-import { ArrowDropDown, ArrowUpward, AssignmentReturn, ChevronRight, Clear, FilterList, GetApp, Search, Tune } from '@material-ui/icons';
+import { Badge, Button, Checkbox, CircularProgress, IconButton, TextField, useTheme } from '@material-ui/core';
 import { ReactNode, useMemo } from 'react';
 import { DeepPartial } from '../../misc/deepPartial';
 import { TableTheme } from '../../types';
+import { Popover } from '../defaultTheme/popover';
 import { mergeThemes, TableThemeContext } from '../tableTheme';
 
 export const mui4Theme: Partial<TableTheme> = {
@@ -18,35 +18,10 @@ export const mui4Theme: Partial<TableTheme> = {
     ),
     IconButton: (props) => <IconButton {...props} size="small" color="inherit" />,
     Checkbox: (props) => <Checkbox {...props} color="primary" size="medium" />,
-    Popover: ({ align, ...props }) => (
-      <Popover
-        {...props}
-        open={props.open}
-        hidden={props.hidden}
-        anchorOrigin={{
-          horizontal: align === 'center' ? 'center' : 'left',
-          vertical: 'bottom',
-        }}
-        transformOrigin={{
-          horizontal: align === 'center' ? 'center' : 'left',
-          vertical: 'top',
-        }}
-      />
-    ),
+    Popover,
     Badge,
     TextField: ({ endIcon, ...props }) => <TextField {...props} InputProps={{ endAdornment: endIcon }} size="small" variant="outlined" />,
     Spinner: CircularProgress,
-  },
-  icons: {
-    ChevronRight,
-    Clipboard: AssignmentReturn,
-    Export: GetApp,
-    Settings: Tune,
-    ArrowDropDown,
-    ArrowUpward,
-    Clear,
-    FilterList,
-    Search,
   },
 };
 

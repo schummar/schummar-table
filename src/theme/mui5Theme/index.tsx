@@ -1,8 +1,8 @@
-import { ArrowDropDown, ArrowUpward, ChevronRight, Clear, ContentPaste, FileDownload, FilterList, Search, Tune } from '@mui/icons-material';
-import { Badge, Button, Checkbox, CircularProgress, IconButton, Popover, TextField, useTheme } from '@mui/material';
+import { Badge, Button, Checkbox, CircularProgress, IconButton, TextField, useTheme } from '@mui/material';
 import { ReactNode, useMemo } from 'react';
 import { DeepPartial } from '../../misc/deepPartial';
 import { TableTheme } from '../../types';
+import { Popover } from '../defaultTheme/popover';
 import { mergeThemes, TableThemeContext } from '../tableTheme';
 
 export const mui5Theme: Partial<TableTheme> = {
@@ -16,37 +16,12 @@ export const mui5Theme: Partial<TableTheme> = {
         color={props.variant === 'contained' ? 'primary' : 'inherit'}
       />
     ),
-    IconButton: (props) => <IconButton {...props} size="small" color="inherit" />,
-    Checkbox: (props) => <Checkbox {...props} color="primary" size="medium" />,
-    Popover: ({ align, ...props }) => (
-      <Popover
-        {...props}
-        open={props.open}
-        hidden={props.hidden}
-        anchorOrigin={{
-          horizontal: align === 'center' ? 'center' : 'left',
-          vertical: 'bottom',
-        }}
-        transformOrigin={{
-          horizontal: align === 'center' ? 'center' : 'left',
-          vertical: 'top',
-        }}
-      />
-    ),
+    IconButton: (props) => <IconButton {...props} size="small" css={{ fontSize: '0.8em' }} color="inherit" />,
+    Checkbox: (props) => <Checkbox {...props} color="primary" size="small" />,
+    Popover,
     Badge,
     TextField: ({ endIcon, ...props }) => <TextField {...props} InputProps={{ endAdornment: endIcon }} size="small" />,
     Spinner: (props) => <CircularProgress {...props} size={20} />,
-  },
-  icons: {
-    ChevronRight,
-    Clipboard: ContentPaste,
-    Export: FileDownload,
-    Settings: Tune,
-    ArrowDropDown,
-    ArrowUpward,
-    Clear,
-    FilterList,
-    Search,
   },
 };
 

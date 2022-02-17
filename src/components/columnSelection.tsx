@@ -44,7 +44,7 @@ export function ColumnSelection<T>(): JSX.Element {
       </IconButton>
 
       <Popover anchorEl={anchorEl} open={!!anchorEl} onClose={() => setAnchorEl(null)} css={cssVariables}>
-        <div css={{ padding: `calc(var(--spacing) * 2)`, display: 'grid', gap: 'var(--spacing)' }}>
+        <div css={{ padding: `calc(var(--spacing) * 2)`, display: 'grid' }}>
           <div css={{ marginBottom: 'var(--spacing)' }}>{text.selectColumns}</div>
 
           {columns.map((column) => (

@@ -1,12 +1,12 @@
 import { TableTheme } from '../../types';
-import { darkGray } from '../defaultClasses';
 
 export const Checkbox: TableTheme['components']['Checkbox'] = (props) => {
   return (
     <label
       css={{
+        padding: 'calc(var(--spacing) * 1.8)',
         display: 'flex',
-        color: darkGray,
+        color: 'currentcolor',
 
         '& input': {
           appearance: 'none',
@@ -18,7 +18,7 @@ export const Checkbox: TableTheme['components']['Checkbox'] = (props) => {
 
       {props.checked ? (
         <svg
-          css={{ fontSize: '1.5rem', width: '1em', height: '1em', fill: 'var(--primaryMain)' }}
+          css={{ fontSize: '1.25rem', width: '1em', height: '1em', fill: 'var(--primaryMain)' }}
           focusable="false"
           viewBox="0 0 24 24"
           aria-hidden="true"
@@ -27,7 +27,7 @@ export const Checkbox: TableTheme['components']['Checkbox'] = (props) => {
         </svg>
       ) : (
         <svg
-          css={{ fontSize: '1.5rem', width: '1em', height: '1em', fill: 'currentColor' }}
+          css={{ fontSize: '1.25rem', width: '1em', height: '1em', fill: 'currentColor' }}
           focusable="false"
           viewBox="0 0 24 24"
           aria-hidden="true"

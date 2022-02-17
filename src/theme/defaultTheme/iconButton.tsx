@@ -4,7 +4,7 @@ export const IconButton: TableTheme['components']['IconButton'] = (props) => {
   return (
     <button
       css={{
-        padding: 3,
+        padding: 'var(--spacing)',
         borderRadius: '50%',
         display: 'inline-flex',
         justifyContent: 'center',
