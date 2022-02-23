@@ -1,24 +1,24 @@
 {
   "name": "schummar-table",
   "repository": "schummar/schummar-table",
-  "version": "0.4.2",
+  "version": "0.5.0-beta-3",
   "description": "",
   "type": "module",
   "sideEffects": false,
   "main": "dist/cjs/index.js",
-  "module": "dist/esm/index.js",
+  "module": "dist/es/index.js",
   "exports": {
     ".": {
-      "import": "./dist/esm/index.js",
+      "import": "./dist/es/index.js",
       "require": "./dist/cjs/index.js"
     },
-    "./theme/mui5Theme": {
-      "import": "./dist/esm/theme/mui5Theme/index.js",
-      "require": "./dist/cjs/theme/mui5Theme/index.js"
+    "./mui5Theme": {
+      "import": "./dist/es/mui5Theme.js",
+      "require": "./dist/cjs/mui5Theme.js"
     },
-    "./theme/mui4Theme": {
-      "import": "./dist/esm/theme/mui4Theme/index.js",
-      "require": "./dist/cjs/theme/mui4Theme/index.js"
+    "./mui4Theme": {
+      "import": "./dist/es/mui4Theme.js",
+      "require": "./dist/cjs/mui4Theme.js"
     }
   },
   "types": "dist/types/index.d.ts",
@@ -42,8 +42,8 @@
   "license": "ISC",
   "scripts": {
     "start": "vite",
-    "build": "npm-run-all build:clean -p build:compile:*",
-    "build:clean": "rimraf \"dist/**\"",
+    "build": "run-s build:clean build:compile:*",
+    "build:clean": "rimraf \"dist/**/*\"",
     "build:compile:js": "vite build",
     "build:compile:types": "tsc --outDir dist/types --declaration --emitDeclarationOnly",
     "lint": "run-p lint:*",
@@ -98,7 +98,7 @@
     "rimraf": "^3.0.2",
     "ts-node": "^10.5.0",
     "typescript": "^4.5.5",
-    "vite": "^2.8.1",
+    "vite": "^2.8.4",
     "zx": "^5.0.0"
   },
   "files": [

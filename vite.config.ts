@@ -4,8 +4,6 @@ import pkg from './package.json';
 
 // https://vitejs.dev/config/
 
-const formats = ['esm', 'cjs'] as const;
-
 export default defineConfig({
   plugins: [
     react({
@@ -17,18 +15,18 @@ export default defineConfig({
     sourcemap: true,
     minify: false,
 
+    lib: {
+      // entry: {
+      //   index: 'src/index.ts',
+      //   mui5Theme: 'src/theme/mui5Theme/index.tsx',
+      //   mui4Theme: 'src/theme/mui4Theme/index.tsx',
+      // },
+      entry: 'src/index.ts',
+      formats: ['es', 'cjs'],
+      fileName: (format) => `${format === 'es' ? 'esm' : format}/schummar-table.${format === 'es' ? 'mjs' : 'cjs'}`,
+    },
+
     rollupOptions: {
-      input: {
-        'schummar-table': 'src/index.ts',
-        mui5Theme: 'src/theme/mui5Theme/index.tsx',
-        mui4Theme: 'src/theme/mui4Theme/index.tsx',
-      },
-
-      output: formats.map((format) => ({
-        format,
-        entryFileNames: ({ name }) => `${name}.${format}.js`,
-      })),
-
       external: Object.keys(pkg.peerDependencies),
     },
   },
