@@ -9,6 +9,7 @@ import { DateFilter, SelectFilter, Table, TextFilter } from '../src';
 import { DateRange } from '../src/components/datePicker';
 import { flatMap } from '../src/misc/helpers';
 import { Mui5TableThemeProvider } from '../src/theme/mui5Theme';
+import classes from './app.module.css';
 
 const storage = localforage.createInstance({ name: 'xyz' });
 
@@ -140,7 +141,8 @@ function App(): JSX.Element {
           filter: <DateFilter defaultValue={new Date()} persist={false} />,
         }),
       ]}
-      css={{
+      classes={{
+        ...classes,
         cell: (item) => (item.name.endsWith('10') ? css({ background: 'lightGray' }) : undefined),
       }}
       // stickyHeader
@@ -173,3 +175,5 @@ function App(): JSX.Element {
 }
 
 export default App;
+
+console.log(classes);

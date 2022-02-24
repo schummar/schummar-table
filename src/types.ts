@@ -25,12 +25,12 @@ export interface TableTheme<T = unknown> {
     loading: ReactNode;
   };
   /** Define styles. */
-  css?: {
-    table?: CSSInterpolation;
-    headerCell?: CSSInterpolation;
-    cell?: CSSInterpolation | ((item: T, index: number) => CSSInterpolation);
-    evenCell?: CSSInterpolation;
-    oddCell?: CSSInterpolation;
+  classes?: {
+    table?: string;
+    headerCell?: string;
+    cell?: string | ((item: T, index: number) => string | undefined);
+    evenCell?: string;
+    oddCell?: string;
   };
   /** Defined components to be used in the table. */
   components: {
@@ -242,7 +242,7 @@ export type Column<T, V> = {
   width?: string;
   justifyContent?: CSSProperties['justifyContent'];
 
-  css?: TableTheme<T>['css'];
+  classes?: TableTheme<T>['classes'];
 
   /** If the column definition changes, supply parameters that it depends on. If not set, the column will not update */
   dependencies?: any[];

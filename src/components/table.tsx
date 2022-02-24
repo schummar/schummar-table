@@ -3,6 +3,7 @@ import { Store } from 'schummar-state/react';
 import { useTheme } from '..';
 import { useTableStateStorage } from '../internalState/tableStateStorage';
 import { useTableState } from '../internalState/useTableState';
+import { cx } from '../misc/helpers';
 import { defaultClasses } from '../theme/defaultClasses';
 import { useCssVariables } from '../theme/useCssVariables';
 import { Id, InternalTableState, TableProps } from '../types';
@@ -66,14 +67,14 @@ const TableInner = memo(function TableInner<T>({ hidden }: { hidden: boolean }) 
     state.activeColumns.map((column) => ({
       id: column.id,
       width: column.width,
-      css: column.css,
+      classes: column.classes,
       header: column.header,
     })),
   );
   const columnWidths = table.useState('columnWidths', { throttle: 16 });
   const columnStyleOverride = table.useState('columnStyleOverride', { throttle: 16 });
   const defaultWidth = table.useState('props.defaultWidth');
-  const css = table.useState('props.css');
+  const classes = table.useState('props.classes');
   const stickyHeader = table.useState('props.stickyHeader');
   const enableSelection = table.useState('props.enableSelection');
   const enableColumnSelection = table.useState('props.enableColumnSelection');
@@ -84,10 +85,10 @@ const TableInner = memo(function TableInner<T>({ hidden }: { hidden: boolean }) 
 
   return (
     <Virtualized
+      className={`${classes?.table}`}
       css={[
         cssVariables,
         defaultClasses.table,
-        css?.table,
         {
           gridTemplateColumns: [
             //
@@ -101,9 +102,9 @@ const TableInner = memo(function TableInner<T>({ hidden }: { hidden: boolean }) 
       ]}
       header={
         <>
-          <div css={[defaultClasses.headerFill, stickyHeader && defaultClasses.sticky, css?.headerCell]} />
+          <div className={classes?.headerCell} css={[defaultClasses.headerFill, stickyHeader && defaultClasses.sticky]} />
 
-          <div css={[defaultClasses.headerCell, stickyHeader && defaultClasses.sticky, css?.headerCell]}>
+          <div className={classes?.headerCell} css={[defaultClasses.headerCell, stickyHeader && defaultClasses.sticky]}>
             {enableSelection && <SelectComponent />}
 
             {enableColumnSelection && <ColumnSelection />}
@@ -115,13 +116,8 @@ const TableInner = memo(function TableInner<T>({ hidden }: { hidden: boolean }) 
             {activeColumns.map((column) => (
               <ColumnContext.Provider key={column.id} value={column.id}>
                 <ColumnHeader
-                  css={[
-                    defaultClasses.headerCell,
-                    css?.headerCell,
-                    column.css?.headerCell,
-                    columnStyleOverride.get(column.id),
-                    stickyHeader && defaultClasses.sticky,
-                  ]}
+                  className={cx(classes?.headerCell, column.classes?.headerCell)}
+                  css={[defaultClasses.headerCell, columnStyleOverride.get(column.id), stickyHeader && defaultClasses.sticky]}
                   key={column.id}
                 >
                   <FilterControl />
@@ -133,7 +129,7 @@ const TableInner = memo(function TableInner<T>({ hidden }: { hidden: boolean }) 
             ))}
           </ColumnHeaderContext.Provider>
 
-          <div css={[defaultClasses.headerFill, stickyHeader && defaultClasses.sticky, css?.headerCell]} />
+          <div className={classes?.headerCell} css={[defaultClasses.headerFill, stickyHeader && defaultClasses.sticky]} />
         </>
       }
     >

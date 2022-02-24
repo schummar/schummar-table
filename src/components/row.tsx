@@ -1,5 +1,5 @@
 import React, { memo, useEffect, useRef } from 'react';
-import { getAncestors } from '../misc/helpers';
+import { cx, getAncestors } from '../misc/helpers';
 import { defaultClasses } from '../theme/defaultClasses';
 import { Id, InternalColumn } from '../types';
 import { Cell } from './cell';
@@ -7,11 +7,11 @@ import { ExpandControl } from './expandControl';
 import { SelectComponent } from './selectComponent';
 import { ColumnContext, useTableContext } from './table';
 
-export function calcClassNames<T>(css: InternalColumn<any, any>['css'] | undefined, item: T, index: number) {
+export function calcClassNames<T>(classes: InternalColumn<any, any>['classes'] | undefined, item: T, index: number) {
   return [
-    css?.cell instanceof Function ? css.cell(item, index) : css?.cell,
-    index % 2 === 0 && css?.evenCell,
-    index % 2 === 1 && css?.oddCell,
+    classes?.cell instanceof Function ? classes.cell(item, index) : classes?.cell,
+    index % 2 === 0 && classes?.evenCell,
+    index % 2 === 1 && classes?.oddCell,
   ];
 }
 
@@ -24,7 +24,7 @@ export const Row = memo(function Row<T>({ itemId, rowIndex }: { itemId: Id; rowI
     const index = !item ? -1 : state.activeItems.indexOf(item);
 
     return {
-      className: calcClassNames(state.props.css, item, index),
+      className: cx(...calcClassNames(state.props.classes, item, index)),
       indent: item ? getAncestors(state.activeItemsById, item).size : 0,
       hasChildren: !!item?.children.length,
       hasDeferredChildren: item && state.props.hasDeferredChildren?.(item),
@@ -53,9 +53,9 @@ export const Row = memo(function Row<T>({ itemId, rowIndex }: { itemId: Id; rowI
 
   return (
     <>
-      <div css={[defaultClasses.cellFill, className]} ref={divRef} />
+      <div className={className} css={[defaultClasses.cellFill]} ref={divRef} />
 
-      <div css={[defaultClasses.cell, defaultClasses.firstCell, className]}>
+      <div className={className} css={[defaultClasses.cell, defaultClasses.firstCell]}>
         <div css={{ width: indent * 20 }} />
 
         {enableSelection && <SelectComponent itemId={itemId} />}
@@ -71,7 +71,7 @@ export const Row = memo(function Row<T>({ itemId, rowIndex }: { itemId: Id; rowI
         </ColumnContext.Provider>
       ))}
 
-      <div css={[defaultClasses.cellFill, className]} />
+      <div className={className} css={[defaultClasses.cellFill]} />
     </>
   );
 });

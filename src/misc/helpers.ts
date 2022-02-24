@@ -78,3 +78,14 @@ export const defaultEquals = (a: unknown, b: unknown): boolean => a === b;
 export const subStringMatch = (a: string, b: string): boolean => a.toLowerCase().includes(b.toLowerCase());
 
 export const castArray = <T>(a: T | T[]) => (a instanceof Array ? a : [a]);
+
+export const cx = (...classNames: (string | false | undefined | null | Record<string, boolean>)[]) =>
+  classNames
+    .flatMap((entry) => {
+      if (!entry) return [];
+      if (typeof entry === 'string') return [entry];
+      return Object.entries(entry)
+        .filter(([, predicate]) => predicate)
+        .map(([className]) => className);
+    })
+    .join(' ');
