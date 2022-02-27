@@ -52,7 +52,7 @@
     "prepublishOnly": "run-s lint build"
   },
   "dependencies": {
-    "@emotion/react": "^11.7.1",
+    "@emotion/react": "^11.8.1",
     "dayzed": "^3.2.2",
     "immer": "^9.0.12",
     "schummar-state": "0.2.1-experimental-9"
@@ -105,6 +105,7 @@
     "dist"
   ],
   "workspaces": [
-    "example"
+    "example",
+    "docs"
   ]
 }

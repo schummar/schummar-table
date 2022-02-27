@@ -21,7 +21,13 @@ export const Cell = memo(function Cell<T>({ itemId, rowIndex }: { itemId: Id; ro
 
   return (
     <div className={cx(...classNames)} css={[defaultClasses.cell, classNames, columnStyleOverride]}>
-      {typeof content === 'string' ? <span css={defaultClasses.text}>{content}</span> : content}
+      {typeof content === 'string' ? (
+        <span css={defaultClasses.text} title={content}>
+          {content}
+        </span>
+      ) : (
+        content
+      )}
     </div>
   );
 });

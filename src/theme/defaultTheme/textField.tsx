@@ -23,6 +23,7 @@ export const TextField: TableTheme['components']['TextField'] = ({ endIcon, clas
         onFocus={() => setFocus(true)}
         onBlur={() => setFocus(false)}
         css={{
+          flex: 1,
           border: 'none',
           outline: 'none',
           borderRadius: 4,

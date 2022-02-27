@@ -1,6 +1,6 @@
 import react from '@vitejs/plugin-react';
+import { isAbsolute } from 'path';
 import { defineConfig } from 'vite';
-import pkg from './package.json';
 
 // https://vitejs.dev/config/
 
@@ -23,11 +23,13 @@ export default defineConfig({
       // },
       entry: 'src/index.ts',
       formats: ['es', 'cjs'],
-      fileName: (format) => `${format === 'es' ? 'esm' : format}/schummar-table.${format === 'es' ? 'mjs' : 'cjs'}`,
+      fileName: (format) => `${format === 'es' ? 'esm' : format}/index.${format === 'es' ? 'mjs' : 'cjs'}`,
     },
 
     rollupOptions: {
-      external: Object.keys(pkg.peerDependencies),
+      external: (source) => {
+        return !(isAbsolute(source) || source.startsWith('.'));
+      },
     },
   },
 });

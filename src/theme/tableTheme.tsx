@@ -28,7 +28,7 @@ export function TableThemeProvider({ theme, children }: { theme: DeepPartial<Tab
 export function mergeThemes<T>(...themes: DeepPartial<TableTheme<T>>[]): DeepPartial<TableTheme<T>> {
   return {
     text: Object.assign({}, ...themes.map((theme) => theme.text)),
-    css: Object.assign({}, ...themes.map((theme) => theme.css)),
+    classes: Object.assign({}, ...themes.map((theme) => theme.classes)),
     components: Object.assign({}, ...themes.map((theme) => theme.components)),
     icons: Object.assign({}, ...themes.map((theme) => theme.icons)),
     colors: {

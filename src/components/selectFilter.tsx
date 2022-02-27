@@ -96,13 +96,15 @@ export function SelectFilter<T, V, F extends SerializableValue>({
         css={{ marginBottom: 'var(--spacing)' }}
       />
 
-      {filtered.map((option, index) => (
-        <FormControlLabel
-          key={index}
-          control={<Checkbox checked={value.has(option)} onChange={() => onChange(toggle(value, option, singleSelect))} />}
-          label={render(option)}
-        ></FormControlLabel>
-      ))}
+      <div css={{ maxHeight: '20em', overflowY: 'auto' }}>
+        {filtered.map((option, index) => (
+          <FormControlLabel
+            key={index}
+            control={<Checkbox checked={value.has(option)} onChange={() => onChange(toggle(value, option, singleSelect))} />}
+            label={render(option)}
+          ></FormControlLabel>
+        ))}
+      </div>
 
       {filtered.length === 0 && <span css={{ textAlign: 'center' }}>{text.noResults}</span>}
     </div>
