@@ -1,24 +1,27 @@
 {
   "name": "schummar-table",
   "repository": "schummar/schummar-table",
-  "version": "0.5.0-beta-3",
+  "version": "0.5.0-beta-6",
   "description": "",
   "type": "module",
   "sideEffects": false,
-  "main": "dist/cjs/index.cjs",
-  "module": "dist/es/index.mjs",
+  "main": "dist/cjs/index.js",
+  "module": "dist/es/index.js",
   "exports": {
     ".": {
-      "import": "./dist/es/index.mjs",
-      "require": "./dist/cjs/index.cjs"
+      "import": "./dist/es/index.js",
+      "require": "./dist/cjs/index.js",
+      "default": "./dist/es/index.js"
     },
     "./mui5Theme": {
-      "import": "./dist/es/mui5Theme.mjs",
-      "require": "./dist/cjs/mui5Theme.cjs"
+      "import": "./dist/es/mui5Theme.js",
+      "require": "./dist/cjs/mui5Theme.js",
+      "default": "./dist/es/mui5Theme.js"
     },
     "./mui4Theme": {
-      "import": "./dist/es/mui4Theme.mjs",
-      "require": "./dist/cjs/mui4Theme.cjs"
+      "import": "./dist/es/mui4Theme.js",
+      "require": "./dist/cjs/mui4Theme.js",
+      "default": "./dist/es/mui4Theme.js"
     }
   },
   "types": "dist/types/index.d.ts",
@@ -42,13 +45,14 @@
   "license": "ISC",
   "scripts": {
     "start": "vite",
-    "build": "run-s build:clean build:compile:*",
+    "build": "npm-run-all -s build:clean -p build:compile:* -s build:cjsPackage",
     "build:clean": "rimraf \"dist/**/*\"",
     "build:compile:js": "vite build",
-    "build:compile:types": "tsc --outDir dist/types --declaration --emitDeclarationOnly",
+    "build:compile:types": "tsc",
+    "build:cjsPackage": "echo '{\"type\":\"commonjs\"}' > dist/cjs/package.json",
     "lint": "run-p lint:*",
     "lint:eslint": "eslint src",
-    "lint:tsc": "tsc --noEmit",
+    "lint:tsc": "tsc --emitDeclarationOnly false --noEmit",
     "prepublishOnly": "run-s lint build",
     "docs": "npm -w docs start",
     "docs:build": "npm -w docs run build"
@@ -57,7 +61,7 @@
     "@emotion/react": "^11.8.1",
     "dayzed": "^3.2.2",
     "immer": "^9.0.12",
-    "schummar-state": "0.2.1-experimental-11"
+    "schummar-state": "0.2.1-experimental-12"
   },
   "peerDependencies": {
     "@emotion/styled": "^11.6.0",
