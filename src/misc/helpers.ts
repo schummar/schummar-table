@@ -22,7 +22,7 @@ export const orderBy = <T>(arr: T[], selectors: ((t: T) => any)[] = [], directio
 export const uniq = <T>(arr: T[]): T[] => {
   const set = new Set<T>();
   for (const t of arr) set.add(t);
-  return [...set.values()];
+  return Array.from(set);
 };
 
 export const intersect = <T>(a: Iterable<T>, b: { has(t: T): boolean }): Set<T> => {

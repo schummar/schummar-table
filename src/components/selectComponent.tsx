@@ -11,7 +11,7 @@ export function SelectComponent<T>({ itemId }: { itemId?: Id }): JSX.Element {
   } = useTheme();
 
   const isSelected = table.useState((state) => {
-    const itemIds = itemId ? [itemId] : [...state.activeItemsById.keys()];
+    const itemIds = itemId ? [itemId] : Array.from(state.activeItemsById.keys());
     return state.activeItemsById.size > 0 && itemIds.every((itemId) => state.selection.has(itemId));
   });
 

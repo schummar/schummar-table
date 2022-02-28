@@ -91,7 +91,7 @@ export function calcItems<T>(state: Store<InternalTableState<T>>): void {
               if (isActive && item.parentId !== undefined) {
                 if (
                   revealFiltered &&
-                  [...filters.entries()].some(([id, filter]) => {
+                  Array.from(filters.entries()).some(([id, filter]) => {
                     const filterValue = filterValues.get(id);
                     return !!filter && filterValue !== undefined && filter.isActive(filterValue);
                   })
