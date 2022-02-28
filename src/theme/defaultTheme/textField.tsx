@@ -6,34 +6,36 @@ export const TextField: TableTheme['components']['TextField'] = ({ endIcon, clas
   const [focus, setFocus] = useState(false);
 
   return (
-    <span
-      className={className}
-      css={[
-        {
-          display: 'flex',
-          border: `1px solid ${darkGray}`,
-          borderRadius: 4,
-        },
-        focus && { border: '2px solid var(--primaryMain)', margin: -1 },
-      ]}
-    >
-      <input
-        {...props}
-        value={props.value ?? ''}
-        onFocus={() => setFocus(true)}
-        onBlur={() => setFocus(false)}
-        css={{
-          flex: 1,
-          border: 'none',
-          outline: 'none',
-          borderRadius: 4,
-          padding: 'calc(var(--spacing) * 2)',
-          paddingRight: 0,
-          transition: 'outline 500ms',
-        }}
-      />
+    <div className={className} css={{ display: 'flex' }}>
+      <span
+        css={[
+          {
+            flex: 1,
+            display: 'flex',
+            border: `1px solid ${darkGray}`,
+            borderRadius: 4,
+          },
+          focus && { border: '2px solid var(--primaryMain)', margin: -1 },
+        ]}
+      >
+        <input
+          {...props}
+          value={props.value ?? ''}
+          onFocus={() => setFocus(true)}
+          onBlur={() => setFocus(false)}
+          css={{
+            flex: 1,
+            border: 'none',
+            outline: 'none',
+            borderRadius: 4,
+            padding: 'calc(var(--spacing) * 2)',
+            paddingRight: 0,
+            transition: 'outline 500ms',
+          }}
+        />
 
-      {endIcon}
-    </span>
+        {endIcon}
+      </span>
+    </div>
   );
 };
