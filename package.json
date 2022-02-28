@@ -49,13 +49,15 @@
     "lint": "run-p lint:*",
     "lint:eslint": "eslint src",
     "lint:tsc": "tsc --noEmit",
-    "prepublishOnly": "run-s lint build"
+    "prepublishOnly": "run-s lint build",
+    "docs": "npm -w docs start",
+    "docs:build": "npm -w docs run build"
   },
   "dependencies": {
     "@emotion/react": "^11.8.1",
     "dayzed": "^3.2.2",
     "immer": "^9.0.12",
-    "schummar-state": "0.2.1-experimental-9"
+    "schummar-state": "0.2.1-experimental-11"
   },
   "peerDependencies": {
     "@emotion/styled": "^11.6.0",

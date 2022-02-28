@@ -1,5 +1,5 @@
 import React from 'react';
-import { DateFilter, SelectFilter, Table, TableProps, TextFilter } from '../../..';
+import { DateFilter, SelectFilter, Table, TableProps, TextFilter } from '../../../src';
 import fakePersons from '../data/fakePersons.json';
 
 const dateFormat = new Intl.DateTimeFormat(undefined, { dateStyle: 'medium' });
