@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useLayoutEffect, useRef, useState } from 'react';
+import React, { createContext, useContext, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { TableTheme } from '../../types';
 import { defaultClasses } from '../defaultClasses';
@@ -6,7 +6,7 @@ import { defaultClasses } from '../defaultClasses';
 const MARGIN = 10;
 const MAX_OFFSET = 20;
 
-export const PopoverContext = createContext(0);
+export const PopoverContext = createContext({ depth: 0, visible: false });
 
 export const Popover: TableTheme['components']['Popover'] = ({ anchorEl, open, hidden, onClose, children, className, align }) => {
   const popper = useRef<HTMLDivElement>(null);
@@ -56,12 +56,14 @@ export const Popover: TableTheme['components']['Popover'] = ({ anchorEl, open, h
     };
   }, [anchorEl, open]);
 
-  const depth = useContext(PopoverContext);
+  const { depth } = useContext(PopoverContext);
+  const visible = !hidden && !!position;
+  const context = useMemo(() => ({ depth: depth + 1, visible }), [depth, visible]);
 
   if (!open) return null;
 
   return (
-    <PopoverContext.Provider value={depth + 1}>
+    <PopoverContext.Provider value={context}>
       {createPortal(
         <>
           <div

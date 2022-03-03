@@ -16,7 +16,7 @@ export const IconButton: TableTheme['components']['IconButton'] = (props) => {
         background: 'transparent',
 
         '&:hover': {
-          backgroundColor: 'rgba(0, 0, 0, 0.1)',
+          backgroundColor: 'rgba(0, 0, 0, 0.04)',
         },
 
         '&:active': {

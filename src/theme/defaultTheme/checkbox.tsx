@@ -3,16 +3,19 @@ import { TableTheme } from '../../types';
 export const Checkbox: TableTheme['components']['Checkbox'] = (props) => {
   return (
     <label
-      css={{
-        padding: 'calc(var(--spacing) * 1.8)',
-        display: 'flex',
-        color: 'currentcolor',
+      css={[
+        {
+          padding: 'calc(var(--spacing) * 1.8)',
+          display: 'flex',
+          color: 'currentcolor',
 
-        '& input': {
-          appearance: 'none',
-          margin: 0,
+          '& input': {
+            appearance: 'none',
+            margin: 0,
+          },
         },
-      }}
+        props.disabled && { color: 'rgba(0, 0, 0, 0.26)' },
+      ]}
     >
       <input type="checkbox" {...props} />
 

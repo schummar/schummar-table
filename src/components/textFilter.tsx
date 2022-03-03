@@ -4,6 +4,7 @@ import { useTheme } from '../hooks/useTheme';
 import { asStringOrArray } from '../misc/helpers';
 import { textMatch } from '../misc/textMatch';
 import { CommonFilterProps } from '../types';
+import { AutoFocusTextField } from './autoFocusTextField';
 
 export function TextFilter<T, V>({
   compare = textMatch,
@@ -13,9 +14,8 @@ export function TextFilter<T, V>({
   compare?: (a: string, b: string) => boolean;
 } & CommonFilterProps<T, V, string, string>): JSX.Element {
   const {
-    components: { TextField, IconButton, Button },
+    components: { IconButton },
     icons: { Search, Clear },
-    text,
   } = useTheme();
 
   const { value = '', onChange } = useFilter({
@@ -38,26 +38,9 @@ export function TextFilter<T, V>({
       css={{
         padding: `calc(var(--spacing) * 2)`,
         display: 'grid',
-        gap: 'var(--spacing)',
       }}
     >
-      <div
-        css={{
-          marginBottom: 'var(--spacing)',
-          display: 'grid',
-          gridAutoFlow: 'column',
-          gap: 'var(--spacing)',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-        }}
-      >
-        <div>{text.textFilter}</div>
-        <Button variant="contained" onClick={() => onChange('')} disabled={!value}>
-          {text.reset}
-        </Button>
-      </div>
-
-      <TextField
+      <AutoFocusTextField
         value={value}
         onChange={(e) => onChange(e.target.value)}
         endIcon={<IconButton onClick={() => onChange('')}>{!value ? <Search /> : <Clear />}</IconButton>}

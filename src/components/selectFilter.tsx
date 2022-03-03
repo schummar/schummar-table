@@ -2,6 +2,7 @@ import React, { ReactNode, useState } from 'react';
 import { useColumnContext, useFilter, useTheme } from '..';
 import { asString, castArray, flatMap, uniq } from '../misc/helpers';
 import { CommonFilterProps, InternalColumn, SerializableValue } from '../types';
+import { AutoFocusTextField } from './autoFocusTextField';
 import { FormControlLabel } from './formControlLabel';
 import { useTableContext } from './table';
 
@@ -29,7 +30,7 @@ export function SelectFilter<T, V, F extends SerializableValue>({
   singleSelect?: boolean;
 } & CommonFilterProps<T, V, F, Set<F>>): JSX.Element {
   const {
-    components: { TextField, Button, IconButton, Checkbox },
+    components: { IconButton, Checkbox },
     icons: { Search, Clear },
     text,
   } = useTheme();
@@ -73,23 +74,7 @@ export function SelectFilter<T, V, F extends SerializableValue>({
         gap: 'var(--spacing)',
       }}
     >
-      <div
-        css={{
-          marginBottom: 'var(--spacing)',
-          display: 'grid',
-          gridAutoFlow: 'column',
-          gap: 'var(--spacing)',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-        }}
-      >
-        <div>{text.selectFilter}</div>
-        <Button variant="contained" onClick={() => onChange(new Set())} disabled={value.size === 0}>
-          {text.reset}
-        </Button>
-      </div>
-
-      <TextField
+      <AutoFocusTextField
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         endIcon={<IconButton onClick={() => setQuery('')}>{!query ? <Search /> : <Clear />}</IconButton>}
@@ -97,6 +82,12 @@ export function SelectFilter<T, V, F extends SerializableValue>({
       />
 
       <div css={{ maxHeight: '20em', overflowY: 'auto' }}>
+        <FormControlLabel
+          disabled={value.size === 0}
+          control={<Checkbox disabled={value.size === 0} checked={value.size > 0} onChange={() => onChange(new Set())} />}
+          label={<>&lt;{text.selected(value.size)}&gt;</>}
+        ></FormControlLabel>
+
         {filtered.map((option, index) => (
           <FormControlLabel
             key={index}

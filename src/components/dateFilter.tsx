@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { useFilter, useTheme } from '..';
 import { CommonFilterProps } from '../types';
-import { dateIntersect, DatePicker, DatePickerProps, DateRange, today } from './datePicker';
+import { dateIntersect, DatePicker, DatePickerProps, DateRange, endOfDay, startOfDay } from './datePicker';
 
 function convertDate(x: unknown): Date | null {
   if (x instanceof Date) return x;
@@ -66,39 +66,57 @@ export function DateFilter<T, V>({
       css={{
         padding: 'calc(var(--spacing) * 2)',
         display: 'grid',
-        gap: 'var(--spacing)',
-        justifyItems: 'center',
       }}
     >
-      <div
-        css={{
-          marginBottom: 'var(--spacing)',
-          display: 'grid',
-          gridAutoFlow: 'column',
-          gap: 'calc(var(--spacing) * 4)',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-        }}
-      >
-        <div css={{ minWidth: '22ch' }}>
-          {!value
-            ? text.dateFilter
-            : value instanceof Date
-            ? formatDate(value)
-            : [formatDate(value.min), formatDate(value.max)].join(' - ')}
+      {!singleSelect && (
+        <div
+          css={{
+            marginBottom: 'var(--spacing)',
+            display: 'flex',
+            justifyContent: 'center',
+          }}
+        >
+          {value ? formatDate(value instanceof Date ? value : value.min) : ''} -{' '}
+          {value ? formatDate(value instanceof Date ? value : value.max) : ''}
         </div>
-
-        <div css={{ display: 'grid', gridAutoFlow: 'column', gap: 'var(--spacing)' }}>
-          <Button variant="contained" onClick={() => onChange(today())}>
-            {text.today}
-          </Button>
-          <Button variant="contained" onClick={() => onChange(null)}>
-            {text.reset}
-          </Button>
-        </div>
-      </div>
+      )}
 
       <DatePicker rangeSelect={!singleSelect} value={value} onChange={onChange} locale={locale} firstDayOfWeek={firstDayOfWeek} />
+
+      <div css={{ marginTop: 'var(--spacing)', display: 'grid', gridAutoFlow: 'column', justifyContent: 'center' }}>
+        <Button variant="text" onClick={() => onChange(today())}>
+          {text.today}
+        </Button>
+
+        <Button variant="text" onClick={() => onChange(thisWeek(firstDayOfWeek))}>
+          {text.thisWeek}
+        </Button>
+
+        <Button variant="text" onClick={() => onChange(null)}>
+          {text.reset}
+        </Button>
+      </div>
     </div>
   );
 }
+
+export const today = (): DateRange => {
+  const today = startOfDay(new Date());
+  return { min: today, max: today };
+};
+
+export const thisWeek = (firstDayOfWeek = 0): DateRange => {
+  const now = new Date();
+  const min = new Date(now);
+
+  let diff = min.getDay() - firstDayOfWeek;
+  if (diff < 0) {
+    diff += 7;
+  }
+  min.setDate(min.getDate() - diff);
+
+  const max = new Date(min);
+  max.setDate(max.getDate() + 6);
+
+  return { min: startOfDay(min), max: endOfDay(max) };
+};

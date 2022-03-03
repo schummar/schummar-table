@@ -138,7 +138,7 @@ function App(): JSX.Element {
         col((x) => x.date, {
           header: 'Date',
           renderCell: (date) => date && [formatDate(date.min), formatDate(date.max)].join(' - '),
-          filter: <DateFilter defaultValue={new Date()} persist={false} />,
+          filter: <DateFilter defaultValue={new Date()} persist={false} firstDayOfWeek={3} />,
         }),
       ]}
       classes={{

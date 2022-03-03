@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { TableTheme } from '../../types';
 import { darkGray } from '../defaultClasses';
 
-export const TextField: TableTheme['components']['TextField'] = ({ endIcon, className, ...props }) => {
+export const TextField: TableTheme['components']['TextField'] = ({ endIcon, className, inputRef, ...props }) => {
   const [focus, setFocus] = useState(false);
 
   return (
@@ -12,6 +12,7 @@ export const TextField: TableTheme['components']['TextField'] = ({ endIcon, clas
           {
             flex: 1,
             display: 'flex',
+            alignItems: 'center',
             border: `1px solid ${darkGray}`,
             borderRadius: 4,
           },
@@ -19,6 +20,7 @@ export const TextField: TableTheme['components']['TextField'] = ({ endIcon, clas
         ]}
       >
         <input
+          ref={inputRef}
           {...props}
           value={props.value ?? ''}
           onFocus={() => setFocus(true)}

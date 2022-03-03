@@ -1,5 +1,5 @@
 import { useDayzed } from 'dayzed';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useTheme } from '..';
 import { gray } from '../theme/defaultClasses';
 import { useCssVariables } from '../theme/useCssVariables';
@@ -20,11 +20,6 @@ const months = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11] as const;
 export const startOfDay = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate());
 
 export const endOfDay = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate() + 1, 0, 0, 0, -1);
-
-export const today = (): DateRange => {
-  const today = startOfDay(new Date());
-  return { min: today, max: today };
-};
 
 export function dateIntersect(a: Date | null | DateRange, b: Date | null | DateRange) {
   if (a instanceof Date) {
@@ -243,6 +238,7 @@ function MonthSelector({ value, onChange, locale }: { value: number; onChange: (
 
 function YearSelector({ value, onChange, locale }: { value: number; onChange: (year: number) => void; locale?: string }) {
   const [input, setInput] = useState<string>();
+  const ref = useRef<HTMLInputElement>(null);
 
   function apply() {
     onChange(Number(input));
@@ -254,12 +250,15 @@ function YearSelector({ value, onChange, locale }: { value: number; onChange: (y
     return (year: number) => format(new Date(year, 0, 1));
   }, [locale]);
 
+  useLayoutEffect(() => ref.current?.focus(), [ref.current]);
+
   if (input === undefined) {
     return <div onClick={() => setInput(String(value))}>{formatYear(value)}</div>;
   }
 
   return (
     <input
+      ref={ref}
       css={{ width: '4ch' }}
       value={input}
       onChange={(e) => {

@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { createContext, useCallback, useState } from 'react';
 import { useTheme } from '../hooks/useTheme';
 import { useCssVariables } from '../theme/useCssVariables';
 import { useColumnContext, useTableContext } from './table';
+
+export const FilterControlContext = createContext((): void => void 0);
 
 export function FilterControl<T>(): JSX.Element | null {
   const table = useTableContext<T>();
@@ -20,16 +22,32 @@ export function FilterControl<T>(): JSX.Element | null {
   });
   const filter = table.useState((state) => state.activeColumns.find((column) => column.id === columnId)?.filter);
 
+  function reset() {
+    table.update((state) => {
+      state.filterValues.delete(columnId);
+    });
+  }
+
+  const close = useCallback(function () {
+    setAnchor(null);
+  }, []);
+
   if (!filter) return null;
 
   return (
-    <>
-      <IconButton
+    <FilterControlContext.Provider value={close}>
+      <div
         onClick={(e) => setAnchor(e.currentTarget)}
-        css={[isActive && { color: 'white !important', backgroundColor: 'var(--primaryMain) !important' }]}
+        onContextMenu={(e) => {
+          reset();
+          e.preventDefault();
+          return false;
+        }}
       >
-        {isActive ? <FilterList /> : <ArrowDropDown />}
-      </IconButton>
+        <IconButton css={[isActive && { color: 'white !important', backgroundColor: 'var(--primaryMain) !important' }]}>
+          {isActive ? <FilterList /> : <ArrowDropDown />}
+        </IconButton>
+      </div>
 
       <div
         onPointerDown={(e) => {
@@ -43,6 +61,6 @@ export function FilterControl<T>(): JSX.Element | null {
           {filter}
         </Popover>
       </div>
-    </>
+    </FilterControlContext.Provider>
   );
 }

@@ -1,6 +1,7 @@
 import { castDraft } from 'immer';
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { useContext, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useColumnContext, useTableContext } from '..';
+import { FilterControlContext } from '../components/filterControl';
 import { debounce } from '../misc/debounce';
 import { FilterImplementation, SerializableValue } from '../types';
 
@@ -68,5 +69,6 @@ export function useFilter<T, V, F, S extends SerializableValue>(impl: FilterImpl
   return {
     value: dirtyValue ?? value,
     onChange,
+    close: useContext(FilterControlContext),
   };
 }

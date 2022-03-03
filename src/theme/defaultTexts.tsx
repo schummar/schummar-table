@@ -6,10 +6,9 @@ export const defaultTexts: TableTheme['text'] = {
   exportTitle: 'Export',
   exportCopy: 'To clipboard',
   exportDownload: 'Download',
-  selectFilter: 'Select filters',
-  dateFilter: 'Select a date (range)',
-  textFilter: 'Type to filter',
-  reset: 'Reset',
   today: 'Today',
+  thisWeek: 'This week',
+  reset: 'Reset',
   loading: 'Loading',
+  selected: (count) => `${count} selected`,
 };

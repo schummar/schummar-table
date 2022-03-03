@@ -1,5 +1,5 @@
 import { CSSInterpolation } from '@emotion/serialize';
-import React, { ComponentType, CSSProperties, ReactNode } from 'react';
+import React, { ComponentType, CSSProperties, ReactNode, Ref } from 'react';
 import { TableStateStorage } from './internalState/tableStateStorage';
 import { CsvExportOptions } from './misc/csvExport';
 
@@ -17,12 +17,11 @@ export interface TableTheme<T = unknown> {
     exportTitle: ReactNode;
     exportCopy: ReactNode;
     exportDownload: ReactNode;
-    textFilter: ReactNode;
-    selectFilter: ReactNode;
-    dateFilter: ReactNode;
     today: ReactNode;
+    thisWeek: ReactNode;
     reset: ReactNode;
     loading: ReactNode;
+    selected: (count: number) => ReactNode;
   };
   /** Define styles. */
   classes?: {
@@ -58,6 +57,7 @@ export interface TableTheme<T = unknown> {
       onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
       endIcon?: ReactNode;
       className?: string;
+      inputRef?: Ref<HTMLInputElement>;
     }>;
     Spinner: (props: { className?: string }) => JSX.Element;
   };
