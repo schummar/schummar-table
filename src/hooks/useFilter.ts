@@ -55,6 +55,7 @@ export function useFilter<T, V, F, S extends SerializableValue>(impl: FilterImpl
         }
 
         onChange?.(value);
+        setDirtyValue(undefined);
       }, 500),
     [table],
   );

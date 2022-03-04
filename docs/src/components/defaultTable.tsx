@@ -12,12 +12,13 @@ export function DefaultTable(props: Partial<TableProps<Person>>) {
       items={fakePersons}
       id="id"
       virtual
+      enableExport
       defaultWidth="200px"
       columns={(col) => [
         //
         col((x) => x.avatar, {
           header: 'Avatar',
-          renderCell: (avatar) => <img src={avatar} />,
+          renderCell: (avatar) => <img width={50} height={50} src={avatar} />,
           width: 'max-content',
         }),
 

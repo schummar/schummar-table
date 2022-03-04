@@ -11,7 +11,7 @@ import { ColumnHeader, ColumnHeaderContext } from './columnHeader';
 import { ColumnSelection } from './columnSelection';
 import { Export } from './export';
 import { FilterControl } from './filterControl';
-import { ResizeHandle } from './resizeHandle';
+import { ResizeHandle, ResizeHandleView } from './resizeHandle';
 import { Row } from './row';
 import { SelectComponent } from './selectComponent';
 import { SortComponent } from './sortComponent';
@@ -110,6 +110,7 @@ const TableInner = memo(function TableInner<T>({ hidden }: { hidden: boolean }) 
             {enableColumnSelection && <ColumnSelection />}
 
             {enableExport && <Export />}
+            <ResizeHandleView />
           </div>
 
           <ColumnHeaderContext.Provider>

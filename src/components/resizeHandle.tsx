@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { HTMLProps } from 'react';
 import { useColumnContext, useTableContext } from '..';
 
 export function ResizeHandle() {
@@ -45,6 +45,18 @@ export function ResizeHandle() {
   }
 
   return (
+    <ResizeHandleView
+      enabled={enabled}
+      onPointerDown={enabled ? onPointerDown : undefined}
+      onPointerMove={enabled ? onPointerMove : undefined}
+      onPointerUp={enabled ? onPointerUp : undefined}
+      onDoubleClick={enabled ? onDoubleClick : undefined}
+    />
+  );
+}
+
+export function ResizeHandleView({ enabled, ...props }: HTMLProps<HTMLDivElement> & { enabled?: boolean }) {
+  return (
     <div
       css={{
         alignSelf: 'stretch',
@@ -56,15 +68,12 @@ export function ResizeHandle() {
         '&:after': {
           content: '""',
           width: 1,
-          height: '1.2em',
+          height: '1.5em',
           background: 'currentColor',
           transition: 'transform 300ms',
         },
       }}
-      onPointerDown={enabled ? onPointerDown : undefined}
-      onPointerMove={enabled ? onPointerMove : undefined}
-      onPointerUp={enabled ? onPointerUp : undefined}
-      onDoubleClick={enabled ? onDoubleClick : undefined}
+      {...props}
     />
   );
 }
