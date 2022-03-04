@@ -26,10 +26,3 @@
   display: grid;
   justify-content: center;
 }
-
-.scroll {
-  margin: 20px;
-  padding: 0 10px;
-  height: 400px;
-  overflow-y: auto;
-}

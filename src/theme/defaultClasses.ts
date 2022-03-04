@@ -6,10 +6,10 @@ export const gray = '#bdbdbd';
 export const darkGray = '#777';
 
 const cell = css({
-  padding: `calc(var(--spacing) * 0.1) var(--spacing)`,
+  padding: `calc(var(--spacing) * 0.1) calc(2 * var(--spacing))`,
   display: 'flex',
   alignItems: 'center',
-  borderBottom: `1px solid ${lightGray}`,
+  borderBottom: `1px solid #dfe2e9`,
   whiteSpace: 'nowrap',
   overflow: 'hidden',
   background: 'white',
@@ -28,11 +28,11 @@ export const defaultClasses = {
   }),
 
   headerCell: css(cell, {
-    padding: `var(--spacing) 0 var(--spacing) var(--spacing)`,
-    borderBottom: `2px solid ${gray}`,
-    gridTemplateColumns: 'minmax(0, 1fr) max-content',
+    padding: `var(--spacing) 0 var(--spacing) calc(2 * var(--spacing))`,
+    borderBottom: `1px solid #c9cfda`,
+    // gridTemplateColumns: 'minmax(0, 1fr) max-content',
     background: white,
-    gap: 'var(--spacing)',
+    // gap: 'var(--spacing)',
   }),
 
   firstCell: css({
@@ -46,7 +46,7 @@ export const defaultClasses = {
   }),
 
   headerFill: css({
-    borderBottom: `2px solid ${gray}`,
+    borderBottom: `1px solid #c9cfda`,
     background: white,
   }),
 
@@ -58,7 +58,7 @@ export const defaultClasses = {
 
   card: css({
     borderRadius: 4,
-    boxShadow: '0px 5px 5px -3px rgb(0 0 0 / 20%), 0px 8px 10px 1px rgb(0 0 0 / 14%), 0px 3px 14px 2px rgb(0 0 0 / 12%)',
+    boxShadow: '0px 3px 14px 2px rgb(0 0 0 / 12%)',
     background: 'white',
   }),
 };

@@ -68,7 +68,7 @@ export function SelectComponent<T>({ itemId }: { itemId?: Id }): JSX.Element {
     <Checkbox
       css={{
         justifySelf: 'start',
-        color: 'inherit',
+        color: '#c9cfda',
       }}
       checked={isSelected}
       onChange={toggle}

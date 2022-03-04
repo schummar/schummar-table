@@ -44,7 +44,15 @@ export function FilterControl<T>(): JSX.Element | null {
           return false;
         }}
       >
-        <IconButton css={[isActive && { color: 'white !important', backgroundColor: 'var(--primaryMain) !important' }]}>
+        <IconButton
+          css={[
+            { color: '#b0bac9' },
+            isActive && {
+              color: 'var(--primaryMain) !important',
+              // border: '1px solid var(--primaryMain) !important',
+            },
+          ]}
+        >
           {isActive ? <FilterList /> : <ArrowDropDown />}
         </IconButton>
       </div>

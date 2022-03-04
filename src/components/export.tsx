@@ -41,7 +41,7 @@ export function Export<T>(): JSX.Element {
   return (
     <>
       <IconButton onClick={(e) => setAnchor(anchor ? null : e.currentTarget)}>
-        <Export />
+        <Export css={!!anchor && { color: 'var(--primaryMain)' }} />
       </IconButton>
 
       <Popover open={!!anchor} onClose={() => setAnchor(null)} anchorEl={anchor} css={cssVariables}>

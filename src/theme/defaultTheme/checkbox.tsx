@@ -1,6 +1,6 @@
 import { TableTheme } from '../../types';
 
-export const Checkbox: TableTheme['components']['Checkbox'] = (props) => {
+export const Checkbox: TableTheme['components']['Checkbox'] = ({ className, ...props }) => {
   return (
     <label
       css={[
@@ -16,6 +16,7 @@ export const Checkbox: TableTheme['components']['Checkbox'] = (props) => {
         },
         props.disabled && { color: 'rgba(0, 0, 0, 0.26)' },
       ]}
+      className={className}
     >
       <input type="checkbox" {...props} />
 

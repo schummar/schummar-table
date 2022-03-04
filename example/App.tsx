@@ -103,7 +103,7 @@ function App(): JSX.Element {
       // enableColumnResize={false}
       // enableColumnReorder={false}
       enableExport
-      rowAction={(_item, index) => (index % 2 === 0 ? '?' : undefined)}
+      // rowAction={(_item, index) => (index % 2 === 0 ? '?' : undefined)}
       persist={{ storage, exclude: ['selection'] }}
       columns={(col) => [
         col((x) => x.id, {
@@ -159,11 +159,13 @@ function App(): JSX.Element {
       css={{
         padding: 20,
         display: 'grid',
+        color: '#454d59',
+        // color: 'red',
       }}
     >
-      <Mui5ThemeProvider theme={mui5Theme}>
+      {/* <Mui5ThemeProvider theme={mui5Theme}>
         <Mui5TableThemeProvider>{table}</Mui5TableThemeProvider>
-      </Mui5ThemeProvider>
+      </Mui5ThemeProvider> */}
 
       {/* <Mui4ThemeProvider theme={mui4Theme}>
         <Mui4TableThemeProvider>{table}</Mui4TableThemeProvider>

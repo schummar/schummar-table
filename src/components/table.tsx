@@ -121,9 +121,9 @@ const TableInner = memo(function TableInner<T>({ hidden }: { hidden: boolean }) 
                   css={[defaultClasses.headerCell, columnStyleOverride.get(column.id), stickyHeader && defaultClasses.sticky]}
                   key={column.id}
                 >
-                  <FilterControl />
                   <SortComponent>{column.header}</SortComponent>
                   <div css={{ flex: 1 }} />
+                  <FilterControl />
                   <ResizeHandle />
                 </ColumnHeader>
               </ColumnContext.Provider>

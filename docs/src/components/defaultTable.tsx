@@ -14,6 +14,7 @@ export function DefaultTable(props: Partial<TableProps<Person>>) {
       virtual
       enableExport
       defaultWidth="200px"
+      stickyHeader
       columns={(col) => [
         //
         col((x) => x.avatar, {
