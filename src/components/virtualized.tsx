@@ -3,24 +3,10 @@ import { throttle } from '../misc/throttle';
 import { useTableContext } from './table';
 import { Id } from '../types';
 
-const onAncestorScroll = (x: HTMLElement, onScroll: () => void): (() => void) => {
-  const find = (x: HTMLElement): Node[] => (x.parentElement ? [x.parentElement, ...find(x.parentElement)] : [document]);
-  const ancestors = find(x);
-  for (const ancestor of ancestors) {
-    ancestor.addEventListener('scroll', onScroll);
-  }
-
-  return () => {
-    for (const ancestor of ancestors) {
-      ancestor.removeEventListener('scroll', onScroll);
-    }
-  };
-};
-
 const findScrollRoot = (x: HTMLElement): HTMLElement => {
   const parent = x.parentElement;
   if (!parent) return document.documentElement;
-  if (parent.scrollHeight > parent.clientHeight) return parent;
+  if (parent.scrollHeight > parent.clientHeight && getComputedStyle(parent).overflowY !== 'visible') return parent;
   return findScrollRoot(parent);
 };
 
@@ -46,57 +32,64 @@ export function Virtualized<T>({
     to,
     before = 0,
     after = 0,
-  } = table.useState((state) => {
-    const itemIds = state.activeItems.map((item) => item.id);
-    const root = probeRef.current && findScrollRoot(probeRef.current);
-    if (!state.props.virtual) return { itemIds };
-    if (!probeRef.current || !root || !document.contains(root)) return {};
+  } = table.useState(
+    (state) => {
+      const itemIds = state.activeItems.map((item) => item.id);
+      const root = probeRef.current && findScrollRoot(probeRef.current);
+      if (!state.props.virtual) return { itemIds };
+      if (!probeRef.current || !root || !document.contains(root)) return {};
 
-    const {
-      rowHeight,
-      initalRowHeight,
-      overscan = 200,
-      overscanTop,
-      overscanBottom,
-    } = (state.props.virtual instanceof Object ? state.props.virtual : undefined) ?? {};
+      const {
+        rowHeight,
+        initalRowHeight,
+        overscan = 100,
+        overscanTop,
+        overscanBottom,
+      } = (state.props.virtual instanceof Object ? state.props.virtual : undefined) ?? {};
 
-    let totalHeight = 0;
-    const rowHeights = itemIds.map((itemId, index) => {
-      const h = rowHeight ?? state.rowHeights.get(itemId) ?? initalRowHeight ?? (index === 0 ? 100 : totalHeight / index);
-      totalHeight += h;
-      return h;
-    });
+      let totalHeight = 0;
+      const rowHeights = itemIds.map((itemId, index) => {
+        const h = rowHeight ?? state.rowHeights.get(itemId) ?? initalRowHeight ?? (index === 0 ? 100 : totalHeight / index);
+        totalHeight += h;
+        return h;
+      });
 
-    const probeOffset = relativeOffset(probeRef.current, root);
-    const headerHeight = probeRef.current.offsetTop;
-    const topOfTable = root.scrollTop - probeOffset + headerHeight;
-    const bottomOfTable = topOfTable + root.clientHeight - headerHeight;
+      const probeOffset = relativeOffset(probeRef.current, root);
+      const headerHeight = probeRef.current.offsetTop;
+      const topOfTable = root.scrollTop - probeOffset + headerHeight;
+      const bottomOfTable = topOfTable + root.clientHeight - headerHeight;
 
-    let from = 0,
-      to = itemIds.length,
-      before = 0,
-      after = 0;
-    for (const h of rowHeights) {
-      if (before + h > topOfTable - (overscanTop ?? overscan)) break;
-      from++;
-      before += h;
-    }
+      let from = 0,
+        to = itemIds.length,
+        before = 0,
+        after = 0;
+      for (const h of rowHeights) {
+        if (before + h > topOfTable - (overscanTop ?? overscan)) break;
+        from++;
+        before += h;
+      }
 
-    for (const h of rowHeights.reverse()) {
-      if (after + h > totalHeight - bottomOfTable - (overscanBottom ?? overscan)) break;
-      to--;
-      after += h;
-    }
+      for (const h of rowHeights.reverse()) {
+        if (after + h > totalHeight - bottomOfTable - (overscanBottom ?? overscan)) break;
+        to--;
+        after += h;
+      }
 
-    return { itemIds: itemIds.slice(from, to), from, to, before, after };
-  });
+      return { itemIds: itemIds.slice(from, to), from, to, before, after };
+    },
+    { throttle: 16 },
+  );
 
-  const throttleScroll = (typeof virtual === 'boolean' ? undefined : virtual)?.throttleScroll ?? 500;
+  const throttleScroll = (typeof virtual === 'boolean' ? undefined : virtual)?.throttleScroll ?? 16;
   const incCounter = useMemo(() => throttle(() => setCounter((c) => c + 1), throttleScroll), [throttleScroll]);
 
   useEffect(() => {
     if (!virtual || !probeRef.current) return;
-    return onAncestorScroll(probeRef.current, incCounter);
+
+    window.addEventListener('scroll', incCounter, true);
+    return () => {
+      window.removeEventListener('scroll', incCounter, true);
+    };
   }, [probeRef.current, incCounter]);
 
   table.getState().props.debugRender?.(`Virtualalized render ${from} to ${to}`);

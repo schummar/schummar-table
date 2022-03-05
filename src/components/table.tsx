@@ -85,7 +85,7 @@ const TableInner = memo(function TableInner<T>({ hidden }: { hidden: boolean }) 
 
   return (
     <Virtualized
-      className={`${classes?.table}`}
+      className={classes?.table}
       css={[
         cssVariables,
         defaultClasses.table,
