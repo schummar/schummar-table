@@ -2,3 +2,7 @@
   /* border: 1px solid green; */
   margin: 20px;
 }
+
+.table .odd {
+  background: lightGray;
+}

@@ -1,6 +1,5 @@
-import { css } from '@emotion/react';
+import { ClassNames } from '@emotion/react';
 import { createTheme as mui5CreateTheme } from '@mui/material';
-import { ThemeProvider as Mui5ThemeProvider } from '@mui/system';
 import localforage from 'localforage';
 import React, { useEffect, useMemo, useState } from 'react';
 import { createResource } from 'schummar-state';
@@ -8,7 +7,6 @@ import { useResource } from 'schummar-state/react';
 import { DateFilter, SelectFilter, Table, TextFilter } from '../src';
 import { DateRange } from '../src/components/datePicker';
 import { flatMap } from '../src/misc/helpers';
-import { Mui5TableThemeProvider } from '../src/theme/mui5Theme';
 import classes from './app.module.css';
 
 const storage = localforage.createInstance({ name: 'xyz' });
@@ -83,7 +81,6 @@ function App(): JSX.Element {
   }, [active, topItems]);
 
   const table = (
-    // <div css={{ height: 300, overflowY: 'auto', margin: 10 }}>
     <Table
       items={topItems ? [...topItems, ...children] : undefined}
       id="id"
@@ -143,7 +140,7 @@ function App(): JSX.Element {
       ]}
       classes={{
         ...classes,
-        cell: (item) => (item.name.endsWith('10') ? css({ background: 'lightGray' }) : undefined),
+        cell: (_item, index) => (index % 2 === 1 ? classes.odd : undefined),
       }}
       // stickyHeader
       debug={(...args) => console.debug(...args)}
@@ -151,7 +148,6 @@ function App(): JSX.Element {
       fullWidth="left"
       // revealFiltered
     />
-    // </div>
   );
 
   return (

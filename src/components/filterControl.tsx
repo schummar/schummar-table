@@ -49,7 +49,6 @@ export function FilterControl<T>(): JSX.Element | null {
             { color: '#b0bac9' },
             isActive && {
               color: 'var(--primaryMain) !important',
-              // border: '1px solid var(--primaryMain) !important',
             },
           ]}
         >

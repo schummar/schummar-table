@@ -59,7 +59,6 @@ export function ResizeHandleView({ enabled, ...props }: HTMLProps<HTMLDivElement
   return (
     <div
       css={{
-        // margin: 'calc(0px - var(--spacing))',
         alignSelf: 'stretch',
         padding: '0 5px',
         cursor: enabled ? 'col-resize' : 'initial',
@@ -70,7 +69,6 @@ export function ResizeHandleView({ enabled, ...props }: HTMLProps<HTMLDivElement
           content: '""',
           width: 1,
           height: '1.5em',
-          // height: '100%',
           background: '#c9cfda',
           transition: 'transform 300ms',
         },

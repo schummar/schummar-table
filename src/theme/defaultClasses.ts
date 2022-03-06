@@ -30,9 +30,7 @@ export const defaultClasses = {
   headerCell: css(cell, {
     padding: `var(--spacing) 0 var(--spacing) calc(2 * var(--spacing))`,
     borderBottom: `1px solid #c9cfda`,
-    // gridTemplateColumns: 'minmax(0, 1fr) max-content',
     background: white,
-    // gap: 'var(--spacing)',
   }),
 
   firstCell: css({

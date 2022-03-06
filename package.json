@@ -1,7 +1,7 @@
 {
   "name": "schummar-table",
   "repository": "schummar/schummar-table",
-  "version": "0.5.0-beta-6",
+  "version": "0.5.0-beta-8",
   "description": "",
   "type": "module",
   "sideEffects": false,
@@ -61,7 +61,7 @@
     "@emotion/react": "^11.8.1",
     "dayzed": "^3.2.2",
     "immer": "^9.0.12",
-    "schummar-state": "0.2.1-experimental-12"
+    "schummar-state": "0.2.1-experimental-13"
   },
   "peerDependencies": {
     "@emotion/styled": "^11.6.0",

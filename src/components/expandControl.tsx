@@ -53,7 +53,6 @@ export function ExpandControl<T>({ itemId, hasDeferredChildren }: { itemId: Id; 
           display: 'inline-flex',
           transition: 'all 300ms',
           transform: isExpanded ? 'rotate3d(0, 0, 1, 90deg)' : 'rotate3d(0, 0, 1, 0deg)',
-          // color: '#454d59',
         }}
       >
         <ChevronRight />

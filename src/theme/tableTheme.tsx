@@ -1,18 +1,7 @@
 import { createContext, ReactNode, useContext } from 'react';
 import { DeepPartial } from '../misc/deepPartial';
 import { InternalTableProps, TableTheme } from '../types';
-import { defaultColors } from './defaultColors';
-import { defaultIcons } from './defaultIcons';
-import { defaultTexts } from './defaultTexts';
-import { defaultComponents } from './defaultTheme';
-
-const defaultTableTheme: TableTheme = {
-  text: defaultTexts,
-  components: defaultComponents,
-  icons: defaultIcons,
-  colors: defaultColors,
-  spacing: '5px',
-};
+import { defaultTableTheme } from './defaultTheme/defaultTableTheme';
 
 let globalTableTheme: DeepPartial<TableTheme> = {};
 export function configureTableTheme(tableTheme: DeepPartial<TableTheme>) {
