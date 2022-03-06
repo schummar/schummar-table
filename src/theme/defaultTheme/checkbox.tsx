@@ -8,6 +8,7 @@ export const Checkbox: TableTheme['components']['Checkbox'] = ({ className, ...p
           padding: 'calc(var(--spacing) * 1.8)',
           display: 'flex',
           color: 'currentcolor',
+          userSelect: 'none',
 
           '& input': {
             appearance: 'none',

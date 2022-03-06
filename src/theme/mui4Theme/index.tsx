@@ -1,7 +1,6 @@
 import { Badge, Button, Checkbox, CircularProgress, IconButton, TextField, useTheme } from '@material-ui/core';
 import { ReactNode, useMemo } from 'react';
-import { DeepPartial } from '../../misc/deepPartial';
-import { TableTheme } from '../../types';
+import { PartialTableTheme, TableTheme } from '../../types';
 import { Popover } from '../defaultTheme/popover';
 import { mergeThemes, TableThemeContext } from '../tableTheme';
 
@@ -25,7 +24,7 @@ export const mui4Theme: Partial<TableTheme> = {
   },
 };
 
-export function Mui4TableThemeProvider({ theme, children }: { theme?: DeepPartial<TableTheme>; children: ReactNode }) {
+export function Mui4TableThemeProvider({ theme, children }: { theme?: PartialTableTheme; children: ReactNode }) {
   const muiTheme = useTheme();
 
   const _theme = useMemo(() => {

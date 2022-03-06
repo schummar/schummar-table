@@ -102,9 +102,15 @@ const TableInner = memo(function TableInner<T>({ hidden }: { hidden: boolean }) 
       ]}
       header={
         <>
-          <div className={classes?.headerCell} css={[defaultClasses.headerFill, stickyHeader && defaultClasses.sticky]} />
+          <div
+            className={classes?.headerCell}
+            css={[defaultClasses.headerFill, stickyHeader && defaultClasses.sticky, stickyHeader instanceof Object && stickyHeader]}
+          />
 
-          <div className={classes?.headerCell} css={[defaultClasses.headerCell, stickyHeader && defaultClasses.sticky]}>
+          <div
+            className={classes?.headerCell}
+            css={[defaultClasses.headerCell, stickyHeader && defaultClasses.sticky, stickyHeader instanceof Object && stickyHeader]}
+          >
             {enableSelection && <SelectComponent />}
 
             {enableColumnSelection && <ColumnSelection />}
@@ -118,7 +124,12 @@ const TableInner = memo(function TableInner<T>({ hidden }: { hidden: boolean }) 
               <ColumnContext.Provider key={column.id} value={column.id}>
                 <ColumnHeader
                   className={cx(classes?.headerCell, column.classes?.headerCell)}
-                  css={[defaultClasses.headerCell, columnStyleOverride.get(column.id), stickyHeader && defaultClasses.sticky]}
+                  css={[
+                    defaultClasses.headerCell,
+                    columnStyleOverride.get(column.id),
+                    stickyHeader && defaultClasses.sticky,
+                    stickyHeader instanceof Object && stickyHeader,
+                  ]}
                   key={column.id}
                 >
                   <SortComponent>{column.header}</SortComponent>
@@ -130,7 +141,10 @@ const TableInner = memo(function TableInner<T>({ hidden }: { hidden: boolean }) 
             ))}
           </ColumnHeaderContext.Provider>
 
-          <div className={classes?.headerCell} css={[defaultClasses.headerFill, stickyHeader && defaultClasses.sticky]} />
+          <div
+            className={classes?.headerCell}
+            css={[defaultClasses.headerFill, stickyHeader && defaultClasses.sticky, stickyHeader instanceof Object && stickyHeader]}
+          />
         </>
       }
     >

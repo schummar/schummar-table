@@ -1,0 +1,65 @@
+---
+sidebar_position: 4
+---
+
+# Table props
+
+### items (required)
+
+- Type: `T[]`
+
+  Array of any items that make up the table rows.
+
+### id (required)
+
+- Type: `((item: T) => string | number) | KeyOfType<T, string | number>`
+
+  An id must be provided for each item, which is used as key to rows and to correlate several states to items (e.g. selection, expanded items, ...).
+  The `id` props must either be a function that returns an item's id or a string that is the item's id's name.
+
+  For example for items of type `{ id: number, name: string }` you would pass `id={item => item.id}` or `id="id"`.
+
+### columns (required)
+
+- Type: `Column<T, any>[] | ((col: <V>(value: (item: T) => V, column: Omit<Column<T, V>, 'value'>) => Column<T, V>) => Column<T, any>[])`
+
+  To define columns, either pass an array of column definitions or a helper function.
+  The latter is useful if you are using TypeScript because it infers the column's value's type from the first argument.
+  See [Columns](/docs/guide/columns) for more information.
+
+### parentId
+
+- Type: `((item: T) => string | number) | KeyOfType<T, string | number>`
+
+  Create a nested structure by assigning parents to items.
+  Child items are hidden until the parent is expanded.
+
+### hasDeferredChildren
+
+- Type: `(item: T) => boolean`
+
+  If true for an item, it means that children will be loaded asynchronously as soon as item is expanded.
+
+### rowAction
+
+- Type: `ReactNode | ((item: T, index: number) => ReactNode)`
+
+  Display a cell at the start of each row. Useful for "go to details" button for example.
+
+### defaultSort
+
+- Type: `Sort[]`
+
+  Default sort order.
+
+### sort
+
+- Type: `Sort[]`
+
+  If given, controls the sort order.
+
+### onSortChange
+
+- Type: `(sort: Sort[]) => void`
+
+  Called when sort order changes.

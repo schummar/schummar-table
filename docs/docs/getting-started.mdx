@@ -1,0 +1,98 @@
+---
+sidebar_position: 1
+---
+
+# Getting started
+
+### Install it
+
+As usual, install using npm, yarn or whatever package manager floats your boat.
+
+```bash
+npm install schummar-table
+```
+
+### Use it
+
+Use the `Table` component and pass the the required props `items`, `id` (references and id field in your items) and `columns`
+
+```tsx
+import { Table } from 'schummar-table';
+
+const items = [
+  { id: 1, firstName: 'Kassia', lastName: 'Nears' },
+  { id: 1, firstName: 'Dulcia', lastName: 'Grevel' },
+  { id: 1, firstName: 'Chelsey', lastName: 'Skivington' },
+];
+
+function MyComponent() {
+  return (
+    <Table
+      items={items}
+      id="id"
+      columns={(col) => [
+        col((item) => item.firstName, {
+          header: 'First Name',
+        }),
+
+        col((item) => item.lastName, {
+          header: 'Last Name',
+        }),
+      ]}
+    />
+  );
+}
+```
+
+### Theme it
+
+Optionally change the appearance either locally or globally by wrapping your app in a theme provider.
+For more see [theming](/themming).
+
+```tsx
+import { TableThemeProvider, PartialTableTheme } from 'schummar-table';
+
+// Will merge with the default theme
+const theme: PartialTableTheme = {
+  classes: {
+    cell: '.my-cell-style',
+  },
+  colors: {
+    primary: {
+      main: '#2e8555',
+      light: '#33925d',
+      contrastText: 'white',
+    },
+  },
+};
+
+function MyApp() {
+  return (
+    <TableThemeProvider theme={theme}>
+      <MyComponent />
+    </TableThemeProvider>
+  );
+}
+```
+
+#### Material UI integration
+
+schummar-table also comes with an easy integration for the popular UI library Material UI.
+To use it you have to have Material UI already installed, schummar-table only references some components and hooks into the Material UI theme context.
+For more see [Material UI integration](/mui-integration).
+
+```tsx
+// For Material UI v5
+import { Mui5TableThemeProvider } from 'schummar-table/theme/mui5Theme';
+
+// For Material UI v4
+// import { Mui4TableThemeProvider } from 'schummar-table/theme/mui4Theme';
+
+function MyApp() {
+  return (
+    <Mui5TableThemeProvider>
+      <MyComponent />
+    </Mui5TableThemeProvider>
+  );
+}
+```

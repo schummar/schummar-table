@@ -1,20 +1,19 @@
 import { createContext, ReactNode, useContext } from 'react';
-import { DeepPartial } from '../misc/deepPartial';
-import { InternalTableProps, TableTheme } from '../types';
+import { InternalTableProps, PartialTableTheme, TableTheme } from '../types';
 import { defaultTableTheme } from './defaultTheme/defaultTableTheme';
 
-let globalTableTheme: DeepPartial<TableTheme> = {};
-export function configureTableTheme(tableTheme: DeepPartial<TableTheme>) {
+let globalTableTheme: PartialTableTheme = {};
+export function configureTableTheme(tableTheme: PartialTableTheme) {
   globalTableTheme = tableTheme;
 }
 
-export const TableThemeContext = createContext<DeepPartial<TableTheme>>({});
+export const TableThemeContext = createContext<PartialTableTheme>({});
 
-export function TableThemeProvider({ theme, children }: { theme: DeepPartial<TableTheme>; children: ReactNode }) {
+export function TableThemeProvider({ theme, children }: { theme: PartialTableTheme; children: ReactNode }) {
   return <TableThemeContext.Provider value={theme}>{children}</TableThemeContext.Provider>;
 }
 
-export function mergeThemes<T>(...themes: DeepPartial<TableTheme<T>>[]): DeepPartial<TableTheme<T>> {
+export function mergeThemes<T>(...themes: PartialTableTheme<T>[]): PartialTableTheme<T> {
   return {
     text: Object.assign({}, ...themes.map((theme) => theme.text)),
     classes: Object.assign({}, ...themes.map((theme) => theme.classes)),

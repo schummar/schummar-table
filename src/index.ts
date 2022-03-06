@@ -8,4 +8,4 @@ export { useTheme } from './hooks/useTheme';
 export type { TableStateStorage } from './internalState/tableStateStorage';
 export { termMatch, textMatch } from './misc/textMatch';
 export { configureTableTheme, mergeThemes, TableThemeContext, TableThemeProvider } from './theme/tableTheme';
-export type { Column, Id, InternalColumn, Rows, Sort, SortDirection, TableProps } from './types';
+export type { Column, Id, InternalColumn, PartialTableTheme, Rows, Sort, SortDirection, TableProps } from './types';

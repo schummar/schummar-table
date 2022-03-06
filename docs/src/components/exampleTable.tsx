@@ -6,7 +6,7 @@ const dateFormat = new Intl.DateTimeFormat(undefined, { dateStyle: 'medium' });
 
 type Person = typeof fakePersons extends Array<infer T> ? T : never;
 
-export function DefaultTable(props: Partial<TableProps<Person>>) {
+export function ExampleTable(props: Partial<TableProps<Person>>) {
   return (
     <Table
       items={fakePersons}
