@@ -18,16 +18,20 @@ export function SortComponent<T>({ children }: { children: ReactNode }): JSX.Ele
     };
   });
 
-  function toggle(e: React.MouseEvent) {
+  function toggle(e: React.MouseEvent, off?: boolean) {
     const {
       props: { sort: controlledSort, onSortChange },
     } = table.getState();
 
     const newDirection = direction === 'asc' ? 'desc' : 'asc';
-    const newSort = (e.getModifierState('Control') ? table.getState().sort.filter((s) => s.columnId !== columnId) : []).concat({
-      columnId,
-      direction: newDirection,
-    });
+    const newSort = (e.getModifierState('Control') ? table.getState().sort.filter((s) => s.columnId !== columnId) : []).concat(
+      off
+        ? []
+        : {
+            columnId,
+            direction: newDirection,
+          },
+    );
 
     onSortChange?.(newSort);
 
@@ -36,6 +40,9 @@ export function SortComponent<T>({ children }: { children: ReactNode }): JSX.Ele
         state.sort = newSort;
       });
     }
+
+    e.preventDefault();
+    return false;
   }
 
   return (
@@ -52,7 +59,8 @@ export function SortComponent<T>({ children }: { children: ReactNode }): JSX.Ele
           textOverflow: 'ellipsis',
         },
       }}
-      onClick={toggle}
+      onClick={(e) => toggle(e)}
+      onContextMenu={(e) => toggle(e, true)}
     >
       <div>{children}</div>
 

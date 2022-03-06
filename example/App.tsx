@@ -14,6 +14,7 @@ const storage = localforage.createInstance({ name: 'xyz' });
 const mui5Theme = mui5CreateTheme();
 
 type TopItem = {
+  index: number;
   type: 'top';
   id: string;
   name: string;
@@ -22,6 +23,7 @@ type TopItem = {
 };
 
 type SubItem = {
+  index: number;
   type: 'sub';
   id: string;
   parentId: string;
@@ -36,6 +38,7 @@ const N = 1000,
 const loadTop = createResource(async () => {
   // await new Promise((r) => setTimeout(r, 1000));
   return new Array(N).fill(0).map<TopItem>((_d, index) => ({
+    index,
     type: 'top',
     id: String(index),
     name: `top item ${index}`,
@@ -64,6 +67,7 @@ function App(): JSX.Element {
       setChildren(
         flatMap(active, (parentId) =>
           new Array(M).fill(0).map<SubItem>((_d, index) => ({
+            index,
             type: 'sub',
             id: `${parentId}_${index}`,
             parentId,
@@ -128,9 +132,9 @@ function App(): JSX.Element {
           sortBy: [(x) => x.includes('bar'), (x) => x[0]],
         }),
 
-        col((x) => 'askdjfhdfjkgfhas kljfhsdkjfh dfkgjlhs dfkljhdfgk jdh', {
+        col((x) => ''.padEnd(x.index, '#'), {
           header: 'test',
-          width: '10ch',
+          // width: '10ch',
         }),
         col((x) => x.date, {
           header: 'Date',
