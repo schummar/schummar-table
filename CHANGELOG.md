@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.5.0](https://github.com/schummar/schummar-table/compare/v0.4.2...v0.5.0) (2022-03-07)
+
+
+### Features
+
+* date filter ([186cc5a](https://github.com/schummar/schummar-table/commit/186cc5a972d63a661d0356e70bd8475a9efa125d))
+* move columns ([186cc5a](https://github.com/schummar/schummar-table/commit/186cc5a972d63a661d0356e70bd8475a9efa125d))
+* overhaulted filter api ([186cc5a](https://github.com/schummar/schummar-table/commit/186cc5a972d63a661d0356e70bd8475a9efa125d))
+* resize columns ([186cc5a](https://github.com/schummar/schummar-table/commit/186cc5a972d63a661d0356e70bd8475a9efa125d))
+* theming ([186cc5a](https://github.com/schummar/schummar-table/commit/186cc5a972d63a661d0356e70bd8475a9efa125d))
+
 ### [0.4.2](https://www.github.com/schummar/schummar-table/compare/v0.4.1...v0.4.2) (2022-02-01)
 
 
