@@ -1,42 +1,38 @@
 import React, { memo, useEffect, useRef } from 'react';
-import { c, getAncestors } from '../misc/helpers';
-import { ColumnContext, useTableContext } from '../table';
+import { cx, getAncestors } from '../misc/helpers';
+import { defaultClasses } from '../theme/defaultClasses';
 import { Id, InternalColumn } from '../types';
 import { Cell } from './cell';
-import { ExpandComponent } from './expandComponent';
+import { ExpandControl } from './expandControl';
 import { SelectComponent } from './selectComponent';
-import { useCommonClasses } from './useCommonClasses';
+import { ColumnContext, useTableContext } from './table';
 
-export function calcClassName<T>(classes: InternalColumn<any, any>['classes'] | undefined, item: T, index: number): string {
-  return c(
+export function calcClassNames<T>(classes: InternalColumn<any, any>['classes'] | undefined, item: T, index: number) {
+  return [
     classes?.cell instanceof Function ? classes.cell(item, index) : classes?.cell,
-    classes?.evenCell === undefined ? undefined : { [classes.evenCell]: index % 2 === 0 },
-    classes?.oddCell === undefined ? undefined : { [classes.oddCell]: index % 2 === 1 },
-  );
+    index % 2 === 0 && classes?.evenCell,
+    index % 2 === 1 && classes?.oddCell,
+  ];
 }
 
 export const Row = memo(function Row<T>({ itemId, rowIndex }: { itemId: Id; rowIndex: number }): JSX.Element | null {
-  const commonClasses = useCommonClasses();
-  const state = useTableContext<T>();
+  const table = useTableContext<T>();
   const divRef = useRef<HTMLDivElement>(null);
 
-  const { className, indent, hasChildren, hasDeferredChildren, columnIds, enableSelection, rowAction } = state.useState(
-    (state) => {
-      const item = state.activeItemsById.get(itemId);
-      const index = !item ? -1 : state.activeItems.indexOf(item);
+  const { className, indent, hasChildren, hasDeferredChildren, columnIds, enableSelection, rowAction } = table.useState((state) => {
+    const item = state.activeItemsById.get(itemId);
+    const index = !item ? -1 : state.activeItems.indexOf(item);
 
-      return {
-        className: calcClassName(state.props.classes, item, index),
-        indent: item ? getAncestors(state.activeItemsById, item).size : 0,
-        hasChildren: !!item?.children.length,
-        hasDeferredChildren: item && state.props.hasDeferredChildren?.(item),
-        columnIds: state.activeColumns.map((column) => column.id),
-        enableSelection: state.props.enableSelection,
-        rowAction: state.props.rowAction instanceof Function ? (item ? state.props.rowAction(item, index) : null) : state.props.rowAction,
-      };
-    },
-    [itemId],
-  );
+    return {
+      className: cx(...calcClassNames(state.props.classes, item, index)),
+      indent: item ? getAncestors(state.activeItemsById, item).size : 0,
+      hasChildren: !!item?.children.length,
+      hasDeferredChildren: item && state.props.hasDeferredChildren?.(item),
+      columnIds: state.activeColumns.map((column) => column.id),
+      enableSelection: state.props.enableSelection,
+      rowAction: state.props.rowAction instanceof Function ? (item ? state.props.rowAction(item, index) : null) : state.props.rowAction,
+    };
+  });
 
   useEffect(() => {
     const div = divRef.current;
@@ -44,7 +40,7 @@ export const Row = memo(function Row<T>({ itemId, rowIndex }: { itemId: Id; rowI
 
     const o = new ResizeObserver(() => {
       if (!document.contains(div)) return;
-      state.update((state) => {
+      table.update((state) => {
         state.rowHeights.set(itemId, div.offsetHeight);
       });
     });
@@ -53,18 +49,18 @@ export const Row = memo(function Row<T>({ itemId, rowIndex }: { itemId: Id; rowI
     return () => o.disconnect();
   }, [divRef.current]);
 
-  state.getState().props.debug?.('render row', itemId);
+  table.getState().props.debugRender?.('render row', itemId);
 
   return (
     <>
-      <div className={c(commonClasses.cellFill, className)} ref={divRef} />
+      <div className={className} css={[defaultClasses.cellFill]} ref={divRef} />
 
-      <div className={c(commonClasses.cell, commonClasses.firstCell, className)}>
-        <div style={{ width: indent * 20 }} />
+      <div className={className} css={[defaultClasses.cell, defaultClasses.firstCell]}>
+        <div css={{ width: indent * 20 }} />
 
         {enableSelection && <SelectComponent itemId={itemId} />}
 
-        {(hasChildren || hasDeferredChildren) && <ExpandComponent itemId={itemId} />}
+        {(hasChildren || hasDeferredChildren) && <ExpandControl itemId={itemId} hasDeferredChildren={hasDeferredChildren} />}
 
         {rowAction}
       </div>
@@ -75,7 +71,7 @@ export const Row = memo(function Row<T>({ itemId, rowIndex }: { itemId: Id; rowI
         </ColumnContext.Provider>
       ))}
 
-      <div className={c(commonClasses.cellFill, className)} />
+      <div className={className} css={[defaultClasses.cellFill]} />
     </>
   );
 });

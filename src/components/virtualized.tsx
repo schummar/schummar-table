@@ -1,26 +1,12 @@
 import React, { HTMLProps, ReactNode, useEffect, useMemo, useRef, useState } from 'react';
 import { throttle } from '../misc/throttle';
-import { useTableContext } from '../table';
+import { useTableContext } from './table';
 import { Id } from '../types';
-
-const onAncestorScroll = (x: HTMLElement, onScroll: () => void): (() => void) => {
-  const find = (x: HTMLElement): Node[] => (x.parentElement ? [x.parentElement, ...find(x.parentElement)] : [document]);
-  const ancestors = find(x);
-  for (const ancestor of ancestors) {
-    ancestor.addEventListener('scroll', onScroll);
-  }
-
-  return () => {
-    for (const ancestor of ancestors) {
-      ancestor.removeEventListener('scroll', onScroll);
-    }
-  };
-};
 
 const findScrollRoot = (x: HTMLElement): HTMLElement => {
   const parent = x.parentElement;
   if (!parent) return document.documentElement;
-  if (parent.scrollHeight > parent.clientHeight) return parent;
+  if (parent.scrollHeight > parent.clientHeight && getComputedStyle(parent).overflowY !== 'visible') return parent;
   return findScrollRoot(parent);
 };
 
@@ -35,10 +21,10 @@ export function Virtualized<T>({
   children,
   ...props
 }: { header: ReactNode; children: (itemIds: Id[], startIndex: number) => ReactNode } & HTMLProps<HTMLDivElement>): JSX.Element {
-  const state = useTableContext<T>();
-  const virtual = state.useState('props.virtual');
+  const table = useTableContext<T>();
+  const virtual = table.useState('props.virtual');
   const probeRef = useRef<HTMLDivElement>(null);
-  const [counter, setCounter] = useState(0);
+  const [, setCounter] = useState(0);
 
   const {
     itemIds = [],
@@ -46,7 +32,7 @@ export function Virtualized<T>({
     to,
     before = 0,
     after = 0,
-  } = state.useState(
+  } = table.useState(
     (state) => {
       const itemIds = state.activeItems.map((item) => item.id);
       const root = probeRef.current && findScrollRoot(probeRef.current);
@@ -56,7 +42,7 @@ export function Virtualized<T>({
       const {
         rowHeight,
         initalRowHeight,
-        overscan = 200,
+        overscan = 100,
         overscanTop,
         overscanBottom,
       } = (state.props.virtual instanceof Object ? state.props.virtual : undefined) ?? {};
@@ -91,18 +77,22 @@ export function Virtualized<T>({
 
       return { itemIds: itemIds.slice(from, to), from, to, before, after };
     },
-    [probeRef.current, counter],
+    { throttle: 16 },
   );
 
-  const throttleScroll = (typeof virtual === 'boolean' ? undefined : virtual)?.throttleScroll ?? 500;
+  const throttleScroll = (typeof virtual === 'boolean' ? undefined : virtual)?.throttleScroll ?? 16;
   const incCounter = useMemo(() => throttle(() => setCounter((c) => c + 1), throttleScroll), [throttleScroll]);
 
   useEffect(() => {
     if (!virtual || !probeRef.current) return;
-    return onAncestorScroll(probeRef.current, incCounter);
+
+    window.addEventListener('scroll', incCounter, true);
+    return () => {
+      window.removeEventListener('scroll', incCounter, true);
+    };
   }, [probeRef.current, incCounter]);
 
-  state.getState().props.debug?.(`Virtualalized render ${from} to ${to}`);
+  table.getState().props.debugRender?.(`Virtualalized render ${from} to ${to}`);
 
   return (
     <div {...props}>

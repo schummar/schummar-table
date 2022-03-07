@@ -1,10 +1,11 @@
 {
   "compilerOptions": {
-    "outDir": "dist/esm",
+    "declarationDir": "dist/types",
     "module": "ES2020",
     "moduleResolution": "node",
     "esModuleInterop": true,
     "declaration": true,
+    "emitDeclarationOnly": true,
 
     "strict": true,
     "noImplicitReturns": true,
@@ -15,7 +16,10 @@
     "downlevelIteration": true,
     "allowSyntheticDefaultImports": true,
     "noUncheckedIndexedAccess": true,
-    "jsx": "react-jsx"
+    "jsx": "react-jsx",
+    "jsxImportSource": "@emotion/react",
+    "skipLibCheck": true,
+    "sourceMap": true
   },
   "include": ["src"]
 }

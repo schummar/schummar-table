@@ -1,28 +1,21 @@
-import { Checkbox, makeStyles } from '@material-ui/core';
 import React from 'react';
+import { useTheme } from '..';
 import { getAncestors, getDescendants } from '../misc/helpers';
-import { useTableContext } from '../table';
 import { Id } from '../types';
-
-const useClasses = makeStyles({
-  justifiedCheckbox: {
-    justifySelf: 'start',
-    color: 'inherit',
-  },
-});
+import { useTableContext } from './table';
 
 export function SelectComponent<T>({ itemId }: { itemId?: Id }): JSX.Element {
-  const classes = useClasses();
-  const state = useTableContext<T>();
-  const isSelected = state.useState(
-    (state) => {
-      const itemIds = itemId ? [itemId] : [...state.activeItemsById.keys()];
-      return state.activeItemsById.size > 0 && itemIds.every((itemId) => state.selection.has(itemId));
-    },
-    [itemId],
-  );
+  const table = useTableContext<T>();
+  const {
+    components: { Checkbox },
+  } = useTheme();
 
-  function toggle(e: React.ChangeEvent<HTMLInputElement>) {
+  const isSelected = table.useState((state) => {
+    const itemIds = itemId ? [itemId] : Array.from(state.activeItemsById.keys());
+    return state.activeItemsById.size > 0 && itemIds.every((itemId) => state.selection.has(itemId));
+  });
+
+  function toggle(e: React.ChangeEvent) {
     const mouseEvent = e.nativeEvent as MouseEvent;
 
     const {
@@ -31,7 +24,7 @@ export function SelectComponent<T>({ itemId }: { itemId?: Id }): JSX.Element {
       lastSelectedId,
       selection,
       props: { selectSyncChildren, selection: controlledSelection, onSelectionChange },
-    } = state.getState();
+    } = table.getState();
 
     let range;
     if (mouseEvent.shiftKey && itemId) {
@@ -61,15 +54,24 @@ export function SelectComponent<T>({ itemId }: { itemId?: Id }): JSX.Element {
     onSelectionChange?.(newSelection);
 
     if (!controlledSelection) {
-      state.update((state) => {
+      table.update((state) => {
         state.selection = newSelection;
       });
     }
 
-    state.update((state) => {
+    table.update((state) => {
       state.lastSelectedId = itemId;
     });
   }
 
-  return <Checkbox className={classes.justifiedCheckbox} checked={isSelected} onChange={toggle} />;
+  return (
+    <Checkbox
+      css={{
+        justifySelf: 'start',
+        color: '#c9cfda',
+      }}
+      checked={isSelected}
+      onChange={toggle}
+    />
+  );
 }

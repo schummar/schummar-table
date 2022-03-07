@@ -1,33 +1,33 @@
 import React, { memo } from 'react';
-import { Id, useColumnContext, useTableContext } from '..';
-import { c } from '../misc/helpers';
-import { calcClassName } from './row';
-import { useCommonClasses } from './useCommonClasses';
+import { Id, useColumnContext, useTableContext, useTheme } from '..';
+import { cx } from '../misc/helpers';
+import { defaultClasses } from '../theme/defaultClasses';
+import { calcClassNames } from './row';
 
 export const Cell = memo(function Cell<T>({ itemId, rowIndex }: { itemId: Id; rowIndex: number }) {
-  const commonClasses = useCommonClasses();
-  const state = useTableContext<T>();
+  const table = useTableContext<T>();
   const columnId = useColumnContext();
+  const { classes } = useTheme();
 
-  const column = state.useState((state) => state.activeColumns.find((column) => column.id === columnId), [columnId]);
-  const item = state.useState((state) => state.activeItemsById.get(itemId), [itemId]);
-  const classes = state.useState('props.classes');
-  let wrapCell = state.useState('props.wrapCell');
+  const column = table.useState((state) => state.activeColumns.find((column) => column.id === columnId));
+  const item = table.useState((state) => state.activeItemsById.get(itemId));
+  const columnStyleOverride = table.useState((state) => state.columnStyleOverride.get(columnId), { throttle: 16 });
+
   if (!column || !item) return null;
-  state.getState().props.debug?.('render cell', itemId, columnId);
+  table.getState().props.debugRender?.('render cell', itemId, columnId);
 
-  const className = c(calcClassName(classes, item, rowIndex), calcClassName(column?.classes, item, rowIndex));
+  const classNames = [...calcClassNames(classes, item, rowIndex), ...calcClassNames(column?.classes, item, rowIndex)];
   const content = column.renderCell(column.value(item), item);
 
-  if (!wrapCell && typeof content === 'string') {
-    wrapCell = (content) => (
-      <div className={c(commonClasses.cell, className)}>
-        <span className={c(commonClasses.text)}>{content}</span>
-      </div>
-    );
-  } else if (!wrapCell) {
-    wrapCell = (content) => <div className={c(commonClasses.cell, className)}>{content}</div>;
-  }
-
-  return <>{wrapCell(content, item)}</>;
+  return (
+    <div className={cx(...classNames)} css={[defaultClasses.cell, classNames, columnStyleOverride]}>
+      {typeof content === 'string' ? (
+        <span css={defaultClasses.text} title={content}>
+          {content}
+        </span>
+      ) : (
+        content
+      )}
+    </div>
+  );
 });

@@ -1,34 +1,35 @@
-import { Checkbox, FormControlLabel, IconButton, makeStyles, Popover } from '@material-ui/core';
-import { Settings } from '@material-ui/icons';
 import React, { useState } from 'react';
-import { useTableContext } from '../table';
+import { useTheme } from '..';
+import { useCssVariables } from '../theme/useCssVariables';
 import { InternalColumn } from '../types';
-
-const useClasses = makeStyles((theme) => ({
-  list: {
-    padding: theme.spacing(2),
-    display: 'grid',
-  },
-}));
+import { FormControlLabel } from './formControlLabel';
+import { useTableContext } from './table';
 
 export function ColumnSelection<T>(): JSX.Element {
-  const classes = useClasses();
-  const [anchor, setAnchor] = useState<HTMLButtonElement | null>(null);
-  const state = useTableContext<T>();
-  const columns = state.useState('props.columns');
-  const hiddenColumns = state.useState('hiddenColumns');
+  const {
+    components: { IconButton, Popover, Checkbox },
+    icons: { Settings },
+    text,
+  } = useTheme();
+  const cssVariables = useCssVariables();
+
+  const table = useTableContext<T>();
+  const columns = table.useState('props.columns');
+  const hiddenColumns = table.useState('hiddenColumns');
+
+  const [anchorEl, setAnchorEl] = useState<Element | null>(null);
 
   const toggle = (column: InternalColumn<T, unknown>) => {
     const {
       props: { hiddenColumns: controlledHiddenColumns, onHiddenColumnsChange },
-    } = state.getState();
+    } = table.getState();
 
     const newValue = new Set(hiddenColumns);
     if (hiddenColumns.has(column.id)) newValue.delete(column.id);
     else newValue.add(column.id);
 
     if (!controlledHiddenColumns) {
-      state.update((state) => {
+      table.update((state) => {
         state.hiddenColumns = newValue;
       });
     }
@@ -38,24 +39,20 @@ export function ColumnSelection<T>(): JSX.Element {
 
   return (
     <>
-      <IconButton color="inherit" size="small" onClick={(e) => setAnchor(e.currentTarget)}>
+      <IconButton onClick={(e) => setAnchorEl(anchorEl ? null : e.currentTarget)}>
         <Settings />
       </IconButton>
 
-      <Popover
-        open={!!anchor}
-        onClose={() => setAnchor(null)}
-        anchorEl={anchor}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-        transformOrigin={{ vertical: 'top', horizontal: 'left' }}
-      >
-        <div className={classes.list}>
+      <Popover anchorEl={anchorEl} open={!!anchorEl} onClose={() => setAnchorEl(null)} css={cssVariables}>
+        <div css={{ padding: `calc(var(--spacing) * 2)`, display: 'grid' }}>
+          <div css={{ marginBottom: 'var(--spacing)' }}>{text.selectColumns}</div>
+
           {columns.map((column) => (
             <FormControlLabel
               key={column.id}
               control={<Checkbox checked={!hiddenColumns.has(column.id)} onChange={() => toggle(column)} disabled={column.cannotHide} />}
               label={column.header}
-            />
+            ></FormControlLabel>
           ))}
         </div>
       </Popover>

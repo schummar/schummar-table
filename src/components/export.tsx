@@ -1,31 +1,22 @@
-import { Button, IconButton, makeStyles, Popover, Typography } from '@material-ui/core';
-import { AssignmentReturn, CloudDownload } from '@material-ui/icons';
 import React, { useState } from 'react';
+import { useTheme } from '..';
 import { csvExport, CsvExportOptions } from '../misc/csvExport';
-import { useTableContext } from '../table';
-
-const useClasses = makeStyles((theme) => ({
-  dialog: {
-    padding: theme.spacing(2),
-    display: 'grid',
-    justifyItems: 'stretch',
-
-    '& > *': {
-      justifyContent: 'start',
-    },
-  },
-}));
+import { useCssVariables } from '../theme/useCssVariables';
+import { useTableContext } from './table';
 
 export function Export<T>(): JSX.Element {
-  const classes = useClasses();
-  const [anchor, setAnchor] = useState<HTMLButtonElement | null>(null);
-  const state = useTableContext<T>();
-  const textTitle = state.useState('props.text.exportTitle');
-  const textCopy = state.useState('props.text.exportCopy');
-  const textDownload = state.useState('props.text.exportDownload');
+  const table = useTableContext<T>();
+  const {
+    components: { Button, IconButton, Popover },
+    icons: { Export, Clipboard },
+    text,
+  } = useTheme();
+  const cssVariables = useCssVariables();
+
+  const [anchor, setAnchor] = useState<Element | null>(null);
 
   const generate = (options?: CsvExportOptions) => {
-    const { activeColumns, activeItems } = state.getState();
+    const { activeColumns, activeItems } = table.getState();
 
     const data = [
       activeColumns.map((column) => String(column.id)),
@@ -35,12 +26,12 @@ export function Export<T>(): JSX.Element {
   };
 
   const copy = () => {
-    navigator.clipboard.writeText(generate(state.getState().props.enableExport.copy));
+    navigator.clipboard.writeText(generate(table.getState().props.enableExport.copy));
   };
 
   const download = () => {
     const a = document.createElement('a');
-    a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(generate(state.getState().props.enableExport.download));
+    a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(generate(table.getState().props.enableExport.download));
     a.download = 'export.csv';
     document.body.appendChild(a);
     a.click();
@@ -49,24 +40,29 @@ export function Export<T>(): JSX.Element {
 
   return (
     <>
-      <IconButton color="inherit" size="small" onClick={(e) => setAnchor(e.currentTarget)}>
-        <CloudDownload />
+      <IconButton onClick={(e) => setAnchor(anchor ? null : e.currentTarget)}>
+        <Export css={!!anchor && { color: 'var(--primaryMain)' }} />
       </IconButton>
 
-      <Popover
-        open={!!anchor}
-        onClose={() => setAnchor(null)}
-        anchorEl={anchor}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-        transformOrigin={{ vertical: 'top', horizontal: 'left' }}
-      >
-        <div className={classes.dialog}>
-          <Typography variant="caption">{textTitle ?? 'Export'}</Typography>
-          <Button startIcon={<AssignmentReturn />} fullWidth onClick={copy}>
-            {textCopy ?? 'In die Zwischenablage'}
+      <Popover open={!!anchor} onClose={() => setAnchor(null)} anchorEl={anchor} css={cssVariables}>
+        <div
+          css={{
+            padding: `calc(var(--spacing) * 2)`,
+            display: 'grid',
+            justifyItems: 'stretch',
+            gap: 'var(--spacing)',
+
+            '& > *': {
+              justifyContent: 'start',
+            },
+          }}
+        >
+          <div css={{ marginBottom: 'var(--spacing)' }}>{text.exportTitle}</div>
+          <Button startIcon={<Clipboard />} onClick={copy}>
+            {text.exportCopy}
           </Button>
-          <Button startIcon={<CloudDownload />} fullWidth onClick={download}>
-            {textDownload ?? 'Herunterladen'}
+          <Button startIcon={<Export />} onClick={download}>
+            {text.exportDownload}
           </Button>
         </div>
       </Popover>

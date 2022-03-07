@@ -95,8 +95,12 @@ export function calcProps<T>(props: TableProps<T>): InternalTableProps<T> {
       parentId,
       columns,
       enableSelection: props.enableSelection ?? true,
-      enableColumnSelection: props.enableColumnSelection ?? true,
+      selectSyncChildren: props.selectSyncChildren ?? true,
+      stickyHeader: props.stickyHeader ?? true,
       enableExport,
+      enableColumnSelection: props.enableColumnSelection ?? true,
+      enableColumnResize: props.enableColumnResize ?? true,
+      enableColumnReorder: props.enableColumnReorder ?? true,
     };
   }, [props]);
 }

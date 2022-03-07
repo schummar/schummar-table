@@ -22,7 +22,7 @@ export const orderBy = <T>(arr: T[], selectors: ((t: T) => any)[] = [], directio
 export const uniq = <T>(arr: T[]): T[] => {
   const set = new Set<T>();
   for (const t of arr) set.add(t);
-  return [...set.values()];
+  return Array.from(set);
 };
 
 export const intersect = <T>(a: Iterable<T>, b: { has(t: T): boolean }): Set<T> => {
@@ -60,20 +60,32 @@ export const getDescendants = <T>(...items: TableItem<T>[]): Set<Id> => {
   return result;
 };
 
-export const c = (...classNames: (string | Record<string, boolean> | undefined)[]): string =>
-  flatMap(classNames, (item) => {
-    if (item === undefined) return [];
-    if (typeof item === 'string') return [item];
-    return Object.entries(item)
-      .filter(([, predicate]) => predicate)
-      .map(([key]) => key);
-  }).join(' ');
-
 export const identity = (x: unknown): any => x;
+
 export const asString = (x: unknown): string => {
   if (x instanceof Array) return x.map(asString).join(', ');
   if (x instanceof Object) return JSON.stringify(x);
   return String(x ?? '');
 };
+
+export const asStringOrArray = (x: unknown): string | string[] => {
+  if (x instanceof Array) return x.map(asString);
+  return asString(x);
+};
+
 export const defaultEquals = (a: unknown, b: unknown): boolean => a === b;
+
 export const subStringMatch = (a: string, b: string): boolean => a.toLowerCase().includes(b.toLowerCase());
+
+export const castArray = <T>(a: T | T[]) => (a instanceof Array ? a : [a]);
+
+export const cx = (...classNames: (string | false | undefined | null | Record<string, boolean>)[]) =>
+  classNames
+    .flatMap((entry) => {
+      if (!entry) return [];
+      if (typeof entry === 'string') return [entry];
+      return Object.entries(entry)
+        .filter(([, predicate]) => predicate)
+        .map(([className]) => className);
+    })
+    .join(' ');
