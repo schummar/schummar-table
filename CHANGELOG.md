@@ -1,5 +1,12 @@
 # Changelog
 
+### [0.5.1](https://github.com/schummar/schummar-table/compare/v0.5.0...v0.5.1) (2022-03-07)
+
+
+### Bug Fixes
+
+* wrong PartialTableTheme type ([c66c978](https://github.com/schummar/schummar-table/commit/c66c97820e8b156fe722e1c5710a4de45a659bad))
+
 ## [0.5.0](https://github.com/schummar/schummar-table/compare/v0.4.2...v0.5.0) (2022-03-07)
 
 
