@@ -24,14 +24,13 @@ export function SortComponent<T>({ children }: { children: ReactNode }): JSX.Ele
     } = table.getState();
 
     const newDirection = direction === 'asc' ? 'desc' : 'asc';
-    const newSort = (e.getModifierState('Control') ? table.getState().sort.filter((s) => s.columnId !== columnId) : []).concat(
-      off
-        ? []
-        : {
-            columnId,
-            direction: newDirection,
-          },
-    );
+    const newSort = e.getModifierState('Control') || off ? table.getState().sort.filter((s) => s.columnId !== columnId) : [];
+    if (!off) {
+      newSort.push({
+        columnId,
+        direction: newDirection,
+      });
+    }
 
     onSortChange?.(newSort);
 
