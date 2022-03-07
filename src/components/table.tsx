@@ -4,7 +4,7 @@ import { useTheme } from '..';
 import { useTableStateStorage } from '../internalState/tableStateStorage';
 import { useTableState } from '../internalState/useTableState';
 import { cx } from '../misc/helpers';
-import { defaultClasses } from '../theme/defaultClasses';
+import { defaultClasses } from '../theme/defaultTheme/defaultClasses';
 import { useCssVariables } from '../theme/useCssVariables';
 import { Id, InternalTableState, TableProps } from '../types';
 import { ColumnHeader, ColumnHeaderContext } from './columnHeader';

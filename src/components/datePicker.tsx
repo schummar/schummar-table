@@ -1,7 +1,7 @@
 import { useDayzed } from 'dayzed';
 import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useTheme } from '..';
-import { gray } from '../theme/defaultClasses';
+import { gray } from '../theme/defaultTheme/defaultClasses';
 import { useCssVariables } from '../theme/useCssVariables';
 
 export type DateRange = { min: Date; max: Date };

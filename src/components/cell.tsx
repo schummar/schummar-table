@@ -1,7 +1,7 @@
 import React, { memo } from 'react';
 import { Id, useColumnContext, useTableContext, useTheme } from '..';
 import { cx } from '../misc/helpers';
-import { defaultClasses } from '../theme/defaultClasses';
+import { defaultClasses } from '../theme/defaultTheme/defaultClasses';
 import { calcClassNames } from './row';
 
 export const Cell = memo(function Cell<T>({ itemId, rowIndex }: { itemId: Id; rowIndex: number }) {

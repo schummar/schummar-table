@@ -1,6 +1,6 @@
 import React, { memo, useEffect, useRef } from 'react';
 import { cx, getAncestors } from '../misc/helpers';
-import { defaultClasses } from '../theme/defaultClasses';
+import { defaultClasses } from '../theme/defaultTheme/defaultClasses';
 import { Id, InternalColumn } from '../types';
 import { Cell } from './cell';
 import { ExpandControl } from './expandControl';

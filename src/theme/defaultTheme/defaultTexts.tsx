@@ -1,4 +1,4 @@
-import { TableTheme } from '../types';
+import { TableTheme } from '../../types';
 
 export const defaultTexts: TableTheme['text'] = {
   selectColumns: 'Select visible columns',

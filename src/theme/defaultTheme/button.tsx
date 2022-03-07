@@ -1,5 +1,5 @@
 import { TableTheme } from '../../types';
-import { darkGray, lightGray } from '../defaultClasses';
+import { darkGray, lightGray } from './defaultClasses';
 
 export const Button: TableTheme['components']['Button'] = ({ startIcon, children, variant = 'text', ...props }) => {
   return (

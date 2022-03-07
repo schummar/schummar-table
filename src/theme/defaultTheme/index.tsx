@@ -1,18 +1,13 @@
-import { Spinner } from '../../components/spinnner';
 import { TableTheme } from '../../types';
-import { Badge } from './badge';
-import { Button } from './button';
-import { Checkbox } from './checkbox';
-import { IconButton } from './iconButton';
-import { Popover } from './popover';
-import { TextField } from './textField';
+import { defaultColors } from './defaultColors';
+import { defaultComponents } from './defaultComponents';
+import { defaultIcons } from './defaultIcons';
+import { defaultTexts } from './defaultTexts';
 
-export const defaultComponents: TableTheme['components'] = {
-  IconButton,
-  Checkbox,
-  Popover,
-  Button,
-  Badge,
-  TextField,
-  Spinner,
+export const defaultTableTheme: TableTheme = {
+  text: defaultTexts,
+  components: defaultComponents,
+  icons: defaultIcons,
+  colors: defaultColors,
+  spacing: '5px',
 };

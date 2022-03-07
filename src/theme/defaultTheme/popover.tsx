@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { TableTheme } from '../../types';
-import { defaultClasses } from '../defaultClasses';
+import { defaultClasses } from './defaultClasses';
 
 const MARGIN = 10;
 const MAX_OFFSET = 20;

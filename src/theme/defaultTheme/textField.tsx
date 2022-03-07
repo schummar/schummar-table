@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { TableTheme } from '../../types';
-import { darkGray } from '../defaultClasses';
+import { darkGray } from './defaultClasses';
 
 export const TextField: TableTheme['components']['TextField'] = ({ endIcon, className, inputRef, ...props }) => {
   const [focus, setFocus] = useState(false);

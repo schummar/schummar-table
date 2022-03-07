@@ -2,7 +2,6 @@ import { CSSInterpolation } from '@emotion/serialize';
 import React, { ComponentType, CSSProperties, ReactNode, Ref } from 'react';
 import { TableStateStorage } from './internalState/tableStateStorage';
 import { CsvExportOptions } from './misc/csvExport';
-import { DeepPartial } from './misc/deepPartial';
 
 export type Sort = { columnId: string | number; direction: SortDirection };
 export type SortDirection = 'asc' | 'desc';
@@ -86,7 +85,9 @@ export interface TableTheme<T = unknown> {
   spacing: string | number;
 }
 
-export type PartialTableTheme<T = unknown> = DeepPartial<TableTheme<T>>;
+export type PartialTableTheme<T = unknown> = {
+  [K in keyof TableTheme<T>]?: TableTheme<T>[K] extends Record<string, any> ? Partial<TableTheme<T>[K]> : TableTheme<T>[K];
+};
 
 export interface TableProps<T> extends Partial<TableTheme<T>> {
   //////////////////////////////////////////////////

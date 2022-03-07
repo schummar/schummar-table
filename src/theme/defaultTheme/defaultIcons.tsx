@@ -1,6 +1,6 @@
 import { ClassNames, css } from '@emotion/react';
 import { cloneElement, HTMLProps } from 'react';
-import { TableTheme } from '../types';
+import { TableTheme } from '../../types';
 
 const IconDefaultStyle = css({
   width: '1.5em',

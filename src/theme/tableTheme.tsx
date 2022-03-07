@@ -1,6 +1,6 @@
 import { createContext, ReactNode, useContext } from 'react';
 import { InternalTableProps, PartialTableTheme, TableTheme } from '../types';
-import { defaultTableTheme } from './defaultTheme/defaultTableTheme';
+import { defaultTableTheme } from './defaultTheme';
 
 let globalTableTheme: PartialTableTheme = {};
 export function configureTableTheme(tableTheme: PartialTableTheme) {
