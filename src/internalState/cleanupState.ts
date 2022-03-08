@@ -16,7 +16,9 @@ export function cleanupState<T>(state: Store<InternalTableState<T>>): void {
           const newSort = draft.sort.filter((s) => activeColumnIds.has(s.columnId));
           if (newSort.length < draft.sort.length) {
             draft.sort = newSort;
-            draft.props.onSortChange?.(newSort);
+            setTimeout(() => {
+              draft.props.onSortChange?.(newSort);
+            });
           }
 
           // Remove filters for non active columns
@@ -49,14 +51,18 @@ export function cleanupState<T>(state: Store<InternalTableState<T>>): void {
             const newSelection = intersect(draft.selection, activeItemsById);
             if (newSelection.size !== draft.selection.size) {
               draft.selection = newSelection;
-              draft.props.onSelectionChange?.(newSelection);
+              setTimeout(() => {
+                draft.props.onSelectionChange?.(newSelection);
+              });
             }
 
             // Remove expanded for non existing items
             const newExpanded = intersect(draft.expanded, itemsById);
             if (newExpanded.size < draft.expanded.size) {
               draft.expanded = newExpanded;
-              draft.props.onExpandedChange?.(newExpanded);
+              setTimeout(() => {
+                draft.props.onExpandedChange?.(newExpanded);
+              });
             }
           }
         },

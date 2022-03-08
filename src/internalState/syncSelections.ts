@@ -19,7 +19,9 @@ export function syncSelections<T>(state: Store<InternalTableState<T>>): void {
 
           if (newSelection.size !== selection.size) {
             state.selection = newSelection;
-            state.props.onSelectionChange?.(newSelection);
+            setTimeout(() => {
+              state.props.onSelectionChange?.(newSelection);
+            });
           }
         },
         { runNow: true },
