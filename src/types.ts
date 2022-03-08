@@ -214,7 +214,7 @@ export interface TableProps<T> extends Partial<TableTheme<T>> {
   /** If enabled, automatically store table state in localStorage, localForage or another compatible storage. */
   persist?: {
     storage: TableStateStorage;
-    id?: string;
+    id: string;
     include?: ('sort' | 'selection' | 'expanded' | 'hiddenColumns' | 'filterValues' | 'columnWidths' | 'columnOrder')[];
     exclude?: ('sort' | 'selection' | 'expanded' | 'hiddenColumns' | 'filterValues' | 'columnWidths' | 'columnOrder')[];
   };

@@ -5,6 +5,8 @@ import { SerializableValue } from '../types';
 
 const KEYS = ['sort', 'selection', 'expanded', 'hiddenColumns', 'filterValues', 'columnWidths', 'columnOrder'] as const;
 
+const storageName = (id: string) => `schummar-table_state-v1_${id}`;
+
 export type TableStateStorage = {
   getItem: (key: string) => string | null | Promise<string | null>;
   setItem: (key: string, value: string) => unknown | Promise<unknown>;
@@ -81,8 +83,8 @@ export function useTableStateStorage() {
 
     (async () => {
       try {
-        const { storage, id = 'table', include, exclude } = persist;
-        const json = await storage.getItem(`${id}_state`);
+        const { storage, id, include, exclude } = persist;
+        const json = await storage.getItem(storageName(id));
         if (isCanceled || !json) return;
 
         const data = parse(json);
@@ -134,7 +136,7 @@ export function useTableStateStorage() {
       (state) => {
         if (!state.props.persist) return;
 
-        const { storage, id = 'table', include, exclude } = state.props.persist;
+        const { storage, id, include, exclude } = state.props.persist;
         const data: any = {};
 
         for (const key of KEYS) {
@@ -164,7 +166,7 @@ export function useTableStateStorage() {
 
         table.getState().props.debug?.('save', data, stringify(data));
         q.run(async () => {
-          await storage.setItem(`${id}_state`, stringify(data));
+          await storage.setItem(storageName(id), stringify(data));
         }, true);
       },
       { throttle: 1000 },

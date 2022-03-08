@@ -105,7 +105,7 @@ function App(): JSX.Element {
       // enableColumnReorder={false}
       enableExport
       // rowAction={(_item, index) => (index % 2 === 0 ? '?' : undefined)}
-      persist={{ storage, exclude: ['selection'] }}
+      persist={{ storage, id: 'example', exclude: ['selection'] }}
       columns={(col) => [
         col((x) => x.id, {
           header: 'Id',
