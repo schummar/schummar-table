@@ -1,7 +1,7 @@
 {
   "name": "schummar-table",
   "repository": "schummar/schummar-table",
-  "version": "0.5.1",
+  "version": "0.5.2",
   "description": "",
   "type": "module",
   "sideEffects": false,

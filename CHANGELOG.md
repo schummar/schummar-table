@@ -1,5 +1,12 @@
 # Changelog
 
+### [0.5.2](https://github.com/schummar/schummar-table/compare/v0.5.1...v0.5.2) (2022-03-08)
+
+
+### Bug Fixes
+
+* execute change listeners from reactions with delay ([441f4f4](https://github.com/schummar/schummar-table/commit/441f4f4f589c78262e78b18470c9e597d9b6c94f))
+
 ### [0.5.1](https://github.com/schummar/schummar-table/compare/v0.5.0...v0.5.1) (2022-03-07)
 
 
