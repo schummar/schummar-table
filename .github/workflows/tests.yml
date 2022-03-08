@@ -16,7 +16,7 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: 16.x
-      - run: npm ci
+      - run: npm --no-workspaces ci
       - run: npm run lint
 
   build:
@@ -28,5 +28,5 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: 16.x
-      - run: npm ci
+      - run: npm --no-workspaces ci
       - run: npm run build
