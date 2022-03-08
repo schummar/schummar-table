@@ -17,7 +17,7 @@ export function cleanupState<T>(state: Store<InternalTableState<T>>): void {
           if (newSort.length < draft.sort.length) {
             draft.sort = newSort;
             setTimeout(() => {
-              draft.props.onSortChange?.(newSort);
+              state.getState().props.onSortChange?.(newSort);
             });
           }
 
@@ -52,7 +52,7 @@ export function cleanupState<T>(state: Store<InternalTableState<T>>): void {
             if (newSelection.size !== draft.selection.size) {
               draft.selection = newSelection;
               setTimeout(() => {
-                draft.props.onSelectionChange?.(newSelection);
+                state.getState().props.onSelectionChange?.(newSelection);
               });
             }
 
@@ -61,7 +61,7 @@ export function cleanupState<T>(state: Store<InternalTableState<T>>): void {
             if (newExpanded.size < draft.expanded.size) {
               draft.expanded = newExpanded;
               setTimeout(() => {
-                draft.props.onExpandedChange?.(newExpanded);
+                state.getState().props.onExpandedChange?.(newExpanded);
               });
             }
           }

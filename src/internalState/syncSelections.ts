@@ -2,10 +2,10 @@ import { useEffect } from 'react';
 import { Store } from 'schummar-state/react';
 import { InternalTableState } from '../types';
 
-export function syncSelections<T>(state: Store<InternalTableState<T>>): void {
+export function syncSelections<T>(table: Store<InternalTableState<T>>): void {
   useEffect(
     () =>
-      state.addReaction(
+      table.addReaction(
         (state) => [state.props.selectSyncChildren, state.selection, state.activeItems] as const,
         ([selectSyncChildren, selection, activeItems], state) => {
           if (!selectSyncChildren) return;
@@ -20,12 +20,12 @@ export function syncSelections<T>(state: Store<InternalTableState<T>>): void {
           if (newSelection.size !== selection.size) {
             state.selection = newSelection;
             setTimeout(() => {
-              state.props.onSelectionChange?.(newSelection);
+              table.getState().props.onSelectionChange?.(newSelection);
             });
           }
         },
         { runNow: true },
       ),
-    [state],
+    [table],
   );
 }
