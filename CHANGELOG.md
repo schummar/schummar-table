@@ -1,5 +1,12 @@
 # Changelog
 
+### [0.5.3](https://github.com/schummar/schummar-table/compare/v0.5.2...v0.5.3) (2022-03-08)
+
+
+### Bug Fixes
+
+* broken event listeners ([ec11e75](https://github.com/schummar/schummar-table/commit/ec11e758e677a70c95c46feb645d2f9e4b1b2cfd))
+
 ### [0.5.2](https://github.com/schummar/schummar-table/compare/v0.5.1...v0.5.2) (2022-03-08)
 
 
