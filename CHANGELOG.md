@@ -1,5 +1,12 @@
 # Changelog
 
+### [0.5.4](https://github.com/schummar/schummar-table/compare/v0.5.3...v0.5.4) (2022-03-08)
+
+
+### Bug Fixes
+
+* version table state storage ([a72a493](https://github.com/schummar/schummar-table/commit/a72a493be6816328134c935b60c92ef331a3815e))
+
 ### [0.5.3](https://github.com/schummar/schummar-table/compare/v0.5.2...v0.5.3) (2022-03-08)
 
 
