@@ -87,8 +87,10 @@ export function Virtualized<T>({
     if (!virtual || !probeRef.current) return;
 
     window.addEventListener('scroll', incCounter, true);
+    window.addEventListener('resize', incCounter, true);
     return () => {
       window.removeEventListener('scroll', incCounter, true);
+      window.removeEventListener('resize', incCounter, true);
     };
   }, [probeRef.current, incCounter]);
 

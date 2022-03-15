@@ -38,14 +38,13 @@ export default function Home(): JSX.Element {
     <Layout title={`Hello from ${siteConfig.title}`} description="Description will go into a meta tag in <head />">
       <HomepageHeader />
 
-      <div css={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+      <div css={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
         <div
           css={{
-            alignSelf: 'center',
             margin: `40px 0 80px`,
-            maxWidth: 960,
+            maxWidth: 'min(960px, 100%)',
             display: 'grid',
-            gridTemplateColumns: 'repeat(3, 1fr)',
+            gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 300px))',
             gap: 30,
           }}
         >
@@ -65,7 +64,7 @@ export default function Home(): JSX.Element {
           />
         </div>
 
-        <main className={styles.main}>
+        <main className={styles.main} css={{ overflowX: 'auto' }}>
           <h2 css={{ justifySelf: 'center', color: 'gray', margin: '5rem 0' }}>Demo</h2>
 
           <ExampleTable stickyHeader={{ top: 60 }} />
