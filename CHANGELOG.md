@@ -1,5 +1,12 @@
 # Changelog
 
+### [0.5.5](https://github.com/schummar/schummar-table/compare/v0.5.4...v0.5.5) (2022-03-15)
+
+
+### Bug Fixes
+
+* Added some missing exports and props documentation. ([fdf96ad](https://github.com/schummar/schummar-table/commit/fdf96ad63f13df2e0eabca1cb38f0c5f0c4c0de6))
+
 ### [0.5.4](https://github.com/schummar/schummar-table/compare/v0.5.3...v0.5.4) (2022-03-08)
 
 
