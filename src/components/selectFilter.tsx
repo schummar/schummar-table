@@ -24,9 +24,13 @@ export function SelectFilter<T, V, F extends SerializableValue>({
   singleSelect,
   ...props
 }: {
+  /** Which options are provided to select. By default all unique item values are used. */
   options?: F[];
+  /** String representation of a value. Used to filter options via the text field. */
   stringValue?: (value: F) => string;
+  /** Render values. By default a string representation of the value is used. */
   render?: (value: F) => ReactNode;
+  /** If enabled, only one option can be selected at a time. */
   singleSelect?: boolean;
 } & CommonFilterProps<T, V, F, Set<F>>): JSX.Element {
   const {

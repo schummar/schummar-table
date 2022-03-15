@@ -7,20 +7,28 @@ import { useCssVariables } from '../theme/useCssVariables';
 export type DateRange = { min: Date; max: Date };
 
 export type DatePickerProps = {
+  /** Currently selected day or range of days. */
   value: Date | DateRange | null;
+  /** Callback for when the day (range) changes. */
   onChange: (value: Date | DateRange | null) => void;
+  /** If enabled, ranges can be selected. */
   rangeSelect?: boolean;
+  /** Which locale to use to render the calendar. */
   locale?: string;
+  /** Which day of the week should be in the first column. */
   firstDayOfWeek?: 0 | 1 | 2 | 3 | 4 | 5 | 6;
 };
 
 const weekDays = [0, 1, 2, 3, 4, 5, 6] as const;
 const months = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11] as const;
 
+/** Rounds a date down to the start of the day. */
 export const startOfDay = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate());
 
+/** Rounds a date up to the end of the day. */
 export const endOfDay = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate() + 1, 0, 0, 0, -1);
 
+/** Returns whether two dates and/or date ranges intersect. Intersection is considered per day. */
 export function dateIntersect(a: Date | null | DateRange, b: Date | null | DateRange) {
   if (a instanceof Date) {
     a = { min: a, max: a };

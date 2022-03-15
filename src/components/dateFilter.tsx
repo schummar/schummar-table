@@ -32,8 +32,11 @@ export function DateFilter<T, V>({
   filterBy = convertDateOrArray,
   ...props
 }: {
+  /** Which locale to use to render the calendar. */
   locale?: string;
+  /** Which day of the week should be in the first column. */
   firstDayOfWeek?: DatePickerProps['firstDayOfWeek'];
+  /** If enabled, only single days can be selected. Ranges otherwise. */
   singleSelect?: boolean;
 } & CommonFilterProps<T, V, Date | DateRange | null, Date | DateRange | null>): JSX.Element {
   const {

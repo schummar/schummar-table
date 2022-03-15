@@ -32,7 +32,7 @@ export function useFilter<T, V, F, S extends SerializableValue>(impl: FilterImpl
         state.filters.delete(columnId);
       });
     };
-  }, [table, columnId, ...(impl.dependencies ?? [impl])]);
+  }, [table, columnId, impl]);
 
   // Track local value and update it globally after delay
   const value = table.useState((state) => state.filterValues.get(columnId) as S | undefined);

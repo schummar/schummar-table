@@ -11,7 +11,10 @@ export function TextFilter<T, V>({
   filterBy = asStringOrArray,
   ...props
 }: {
-  compare?: (a: string, b: string) => boolean;
+  /** Custom comparison function. Should return true if an item value matches the current filter value.
+   * By default a fuzzy text comparison is used.
+   */
+  compare?: (itemValue: string, filterValue: string) => boolean;
 } & CommonFilterProps<T, V, string, string>): JSX.Element {
   const {
     components: { IconButton },

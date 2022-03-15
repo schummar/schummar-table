@@ -1,5 +1,5 @@
 import { CSSInterpolation } from '@emotion/serialize';
-import React, { ComponentType, CSSProperties, ReactNode, Ref } from 'react';
+import React, { ComponentType, ReactNode, Ref } from 'react';
 import { TableStateStorage } from './internalState/tableStateStorage';
 import { CsvExportOptions } from './misc/csvExport';
 
@@ -232,22 +232,30 @@ export type InternalTableProps<T> = Omit<TableProps<T>, 'id' | 'parentId' | 'col
 export type TableItem<T = unknown> = T & { id: Id; parentId?: Id; children: TableItem<T>[] };
 
 export type Column<T, V> = {
+  /** Column id. If not provided, the index in the column array will be used.
+   * An explicit id is better however for controlling column related states, persitance etc.
+   */
   id?: string;
+  /** Render table header for this column. */
   header?: ReactNode;
+  /** Extract value for this column */
   value: (item: T) => V;
+  /** Render table cell. If not provided, a string representation of the value will be rendered. */
   renderCell?: (value: V, item: T) => ReactNode;
+  /** Serialize column value for exports. If not provided, a string representation of the value will be used. */
   exportCell?: (value: V, item: T) => string | number;
+  /** Customize sort criteria. By default it will be the value itself in case it's a number or Date, or a string representation of the value otherwise. */
   sortBy?: ((value: V, item: T) => unknown) | ((value: V) => unknown)[];
-
+  /** Set filter component that will be displayed in the column header */
   filter?: ReactNode;
-
+  /** Prevent hiding the column. */
   cannotHide?: boolean;
-
+  /** Specify a css width.
+   * @default 'max-content'
+   */
   width?: string;
-  justifyContent?: CSSProperties['justifyContent'];
-
+  /** Provide css class names to override columns styles. */
   classes?: TableTheme<T>['classes'];
-
   /** If the column definition changes, supply parameters that it depends on. If not set, the column will not update */
   dependencies?: any[];
 };
@@ -259,8 +267,6 @@ export type InternalColumn<T, V> = Required<Omit<Column<T, V>, 'id'>, 'header' |
 type Required<T, S> = T & {
   [P in keyof T as P extends S ? P : never]-?: T[P];
 };
-
-export type Rows<T, V> = [{ value: V; item: T }, ...{ value: V; item: T }[]];
 
 export type InternalTableState<T> = {
   // Basically the passed in props, but normalized
@@ -289,17 +295,26 @@ export type InternalTableState<T> = {
 };
 
 export type CommonFilterProps<T, V, F, S extends SerializableValue> = {
+  /** Filter by? By default the column value will be used. If filterBy returns an array, an items will be active if at least one entry matches the active filter. */
   filterBy?: (value: V, item: T) => F | F[];
+  /** Preselected filter value. */
   defaultValue?: S;
+  /** Controlled filter value. */
   value?: S;
+  /** Notifies on filter change. */
   onChange?: (value?: S) => void;
-  dependencies?: any[];
+  /** Whether to persist filter value (given that filter persitance is enabled for the table).
+   * @default true
+   */
   persist?: boolean;
 };
 
 export type FilterImplementation<T, V, F, S extends SerializableValue> = CommonFilterProps<T, V, F, S> & {
+  /** Unique filter id. Used to persist filter values. */
   id: string;
+  /** Whether the filter is active currently. */
   isActive: (filterValue: S) => boolean;
+  /** When the filter is active, this function is used to filter the items to be displayed. */
   test: (filterValue: S, value: F) => boolean;
 };
 

@@ -1,5 +1,7 @@
 export { AutoFocusTextField } from './components/autoFocusTextField';
 export { DateFilter } from './components/dateFilter';
+export { dateIntersect, DatePicker, endOfDay, startOfDay } from './components/datePicker';
+export type { DatePickerProps, DateRange } from './components/datePicker';
 export { SelectFilter } from './components/selectFilter';
 export { ColumnContext, Table, TableContext, useColumnContext, useTableContext } from './components/table';
 export { TextFilter } from './components/textFilter';
@@ -8,4 +10,4 @@ export { useTheme } from './hooks/useTheme';
 export type { TableStateStorage } from './internalState/tableStateStorage';
 export { termMatch, textMatch } from './misc/textMatch';
 export { configureTableTheme, mergeThemes, TableThemeContext, TableThemeProvider } from './theme/tableTheme';
-export type { Column, Id, InternalColumn, PartialTableTheme, Rows, Sort, SortDirection, TableProps } from './types';
+export type { Column, Id, InternalColumn, PartialTableTheme, Sort, SortDirection, TableProps } from './types';
