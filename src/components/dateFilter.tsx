@@ -1,7 +1,7 @@
-import React, { useMemo } from 'react';
-import { useFilter, useTheme } from '..';
+import React from 'react';
+import { useFilter } from '..';
 import { CommonFilterProps } from '../types';
-import { dateIntersect, DatePicker, DatePickerProps, DateRange, endOfDay, startOfDay } from './datePicker';
+import { dateIntersect, DatePicker, DatePickerProps, DateRange } from './datePicker';
 
 function convertDate(x: unknown): Date | null {
   if (x instanceof Date) return x;
@@ -39,11 +39,6 @@ export function DateFilter<T, V>({
   /** If enabled, only single days can be selected. Ranges otherwise. */
   singleSelect?: boolean;
 } & CommonFilterProps<T, V, Date | DateRange | null, Date | DateRange | null>): JSX.Element {
-  const {
-    components: { Button },
-    text,
-  } = useTheme();
-
   const { value = null, onChange } = useFilter({
     ...props,
     filterBy,
@@ -59,11 +54,6 @@ export function DateFilter<T, V>({
     },
   });
 
-  const formatDate = useMemo(() => {
-    const { format } = new Intl.DateTimeFormat(locale, { dateStyle: 'medium' });
-    return format;
-  }, [locale]);
-
   return (
     <div
       css={{
@@ -71,55 +61,7 @@ export function DateFilter<T, V>({
         display: 'grid',
       }}
     >
-      {!singleSelect && (
-        <div
-          css={{
-            marginBottom: 'var(--spacing)',
-            display: 'flex',
-            justifyContent: 'center',
-          }}
-        >
-          {value ? formatDate(value instanceof Date ? value : value.min) : ''} -{' '}
-          {value ? formatDate(value instanceof Date ? value : value.max) : ''}
-        </div>
-      )}
-
       <DatePicker rangeSelect={!singleSelect} value={value} onChange={onChange} locale={locale} firstDayOfWeek={firstDayOfWeek} />
-
-      <div css={{ marginTop: 'var(--spacing)', display: 'grid', gridAutoFlow: 'column', justifyContent: 'center' }}>
-        <Button variant="text" onClick={() => onChange(today())}>
-          {text.today}
-        </Button>
-
-        <Button variant="text" onClick={() => onChange(thisWeek(firstDayOfWeek))}>
-          {text.thisWeek}
-        </Button>
-
-        <Button variant="text" onClick={() => onChange(null)}>
-          {text.reset}
-        </Button>
-      </div>
     </div>
   );
 }
-
-export const today = (): DateRange => {
-  const today = startOfDay(new Date());
-  return { min: today, max: today };
-};
-
-export const thisWeek = (firstDayOfWeek = 0): DateRange => {
-  const now = new Date();
-  const min = new Date(now);
-
-  let diff = min.getDay() - firstDayOfWeek;
-  if (diff < 0) {
-    diff += 7;
-  }
-  min.setDate(min.getDate() - diff);
-
-  const max = new Date(min);
-  max.setDate(max.getDate() + 6);
-
-  return { min: startOfDay(min), max: endOfDay(max) };
-};

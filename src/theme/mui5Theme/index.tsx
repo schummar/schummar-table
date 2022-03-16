@@ -1,10 +1,10 @@
 import { Badge, Button, Checkbox, CircularProgress, IconButton, TextField, useTheme } from '@mui/material';
 import { ReactNode, useMemo } from 'react';
-import { PartialTableTheme, TableTheme } from '../../types';
+import { PartialTableTheme } from '../../types';
 import { Popover } from '../defaultTheme/popover';
 import { mergeThemes, TableThemeContext } from '../tableTheme';
 
-export const mui5Theme: Partial<TableTheme> = {
+export const mui5Theme: PartialTableTheme = {
   components: {
     Button: (props) => (
       <Button
