@@ -280,14 +280,38 @@ export function DatePicker({ value, onChange, rangeSelect, locale, firstDayOfWee
   );
 }
 
-function DateInput({ min, max, value, onChange }: { min?: Date; max?: Date; value: Date | null; onChange: (date: Date | null) => void }) {
+function DateInput({ min, max, value, onChange }: { value: Date | null; onChange: (date: Date | null) => void }) {
+  const [day = value?.getDate().toString().padStart(2, '0') ?? '', setDay] = useState<string>();
+  const [month = value ? (value.getMonth() + 1).toString().padStart(2, '0') : '', setMonth] = useState<string>();
+  const [year = value?.getFullYear().toString().padStart(2, '0') ?? '', setYear] = useState<string>();
+
+  const set = (set: (value: string) => void, value: string, max: number) => {
+    if (value.match(/^\d*$/) && Number(value) <= max) {
+      set(value);
+    }
+  };
+
+  const apply = () => {
+    onChange(new Date(Number(year), Number(month - 1), Number(day)));
+    setDay(undefined);
+    setMonth(undefined);
+    setYear(undefined);
+  };
+
+  new Intl.DateTimeFormat();
+
   return (
-    <input
-      type="date"
-      value={value?.toISOString().slice(0, 10) ?? ''}
-      min={min?.toISOString().slice(0, 10)}
-      max={max?.toISOString().slice(0, 10)}
-      onChange={(e) => onChange(e.target.valueAsDate)}
-    />
+    <div
+      css={{
+        '& input': {
+          border: 'none',
+          width: '2ch',
+        },
+      }}
+    >
+      <input placeholder="day" value={day} onChange={(e) => set(setDay, e.target.value, 31)} onBlur={apply} />.
+      <input placeholder="month" value={month} onChange={(e) => set(setMonth, e.target.value, 12)} onBlur={apply} />.
+      <input placeholder="year" value={year} onChange={(e) => set(setYear, e.target.value, Infinity)} onBlur={apply} />
+    </div>
   );
 }
