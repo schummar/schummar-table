@@ -84,6 +84,8 @@ export function DateInput({ value, onChange, locale }: { value: Date | null; onC
               className={className}
               css={{
                 width: `${length(type, value)}ch`,
+                boxSizing: 'content-box',
+                overflow: 'visible',
                 border: 'none',
                 borderBottom: '2px solid transparent',
                 outline: 'none',
