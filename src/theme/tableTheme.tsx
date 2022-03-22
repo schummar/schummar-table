@@ -1,8 +1,7 @@
-import { createContext, ReactNode, useContext } from 'react';
-import { InternalTableProps, PartialTableTheme, TableTheme } from '../types';
-import { defaultTableTheme } from './defaultTheme';
+import { createContext, ReactNode } from 'react';
+import { PartialTableTheme } from '../types';
 
-let globalTableTheme: PartialTableTheme = {};
+export let globalTableTheme: PartialTableTheme = {};
 export function configureTableTheme(tableTheme: PartialTableTheme) {
   globalTableTheme = tableTheme;
 }
@@ -28,10 +27,4 @@ export function mergeThemes<T>(...themes: PartialTableTheme<T>[]): PartialTableT
       .reverse()
       .find((x) => x !== undefined),
   };
-}
-
-export function useTableTheme<T>(props: InternalTableProps<T>): TableTheme<T> {
-  const contextTableTheme = useContext(TableThemeContext);
-
-  return mergeThemes(defaultTableTheme, globalTableTheme, contextTableTheme, props) as TableTheme<T>;
 }

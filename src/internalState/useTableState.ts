@@ -1,7 +1,6 @@
 import { castDraft } from 'immer';
 import { useEffect, useMemo } from 'react';
 import { Store } from 'schummar-state/react';
-import { useTableTheme } from '../theme/tableTheme';
 import { InternalTableState, TableProps } from '../types';
 import { calcItems } from './calcItems';
 import { calcProps } from './calcProps';
@@ -11,13 +10,11 @@ import { syncSelections } from './syncSelections';
 
 export function useTableState<T>(_props: TableProps<T>): Store<InternalTableState<T>> {
   const props = calcProps(_props);
-  const theme = useTableTheme(props);
 
   const state = useMemo(
     () =>
       new Store<InternalTableState<T>>({
         props,
-        theme,
 
         sort: props.defaultSort ?? [],
         selection: props.defaultSelection ?? new Set(),
@@ -58,7 +55,6 @@ export function useTableState<T>(_props: TableProps<T>): Store<InternalTableStat
           state.columnOrder.splice(index, 0, column.id);
         }
       }
-      state.theme = theme;
     });
   }, [state, props]);
 

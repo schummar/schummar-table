@@ -1,4 +1,3 @@
-import { ClassNames } from '@emotion/react';
 import { createTheme as mui5CreateTheme } from '@mui/material';
 import localforage from 'localforage';
 import React, { useEffect, useMemo, useState } from 'react';
@@ -192,5 +191,3 @@ function App(): JSX.Element {
 }
 
 export default App;
-
-console.log(classes);

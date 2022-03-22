@@ -1,8 +1,8 @@
 import { useDayzed } from 'dayzed';
-import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useTheme } from '..';
 import { gray } from '../theme/defaultTheme/defaultClasses';
-import { useCssVariables } from '../theme/useCssVariables';
+import { DateInput } from './dateInput';
 
 export type DateRange = { min: Date; max: Date };
 
@@ -20,13 +20,33 @@ export type DatePickerProps = {
 };
 
 const weekDays = [0, 1, 2, 3, 4, 5, 6] as const;
-const months = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11] as const;
 
 /** Rounds a date down to the start of the day. */
 export const startOfDay = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate());
 
 /** Rounds a date up to the end of the day. */
 export const endOfDay = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate() + 1, 0, 0, 0, -1);
+
+export const today = (): DateRange => {
+  const today = startOfDay(new Date());
+  return { min: today, max: today };
+};
+
+export const thisWeek = (firstDayOfWeek = 0): DateRange => {
+  const now = new Date();
+  const min = new Date(now);
+
+  let diff = min.getDay() - firstDayOfWeek;
+  if (diff < 0) {
+    diff += 7;
+  }
+  min.setDate(min.getDate() - diff);
+
+  const max = new Date(min);
+  max.setDate(max.getDate() + 6);
+
+  return { min: startOfDay(min), max: endOfDay(max) };
+};
 
 /** Returns whether two dates and/or date ranges intersect. Intersection is considered per day. */
 export function dateIntersect(a: Date | null | DateRange, b: Date | null | DateRange) {
@@ -46,17 +66,18 @@ export function dateIntersect(a: Date | null | DateRange, b: Date | null | DateR
 
 export function DatePicker({ value, onChange, rangeSelect, locale, firstDayOfWeek = 0 }: DatePickerProps) {
   const {
-    components: { IconButton },
+    components: { Button, IconButton },
     icons: { ChevronRight },
+    text,
   } = useTheme();
 
   const [baseDate] = useState(new Date());
   const [dateInView, setDateInView] = useState<Date>(baseDate);
-  const [currentMin, setCurrentMin] = useState<Date>();
+  const [dirty, setDirty] = useState<Partial<DateRange>>();
   const [hovered, setHovered] = useState<Date>();
 
-  const min = currentMin ?? (value instanceof Date ? value : value?.min);
-  const max = currentMin ? undefined : value instanceof Date ? value : value?.max;
+  const min = dirty ? dirty.min : value instanceof Date ? value : value?.min;
+  const max = dirty ? dirty.max : value instanceof Date ? value : value?.max;
 
   const { calendars, getBackProps, getForwardProps, getDateProps } = useDayzed({
     onDateSelected: () => undefined,
@@ -74,10 +95,61 @@ export function DatePicker({ value, onChange, rangeSelect, locale, firstDayOfWee
 
   useEffect(() => setDateInView(value === null ? new Date() : value instanceof Date ? value : value.max), [value]);
 
+  useEffect(() => {
+    if (!rangeSelect) {
+      setDirty(undefined);
+    }
+  }, [rangeSelect]);
+
+  function set(min?: Date, max?: Date, edit?: 'min' | 'max') {
+    if (!rangeSelect) {
+      onChange(min ?? null);
+      return;
+    }
+
+    if (min && max && min > max) {
+      if (edit === 'min') {
+        max = min;
+      } else if (edit === 'max') {
+        min = max;
+      } else {
+        [min, max] = [max, min];
+      }
+    }
+
+    if (!min === !max) {
+      setDirty(undefined);
+      onChange(min && max ? { min, max } : null);
+    } else {
+      setDirty({ min, max });
+    }
+  }
+
+  const formatMonth = useMemo(() => {
+    const { format } = new Intl.DateTimeFormat(locale, { month: 'long' });
+    return (month: number) => format(new Date(2021, month));
+  }, [locale]);
+
+  const formatYear = useMemo(() => {
+    const { format } = new Intl.DateTimeFormat(locale, { year: 'numeric' });
+    return (year: number) => format(new Date(year, 0, 1));
+  }, [locale]);
+
   return (
     <div>
+      <div css={{ display: 'grid', gridAutoFlow: 'column', justifyContent: 'center', alignItems: 'baseline', gap: 'var(--spacing)' }}>
+        <DateInput value={min ?? null} onChange={(date) => set(date ?? undefined, max, 'min')} locale={locale} />
+
+        {rangeSelect && (
+          <>
+            {' - '}
+            <DateInput value={max ?? null} onChange={(date) => set(min, date ?? undefined, 'max')} locale={locale} />
+          </>
+        )}
+      </div>
+
       {calendars.map(({ month, year, weeks }) => (
-        <div key={`${month}${year}`}>
+        <div key={`${month}${year}`} css={{ display: 'grid' }}>
           <div
             css={{
               margin: 'calc(var(--spacing) * 4) 0',
@@ -92,9 +164,7 @@ export function DatePicker({ value, onChange, rangeSelect, locale, firstDayOfWee
             </IconButton>
 
             <div css={{ display: 'flex' }}>
-              <MonthSelector value={month} onChange={(month) => setDateInView(new Date(year, month))} locale={locale} />
-
-              <YearSelector value={year} onChange={(year) => setDateInView(new Date(year, month))} />
+              {formatMonth(month)} {formatYear(year)}
             </div>
 
             <IconButton {...getForwardProps({ calendars })}>
@@ -104,6 +174,7 @@ export function DatePicker({ value, onChange, rangeSelect, locale, firstDayOfWee
 
           <div
             css={{
+              justifySelf: 'center',
               display: 'grid',
               gridTemplateColumns: 'repeat(7, max-content)',
               fontWeight: 'bold',
@@ -156,18 +227,11 @@ export function DatePicker({ value, onChange, rangeSelect, locale, firstDayOfWee
                     ]}
                     {...getDateProps({ dateObj })}
                     onClick={() => {
-                      if (!rangeSelect) {
-                        setCurrentMin(undefined);
-                        onChange(date);
-                      } else if (min && !max) {
-                        setCurrentMin(undefined);
-                        if (date > min) {
-                          onChange({ min, max: date });
-                        } else {
-                          onChange({ min: date, max: min });
-                        }
+                      if (dirty) {
+                        if (min) set(min, date);
+                        else set(date, max);
                       } else {
-                        setCurrentMin(date);
+                        set(date);
                       }
                     }}
                     onPointerOver={() => setHovered(date)}
@@ -181,101 +245,38 @@ export function DatePicker({ value, onChange, rangeSelect, locale, firstDayOfWee
           </div>
         </div>
       ))}
-    </div>
-  );
-}
 
-function MonthSelector({ value, onChange, locale }: { value: number; onChange: (month: number) => void; locale?: string }) {
-  const {
-    components: { Popover },
-  } = useTheme();
-  const cssVariables = useCssVariables();
-
-  const [anchor, setAnchor] = useState<Element>();
-
-  const formatMonth = useMemo(() => {
-    const { format } = new Intl.DateTimeFormat(locale, { month: 'long' });
-    return (month: number) => format(new Date(2021, month));
-  }, [locale]);
-
-  return (
-    <>
-      <button
-        css={{
-          border: 'none',
-          background: 'transparent',
-          fontSize: 'inherit',
-          cursor: 'pointer',
-        }}
-        onClick={(e) => setAnchor(e.currentTarget)}
-      >
-        {formatMonth(value)}
-      </button>
-
-      <Popover open={!!anchor} anchorEl={anchor ?? null} onClose={() => setAnchor(undefined)} align="center" css={cssVariables}>
-        <div
-          css={{
-            display: 'grid',
+      <div css={{ marginTop: 'var(--spacing)', display: 'grid', gridAutoFlow: 'column', justifyContent: 'center' }}>
+        <Button
+          variant="text"
+          onClick={() => {
+            setDirty(undefined);
+            onChange(today());
           }}
         >
-          {months.map((month) => (
-            <button
-              key={month}
-              css={[
-                {
-                  padding: 'var(--spacing)',
-                  border: 'none',
-                  background: 'transparent',
+          {text.today}
+        </Button>
 
-                  '&:hover': {
-                    background: 'var(--primaryLight)',
-                  },
-                },
-                month === value && { background: 'var(--primaryMain)' },
-              ]}
-              onClick={() => onChange(month)}
-            >
-              {formatMonth(month)}
-            </button>
-          ))}
-        </div>
-      </Popover>
-    </>
-  );
-}
+        <Button
+          variant="text"
+          onClick={() => {
+            setDirty(undefined);
+            onChange(thisWeek(firstDayOfWeek));
+          }}
+        >
+          {text.thisWeek}
+        </Button>
 
-function YearSelector({ value, onChange, locale }: { value: number; onChange: (year: number) => void; locale?: string }) {
-  const [input, setInput] = useState<string>();
-  const ref = useRef<HTMLInputElement>(null);
-
-  function apply() {
-    onChange(Number(input));
-    setInput(undefined);
-  }
-
-  const formatYear = useMemo(() => {
-    const { format } = new Intl.DateTimeFormat(locale, { year: 'numeric' });
-    return (year: number) => format(new Date(year, 0, 1));
-  }, [locale]);
-
-  useLayoutEffect(() => ref.current?.focus(), [ref.current]);
-
-  if (input === undefined) {
-    return <div onClick={() => setInput(String(value))}>{formatYear(value)}</div>;
-  }
-
-  return (
-    <input
-      ref={ref}
-      css={{ width: '4ch' }}
-      value={input}
-      onChange={(e) => {
-        if (e.target.value.match(/^\d{0,4}$/)) {
-          setInput(e.target.value);
-        }
-      }}
-      onBlur={apply}
-      onKeyPress={(e) => e.key === 'Enter' && apply()}
-    ></input>
+        <Button
+          variant="text"
+          onClick={() => {
+            setDirty(undefined);
+            onChange(null);
+          }}
+        >
+          {text.reset}
+        </Button>
+      </div>
+    </div>
   );
 }

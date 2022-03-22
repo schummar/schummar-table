@@ -89,7 +89,7 @@ export type PartialTableTheme<T = unknown> = {
   [K in keyof TableTheme<T>]?: TableTheme<T>[K] extends Record<string, any> ? Partial<TableTheme<T>[K]> : TableTheme<T>[K];
 };
 
-export interface TableProps<T> extends Partial<TableTheme<T>> {
+export interface TableProps<T> extends PartialTableTheme<T> {
   //////////////////////////////////////////////////
   // Table data
   //////////////////////////////////////////////////
@@ -271,7 +271,6 @@ type Required<T, S> = T & {
 export type InternalTableState<T> = {
   // Basically the passed in props, but normalized
   props: InternalTableProps<T>;
-  theme: TableTheme<T>;
 
   // Actual internal state
   sort: Sort[];
