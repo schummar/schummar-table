@@ -2,6 +2,7 @@ import { useDayzed } from 'dayzed';
 import React, { useEffect, useMemo, useState } from 'react';
 import { useTheme } from '..';
 import { gray } from '../theme/defaultTheme/defaultClasses';
+import { DateInput } from './dateInput';
 
 export type DateRange = { min: Date; max: Date };
 
@@ -101,8 +102,6 @@ export function DatePicker({ value, onChange, rangeSelect, locale, firstDayOfWee
   }, [rangeSelect]);
 
   function set(min?: Date, max?: Date, edit?: 'min' | 'max') {
-    console.log(min, max);
-
     if (!rangeSelect) {
       onChange(min ?? null);
       return;
@@ -138,14 +137,16 @@ export function DatePicker({ value, onChange, rangeSelect, locale, firstDayOfWee
 
   return (
     <div>
-      <DateInput value={min ?? null} onChange={(date) => set(date ?? undefined, max, 'min')} />
+      <div css={{ display: 'grid', gridAutoFlow: 'column', justifyContent: 'center', alignItems: 'baseline', gap: 'var(--spacing)' }}>
+        <DateInput value={min ?? null} onChange={(date) => set(date ?? undefined, max, 'min')} locale={locale} />
 
-      {rangeSelect && (
-        <>
-          {' - '}
-          <DateInput min={min} value={max ?? null} onChange={(date) => set(min, date ?? undefined, 'max')} />
-        </>
-      )}
+        {rangeSelect && (
+          <>
+            {' - '}
+            <DateInput value={max ?? null} onChange={(date) => set(min, date ?? undefined, 'max')} locale={locale} />
+          </>
+        )}
+      </div>
 
       {calendars.map(({ month, year, weeks }) => (
         <div key={`${month}${year}`} css={{ display: 'grid' }}>
@@ -276,42 +277,6 @@ export function DatePicker({ value, onChange, rangeSelect, locale, firstDayOfWee
           {text.reset}
         </Button>
       </div>
-    </div>
-  );
-}
-
-function DateInput({ min, max, value, onChange }: { value: Date | null; onChange: (date: Date | null) => void }) {
-  const [day = value?.getDate().toString().padStart(2, '0') ?? '', setDay] = useState<string>();
-  const [month = value ? (value.getMonth() + 1).toString().padStart(2, '0') : '', setMonth] = useState<string>();
-  const [year = value?.getFullYear().toString().padStart(2, '0') ?? '', setYear] = useState<string>();
-
-  const set = (set: (value: string) => void, value: string, max: number) => {
-    if (value.match(/^\d*$/) && Number(value) <= max) {
-      set(value);
-    }
-  };
-
-  const apply = () => {
-    onChange(new Date(Number(year), Number(month - 1), Number(day)));
-    setDay(undefined);
-    setMonth(undefined);
-    setYear(undefined);
-  };
-
-  new Intl.DateTimeFormat();
-
-  return (
-    <div
-      css={{
-        '& input': {
-          border: 'none',
-          width: '2ch',
-        },
-      }}
-    >
-      <input placeholder="day" value={day} onChange={(e) => set(setDay, e.target.value, 31)} onBlur={apply} />.
-      <input placeholder="month" value={month} onChange={(e) => set(setMonth, e.target.value, 12)} onBlur={apply} />.
-      <input placeholder="year" value={year} onChange={(e) => set(setYear, e.target.value, Infinity)} onBlur={apply} />
     </div>
   );
 }
