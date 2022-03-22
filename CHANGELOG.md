@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.6.0](https://github.com/schummar/schummar-table/compare/v0.5.5...v0.6.0) (2022-03-22)
+
+
+### Features
+
+* Manual input in date picker ([ceedb40](https://github.com/schummar/schummar-table/commit/ceedb40f833f9985ece178d5ee77e148178f4cf3))
+
 ### [0.5.5](https://github.com/schummar/schummar-table/compare/v0.5.4...v0.5.5) (2022-03-15)
 
 
