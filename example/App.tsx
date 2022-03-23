@@ -1,11 +1,11 @@
-import { createTheme as mui5CreateTheme } from '@mui/material';
+import { createTheme as mui5CreateTheme, Tooltip } from '@mui/material';
 import localforage from 'localforage';
 import React, { useEffect, useMemo, useState } from 'react';
 import { createResource } from 'schummar-state';
 import { useResource } from 'schummar-state/react';
 import { DateFilter, SelectFilter, Table, TableThemeProvider, TextFilter } from '../src';
 import { DateRange } from '../src/components/datePicker';
-import { flatMap } from '../src/misc/helpers';
+import { asString, flatMap } from '../src/misc/helpers';
 import classes from './app.module.css';
 
 const storage = localforage.createInstance({ name: 'xyz' });
@@ -46,7 +46,7 @@ const loadTop = createResource(async () => {
   }));
 });
 
-function App(): JSX.Element {
+function Content(): JSX.Element {
   const [active, setActive] = useState<string[]>(['0']);
   const [selected, setSelected] = useState<Set<any>>(new Set());
   const [children, setChildren] = useState<SubItem[]>([]);
@@ -83,9 +83,20 @@ function App(): JSX.Element {
     return () => clearInterval(handle);
   }, [active, topItems]);
 
-  const table = (
+  const [counter, setCounter] = useState(0);
+
+  useEffect(() => {
+    const h = setInterval(() => setCounter((c) => c + 1), 1000);
+    return () => {
+      clearInterval(h);
+    };
+  });
+
+  console.log('render', counter);
+
+  return (
     <Table
-      items={topItems ? [...topItems, ...children] : undefined}
+      items={topItems ? [...topItems, ...children].slice(0, 1) : undefined}
       id="id"
       parentId={(x) => (x.type === 'sub' ? x.parentId : undefined)}
       hasDeferredChildren={(x) => !x.id.replace('_', '').includes('_')}
@@ -105,12 +116,20 @@ function App(): JSX.Element {
       enableExport
       // rowAction={(_item, index) => (index % 2 === 0 ? '?' : undefined)}
       persist={{ storage, id: 'example', exclude: ['selection'] }}
+      defaultColumnProps={{
+        renderCell: (value) => (typeof value === 'string' ? `${counter}::${value}` : asString(value)),
+      }}
+      wrapCell={(content) => (
+        <Tooltip title={content ?? ''}>
+          <div css={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>{content}</div>
+        </Tooltip>
+      )}
       columns={(col) => [
         col((x) => x.id, {
           header: 'Id',
           filter: <TextFilter />,
           renderCell: (id, x) => (x.type === 'top' ? <div>{id}</div> : id),
-          sortBy: (id) => id,
+          sortBy: [(id) => id],
         }),
 
         col((x) => x.name, {
@@ -133,6 +152,7 @@ function App(): JSX.Element {
 
         col((x) => ''.padEnd(x.index, '#'), {
           header: 'test',
+          filter: <SelectFilter filterBy={(x: string) => x.length} />,
           // width: '10ch',
         }),
         col((x) => x.date, {
@@ -143,16 +163,22 @@ function App(): JSX.Element {
       ]}
       classes={{
         ...classes,
-        cell: (_item, index) => (index % 2 === 1 ? classes.odd : undefined),
+        // cell: (_item, index) => (index % 2 === 1 ? classes.odd : undefined),
       }}
       // stickyHeader
       debug={(...args) => console.debug(...args)}
+      debugRender={(...args) => console.debug(...args)}
       virtual={{ throttleScroll: 16 }}
       fullWidth="left"
+      text={{
+        exportCopy: <span onClick={() => undefined}>foo</span>,
+      }}
       // revealFiltered
     />
   );
+}
 
+function App() {
   return (
     <TableThemeProvider
       theme={{
@@ -184,7 +210,7 @@ function App(): JSX.Element {
         <Mui4TableThemeProvider>{table}</Mui4TableThemeProvider>
       </Mui4ThemeProvider> */}
 
-        {table}
+        <Content />
       </div>
     </TableThemeProvider>
   );

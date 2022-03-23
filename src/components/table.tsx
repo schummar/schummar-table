@@ -43,7 +43,7 @@ export function Table<T>(props: TableProps<T>): JSX.Element {
 }
 
 function TableLoadingState() {
-  const { text } = useTheme();
+  const loadingText = useTheme((t) => t.text.loading);
   const isHydrated = useTableStateStorage();
   const [showLoading, setShowLoading] = useState(false);
 
@@ -54,7 +54,7 @@ function TableLoadingState() {
 
   return (
     <>
-      {!isHydrated && showLoading && <div>{text.loading}</div>}
+      {!isHydrated && showLoading && <div>{loadingText}</div>}
       <TableInner hidden={!isHydrated} />
     </>
   );
@@ -73,7 +73,7 @@ const TableInner = memo(function TableInner<T>({ hidden }: { hidden: boolean }) 
   );
   const columnWidths = table.useState('columnWidths', { throttle: 16 });
   const columnStyleOverride = table.useState('columnStyleOverride', { throttle: 16 });
-  const defaultWidth = table.useState('props.defaultWidth');
+
   const classes = table.useState('props.classes');
   const stickyHeader = table.useState('props.stickyHeader');
   const enableSelection = table.useState('props.enableSelection');
@@ -94,7 +94,7 @@ const TableInner = memo(function TableInner<T>({ hidden }: { hidden: boolean }) 
             //
             fullWidth === 'right' || fullWidth === true ? 'auto' : '0',
             'max-content',
-            ...activeColumns.map((column) => columnWidths.get(column.id) ?? column.width ?? defaultWidth ?? 'max-content'),
+            ...activeColumns.map((column) => columnWidths.get(column.id) ?? column.width ?? 'max-content'),
             fullWidth === 'left' || fullWidth === true ? 'auto' : '0',
           ].join(' '),
         },

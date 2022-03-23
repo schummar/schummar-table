@@ -42,21 +42,11 @@ export function SelectFilter<T, V, F extends SerializableValue>({
   const table = useTableContext<T>();
   const columnId = useColumnContext();
 
-  const options = table.useState((state) => {
-    if (providedOptions) return uniq(providedOptions);
-
-    const column = state.activeColumns.find((column) => column.id === columnId) as InternalColumn<T, V> | undefined;
-    if (!column) return [];
-
-    const filterBy = props.filterBy ?? ((x) => x as unknown as F | F[]);
-
-    return uniq(flatMap(state.items, (item) => castArray(filterBy(column.value(item), item))));
-  });
-
-  const [query, setQuery] = useState('');
-  const filtered = options.filter((option) => !query || stringValue(option).toLowerCase().includes(query.toLowerCase()));
-
-  const { value = new Set<F>(), onChange } = useFilter({
+  const {
+    value = new Set<F>(),
+    onChange,
+    filterBy,
+  } = useFilter({
     ...props,
 
     id: 'selectFilter',
@@ -69,6 +59,18 @@ export function SelectFilter<T, V, F extends SerializableValue>({
       return filterValue.has(value);
     },
   });
+
+  const options = table.useState((state) => {
+    if (providedOptions) return uniq(providedOptions);
+
+    const column = state.activeColumns.find((column) => column.id === columnId) as InternalColumn<T, V> | undefined;
+    if (!column) return [];
+
+    return uniq(flatMap(state.items, (item) => castArray(filterBy(column.value(item), item))));
+  });
+
+  const [query, setQuery] = useState('');
+  const filtered = options.filter((option) => !query || stringValue(option).toLowerCase().includes(query.toLowerCase()));
 
   return (
     <div

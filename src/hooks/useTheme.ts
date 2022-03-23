@@ -7,21 +7,26 @@ import { TableTheme } from '../types';
 
 const emptyStore = new Store(undefined);
 
-export function useTheme<T>() {
-  const table = useContext(TableContext);
-  const localTheme =
-    table?.useState((state) => ({
-      text: state.props.text,
-      classes: state.props.classes,
-      components: state.props.components,
-      icons: state.props.icons,
-      colors: state.props.colors,
-      spacing: state.props.spacing,
-    })) ??
-    emptyStore.useState() ??
-    {};
-
+export function useTheme<T, S>(selector: (theme: TableTheme<T>) => S): S {
   const contextTableTheme = useContext(TableThemeContext);
+  const table = useContext(TableContext);
 
-  return mergeThemes<T>(defaultTableTheme, globalTableTheme, contextTableTheme, localTheme) as TableTheme<T>;
+  const theme =
+    table?.useState((state) => {
+      const localTheme = {
+        text: state.props.text,
+        classes: state.props.classes,
+        components: state.props.components,
+        icons: state.props.icons,
+        colors: state.props.colors,
+        spacing: state.props.spacing,
+      };
+
+      const theme = mergeThemes(defaultTableTheme, globalTableTheme, contextTableTheme, localTheme) as TableTheme<T>;
+      return selector(theme);
+    }) ??
+    emptyStore.useState() ??
+    selector(mergeThemes(defaultTableTheme, globalTableTheme, contextTableTheme) as TableTheme<T>);
+
+  return theme;
 }
