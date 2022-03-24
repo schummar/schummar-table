@@ -235,12 +235,11 @@ export interface TableProps<T> extends PartialTableTheme<T> {
 }
 
 export type InternalTableProps<T> = MemoizedFunctions<
-  Omit<TableProps<T>, 'id' | 'parentId' | 'columns' | 'defaultColumnProps' | 'enableExport' | 'classes'> & {
+  Omit<TableProps<T>, 'id' | 'parentId' | 'columns' | 'defaultColumnProps' | 'enableExport'> & {
     id: (item: T) => Id;
     parentId?: (item: T) => Id | undefined;
     columns: InternalColumn<T, unknown>[];
     enableExport: { copy?: CsvExportOptions; download?: CsvExportOptions };
-    classes?: MemoizedFunctions<TableTheme<T>['classes']>;
   }
 >;
 
@@ -274,10 +273,9 @@ export type Column<T, V> = {
 };
 
 export type InternalColumn<T, V> = MemoizedFunctions<
-  Required<Omit<Column<T, V>, 'id' | 'sortBy' | 'classes'>, 'header' | 'renderCell' | 'exportCell' | 'sortBy'> & {
+  Required<Omit<Column<T, V>, 'id' | 'sortBy'>, 'header' | 'renderCell' | 'exportCell' | 'sortBy'> & {
     id: Id;
     sortBy: ((value: V, item: T) => unknown)[];
-    classes?: MemoizedFunctions<TableTheme<T>['classes']>;
   }
 >;
 

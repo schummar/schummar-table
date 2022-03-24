@@ -1,6 +1,6 @@
 import { useContext } from 'react';
 import { Store } from 'schummar-state/react';
-import { TableContext } from '../components/table';
+import { ColumnContext, TableContext } from '../components/table';
 import { defaultTableTheme } from '../theme/defaultTheme';
 import { globalTableTheme, mergeThemes, TableThemeContext } from '../theme/tableTheme';
 import { MemoizedTableTheme, TableTheme } from '../types';
@@ -11,6 +11,7 @@ const emptyStore = new Store(undefined);
 export function useTheme<T, S>(selector: (theme: MemoizedTableTheme<T>) => S): S {
   const contextTableTheme = useContext(TableThemeContext);
   const table = useContext(TableContext);
+  const columnId = useContext(ColumnContext);
   const memo = useTableMemo();
 
   const process = (t: TableTheme<T>): MemoizedTableTheme<T> => {
@@ -41,7 +42,12 @@ export function useTheme<T, S>(selector: (theme: MemoizedTableTheme<T>) => S): S
         spacing: state.props.spacing,
       };
 
-      const theme = mergeThemes(defaultTableTheme, globalTableTheme, contextTableTheme, localTheme) as TableTheme<T>;
+      const column = state.activeColumns.find((column) => column.id === columnId);
+      const columnsTheme = {
+        classes: column?.classes,
+      };
+
+      const theme = mergeThemes(defaultTableTheme, globalTableTheme, contextTableTheme, localTheme, columnsTheme) as TableTheme<T>;
 
       return selector(process(theme));
     }) ??

@@ -18,7 +18,6 @@ const defaultWrapCell = (content: ReactNode) => {
 export const Cell = memo(function Cell<T>({ itemId, rowIndex }: { itemId: Id; rowIndex: number }) {
   const table = useTableContext<T>();
   const columnId = useColumnContext();
-  const classes = useTheme((t) => t.classes);
 
   const column = table.useState((state) => {
     const col = state.activeColumns.find((column) => column.id === columnId);
@@ -26,7 +25,6 @@ export const Cell = memo(function Cell<T>({ itemId, rowIndex }: { itemId: Id; ro
       col && {
         value: col.value,
         renderCell: col.renderCell,
-        classes: col.classes,
       }
     );
   });
@@ -35,14 +33,14 @@ export const Cell = memo(function Cell<T>({ itemId, rowIndex }: { itemId: Id; ro
   const columnStyleOverride = table.useState((state) => state.columnStyleOverride.get(columnId), { throttle: 16 });
 
   useLayoutEffect(() => table.getState().props.debugRender?.('render cell', itemId, columnId));
+  const className = useTheme((t) => cx(...calcClassNames(t.classes, item, rowIndex)));
 
   if (!column || !item) return null;
 
-  const classNames = [...calcClassNames(classes, item, rowIndex), ...calcClassNames(column?.classes, item, rowIndex)];
   const content = column.renderCell(column.value(item), item);
 
   return (
-    <div className={cx(...classNames)} css={[defaultClasses.cell, columnStyleOverride]}>
+    <div className={className} css={[defaultClasses.cell, columnStyleOverride]}>
       {wrapCell(content, column.value(item), item, rowIndex)}
     </div>
   );
