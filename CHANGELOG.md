@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.7.0](https://github.com/schummar/schummar-table/compare/v0.6.0...v0.7.0) (2022-03-24)
+
+
+### Features
+
+* Better function memo handling ([08f9c68](https://github.com/schummar/schummar-table/commit/08f9c6876b7cf808e2c526568c68b58fe0f36118))
+* defaultColumnProps ([08f9c68](https://github.com/schummar/schummar-table/commit/08f9c6876b7cf808e2c526568c68b58fe0f36118))
+* wrapCell ([08f9c68](https://github.com/schummar/schummar-table/commit/08f9c6876b7cf808e2c526568c68b58fe0f36118))
+
 ## [0.6.0](https://github.com/schummar/schummar-table/compare/v0.5.5...v0.6.0) (2022-03-22)
 
 
