@@ -5,10 +5,8 @@ import { useColumnContext, useTableContext } from './table';
 export function SortComponent<T>({ children }: { children: ReactNode }): JSX.Element {
   const table = useTableContext<T>();
   const columnId = useColumnContext();
-  const {
-    components: { Badge },
-    icons: { ArrowUpward },
-  } = useTheme();
+  const Badge = useTheme((t) => t.components.Badge);
+  const ArrowUpward = useTheme((t) => t.icons.ArrowUpward);
 
   const { direction, index } = table.useState((state) => {
     const index = state.sort.findIndex((s) => s.columnId === columnId) ?? -1;

@@ -1,15 +1,13 @@
 import { useTheme } from '../hooks/useTheme';
 
 export function useCssVariables() {
-  const theme = useTheme();
-
-  return {
-    '--spacing': theme.spacing,
-    '--primaryMain': theme.colors.primary.main,
-    '--primaryLight': theme.colors.primary.light,
-    '--primaryContrastText': theme.colors.primary.contrastText,
-    '--secondaryMain': theme.colors.secondary.main,
-    '--secondaryLight': theme.colors.secondary.light,
-    '--secondaryContrastText': theme.colors.secondary.contrastText,
-  };
+  return useTheme(({ spacing, colors }) => ({
+    '--spacing': spacing,
+    '--primaryMain': colors.primary.main,
+    '--primaryLight': colors.primary.light,
+    '--primaryContrastText': colors.primary.contrastText,
+    '--secondaryMain': colors.secondary.main,
+    '--secondaryLight': colors.secondary.light,
+    '--secondaryContrastText': colors.secondary.contrastText,
+  }));
 }

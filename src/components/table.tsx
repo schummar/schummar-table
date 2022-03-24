@@ -1,6 +1,7 @@
-import React, { createContext, memo, useContext, useEffect, useState } from 'react';
+import React, { createContext, memo, useContext, useEffect, useLayoutEffect, useState } from 'react';
 import { Store } from 'schummar-state/react';
 import { useTheme } from '..';
+import { TableMemoContextProvider } from '../hooks/useTableMemo';
 import { useTableStateStorage } from '../internalState/tableStateStorage';
 import { useTableState } from '../internalState/useTableState';
 import { cx } from '../misc/helpers';
@@ -33,17 +34,19 @@ export function useColumnContext(): Id {
 export function Table<T>(props: TableProps<T>): JSX.Element {
   const table = useTableState(props);
 
-  table.getState().props.debugRender?.('render table');
+  useLayoutEffect(() => table.getState().props.debugRender?.('render table'));
 
   return (
     <TableContext.Provider value={table}>
-      <TableLoadingState />
+      <TableMemoContextProvider>
+        <TableLoadingState />
+      </TableMemoContextProvider>
     </TableContext.Provider>
   );
 }
 
 function TableLoadingState() {
-  const { text } = useTheme();
+  const loadingText = useTheme((t) => t.text.loading);
   const isHydrated = useTableStateStorage();
   const [showLoading, setShowLoading] = useState(false);
 
@@ -54,7 +57,7 @@ function TableLoadingState() {
 
   return (
     <>
-      {!isHydrated && showLoading && <div>{text.loading}</div>}
+      {!isHydrated && showLoading && <div>{loadingText}</div>}
       <TableInner hidden={!isHydrated} />
     </>
   );
@@ -73,7 +76,7 @@ const TableInner = memo(function TableInner<T>({ hidden }: { hidden: boolean }) 
   );
   const columnWidths = table.useState('columnWidths', { throttle: 16 });
   const columnStyleOverride = table.useState('columnStyleOverride', { throttle: 16 });
-  const defaultWidth = table.useState('props.defaultWidth');
+
   const classes = table.useState('props.classes');
   const stickyHeader = table.useState('props.stickyHeader');
   const enableSelection = table.useState('props.enableSelection');
@@ -81,7 +84,7 @@ const TableInner = memo(function TableInner<T>({ hidden }: { hidden: boolean }) 
   const enableExport = table.useState((state) => !!state.props.enableExport.copy || !!state.props.enableExport.download);
   const cssVariables = useCssVariables();
 
-  table.getState().props.debugRender?.('render table inner');
+  useLayoutEffect(() => table.getState().props.debugRender?.('render table inner'));
 
   return (
     <Virtualized
@@ -94,7 +97,7 @@ const TableInner = memo(function TableInner<T>({ hidden }: { hidden: boolean }) 
             //
             fullWidth === 'right' || fullWidth === true ? 'auto' : '0',
             'max-content',
-            ...activeColumns.map((column) => columnWidths.get(column.id) ?? column.width ?? defaultWidth ?? 'max-content'),
+            ...activeColumns.map((column) => columnWidths.get(column.id) ?? column.width ?? 'max-content'),
             fullWidth === 'left' || fullWidth === true ? 'auto' : '0',
           ].join(' '),
         },

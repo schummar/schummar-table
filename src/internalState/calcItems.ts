@@ -35,8 +35,10 @@ export function calcItems<T>(state: Store<InternalTableState<T>>): void {
             const selectors = flatMap(sort, (sort) => {
               const column = activeColumns.find((column) => column.id === sort.columnId);
               if (!column) return [];
-              const sortBy = column.sortBy instanceof Array ? column.sortBy : [column.sortBy];
-              return sortBy.map((sortBy) => ({ selector: (item: T) => sortBy(column.value(item), item), direction: sort.direction }));
+              return column.sortBy.map((sortBy) => ({
+                selector: (item: T) => sortBy(column.value(item), item),
+                direction: sort.direction,
+              }));
             }).filter(Boolean);
 
             sorted = orderBy(

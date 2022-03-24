@@ -4,10 +4,13 @@ import { useColumnContext, useTableContext } from '..';
 import { FilterControlContext } from '../components/filterControl';
 import { debounce } from '../misc/debounce';
 import { FilterImplementation, SerializableValue } from '../types';
+import { useTableMemo } from './useTableMemo';
 
 export function useFilter<T, V, F, S extends SerializableValue>(impl: FilterImplementation<T, V, F, S>) {
   const table = useTableContext<T>();
   const columnId = useColumnContext();
+  const cache = useTableMemo();
+  const filterBy = impl.filterBy && cache('', impl.filterBy);
 
   // Update implementation
   useEffect(() => {
@@ -20,7 +23,7 @@ export function useFilter<T, V, F, S extends SerializableValue>(impl: FilterImpl
 
   useEffect(() => {
     table.update((state) => {
-      state.filters.set(columnId, castDraft(impl));
+      state.filters.set(columnId, castDraft({ ...impl, filterBy }));
 
       if (impl.value !== undefined) {
         state.filterValues.set(columnId, impl.value);
@@ -71,5 +74,6 @@ export function useFilter<T, V, F, S extends SerializableValue>(impl: FilterImpl
     value: dirtyValue ?? value,
     onChange,
     close: useContext(FilterControlContext),
+    filterBy: filterBy ?? ((x) => x as unknown as F | F[]),
   };
 }

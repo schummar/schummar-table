@@ -5,10 +5,9 @@ import { Id } from '../types';
 import { useTableContext } from './table';
 
 export function ExpandControl<T>({ itemId, hasDeferredChildren }: { itemId: Id; hasDeferredChildren?: boolean }): JSX.Element {
-  const {
-    components: { IconButton, Spinner },
-    icons: { ChevronRight },
-  } = useTheme();
+  const IconButton = useTheme((t) => t.components.IconButton);
+  const Spinner = useTheme((t) => t.components.Spinner);
+  const ChevronRight = useTheme((t) => t.icons.ChevronRight);
 
   const table = useTableContext<T>();
   const isExpanded = table.useState((state) => state.expanded.has(itemId));

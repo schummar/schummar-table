@@ -8,10 +8,10 @@ export const FilterControlContext = createContext((): void => void 0);
 export function FilterControl<T>(): JSX.Element | null {
   const table = useTableContext<T>();
   const columnId = useColumnContext();
-  const {
-    components: { IconButton, Popover },
-    icons: { FilterList, ArrowDropDown },
-  } = useTheme();
+  const IconButton = useTheme((t) => t.components.IconButton);
+  const Popover = useTheme((t) => t.components.Popover);
+  const FilterList = useTheme((t) => t.icons.FilterList);
+  const ArrowDropDown = useTheme((t) => t.icons.ArrowDropDown);
   const cssVariables = useCssVariables();
 
   const [anchor, setAnchor] = useState<Element | null>(null);

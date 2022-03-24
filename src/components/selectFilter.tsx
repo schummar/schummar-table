@@ -33,30 +33,21 @@ export function SelectFilter<T, V, F extends SerializableValue>({
   /** If enabled, only one option can be selected at a time. */
   singleSelect?: boolean;
 } & CommonFilterProps<T, V, F, Set<F>>): JSX.Element {
-  const {
-    components: { IconButton, Checkbox },
-    icons: { Search, Clear },
-    text,
-  } = useTheme();
+  const IconButton = useTheme((t) => t.components.IconButton);
+  const Checkbox = useTheme((t) => t.components.Checkbox);
+  const Search = useTheme((t) => t.icons.Search);
+  const Clear = useTheme((t) => t.icons.Clear);
+  const selected = useTheme((t) => t.text.selected);
+  const noResults = useTheme((t) => t.text.noResults);
 
   const table = useTableContext<T>();
   const columnId = useColumnContext();
 
-  const options = table.useState((state) => {
-    if (providedOptions) return uniq(providedOptions);
-
-    const column = state.activeColumns.find((column) => column.id === columnId) as InternalColumn<T, V> | undefined;
-    if (!column) return [];
-
-    const filterBy = props.filterBy ?? ((x) => x as unknown as F | F[]);
-
-    return uniq(flatMap(state.items, (item) => castArray(filterBy(column.value(item), item))));
-  });
-
-  const [query, setQuery] = useState('');
-  const filtered = options.filter((option) => !query || stringValue(option).toLowerCase().includes(query.toLowerCase()));
-
-  const { value = new Set<F>(), onChange } = useFilter({
+  const {
+    value = new Set<F>(),
+    onChange,
+    filterBy,
+  } = useFilter({
     ...props,
 
     id: 'selectFilter',
@@ -69,6 +60,18 @@ export function SelectFilter<T, V, F extends SerializableValue>({
       return filterValue.has(value);
     },
   });
+
+  const options = table.useState((state) => {
+    if (providedOptions) return uniq(providedOptions);
+
+    const column = state.activeColumns.find((column) => column.id === columnId) as InternalColumn<T, V> | undefined;
+    if (!column) return [];
+
+    return uniq(flatMap(state.items, (item) => castArray(filterBy(column.value(item), item))));
+  });
+
+  const [query, setQuery] = useState('');
+  const filtered = options.filter((option) => !query || stringValue(option).toLowerCase().includes(query.toLowerCase()));
 
   return (
     <div
@@ -89,7 +92,7 @@ export function SelectFilter<T, V, F extends SerializableValue>({
         <FormControlLabel
           disabled={value.size === 0}
           control={<Checkbox disabled={value.size === 0} checked={value.size > 0} onChange={() => onChange(new Set())} />}
-          label={<>&lt;{text.selected(value.size)}&gt;</>}
+          label={<>&lt;{selected(value.size)}&gt;</>}
         ></FormControlLabel>
 
         {filtered.map((option, index) => (
@@ -101,7 +104,7 @@ export function SelectFilter<T, V, F extends SerializableValue>({
         ))}
       </div>
 
-      {filtered.length === 0 && <span css={{ textAlign: 'center' }}>{text.noResults}</span>}
+      {filtered.length === 0 && <span css={{ textAlign: 'center' }}>{noResults}</span>}
     </div>
   );
 }

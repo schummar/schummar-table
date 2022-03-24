@@ -65,11 +65,12 @@ export function dateIntersect(a: Date | null | DateRange, b: Date | null | DateR
 }
 
 export function DatePicker({ value, onChange, rangeSelect, locale, firstDayOfWeek = 0 }: DatePickerProps) {
-  const {
-    components: { Button, IconButton },
-    icons: { ChevronRight },
-    text,
-  } = useTheme();
+  const Button = useTheme((t) => t.components.Button);
+  const IconButton = useTheme((t) => t.components.IconButton);
+  const ChevronRight = useTheme((t) => t.icons.ChevronRight);
+  const textToday = useTheme((t) => t.text.today);
+  const textThisWeek = useTheme((t) => t.text.thisWeek);
+  const textReset = useTheme((t) => t.text.reset);
 
   const [baseDate] = useState(new Date());
   const [dateInView, setDateInView] = useState<Date>(baseDate);
@@ -254,7 +255,7 @@ export function DatePicker({ value, onChange, rangeSelect, locale, firstDayOfWee
             onChange(today());
           }}
         >
-          {text.today}
+          {textToday}
         </Button>
 
         <Button
@@ -264,7 +265,7 @@ export function DatePicker({ value, onChange, rangeSelect, locale, firstDayOfWee
             onChange(thisWeek(firstDayOfWeek));
           }}
         >
-          {text.thisWeek}
+          {textThisWeek}
         </Button>
 
         <Button
@@ -274,7 +275,7 @@ export function DatePicker({ value, onChange, rangeSelect, locale, firstDayOfWee
             onChange(null);
           }}
         >
-          {text.reset}
+          {textReset}
         </Button>
       </div>
     </div>

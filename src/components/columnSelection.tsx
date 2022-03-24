@@ -6,11 +6,11 @@ import { FormControlLabel } from './formControlLabel';
 import { useTableContext } from './table';
 
 export function ColumnSelection<T>(): JSX.Element {
-  const {
-    components: { IconButton, Popover, Checkbox },
-    icons: { Settings },
-    text,
-  } = useTheme();
+  const IconButton = useTheme((t) => t.components.IconButton);
+  const Popover = useTheme((t) => t.components.Popover);
+  const Checkbox = useTheme((t) => t.components.Checkbox);
+  const Settings = useTheme((t) => t.icons.Settings);
+  const selectColumns = useTheme((t) => t.text.selectColumns);
   const cssVariables = useCssVariables();
 
   const table = useTableContext<T>();
@@ -45,7 +45,7 @@ export function ColumnSelection<T>(): JSX.Element {
 
       <Popover anchorEl={anchorEl} open={!!anchorEl} onClose={() => setAnchorEl(null)} css={cssVariables}>
         <div css={{ padding: `calc(var(--spacing) * 2)`, display: 'grid' }}>
-          <div css={{ marginBottom: 'var(--spacing)' }}>{text.selectColumns}</div>
+          <div css={{ marginBottom: 'var(--spacing)' }}>{selectColumns}</div>
 
           {columns.map((column) => (
             <FormControlLabel

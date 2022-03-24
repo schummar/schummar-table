@@ -64,7 +64,7 @@ export default function Home(): JSX.Element {
           />
         </div>
 
-        <main className={styles.main} css={{ overflowX: 'auto' }}>
+        <main className={styles.main}>
           <h2 css={{ justifySelf: 'center', color: 'gray', margin: '5rem 0' }}>Demo</h2>
 
           <ExampleTable stickyHeader={{ top: 60 }} />

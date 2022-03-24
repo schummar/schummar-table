@@ -16,10 +16,9 @@ export function TextFilter<T, V>({
    */
   compare?: (itemValue: string, filterValue: string) => boolean;
 } & CommonFilterProps<T, V, string, string>): JSX.Element {
-  const {
-    components: { IconButton },
-    icons: { Search, Clear },
-  } = useTheme();
+  const IconButton = useTheme((t) => t.components.IconButton);
+  const Search = useTheme((t) => t.icons.Search);
+  const Clear = useTheme((t) => t.icons.Clear);
 
   const { value = '', onChange } = useFilter({
     ...props,

@@ -13,8 +13,10 @@ export function ExampleTable(props: Partial<TableProps<Person>>) {
       id="id"
       virtual
       enableExport
-      defaultWidth="200px"
       stickyHeader
+      defaultColumnProps={{
+        width: '200px',
+      }}
       columns={(col) => [
         //
         col((x) => x.avatar, {

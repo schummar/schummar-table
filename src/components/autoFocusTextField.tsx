@@ -6,9 +6,7 @@ import { TableTheme } from '../types';
 type Props = TableTheme['components']['TextField'] extends ComponentType<infer T> ? T : never;
 
 export function AutoFocusTextField(props: Omit<Props, 'inputRef'>) {
-  const {
-    components: { TextField },
-  } = useTheme();
+  const TextField = useTheme((t) => t.components.TextField);
 
   const ref = useRef<HTMLInputElement>(null);
   const { visible } = useContext(PopoverContext);
