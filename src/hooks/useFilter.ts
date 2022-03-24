@@ -4,12 +4,12 @@ import { useColumnContext, useTableContext } from '..';
 import { FilterControlContext } from '../components/filterControl';
 import { debounce } from '../misc/debounce';
 import { FilterImplementation, SerializableValue } from '../types';
-import { useMemoMap } from './useMemoMap';
+import { useTableMemo } from './useTableMemo';
 
 export function useFilter<T, V, F, S extends SerializableValue>(impl: FilterImplementation<T, V, F, S>) {
   const table = useTableContext<T>();
   const columnId = useColumnContext();
-  const cache = useMemoMap();
+  const cache = useTableMemo();
   const filterBy = impl.filterBy && cache('', impl.filterBy);
 
   // Update implementation

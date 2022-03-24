@@ -1,12 +1,12 @@
 import { useMemo } from 'react';
-import { useMemoMap } from '../hooks/useMemoMap';
+import { useTableMemo } from '../hooks/useTableMemo';
 import { asString } from '../misc/helpers';
 import { Column, Id, InternalColumn, InternalTableProps, TableProps } from '../types';
 
 const noopParentId = () => undefined;
 
 export function calcProps<T>(props: TableProps<T>): InternalTableProps<T> {
-  const cache = useMemoMap();
+  const cache = useTableMemo();
 
   return useMemo(() => {
     let id;

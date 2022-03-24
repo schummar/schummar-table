@@ -3,13 +3,32 @@ import { Store } from 'schummar-state/react';
 import { TableContext } from '../components/table';
 import { defaultTableTheme } from '../theme/defaultTheme';
 import { globalTableTheme, mergeThemes, TableThemeContext } from '../theme/tableTheme';
-import { TableTheme } from '../types';
+import { MemoizedTableTheme, TableTheme } from '../types';
+import { useTableMemo } from './useTableMemo';
 
 const emptyStore = new Store(undefined);
 
-export function useTheme<T, S>(selector: (theme: TableTheme<T>) => S): S {
+export function useTheme<T, S>(selector: (theme: MemoizedTableTheme<T>) => S): S {
   const contextTableTheme = useContext(TableThemeContext);
   const table = useContext(TableContext);
+  const memo = useTableMemo();
+
+  const process = (t: TableTheme<T>): MemoizedTableTheme<T> => {
+    const cell = t.classes?.cell;
+    const selected = t.text.selected;
+
+    return {
+      ...t,
+      classes: {
+        ...t.classes,
+        cell: cell instanceof Function || Array.isArray(cell) ? memo('theme.classes.cell', cell) : cell,
+      },
+      text: {
+        ...t.text,
+        selected: selected instanceof Function || Array.isArray(selected) ? memo('theme.text.selected', selected) : selected,
+      },
+    };
+  };
 
   const theme =
     table?.useState((state) => {
@@ -23,10 +42,11 @@ export function useTheme<T, S>(selector: (theme: TableTheme<T>) => S): S {
       };
 
       const theme = mergeThemes(defaultTableTheme, globalTableTheme, contextTableTheme, localTheme) as TableTheme<T>;
-      return selector(theme);
+
+      return selector(process(theme));
     }) ??
     emptyStore.useState() ??
-    selector(mergeThemes(defaultTableTheme, globalTableTheme, contextTableTheme) as TableTheme<T>);
+    selector(process(mergeThemes(defaultTableTheme, globalTableTheme, contextTableTheme) as TableTheme<T>));
 
   return theme;
 }

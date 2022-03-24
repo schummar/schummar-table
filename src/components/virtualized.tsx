@@ -1,7 +1,7 @@
-import React, { HTMLProps, ReactNode, useEffect, useMemo, useRef, useState } from 'react';
+import React, { HTMLProps, ReactNode, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { throttle } from '../misc/throttle';
-import { useTableContext } from './table';
 import { Id } from '../types';
+import { useTableContext } from './table';
 
 const findScrollRoot = (x: HTMLElement): HTMLElement => {
   const parent = x.parentElement;
@@ -94,7 +94,9 @@ export function Virtualized<T>({
     };
   }, [probeRef.current, incCounter]);
 
-  table.getState().props.debugRender?.(`Virtualalized render ${from} to ${to}`);
+  useEffect(() => incCounter.cancel, [incCounter]);
+
+  useLayoutEffect(() => table.getState().props.debugRender?.(`Virtualalized render ${from} to ${to}`));
 
   return (
     <div {...props}>

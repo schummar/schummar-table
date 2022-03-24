@@ -6,11 +6,14 @@ import { useTableContext } from './table';
 
 export function Export<T>(): JSX.Element {
   const table = useTableContext<T>();
-  const {
-    components: { Button, IconButton, Popover },
-    icons: { Export, Clipboard },
-    text,
-  } = useTheme();
+  const Button = useTheme((t) => t.components.Button);
+  const IconButton = useTheme((t) => t.components.IconButton);
+  const Popover = useTheme((t) => t.components.Popover);
+  const Export = useTheme((t) => t.icons.Export);
+  const Clipboard = useTheme((t) => t.icons.Clipboard);
+  const exportTitle = useTheme((t) => t.text.exportTitle);
+  const exportCopy = useTheme((t) => t.text.exportCopy);
+  const exportDownload = useTheme((t) => t.text.exportDownload);
   const cssVariables = useCssVariables();
 
   const [anchor, setAnchor] = useState<Element | null>(null);
@@ -57,12 +60,12 @@ export function Export<T>(): JSX.Element {
             },
           }}
         >
-          <div css={{ marginBottom: 'var(--spacing)' }}>{text.exportTitle}</div>
+          <div css={{ marginBottom: 'var(--spacing)' }}>{exportTitle}</div>
           <Button startIcon={<Clipboard />} onClick={copy}>
-            {text.exportCopy}
+            {exportCopy}
           </Button>
           <Button startIcon={<Export />} onClick={download}>
-            {text.exportDownload}
+            {exportDownload}
           </Button>
         </div>
       </Popover>

@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useRef } from 'react';
+import React, { memo, useEffect, useLayoutEffect, useRef } from 'react';
 import { cx, getAncestors } from '../misc/helpers';
 import { defaultClasses } from '../theme/defaultTheme/defaultClasses';
 import { Id, InternalColumn } from '../types';
@@ -49,7 +49,7 @@ export const Row = memo(function Row<T>({ itemId, rowIndex }: { itemId: Id; rowI
     return () => o.disconnect();
   }, [divRef.current]);
 
-  table.getState().props.debugRender?.('render row', itemId);
+  useLayoutEffect(() => table.getState().props.debugRender?.('render row', itemId));
 
   return (
     <>

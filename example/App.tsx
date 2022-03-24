@@ -32,7 +32,7 @@ type SubItem = {
   date: DateRange;
 };
 
-const N = 1000,
+const N = 1_000,
   M = 10;
 const loadTop = createResource(async () => {
   // await new Promise((r) => setTimeout(r, 1000));
@@ -96,7 +96,7 @@ function Content(): JSX.Element {
 
   return (
     <Table
-      items={topItems ? [...topItems, ...children].slice(0, 1) : undefined}
+      items={topItems ? [...topItems, ...children] : undefined}
       id="id"
       parentId={(x) => (x.type === 'sub' ? x.parentId : undefined)}
       hasDeferredChildren={(x) => !x.id.replace('_', '').includes('_')}
@@ -158,16 +158,16 @@ function Content(): JSX.Element {
         col((x) => x.date, {
           header: 'Date',
           renderCell: (date) => date && [formatDate(date.min), formatDate(date.max)].join(' - '),
-          filter: <DateFilter defaultValue={new Date()} persist={false} firstDayOfWeek={3} />,
+          filter: <DateFilter firstDayOfWeek={3} />,
         }),
       ]}
       classes={{
         ...classes,
-        // cell: (_item, index) => (index % 2 === 1 ? classes.odd : undefined),
+        cell: (_item, index) => (index % 2 === 1 ? classes.odd : undefined),
       }}
       // stickyHeader
-      debug={(...args) => console.debug(...args)}
-      debugRender={(...args) => console.debug(...args)}
+      // debug={(...args) => console.debug(...args)}
+      // debugRender={(...args) => console.debug(...args)}
       virtual={{ throttleScroll: 16 }}
       fullWidth="left"
       text={{

@@ -24,7 +24,7 @@ export interface TableTheme<T = unknown> {
     thisWeek: ReactNode;
     reset: ReactNode;
     loading: ReactNode;
-    selected: (count: number) => ReactNode;
+    selected: FunctionWithDeps<(count: number) => ReactNode>;
   };
   /** Define styles. */
   classes?: {
@@ -90,6 +90,11 @@ export interface TableTheme<T = unknown> {
 
 export type PartialTableTheme<T = unknown> = {
   [K in keyof TableTheme<T>]?: TableTheme<T>[K] extends Record<string, any> ? Partial<TableTheme<T>[K]> : TableTheme<T>[K];
+};
+
+export type MemoizedTableTheme<T> = Omit<TableTheme, 'classes' | 'text'> & {
+  classes: MemoizedFunctions<TableTheme<T>['classes']>;
+  text: MemoizedFunctions<TableTheme<T>['text']>;
 };
 
 export interface TableProps<T> extends PartialTableTheme<T> {

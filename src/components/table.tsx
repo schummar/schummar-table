@@ -1,6 +1,7 @@
-import React, { createContext, memo, useContext, useEffect, useState } from 'react';
+import React, { createContext, memo, useContext, useEffect, useLayoutEffect, useState } from 'react';
 import { Store } from 'schummar-state/react';
 import { useTheme } from '..';
+import { TableMemoContextProvider } from '../hooks/useTableMemo';
 import { useTableStateStorage } from '../internalState/tableStateStorage';
 import { useTableState } from '../internalState/useTableState';
 import { cx } from '../misc/helpers';
@@ -33,11 +34,13 @@ export function useColumnContext(): Id {
 export function Table<T>(props: TableProps<T>): JSX.Element {
   const table = useTableState(props);
 
-  table.getState().props.debugRender?.('render table');
+  useLayoutEffect(() => table.getState().props.debugRender?.('render table'));
 
   return (
     <TableContext.Provider value={table}>
-      <TableLoadingState />
+      <TableMemoContextProvider>
+        <TableLoadingState />
+      </TableMemoContextProvider>
     </TableContext.Provider>
   );
 }
@@ -81,7 +84,7 @@ const TableInner = memo(function TableInner<T>({ hidden }: { hidden: boolean }) 
   const enableExport = table.useState((state) => !!state.props.enableExport.copy || !!state.props.enableExport.download);
   const cssVariables = useCssVariables();
 
-  table.getState().props.debugRender?.('render table inner');
+  useLayoutEffect(() => table.getState().props.debugRender?.('render table inner'));
 
   return (
     <Virtualized

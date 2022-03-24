@@ -6,9 +6,7 @@ import { useTableContext } from './table';
 
 export function SelectComponent<T>({ itemId }: { itemId?: Id }): JSX.Element {
   const table = useTableContext<T>();
-  const {
-    components: { Checkbox },
-  } = useTheme();
+  const Checkbox = useTheme((t) => t.components.Checkbox);
 
   const isSelected = table.useState((state) => {
     const itemIds = itemId ? [itemId] : Array.from(state.activeItemsById.keys());

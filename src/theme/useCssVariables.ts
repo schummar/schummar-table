@@ -1,10 +1,7 @@
 import { useTheme } from '../hooks/useTheme';
 
 export function useCssVariables() {
-  const spacing = useTheme((t) => t.spacing);
-  const colors = useTheme((t) => t.colors);
-
-  return {
+  return useTheme(({ spacing, colors }) => ({
     '--spacing': spacing,
     '--primaryMain': colors.primary.main,
     '--primaryLight': colors.primary.light,
@@ -12,5 +9,5 @@ export function useCssVariables() {
     '--secondaryMain': colors.secondary.main,
     '--secondaryLight': colors.secondary.light,
     '--secondaryContrastText': colors.secondary.contrastText,
-  };
+  }));
 }
