@@ -29,10 +29,11 @@ export const Row = memo(function Row<T>({ itemId, rowIndex }: { itemId: Id; rowI
       className: cx(...calcClassNames(classes, item, rowIndex)),
       indent: item ? getAncestors(state.activeItemsById, item).size : 0,
       hasChildren: !!item?.children.length,
-      hasDeferredChildren: item && state.props.hasDeferredChildren?.(item),
+      hasDeferredChildren: item && state.props.hasDeferredChildren?.(item.value),
       columnIds: state.activeColumns.map((column) => column.id),
       enableSelection: state.props.enableSelection,
-      rowAction: state.props.rowAction instanceof Function ? (item ? state.props.rowAction(item, rowIndex) : null) : state.props.rowAction,
+      rowAction:
+        state.props.rowAction instanceof Function ? (item ? state.props.rowAction(item.value, rowIndex) : null) : state.props.rowAction,
     };
   });
 

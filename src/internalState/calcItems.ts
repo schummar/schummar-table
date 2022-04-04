@@ -22,10 +22,10 @@ export function calcItems<T>(state: Store<InternalTableState<T>>): void {
           ] as const,
         ([items = [], id, parentId, revealFiltered, sort, filters, filterValues, activeColumns], draft) => {
           const tableItems = items.map<TableItem<T>>((item) => ({
-            ...item,
             id: id(item),
             parentId: parentId?.(item),
             children: [],
+            value: item,
           }));
 
           let sorted;
@@ -43,7 +43,7 @@ export function calcItems<T>(state: Store<InternalTableState<T>>): void {
 
             sorted = orderBy(
               tableItems,
-              selectors.map((x) => x.selector),
+              selectors.map((x) => (item) => x.selector(item.value)),
               selectors.map((x) => x.direction),
             );
           }
@@ -86,7 +86,7 @@ export function calcItems<T>(state: Store<InternalTableState<T>>): void {
                 if (filterValue === undefined || !filter.isActive(filterValue)) return true;
 
                 const filterBy = filter.filterBy ?? ((x) => x);
-                const value = filterBy(column.value(item), item);
+                const value = filterBy(column.value(item.value), item.value);
                 return castArray(value).some((value) => filter.test(filterValue, value));
               });
 

@@ -37,11 +37,11 @@ export const Cell = memo(function Cell<T>({ itemId, rowIndex }: { itemId: Id; ro
 
   if (!column || !item) return null;
 
-  const content = column.renderCell(column.value(item), item);
+  const content = column.renderCell(column.value(item.value), item.value);
 
   return (
     <div className={className} css={[defaultClasses.cell, columnStyleOverride]}>
-      {wrapCell(content, column.value(item), item, rowIndex)}
+      {wrapCell(content, column.value(item.value), item.value, rowIndex)}
     </div>
   );
 });

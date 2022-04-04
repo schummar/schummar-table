@@ -67,7 +67,7 @@ export function SelectFilter<T, V, F extends SerializableValue>({
     const column = state.activeColumns.find((column) => column.id === columnId) as InternalColumn<T, V> | undefined;
     if (!column) return [];
 
-    return uniq(flatMap(state.items, (item) => castArray(filterBy(column.value(item), item))));
+    return uniq(flatMap(state.items, (item) => castArray(filterBy(column.value(item.value), item.value))));
   });
 
   const [query, setQuery] = useState('');

@@ -23,7 +23,7 @@ export function Export<T>(): JSX.Element {
 
     const data = [
       activeColumns.map((column) => String(column.id)),
-      ...activeItems.map((item) => activeColumns.map((column) => column.exportCell(column.value(item), item))),
+      ...activeItems.map((item) => activeColumns.map((column) => column.exportCell(column.value(item.value), item.value))),
     ];
     return csvExport(data, options);
   };

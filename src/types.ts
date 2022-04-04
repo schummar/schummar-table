@@ -243,7 +243,7 @@ export type InternalTableProps<T> = MemoizedFunctions<
   }
 >;
 
-export type TableItem<T = unknown> = T & { id: Id; parentId?: Id; children: TableItem<T>[] };
+export type TableItem<T = unknown> = { id: Id; parentId?: Id; children: TableItem<T>[]; value: T };
 
 export type Column<T, V> = {
   /** Column id. If not provided, the index in the column array will be used.
