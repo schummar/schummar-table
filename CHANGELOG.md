@@ -1,5 +1,12 @@
 # Changelog
 
+### [0.7.1](https://github.com/schummar/schummar-table/compare/v0.7.0...v0.7.1) (2022-04-04)
+
+
+### Bug Fixes
+
+* don't overwrite items' id ([29dfb42](https://github.com/schummar/schummar-table/commit/29dfb42578de8b7f3d06d85c0913acf02fa6e766))
+
 ## [0.7.0](https://github.com/schummar/schummar-table/compare/v0.6.0...v0.7.0) (2022-03-24)
 
 
