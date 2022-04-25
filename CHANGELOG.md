@@ -1,5 +1,12 @@
 # Changelog
 
+### [0.8.2](https://github.com/schummar/schummar-table/compare/v0.8.1...v0.8.2) (2022-04-25)
+
+
+### Bug Fixes
+
+* footer item values ([bbcb1d3](https://github.com/schummar/schummar-table/commit/bbcb1d3856a8d1b68f4d1130cd54d15e73b5e20b))
+
 ### [0.8.1](https://github.com/schummar/schummar-table/compare/v0.8.0...v0.8.1) (2022-04-25)
 
 
