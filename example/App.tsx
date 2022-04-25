@@ -19,6 +19,7 @@ type TopItem = {
   name: string;
   h: number;
   date: DateRange;
+  price: number;
 };
 
 type SubItem = {
@@ -30,9 +31,10 @@ type SubItem = {
   state: string;
   tags: string[];
   date: DateRange;
+  price: number;
 };
 
-const N = 1_000,
+const N = 500,
   M = 10;
 const loadTop = createResource(async () => {
   // await new Promise((r) => setTimeout(r, 1000));
@@ -43,6 +45,7 @@ const loadTop = createResource(async () => {
     name: `top item ${index}`,
     h: (index % 4) * 30,
     date: { min: new Date(2022, 0, index, 12), max: new Date(2022, 0, index + 7, 12) },
+    price: Math.random() * 1000,
   }));
 });
 
@@ -74,6 +77,7 @@ function Content(): JSX.Element {
             state: `foo--${i === index ? 1 : 0}`,
             tags: [`foo${index}`, index % 2 === 0 ? 'bar' : 'baz'],
             date: topItems?.find((i) => i.id === parentId)?.date ?? { min: new Date(), max: new Date() },
+            price: Math.random() * 1000,
           })),
         ),
       );
@@ -160,10 +164,15 @@ function Content(): JSX.Element {
           renderCell: (date) => date && [formatDate(date.min), formatDate(date.max)].join(' - '),
           filter: <DateFilter firstDayOfWeek={3} />,
         }),
+        col((x) => x.price, {
+          header: 'Price',
+          footer: (prices) => <>∑ {prices.reduce((sum, price) => sum + price, 0).toFixed(2)}€</>,
+          renderCell: (price) => <>{price.toFixed(2)}€</>,
+        }),
       ]}
       classes={{
         ...classes,
-        cell: (_item, index) => (index % 2 === 1 ? classes.odd : undefined),
+        // cell: (_item, index) => (index % 2 === 1 ? classes.odd : undefined),
       }}
       // stickyHeader
       // debug={(...args) => console.debug(...args)}

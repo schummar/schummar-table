@@ -33,6 +33,13 @@ export const defaultClasses = {
     background: white,
   }),
 
+  footerCell: css(cell, {
+    padding: `var(--spacing) 0 var(--spacing) calc(2 * var(--spacing))`,
+    borderTop: `1px solid #c9cfda`,
+    borderBottom: 'none',
+    background: white,
+  }),
+
   firstCell: css({
     justifyContent: 'start',
   }),
@@ -43,8 +50,19 @@ export const defaultClasses = {
     zIndex: 2,
   }),
 
+  stickyBottom: css({
+    position: 'sticky',
+    bottom: 0,
+    zIndex: 2,
+  }),
+
   headerFill: css({
     borderBottom: `1px solid #c9cfda`,
+    background: white,
+  }),
+
+  footerFill: css({
+    borderTop: `1px solid #c9cfda`,
     background: white,
   }),
 

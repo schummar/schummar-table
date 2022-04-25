@@ -4,18 +4,16 @@ import { useTheme } from '..';
 import { TableMemoContextProvider } from '../hooks/useTableMemo';
 import { useTableStateStorage } from '../internalState/tableStateStorage';
 import { useTableState } from '../internalState/useTableState';
-import { cx } from '../misc/helpers';
 import { defaultClasses } from '../theme/defaultTheme/defaultClasses';
 import { useCssVariables } from '../theme/useCssVariables';
 import { Id, InternalTableState, TableProps } from '../types';
+import { ColumnFooter } from './columnFooter';
 import { ColumnHeader, ColumnHeaderContext } from './columnHeader';
 import { ColumnSelection } from './columnSelection';
 import { Export } from './export';
-import { FilterControl } from './filterControl';
-import { ResizeHandle, ResizeHandleView } from './resizeHandle';
+import { ResizeHandleView } from './resizeHandle';
 import { Row } from './row';
 import { SelectComponent } from './selectComponent';
-import { SortComponent } from './sortComponent';
 import { Virtualized } from './virtualized';
 
 export const TableContext = createContext<Store<InternalTableState<any>> | null>(null);
@@ -71,14 +69,15 @@ const TableInner = memo(function TableInner<T>({ hidden }: { hidden: boolean }) 
       id: column.id,
       width: column.width,
       classes: column.classes,
-      header: column.header,
     })),
   );
   const columnWidths = table.useState('columnWidths', { throttle: 16 });
-  const columnStyleOverride = table.useState('columnStyleOverride', { throttle: 16 });
+  const hasFooter = table.useState((state) => state.activeColumns.some((column) => column.footer));
 
-  const classes = table.useState('props.classes');
+  const classes = useTheme((theme) => theme.classes);
   const stickyHeader = table.useState('props.stickyHeader');
+  const stickyFooter = table.useState('props.stickyFooter');
+
   const enableSelection = table.useState('props.enableSelection');
   const enableColumnSelection = table.useState('props.enableColumnSelection');
   const enableExport = table.useState((state) => !!state.props.enableExport.copy || !!state.props.enableExport.download);
@@ -125,21 +124,7 @@ const TableInner = memo(function TableInner<T>({ hidden }: { hidden: boolean }) 
           <ColumnHeaderContext.Provider>
             {activeColumns.map((column) => (
               <ColumnContext.Provider key={column.id} value={column.id}>
-                <ColumnHeader
-                  className={cx(classes?.headerCell, column.classes?.headerCell)}
-                  css={[
-                    defaultClasses.headerCell,
-                    columnStyleOverride.get(column.id),
-                    stickyHeader && defaultClasses.sticky,
-                    stickyHeader instanceof Object && stickyHeader,
-                  ]}
-                  key={column.id}
-                >
-                  <SortComponent>{column.header}</SortComponent>
-                  <div css={{ flex: 1 }} />
-                  <FilterControl />
-                  <ResizeHandle />
-                </ColumnHeader>
+                <ColumnHeader />
               </ColumnContext.Provider>
             ))}
           </ColumnHeaderContext.Provider>
@@ -149,6 +134,31 @@ const TableInner = memo(function TableInner<T>({ hidden }: { hidden: boolean }) 
             css={[defaultClasses.headerFill, stickyHeader && defaultClasses.sticky, stickyHeader instanceof Object && stickyHeader]}
           />
         </>
+      }
+      footer={
+        hasFooter && (
+          <>
+            <div
+              className={classes?.footerCell}
+              css={[defaultClasses.footerFill, stickyFooter && defaultClasses.stickyBottom, stickyFooter instanceof Object && stickyFooter]}
+            />
+            <div
+              className={classes?.footerCell}
+              css={[defaultClasses.footerFill, stickyFooter && defaultClasses.stickyBottom, stickyFooter instanceof Object && stickyFooter]}
+            />
+
+            {activeColumns.map((column) => (
+              <ColumnContext.Provider key={column.id} value={column.id}>
+                <ColumnFooter />
+              </ColumnContext.Provider>
+            ))}
+
+            <div
+              className={classes?.footerCell}
+              css={[defaultClasses.footerFill, stickyFooter && defaultClasses.stickyBottom, stickyFooter instanceof Object && stickyFooter]}
+            />
+          </>
+        )
       }
     >
       {(itemIds, startIndex) => itemIds.map((itemId, index) => <Row key={itemId} itemId={itemId} rowIndex={startIndex + index} />)}

@@ -58,7 +58,7 @@
     "docs:build": "npm -w docs run build"
   },
   "dependencies": {
-    "@emotion/react": "^11.8.1",
+    "@emotion/react": "^11.9.0",
     "dayzed": "^3.2.2",
     "immer": "^9.0.12",
     "schummar-state": "0.2.1-experimental-13"
@@ -84,21 +84,21 @@
   },
   "devDependencies": {
     "@emotion/styled": "^11.8.1",
-    "@material-ui/core": "^4.12.3",
-    "@mui/material": "^5.5.0",
+    "@material-ui/core": "^4.12.4",
+    "@mui/material": "^5.6.3",
     "@types/react": "17",
     "@types/react-dom": "^17.0.13",
-    "@typescript-eslint/eslint-plugin": "^5.14.0",
-    "@typescript-eslint/parser": "^5.14.0",
-    "@vitejs/plugin-react": "^1.2.0",
-    "eslint": "^8.10.0",
+    "@typescript-eslint/eslint-plugin": "^5.21.0",
+    "@typescript-eslint/parser": "^5.21.0",
+    "@vitejs/plugin-react": "^1.3.1",
+    "eslint": "^8.14.0",
     "npm-run-all": "^4.1.5",
-    "prettier": "^2.5.1",
+    "prettier": "^2.6.2",
     "react": "17",
     "react-dom": "17",
     "rimraf": "^3.0.2",
-    "typescript": "^4.6.2",
-    "vite": "^2.8.6"
+    "typescript": "^4.6.3",
+    "vite": "^2.9.5"
   },
   "files": [
     "dist"

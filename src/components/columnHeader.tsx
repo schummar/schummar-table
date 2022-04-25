@@ -1,17 +1,34 @@
 import { castDraft } from 'immer';
-import React, { HTMLProps, useEffect, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { StoreScope } from 'schummar-state/react';
 import { Id, useColumnContext, useTableContext } from '..';
+import { useTheme } from '../hooks/useTheme';
+import { cx } from '../misc/helpers';
+import { defaultClasses } from '../theme/defaultTheme/defaultClasses';
+import { FilterControl } from './filterControl';
+import { ResizeHandle } from './resizeHandle';
+import { SortComponent } from './sortComponent';
 
 export const ColumnHeaderContext = new StoreScope({
   items: new Map<Id, HTMLDivElement>(),
 });
 
-export function ColumnHeader(props: HTMLProps<HTMLDivElement>) {
+export function ColumnHeader() {
   const ref = useRef<HTMLDivElement>(null);
   const columnId = useColumnContext();
   const table = useTableContext();
   const enabled = table.useState('props.enableColumnReorder');
+  const columnStyleOverride = table.useState((state) => state.columnStyleOverride.get(columnId), { throttle: 16 });
+  const stickyHeader = table.useState('props.stickyHeader');
+  const classes = useTheme((theme) => theme.classes);
+
+  const { header, columnClasses } = table.useState((state) => {
+    const column = state.activeColumns.find((column) => column.id === columnId);
+    return {
+      header: column?.header,
+      columnClasses: column?.classes,
+    };
+  });
 
   const store = ColumnHeaderContext.useStore();
   const draggingStart = useRef<{ mouseX: number; bounds: DOMRect }>();
@@ -154,17 +171,26 @@ export function ColumnHeader(props: HTMLProps<HTMLDivElement>) {
 
   return (
     <div
-      {...props}
-      css={{
-        position: 'relative',
-        userSelect: 'none',
-      }}
       ref={ref}
+      className={cx(classes?.headerCell, columnClasses?.headerCell)}
+      css={[
+        {
+          position: 'relative',
+          userSelect: 'none',
+        },
+        defaultClasses.headerCell,
+        columnStyleOverride,
+        stickyHeader && defaultClasses.sticky,
+        stickyHeader instanceof Object && stickyHeader,
+      ]}
       onPointerDown={enabled ? onPointerDown : undefined}
       onPointerMove={enabled ? onPointerMove : undefined}
       onPointerUp={enabled ? onPointerUp : undefined}
     >
-      {props.children}
+      <SortComponent>{header}</SortComponent>
+      <div css={{ flex: 1 }} />
+      <FilterControl />
+      <ResizeHandle />
     </div>
   );
 }

@@ -30,11 +30,12 @@ export interface TableTheme<T = unknown> {
   classes?: {
     table?: string;
     headerCell?: string;
+    footerCell?: string;
     cell?: string | FunctionWithDeps<(item: T, index: number) => string | undefined>;
     evenCell?: string;
     oddCell?: string;
   };
-  /** Defined components to be used in the table. */
+  /** Define components to be used in the table. */
   components: {
     IconButton: ComponentType<{ children: ReactNode; onClick?: (e: React.MouseEvent<Element>) => void; className?: string }>;
     Button: ComponentType<{
@@ -187,9 +188,13 @@ export interface TableProps<T> extends PartialTableTheme<T> {
   /** Whether to stretch the table component over the available space. If value is "left" or "right", align accordingly. */
   fullWidth?: boolean | 'left' | 'right';
   /** Whether the table header should be sticky.
-   * @default false
+   * @default true
    */
   stickyHeader?: boolean | { top: number };
+  /** Whether the table footer should be sticky.
+   * @default true
+   */
+  stickyFooter?: boolean | { bottom: number };
   /** Whether the table cells should only be rendered when in viewport.
    * @default true
    */
@@ -251,7 +256,9 @@ export type Column<T, V> = {
    */
   id?: string;
   /** Render table header for this column. */
-  header?: ReactNode;
+  header?: ReactNode | FunctionWithDeps<(values: V[], items: T[]) => ReactNode>;
+  /** Render table header for this column. */
+  footer?: ReactNode | FunctionWithDeps<(values: V[], items: T[]) => ReactNode>;
   /** Extract value for this column */
   value: FunctionWithDeps<(item: T) => V>;
   /** Render table cell. If not provided, a string representation of the value will be rendered. */

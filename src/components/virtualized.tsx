@@ -18,9 +18,14 @@ const relativeOffset = (x: HTMLElement, y: HTMLElement): number => {
 
 export function Virtualized<T>({
   header,
+  footer,
   children,
   ...props
-}: { header: ReactNode; children: (itemIds: Id[], startIndex: number) => ReactNode } & HTMLProps<HTMLDivElement>): JSX.Element {
+}: {
+  header: ReactNode;
+  footer: ReactNode;
+  children: (itemIds: Id[], startIndex: number) => ReactNode;
+} & HTMLProps<HTMLDivElement>): JSX.Element {
   const table = useTableContext<T>();
   const virtual = table.useState('props.virtual');
   const probeRef = useRef<HTMLDivElement>(null);
@@ -107,6 +112,8 @@ export function Virtualized<T>({
       {children(itemIds, from)}
 
       {virtual && <div style={{ gridColumn: '1 / -1', height: after }} />}
+
+      {footer}
     </div>
   );
 }

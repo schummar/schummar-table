@@ -37,6 +37,7 @@ export function calcProps<T>(props: TableProps<T>): InternalTableProps<T> {
       {
         id: _id,
         header = defCol?.header ?? null,
+        footer = defCol?.footer ?? null,
         value,
         renderCell = defCol?.renderCell ?? asString,
         exportCell = defCol?.exportCell ?? asString,
@@ -53,7 +54,8 @@ export function calcProps<T>(props: TableProps<T>): InternalTableProps<T> {
 
       return {
         id,
-        header,
+        header: header instanceof Function ? cache(`columns.${cacheKey}.header`, header) : header,
+        footer: footer instanceof Function ? cache(`columns.${cacheKey}.footer`, footer) : footer,
         value: cache(`columns.${cacheKey}.value`, value),
         renderCell: cache(`columns.${cacheKey}.renderCell`, renderCell),
         exportCell,
@@ -98,6 +100,7 @@ export function calcProps<T>(props: TableProps<T>): InternalTableProps<T> {
       enableSelection: props.enableSelection ?? true,
       selectSyncChildren: props.selectSyncChildren ?? true,
       stickyHeader: props.stickyHeader ?? true,
+      stickyFooter: props.stickyFooter ?? true,
       enableExport,
       enableColumnSelection: props.enableColumnSelection ?? true,
       enableColumnResize: props.enableColumnResize ?? true,
