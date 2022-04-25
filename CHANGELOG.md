@@ -1,5 +1,12 @@
 # Changelog
 
+### [0.8.1](https://github.com/schummar/schummar-table/compare/v0.8.0...v0.8.1) (2022-04-25)
+
+
+### Bug Fixes
+
+* footer padding ([c82ba73](https://github.com/schummar/schummar-table/commit/c82ba736a663a2ab620e677415482a88374e1111))
+
 ## [0.8.0](https://github.com/schummar/schummar-table/compare/v0.7.1...v0.8.0) (2022-04-25)
 
 
