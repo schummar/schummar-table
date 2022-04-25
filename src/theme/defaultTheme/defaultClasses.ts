@@ -30,14 +30,12 @@ export const defaultClasses = {
   headerCell: css(cell, {
     padding: `var(--spacing) 0 var(--spacing) calc(2 * var(--spacing))`,
     borderBottom: `1px solid #c9cfda`,
-    background: white,
   }),
 
   footerCell: css(cell, {
-    padding: `var(--spacing) 0 var(--spacing) calc(2 * var(--spacing))`,
+    padding: `var(--spacing) calc(2 * var(--spacing))`,
     borderTop: `1px solid #c9cfda`,
     borderBottom: 'none',
-    background: white,
   }),
 
   firstCell: css({

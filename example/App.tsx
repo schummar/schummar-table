@@ -168,6 +168,10 @@ function Content(): JSX.Element {
           header: 'Price',
           footer: (prices) => <>∑ {prices.reduce((sum, price) => sum + price, 0).toFixed(2)}€</>,
           renderCell: (price) => <>{price.toFixed(2)}€</>,
+          classes: {
+            cell: classes.right,
+            footerCell: classes.right,
+          },
         }),
       ]}
       classes={{

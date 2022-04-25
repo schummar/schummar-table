@@ -6,3 +6,7 @@
 .table .odd {
   background: lightGray;
 }
+
+.right {
+  justify-content: end;
+}
