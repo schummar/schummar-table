@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.8.0](https://github.com/schummar/schummar-table/compare/v0.7.1...v0.8.0) (2022-04-25)
+
+
+### Features
+
+* footers ([ddf7b7e](https://github.com/schummar/schummar-table/commit/ddf7b7ea920121fc20e41be7668d9b28af1e71b0))
+
 ### [0.7.1](https://github.com/schummar/schummar-table/compare/v0.7.0...v0.7.1) (2022-04-04)
 
 
