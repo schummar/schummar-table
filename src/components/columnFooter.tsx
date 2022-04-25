@@ -16,7 +16,7 @@ export function ColumnFooter() {
 
     if (column?.footer instanceof Function) {
       const items = state.activeItems;
-      const values = items.map((item) => column?.value(item));
+      const values = items.map((item) => column?.value(item.value));
       return column?.footer(values, items);
     }
 
