@@ -75,4 +75,11 @@ export const defaultClasses = {
     boxShadow: '0px 3px 14px 2px rgb(0 0 0 / 12%)',
     background: 'white',
   }),
+
+  clearFilterButton: css({
+    fontWeight: 'bold',
+    textAlign: 'center',
+    gridColumn: '1/-1',
+    color: 'var(--primaryMain) !important',
+  }),
 };

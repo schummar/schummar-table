@@ -1,3 +1,4 @@
+import { Button } from '@material-ui/core';
 import React, { createContext, memo, useContext, useEffect, useLayoutEffect, useState } from 'react';
 import { Store } from 'schummar-state/react';
 import { useTheme } from '..';
@@ -71,6 +72,14 @@ const TableInner = memo(function TableInner<T>({ hidden }: { hidden: boolean }) 
       classes: column.classes,
     })),
   );
+  const hasActiveFilters = table.useState((state) => {
+    const firstFilter = state.activeColumns.find((column) => {
+      const filter = state.filters.get(column.id);
+      const filterValue = state.filterValues.get(column.id);
+      return filter !== undefined && filterValue !== undefined && filter.isActive(filterValue);
+    });
+    return !!firstFilter;
+  });
   const columnWidths = table.useState('columnWidths', { throttle: 16 });
   const hasFooter = table.useState((state) => state.activeColumns.some((column) => column.footer));
 
@@ -136,29 +145,61 @@ const TableInner = memo(function TableInner<T>({ hidden }: { hidden: boolean }) 
         </>
       }
       footer={
-        hasFooter && (
-          <>
-            <div
-              className={classes?.footerCell}
-              css={[defaultClasses.footerFill, stickyFooter && defaultClasses.stickyBottom, stickyFooter instanceof Object && stickyFooter]}
-            />
-            <div
-              className={classes?.footerCell}
-              css={[defaultClasses.footerFill, stickyFooter && defaultClasses.stickyBottom, stickyFooter instanceof Object && stickyFooter]}
-            />
+        <>
+          {hasFooter && (
+            <>
+              <div
+                className={classes?.footerCell}
+                css={[
+                  defaultClasses.footerFill,
+                  stickyFooter && defaultClasses.stickyBottom,
+                  stickyFooter instanceof Object && stickyFooter,
+                ]}
+              />
+              <div
+                className={classes?.footerCell}
+                css={[
+                  defaultClasses.footerFill,
+                  stickyFooter && defaultClasses.stickyBottom,
+                  stickyFooter instanceof Object && stickyFooter,
+                ]}
+              />
 
-            {activeColumns.map((column) => (
-              <ColumnContext.Provider key={column.id} value={column.id}>
-                <ColumnFooter />
-              </ColumnContext.Provider>
-            ))}
+              {activeColumns.map((column) => (
+                <ColumnContext.Provider key={column.id} value={column.id}>
+                  <ColumnFooter />
+                </ColumnContext.Provider>
+              ))}
 
-            <div
-              className={classes?.footerCell}
-              css={[defaultClasses.footerFill, stickyFooter && defaultClasses.stickyBottom, stickyFooter instanceof Object && stickyFooter]}
-            />
-          </>
-        )
+              <div
+                className={classes?.footerCell}
+                css={[
+                  defaultClasses.footerFill,
+                  stickyFooter && defaultClasses.stickyBottom,
+                  stickyFooter instanceof Object && stickyFooter,
+                ]}
+              />
+            </>
+          )}
+          {hasActiveFilters && (
+            <Button
+              css={[
+                defaultClasses.clearFilterButton,
+                stickyFooter && defaultClasses.stickyBottom,
+                stickyFooter instanceof Object && stickyFooter,
+              ]}
+              onClick={() => {
+                table.update((state) => {
+                  state.activeColumns.forEach((column) => {
+                    state.filterValues.delete(column.id);
+                  });
+                });
+              }}
+            >
+              Clear all filters
+            </Button>
+          )}
+        </>
       }
     >
       {(itemIds, startIndex) => itemIds.map((itemId, index) => <Row key={itemId} itemId={itemId} rowIndex={startIndex + index} />)}
