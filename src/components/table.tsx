@@ -151,7 +151,7 @@ const TableInner = memo(function TableInner<T>({ hidden }: { hidden: boolean }) 
           {enableClearFiltersButton && hasActiveFilters && (
             <div
               css={[
-                defaultClasses.clearFilterButton,
+                defaultClasses.clearFiltersButton,
                 stickyFooter && defaultClasses.stickyBottom,
                 stickyFooter instanceof Object && stickyFooter,
               ]}

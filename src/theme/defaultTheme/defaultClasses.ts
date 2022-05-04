@@ -76,7 +76,7 @@ export const defaultClasses = {
     background: 'white',
   }),
 
-  clearFilterButton: css({
+  clearFiltersButton: css({
     fontWeight: 'bold',
     textAlign: 'center',
     gridColumn: '1/-1',
