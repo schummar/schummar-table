@@ -24,6 +24,7 @@ export interface TableTheme<T = unknown> {
     thisWeek: ReactNode;
     reset: ReactNode;
     loading: ReactNode;
+    clearFilters: ReactNode;
     selected: FunctionWithDeps<(count: number) => ReactNode>;
   };
   /** Define styles. */
@@ -217,6 +218,10 @@ export interface TableProps<T> extends PartialTableTheme<T> {
    */
   enableColumnSelection?: boolean;
   /** Enable exporting to csv.
+   * @default false
+   */
+  enableClearFiltersButton?: boolean;
+  /** Shows a button to clear all filters while any are active
    * @default false
    */
   enableExport?: boolean | { copy?: boolean | CsvExportOptions; download?: boolean | CsvExportOptions };

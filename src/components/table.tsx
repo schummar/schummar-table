@@ -1,4 +1,3 @@
-import { Button } from '@material-ui/core';
 import React, { createContext, memo, useContext, useEffect, useLayoutEffect, useState } from 'react';
 import { Store } from 'schummar-state/react';
 import { useTheme } from '..';
@@ -73,12 +72,11 @@ const TableInner = memo(function TableInner<T>({ hidden }: { hidden: boolean }) 
     })),
   );
   const hasActiveFilters = table.useState((state) => {
-    const firstFilter = state.activeColumns.find((column) => {
+    return state.activeColumns.some((column) => {
       const filter = state.filters.get(column.id);
       const filterValue = state.filterValues.get(column.id);
       return filter !== undefined && filterValue !== undefined && filter.isActive(filterValue);
     });
-    return !!firstFilter;
   });
   const columnWidths = table.useState('columnWidths', { throttle: 16 });
   const hasFooter = table.useState((state) => state.activeColumns.some((column) => column.footer));
@@ -91,6 +89,10 @@ const TableInner = memo(function TableInner<T>({ hidden }: { hidden: boolean }) 
   const enableColumnSelection = table.useState('props.enableColumnSelection');
   const enableExport = table.useState((state) => !!state.props.enableExport.copy || !!state.props.enableExport.download);
   const cssVariables = useCssVariables();
+
+  const enableClearFiltersButton = table.useState('props.enableClearFiltersButton');
+  const Button = useTheme((t) => t.components.Button);
+  const textClearFilters = useTheme((t) => t.text.clearFilters);
 
   useLayoutEffect(() => table.getState().props.debugRender?.('render table inner'));
 
@@ -146,6 +148,28 @@ const TableInner = memo(function TableInner<T>({ hidden }: { hidden: boolean }) 
       }
       footer={
         <>
+          {enableClearFiltersButton && hasActiveFilters && (
+            <div
+              css={[
+                defaultClasses.clearFilterButton,
+                stickyFooter && defaultClasses.stickyBottom,
+                stickyFooter instanceof Object && stickyFooter,
+              ]}
+            >
+              <Button
+                variant="text"
+                onClick={() => {
+                  table.update((state) => {
+                    state.activeColumns.forEach((column) => {
+                      state.filterValues.delete(column.id);
+                    });
+                  });
+                }}
+              >
+                {textClearFilters}
+              </Button>
+            </div>
+          )}
           {hasFooter && (
             <>
               <div
@@ -180,24 +204,6 @@ const TableInner = memo(function TableInner<T>({ hidden }: { hidden: boolean }) 
                 ]}
               />
             </>
-          )}
-          {hasActiveFilters && (
-            <Button
-              css={[
-                defaultClasses.clearFilterButton,
-                stickyFooter && defaultClasses.stickyBottom,
-                stickyFooter instanceof Object && stickyFooter,
-              ]}
-              onClick={() => {
-                table.update((state) => {
-                  state.activeColumns.forEach((column) => {
-                    state.filterValues.delete(column.id);
-                  });
-                });
-              }}
-            >
-              Clear all filters
-            </Button>
           )}
         </>
       }

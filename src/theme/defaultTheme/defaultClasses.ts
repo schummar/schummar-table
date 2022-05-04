@@ -80,6 +80,9 @@ export const defaultClasses = {
     fontWeight: 'bold',
     textAlign: 'center',
     gridColumn: '1/-1',
-    color: 'var(--primaryMain) !important',
+    button: {
+      color: 'var(--primaryMain) !important',
+      margin: 'var(--spacing)',
+    },
   }),
 };

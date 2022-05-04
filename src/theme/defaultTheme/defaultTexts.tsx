@@ -8,6 +8,7 @@ export const defaultTexts: TableTheme['text'] = {
   exportDownload: 'Download',
   today: 'Today',
   thisWeek: 'This week',
+  clearFilters: 'Clear all filters',
   reset: 'Reset',
   loading: 'Loading',
   selected: (count) => `${count} selected`,
