@@ -2,6 +2,7 @@ import { useDayzed } from 'dayzed';
 import React, { useEffect, useMemo, useState } from 'react';
 import { useTheme } from '..';
 import { gray } from '../theme/defaultTheme/defaultClasses';
+import { useCssVariables } from '../theme/useCssVariables';
 import { DateInput } from './dateInput';
 
 export type DateRange = { min: Date; max: Date };
@@ -71,6 +72,7 @@ export function DatePicker({ value, onChange, rangeSelect, locale, firstDayOfWee
   const textToday = useTheme((t) => t.text.today);
   const textThisWeek = useTheme((t) => t.text.thisWeek);
   const textReset = useTheme((t) => t.text.reset);
+  const cssVariables = useCssVariables();
 
   const [baseDate] = useState(new Date());
   const [dateInView, setDateInView] = useState<Date>(baseDate);
@@ -137,7 +139,7 @@ export function DatePicker({ value, onChange, rangeSelect, locale, firstDayOfWee
   }, [locale]);
 
   return (
-    <div>
+    <div css={cssVariables}>
       <div css={{ display: 'grid', gridAutoFlow: 'column', justifyContent: 'center', alignItems: 'baseline', gap: 'var(--spacing)' }}>
         <DateInput value={min ?? null} onChange={(date) => set(date ?? undefined, max, 'min')} locale={locale} />
 
