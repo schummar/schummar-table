@@ -1,5 +1,12 @@
 # Changelog
 
+### [0.8.3](https://github.com/schummar/schummar-table/compare/v0.8.2...v0.8.3) (2022-05-04)
+
+
+### Bug Fixes
+
+* provide css variables for standalone date picker ([0239136](https://github.com/schummar/schummar-table/commit/0239136a182508c9967f9c94850d703c657e805b))
+
 ### [0.8.2](https://github.com/schummar/schummar-table/compare/v0.8.1...v0.8.2) (2022-04-25)
 
 
