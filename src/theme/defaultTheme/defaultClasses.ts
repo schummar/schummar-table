@@ -77,9 +77,12 @@ export const defaultClasses = {
   }),
 
   clearFiltersButton: css({
+    padding: `0 calc(2 * var(--spacing))`,
     fontWeight: 'bold',
-    textAlign: 'center',
-    gridColumn: '1/-1',
+    position: 'sticky',
+    left: 0,
+    maxWidth: 'fit-content',
+    gridColumn: '2/-1',
     button: {
       color: 'var(--primaryMain) !important',
       margin: 'var(--spacing)',
