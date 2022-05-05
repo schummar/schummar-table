@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.9.0](https://github.com/schummar/schummar-table/compare/v0.8.3...v0.9.0) (2022-05-05)
+
+
+### Features
+
+* Clear filters button if any filter is active ([#31](https://github.com/schummar/schummar-table/issues/31)) ([0311271](https://github.com/schummar/schummar-table/commit/0311271e2bda8a98d109de1e9813cbda8f838570))
+
 ### [0.8.3](https://github.com/schummar/schummar-table/compare/v0.8.2...v0.8.3) (2022-05-04)
 
 
