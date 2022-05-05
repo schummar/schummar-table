@@ -103,6 +103,7 @@ export function calcProps<T>(props: TableProps<T>): InternalTableProps<T> {
       stickyFooter: props.stickyFooter ?? true,
       enableExport,
       enableColumnSelection: props.enableColumnSelection ?? true,
+      enableClearFiltersButton: props.enableClearFiltersButton ?? false,
       enableColumnResize: props.enableColumnResize ?? true,
       enableColumnReorder: props.enableColumnReorder ?? true,
     };

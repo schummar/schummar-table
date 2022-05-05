@@ -107,6 +107,7 @@ function Content(): JSX.Element {
       onExpandedChange={(e) => {
         setActive([...e].map(String));
       }}
+      enableClearFiltersButton
       // onSelectionChange={setSelected}
       // disableSelection
       expandOnlyOne

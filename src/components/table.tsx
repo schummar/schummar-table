@@ -71,6 +71,13 @@ const TableInner = memo(function TableInner<T>({ hidden }: { hidden: boolean }) 
       classes: column.classes,
     })),
   );
+  const hasActiveFilters = table.useState((state) => {
+    return state.activeColumns.some((column) => {
+      const filter = state.filters.get(column.id);
+      const filterValue = state.filterValues.get(column.id);
+      return filter !== undefined && filterValue !== undefined && filter.isActive(filterValue);
+    });
+  });
   const columnWidths = table.useState('columnWidths', { throttle: 16 });
   const hasFooter = table.useState((state) => state.activeColumns.some((column) => column.footer));
 
@@ -82,6 +89,10 @@ const TableInner = memo(function TableInner<T>({ hidden }: { hidden: boolean }) 
   const enableColumnSelection = table.useState('props.enableColumnSelection');
   const enableExport = table.useState((state) => !!state.props.enableExport.copy || !!state.props.enableExport.download);
   const cssVariables = useCssVariables();
+
+  const enableClearFiltersButton = table.useState('props.enableClearFiltersButton');
+  const Button = useTheme((t) => t.components.Button);
+  const textClearFilters = useTheme((t) => t.text.clearFilters);
 
   useLayoutEffect(() => table.getState().props.debugRender?.('render table inner'));
 
@@ -136,29 +147,59 @@ const TableInner = memo(function TableInner<T>({ hidden }: { hidden: boolean }) 
         </>
       }
       footer={
-        hasFooter && (
-          <>
-            <div
-              className={classes?.footerCell}
-              css={[defaultClasses.footerFill, stickyFooter && defaultClasses.stickyBottom, stickyFooter instanceof Object && stickyFooter]}
-            />
-            <div
-              className={classes?.footerCell}
-              css={[defaultClasses.footerFill, stickyFooter && defaultClasses.stickyBottom, stickyFooter instanceof Object && stickyFooter]}
-            />
+        <>
+          {enableClearFiltersButton && hasActiveFilters && (
+            <div css={defaultClasses.clearFiltersButton}>
+              <Button
+                variant="text"
+                onClick={() => {
+                  table.update((state) => {
+                    state.activeColumns.forEach((column) => {
+                      state.filterValues.delete(column.id);
+                    });
+                  });
+                }}
+              >
+                {textClearFilters}
+              </Button>
+            </div>
+          )}
+          {hasFooter && (
+            <>
+              <div
+                className={classes?.footerCell}
+                css={[
+                  defaultClasses.footerFill,
+                  stickyFooter && defaultClasses.stickyBottom,
+                  stickyFooter instanceof Object && stickyFooter,
+                ]}
+              />
+              <div
+                className={classes?.footerCell}
+                css={[
+                  defaultClasses.footerFill,
+                  stickyFooter && defaultClasses.stickyBottom,
+                  stickyFooter instanceof Object && stickyFooter,
+                ]}
+              />
 
-            {activeColumns.map((column) => (
-              <ColumnContext.Provider key={column.id} value={column.id}>
-                <ColumnFooter />
-              </ColumnContext.Provider>
-            ))}
+              {activeColumns.map((column) => (
+                <ColumnContext.Provider key={column.id} value={column.id}>
+                  <ColumnFooter />
+                </ColumnContext.Provider>
+              ))}
 
-            <div
-              className={classes?.footerCell}
-              css={[defaultClasses.footerFill, stickyFooter && defaultClasses.stickyBottom, stickyFooter instanceof Object && stickyFooter]}
-            />
-          </>
-        )
+              <div
+                className={classes?.footerCell}
+                css={[
+                  defaultClasses.footerFill,
+                  stickyFooter && defaultClasses.stickyBottom,
+                  stickyFooter instanceof Object && stickyFooter,
+                ]}
+              />
+            </>
+          )}
+        </>
       }
     >
       {(itemIds, startIndex) => itemIds.map((itemId, index) => <Row key={itemId} itemId={itemId} rowIndex={startIndex + index} />)}
