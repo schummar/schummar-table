@@ -220,11 +220,11 @@ export interface TableProps<T> extends PartialTableTheme<T> {
   /** Enable exporting to csv.
    * @default false
    */
-  enableClearFiltersButton?: boolean;
+  enableExport?: boolean | { copy?: boolean | CsvExportOptions; download?: boolean | CsvExportOptions };
   /** Shows a button to clear all filters while any are active
    * @default false
    */
-  enableExport?: boolean | { copy?: boolean | CsvExportOptions; download?: boolean | CsvExportOptions };
+  enableClearFiltersButton?: boolean;
   /** Allow to drag and drop column separators to resize the column left of it.
    * @default true
    */
