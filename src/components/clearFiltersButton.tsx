@@ -6,55 +6,48 @@ export default function ClearFiltersButton<T>() {
   const Button = useTheme((t) => t.components.Button);
   const textClearFilters = useTheme((t) => t.text.clearFilters);
   const table = useTableContext<T>();
-
   const rowRef = useRef<HTMLDivElement>(null);
 
-  // TODO: https://stackoverflow.com/questions/33859522/how-much-of-an-element-is-visible-in-viewport
-
   let scrollLeft: any = null;
+  let throttleScrollEventActive = false;
 
   function handleScrollEvent(event: any, element: any) {
-    const left = element.getBoundingClientRect().left;
-
-    if (scrollLeft != left) {
-      console.log('horizontally scrolled');
-      scrollLeft = left;
-    }
+    if (throttleScrollEventActive) return;
+    window.requestAnimationFrame(function () {
+      const left = element.getBoundingClientRect().left;
+      if (scrollLeft != left) {
+        console.log('horizontally scrolled');
+        scrollLeft = left;
+        setVisibleButtonWidth();
+      }
+      throttleScrollEventActive = false;
+    });
+    throttleScrollEventActive = true;
   }
 
   useEffect(() => {
-    calculateVisibleRowWidth();
+    setVisibleButtonWidth();
     const el = rowRef.current;
     if (!el) return;
     window.addEventListener('scroll', (e) => handleScrollEvent(e, el), true);
-    console.log('addedEventListener');
-
     return () => {
       window.removeEventListener('scroll', (e) => handleScrollEvent(e, el), true);
     };
   }, [rowRef.current]);
 
-  function calculateVisibleRowWidth() {
+  function setVisibleButtonWidth() {
     const el = rowRef.current;
     if (!el) return;
 
     const clientWidth = el.parentElement?.clientWidth;
     const left = el.getBoundingClientRect().left;
 
-    if (!clientWidth) {
-      return;
-    }
-
-    console.log('document.documentElement.clientWidth', document.documentElement.clientWidth);
-    console.log('window.innerWidth', window.innerWidth);
-
+    if (!clientWidth) return;
     const vw = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0);
-
     let width = clientWidth;
     if (left + clientWidth > vw) {
       width = vw - left;
     }
-
     el.style.width = `${width}px`;
   }
 
