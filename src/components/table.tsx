@@ -7,6 +7,7 @@ import { useTableState } from '../internalState/useTableState';
 import { defaultClasses } from '../theme/defaultTheme/defaultClasses';
 import { useCssVariables } from '../theme/useCssVariables';
 import { Id, InternalTableState, TableProps } from '../types';
+import ClearFiltersButton from './clearFiltersButton';
 import { ColumnFooter } from './columnFooter';
 import { ColumnHeader, ColumnHeaderContext } from './columnHeader';
 import { ColumnSelection } from './columnSelection';
@@ -91,8 +92,6 @@ const TableInner = memo(function TableInner<T>({ hidden }: { hidden: boolean }) 
   const cssVariables = useCssVariables();
 
   const enableClearFiltersButton = table.useState('props.enableClearFiltersButton');
-  const Button = useTheme((t) => t.components.Button);
-  const textClearFilters = useTheme((t) => t.text.clearFilters);
 
   useLayoutEffect(() => table.getState().props.debugRender?.('render table inner'));
 
@@ -148,22 +147,7 @@ const TableInner = memo(function TableInner<T>({ hidden }: { hidden: boolean }) 
       }
       footer={
         <>
-          {enableClearFiltersButton && hasActiveFilters && (
-            <div css={defaultClasses.clearFiltersButton}>
-              <Button
-                variant="text"
-                onClick={() => {
-                  table.update((state) => {
-                    state.activeColumns.forEach((column) => {
-                      state.filterValues.delete(column.id);
-                    });
-                  });
-                }}
-              >
-                {textClearFilters}
-              </Button>
-            </div>
-          )}
+          {enableClearFiltersButton && hasActiveFilters && <ClearFiltersButton />}
           {hasFooter && (
             <>
               <div

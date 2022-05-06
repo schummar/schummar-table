@@ -81,7 +81,8 @@ export const defaultClasses = {
     fontWeight: 'bold',
     position: 'sticky',
     left: 0,
-    maxWidth: 'fit-content',
+    textAlign: 'center',
+    // maxWidth: 'fit-content',
     gridColumn: '2/-1',
     button: {
       color: 'var(--primaryMain) !important',
