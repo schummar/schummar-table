@@ -11,12 +11,12 @@ export default function ClearFiltersButton<T>() {
   let scrollLeft: any = null;
   let throttleScrollEventActive = false;
 
+  // TODO: handle window resize
   function handleScrollEvent(event: any, element: any) {
     if (throttleScrollEventActive) return;
     window.requestAnimationFrame(function () {
       const left = element.getBoundingClientRect().left;
       if (scrollLeft != left) {
-        console.log('horizontally scrolled');
         scrollLeft = left;
         setVisibleButtonWidth();
       }
@@ -39,16 +39,26 @@ export default function ClearFiltersButton<T>() {
     const el = rowRef.current;
     if (!el) return;
 
-    const clientWidth = el.parentElement?.clientWidth;
-    const left = el.getBoundingClientRect().left;
+    const parent = el.parentElement;
+    if (!parent) return;
+    const clientWidth = parent.clientWidth;
+    const rect = el.getBoundingClientRect();
+    const left = rect.left;
 
-    if (!clientWidth) return;
     const vw = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0);
-    let width = clientWidth;
-    if (left + clientWidth > vw) {
+    let width = null;
+
+    if (rect.left < 0 && rect.right < vw) {
+      width = rect.right;
+    } else if (rect.left < 0 && rect.right > vw) {
+      width = vw;
+    } else if (left + clientWidth > vw) {
       width = vw - left;
     }
-    el.style.width = `${width}px`;
+
+    if (width != null) {
+      el.style.maxWidth = `${width}px`;
+    }
   }
 
   return (
