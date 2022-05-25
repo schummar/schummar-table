@@ -16,7 +16,6 @@ export function useTheme<T, S>(selector: (theme: MemoizedTableTheme<T>) => S): S
 
   const process = (t: TableTheme<T>): MemoizedTableTheme<T> => {
     const cell = t.classes?.cell;
-    const selected = t.text.selected;
 
     return {
       ...t,
@@ -26,7 +25,6 @@ export function useTheme<T, S>(selector: (theme: MemoizedTableTheme<T>) => S): S
       },
       text: {
         ...t.text,
-        selected: selected instanceof Function || Array.isArray(selected) ? memo('theme.text.selected', selected) : selected,
       },
     };
   };

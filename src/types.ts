@@ -45,6 +45,7 @@ export interface TableTheme<T = unknown> {
       startIcon?: ReactNode;
       variant?: 'text' | 'outlined' | 'contained';
       disabled?: boolean;
+      className?: string;
     }>;
     Checkbox: ComponentType<{ checked: boolean; onChange: (e: React.ChangeEvent) => void; disabled?: boolean; className?: string }>;
     Popover: ComponentType<{
