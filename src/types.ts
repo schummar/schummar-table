@@ -25,7 +25,7 @@ export interface TableTheme<T = unknown> {
     reset: ReactNode;
     loading: ReactNode;
     clearFilters: ReactNode;
-    selected: FunctionWithDeps<(count: number) => ReactNode>;
+    deselectAll: ReactNode;
   };
   /** Define styles. */
   classes?: {

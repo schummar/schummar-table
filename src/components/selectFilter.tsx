@@ -37,7 +37,7 @@ export function SelectFilter<T, V, F extends SerializableValue>({
   const Checkbox = useTheme((t) => t.components.Checkbox);
   const Search = useTheme((t) => t.icons.Search);
   const Clear = useTheme((t) => t.icons.Clear);
-  const selected = useTheme((t) => t.text.selected);
+  const deselectAll = useTheme((t) => t.text.deselectAll);
   const noResults = useTheme((t) => t.text.noResults);
 
   const table = useTableContext<T>();
@@ -73,6 +73,8 @@ export function SelectFilter<T, V, F extends SerializableValue>({
   const [query, setQuery] = useState('');
   const filtered = options.filter((option) => !query || stringValue(option).toLowerCase().includes(query.toLowerCase()));
 
+  const Button = useTheme((t) => t.components.Button);
+
   return (
     <div
       css={{
@@ -89,11 +91,14 @@ export function SelectFilter<T, V, F extends SerializableValue>({
       />
 
       <div css={{ maxHeight: '20em', overflowY: 'auto' }}>
-        <FormControlLabel
+        <Button
           disabled={value.size === 0}
-          control={<Checkbox disabled={value.size === 0} checked={value.size > 0} onChange={() => onChange(new Set())} />}
-          label={<>&lt;{selected(value.size)}&gt;</>}
-        ></FormControlLabel>
+          onClick={() => onChange(new Set())}
+          variant="outlined"
+          css={{ justifyContent: 'center', width: 'calc(100% - 5px)', marginRight: '5px' }}
+        >
+          {deselectAll}
+        </Button>
 
         {filtered.map((option, index) => (
           <FormControlLabel
