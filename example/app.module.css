@@ -10,14 +10,3 @@
 .right {
   justify-content: end;
 }
-
-.placeholder {
-  background-color: green;
-  width: 700px;
-  height: 100%;
-}
-
-.wrapper {
-  display: grid;
-  grid-template-columns: auto auto auto;
-}

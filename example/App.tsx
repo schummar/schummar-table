@@ -34,7 +34,7 @@ type SubItem = {
   price: number;
 };
 
-const N = 25,
+const N = 500,
   M = 10;
 const loadTop = createResource(async () => {
   // await new Promise((r) => setTimeout(r, 1000));
@@ -194,43 +194,39 @@ function Content(): JSX.Element {
 
 function App() {
   return (
-    <div className={classes.wrapper}>
-      <div className={classes.placeholder}></div>
-      <TableThemeProvider
-        theme={{
-          classes: {
-            cell: '.my-cell-style',
+    <TableThemeProvider
+      theme={{
+        classes: {
+          cell: '.my-cell-style',
+        },
+        colors: {
+          primary: {
+            main: '#2e8555',
+            light: '#33925d',
+            contrastText: 'white',
           },
-          colors: {
-            primary: {
-              main: '#2e8555',
-              light: '#33925d',
-              contrastText: 'white',
-            },
-          },
+        },
+      }}
+    >
+      <div
+        css={{
+          padding: 20,
+          display: 'grid',
+          color: '#454d59',
+          // color: 'red',
         }}
       >
-        <div
-          css={{
-            padding: 20,
-            display: 'grid',
-            color: '#454d59',
-            // color: 'red',
-          }}
-        >
-          {/* <Mui5ThemeProvider theme={mui5Theme}>
+        {/* <Mui5ThemeProvider theme={mui5Theme}>
         <Mui5TableThemeProvider>{table}</Mui5TableThemeProvider>
       </Mui5ThemeProvider> */}
 
-          {/* <Mui4ThemeProvider theme={mui4Theme}>
+        {/* <Mui4ThemeProvider theme={mui4Theme}>
         <Mui4TableThemeProvider>{table}</Mui4TableThemeProvider>
       </Mui4ThemeProvider> */}
 
-          <Content />
-        </div>
-      </TableThemeProvider>
-      <div className={classes.placeholder}></div>
-    </div>
+        <Content />
+      </div>
+    </TableThemeProvider>
   );
 }
 
