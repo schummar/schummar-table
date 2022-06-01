@@ -11,5 +11,5 @@ export const defaultTexts: TableTheme['text'] = {
   clearFilters: 'Clear all filters',
   reset: 'Reset',
   loading: 'Loading',
-  selected: (count) => `${count} selected`,
+  deselectAll: 'Deselect all',
 };
