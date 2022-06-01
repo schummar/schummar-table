@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.10.0](https://github.com/schummar/schummar-table/compare/v0.9.0...v0.10.0) (2022-06-01)
+
+
+### Features
+
+* Replaced deselection checkbox for selectFilter with button ([#35](https://github.com/schummar/schummar-table/issues/35)) ([76aaa93](https://github.com/schummar/schummar-table/commit/76aaa9309cd9903f62611d54cd22cf577f0a8833))
+
 ## [0.9.0](https://github.com/schummar/schummar-table/compare/v0.8.3...v0.9.0) (2022-05-05)
 
 
