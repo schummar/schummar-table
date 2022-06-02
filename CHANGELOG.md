@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.10.1](https://github.com/schummar/schummar-table/compare/v0.10.0...v0.10.1) (2022-06-02)
+
+
+### Bug Fixes
+
+* deselect all/clearFiltersButton ui adjustments ([#38](https://github.com/schummar/schummar-table/issues/38)) ([073f759](https://github.com/schummar/schummar-table/commit/073f7592f0cee1d46ae346739a19f02588f37773))
+
 ## [0.10.0](https://github.com/schummar/schummar-table/compare/v0.9.0...v0.10.0) (2022-06-01)
 
 
