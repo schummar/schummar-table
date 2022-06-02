@@ -85,6 +85,8 @@ export const defaultClasses = {
     gridColumn: '2/-1',
     button: {
       color: 'var(--primaryMain) !important',
+      border: 'solid 1px',
+      borderColor: 'var(--primaryMain) !important',
       margin: 'var(--spacing)',
     },
   }),

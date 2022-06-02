@@ -90,16 +90,16 @@ export function SelectFilter<T, V, F extends SerializableValue>({
         css={{ marginBottom: 'var(--spacing)' }}
       />
 
-      <div css={{ maxHeight: '20em', overflowY: 'auto' }}>
-        <Button
-          disabled={value.size === 0}
-          onClick={() => onChange(new Set())}
-          variant="outlined"
-          css={{ justifyContent: 'center', width: 'calc(100% - 5px)', marginRight: '5px' }}
-        >
-          {deselectAll}
-        </Button>
+      <Button
+        disabled={!(value.size > 0)}
+        onClick={() => onChange(new Set())}
+        variant="outlined"
+        css={{ justifyContent: 'center', width: '100%', marginBottom: 'var(--spacing)' }}
+      >
+        {deselectAll}
+      </Button>
 
+      <div css={{ maxHeight: '20em', overflowY: 'auto' }}>
         {filtered.map((option, index) => (
           <FormControlLabel
             key={index}
