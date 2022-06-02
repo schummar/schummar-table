@@ -10,7 +10,7 @@ export default function ClearFiltersButton<T>() {
   return (
     <div css={defaultClasses.clearFiltersButton}>
       <Button
-        variant="text"
+        variant="outlined"
         onClick={() => {
           table.update((state) => {
             state.activeColumns.forEach((column) => {
