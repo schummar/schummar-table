@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.10.2](https://github.com/schummar/schummar-table/compare/v0.10.1...v0.10.2) (2022-06-21)
+
+
+### Bug Fixes
+
+* justify first header cell's border right ([37de9f8](https://github.com/schummar/schummar-table/commit/37de9f8780da45592feda9157cd621a08a88eda1))
+
 ## [0.10.1](https://github.com/schummar/schummar-table/compare/v0.10.0...v0.10.1) (2022-06-02)
 
 
