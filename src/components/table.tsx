@@ -128,6 +128,8 @@ const TableInner = memo(function TableInner<T>({ hidden }: { hidden: boolean }) 
             {enableColumnSelection && <ColumnSelection />}
 
             {enableExport && <Export />}
+
+            <div css={{ flex: 1 }} />
             <ResizeHandleView />
           </div>
 
