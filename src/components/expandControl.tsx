@@ -21,15 +21,20 @@ export function ExpandControl<T>({ itemId, hasDeferredChildren }: { itemId: Id; 
     } = table.getState();
 
     const newExpanded = new Set(expanded);
-    if (expandOnlyOne) newExpanded.clear();
-    if (isExpanded) newExpanded.delete(itemId);
-    else {
-      newExpanded.add(itemId);
+
+    if (expandOnlyOne) {
+      newExpanded.clear();
 
       const item = activeItemsById.get(itemId);
       for (const ancestor of item ? getAncestors(activeItemsById, item) : []) {
         newExpanded.add(ancestor);
       }
+    }
+
+    if (isExpanded) {
+      newExpanded.delete(itemId);
+    } else {
+      newExpanded.add(itemId);
     }
 
     onExpandedChange?.(newExpanded);
