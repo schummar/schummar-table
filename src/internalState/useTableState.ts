@@ -6,6 +6,7 @@ import { calcItems } from './calcItems';
 import { calcProps } from './calcProps';
 import { cleanupState } from './cleanupState';
 import { filterColumns } from './filterColumns';
+import { normalizeExpanded } from './normalizeExpanded';
 import { syncSelections } from './syncSelections';
 
 export function useTableState<T>(_props: TableProps<T>): Store<InternalTableState<T>> {
@@ -38,6 +39,7 @@ export function useTableState<T>(_props: TableProps<T>): Store<InternalTableStat
   );
 
   filterColumns(state);
+  normalizeExpanded(state);
   calcItems(state);
   syncSelections(state);
   cleanupState(state);
