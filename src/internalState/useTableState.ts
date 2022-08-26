@@ -39,8 +39,8 @@ export function useTableState<T>(_props: TableProps<T>): Store<InternalTableStat
   );
 
   filterColumns(state);
-  normalizeExpanded(state);
   calcItems(state);
+  normalizeExpanded(state);
   syncSelections(state);
   cleanupState(state);
 

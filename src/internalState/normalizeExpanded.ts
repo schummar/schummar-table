@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { Store } from 'schummar-state/react';
-import { getAncestors } from '../misc/helpers';
-import { InternalTableState } from '../types';
+import { getAncestors, orderBy } from '../misc/helpers';
+import { Id, InternalTableState } from '../types';
 
 export function normalizeExpanded<T>(table: Store<InternalTableState<T>>): void {
   useEffect(
@@ -10,25 +10,33 @@ export function normalizeExpanded<T>(table: Store<InternalTableState<T>>): void 
         (state) => [state.props.expandOnlyOne, state.expanded, state.itemsById] as const,
         ([expandOnlyOne, , itemsById], state) => {
           let expanded = state.expanded;
-          let last, lastItem;
           let hasChanged = false;
 
+          const allAncestors = [...expanded].map((id) => {
+            const item = itemsById.get(id);
+            return {
+              id,
+              ancestors: item ? getAncestors(itemsById, item) : new Set<Id>(),
+            };
+          });
+
           // If only one branch may be expanded, check if there are more and close if necessary
-          if (expandOnlyOne && (last = [...expanded][expanded.size - 1]) && (lastItem = itemsById.get(last))) {
-            const ancestors = getAncestors(itemsById, lastItem);
-            if ([...expanded].slice(0, -1).some((id) => !ancestors.has(id))) {
-              expanded = state.expanded = new Set([...ancestors].concat(last));
-              hasChanged = true;
+          if (expandOnlyOne) {
+            const withMostAncestors = orderBy(allAncestors, [(x) => x.ancestors.size], ['desc'])[0];
+
+            if ([...expanded].some((id) => id !== withMostAncestors?.id && !withMostAncestors?.ancestors.has(id))) {
+              expanded = state.expanded = withMostAncestors?.ancestors ?? new Set();
+
+              state.props.onExpandedChange?.(expanded);
+              return;
             }
-          } else {
-            for (const id of expanded) {
-              const item = itemsById.get(id);
-              const ancestors = item && getAncestors(itemsById, item);
-              for (const ancestor of ancestors ?? []) {
-                if (!expanded.has(ancestor)) {
-                  expanded.add(ancestor);
-                  hasChanged = true;
-                }
+          }
+
+          for (const { ancestors } of allAncestors) {
+            for (const ancestor of ancestors ?? []) {
+              if (!expanded.has(ancestor)) {
+                expanded.add(ancestor);
+                hasChanged = true;
               }
             }
           }
