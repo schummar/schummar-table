@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.10.3](https://github.com/schummar/schummar-table/compare/v0.10.2...v0.10.3) (2022-08-26)
+
+
+### Bug Fixes
+
+* when collapsing an item, keep ancestors expanded ([546df72](https://github.com/schummar/schummar-table/commit/546df72bfbc32a303c0318f83a6903b17f54724b))
+
 ## [0.10.2](https://github.com/schummar/schummar-table/compare/v0.10.1...v0.10.2) (2022-06-21)
 
 
