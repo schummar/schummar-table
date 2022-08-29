@@ -12,4 +12,5 @@ export const defaultTexts: TableTheme['text'] = {
   reset: 'Reset',
   loading: 'Loading',
   deselectAll: 'Deselect all',
+  resetAll: 'Reset table state',
 };

@@ -1,19 +1,22 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { useTheme } from '..';
 import { useCssVariables } from '../theme/useCssVariables';
 import { InternalColumn } from '../types';
 import { FormControlLabel } from './formControlLabel';
-import { useTableContext } from './table';
+import { TableResetContext, useTableContext } from './table';
 
 export function ColumnSelection<T>(): JSX.Element {
   const IconButton = useTheme((t) => t.components.IconButton);
   const Popover = useTheme((t) => t.components.Popover);
   const Checkbox = useTheme((t) => t.components.Checkbox);
+  const Button = useTheme((t) => t.components.Button);
   const Settings = useTheme((t) => t.icons.Settings);
   const selectColumns = useTheme((t) => t.text.selectColumns);
+  const resetAll = useTheme((t) => t.text.resetAll);
   const cssVariables = useCssVariables();
 
   const table = useTableContext<T>();
+  const reset = useContext(TableResetContext);
   const columns = table.useState('props.columns');
   const hiddenColumns = table.useState('hiddenColumns');
 
@@ -54,6 +57,10 @@ export function ColumnSelection<T>(): JSX.Element {
               label={column.header}
             ></FormControlLabel>
           ))}
+
+          <Button variant="outlined" onClick={reset}>
+            {resetAll}
+          </Button>
         </div>
       </Popover>
     </>

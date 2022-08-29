@@ -18,6 +18,7 @@ import { SelectComponent } from './selectComponent';
 import { Virtualized } from './virtualized';
 
 export const TableContext = createContext<Store<InternalTableState<any>> | null>(null);
+export const TableResetContext = createContext<() => void>(() => undefined);
 export const ColumnContext = createContext<Id | null>(null);
 export function useTableContext<T>(): Store<InternalTableState<T>> {
   const value = useContext(TableContext);
@@ -31,22 +32,29 @@ export function useColumnContext(): Id {
 }
 
 export function Table<T>(props: TableProps<T>): JSX.Element {
-  const table = useTableState(props);
+  const [table, resetState] = useTableState(props);
+  const [isHydrated, clearStorage] = useTableStateStorage(table);
+
+  async function reset() {
+    await clearStorage();
+    resetState();
+  }
 
   useLayoutEffect(() => table.getState().props.debugRender?.('render table'));
 
   return (
     <TableContext.Provider value={table}>
-      <TableMemoContextProvider>
-        <TableLoadingState />
-      </TableMemoContextProvider>
+      <TableResetContext.Provider value={reset}>
+        <TableMemoContextProvider>
+          <TableLoadingState isHydrated={isHydrated} />
+        </TableMemoContextProvider>
+      </TableResetContext.Provider>
     </TableContext.Provider>
   );
 }
 
-function TableLoadingState() {
+function TableLoadingState({ isHydrated }: { isHydrated: boolean }) {
   const loadingText = useTheme((t) => t.text.loading);
-  const isHydrated = useTableStateStorage();
   const [showLoading, setShowLoading] = useState(false);
 
   useEffect(() => {

@@ -26,6 +26,7 @@ export interface TableTheme<T = unknown> {
     loading: ReactNode;
     clearFilters: ReactNode;
     deselectAll: ReactNode;
+    resetAll: ReactNode;
   };
   /** Define styles. */
   classes?: {

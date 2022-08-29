@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
-import { useTableContext } from '..';
+import { Store } from 'schummar-state/react';
 import { Queue } from '../misc/queue';
-import { SerializableValue } from '../types';
+import { InternalTableState, SerializableValue } from '../types';
 
 const KEYS = ['sort', 'selection', 'expanded', 'hiddenColumns', 'filterValues', 'columnWidths', 'columnOrder'] as const;
 
@@ -67,9 +67,9 @@ function parse(value: string) {
   });
 }
 
-export function useTableStateStorage() {
-  const table = useTableContext();
+export function useTableStateStorage(table: Store<InternalTableState<any>>) {
   const [isHydrated, setIsHydrated] = useState(false);
+  const [q] = useState(() => new Queue());
 
   // On mount: load
   useEffect(() => {
@@ -130,8 +130,6 @@ export function useTableStateStorage() {
   useEffect(() => {
     if (!isHydrated) return;
 
-    const q = new Queue();
-
     return table.subscribe(
       (state) => {
         if (!state.props.persist) return;
@@ -173,5 +171,32 @@ export function useTableStateStorage() {
     );
   }, [isHydrated]);
 
-  return isHydrated;
+  async function clear() {
+    await q.run(async () => {
+      const persist = table.getState().props.persist;
+      if (!persist) {
+        return;
+      }
+
+      const { storage } = persist;
+      const keys =
+        'keys' in storage
+          ? await storage.keys()
+          : await Promise.all(
+              Array(storage.length)
+                .fill(0)
+                .map((_x, i) => storage.key(i)),
+            );
+
+      for (const key of keys) {
+        if (key !== null) {
+          await storage.removeItem(key);
+        }
+      }
+
+      q.clear();
+    });
+  }
+
+  return [isHydrated, clear] as const;
 }

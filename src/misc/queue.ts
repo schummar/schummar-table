@@ -13,6 +13,10 @@ export class Queue {
     });
   }
 
+  clear() {
+    this.q = [];
+  }
+
   private async start() {
     this.isRunning = true;
 

@@ -1,5 +1,5 @@
 import { castDraft } from 'immer';
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Store } from 'schummar-state/react';
 import { InternalTableState, TableProps } from '../types';
 import { calcItems } from './calcItems';
@@ -9,8 +9,13 @@ import { filterColumns } from './filterColumns';
 import { normalizeExpanded } from './normalizeExpanded';
 import { syncSelections } from './syncSelections';
 
-export function useTableState<T>(_props: TableProps<T>): Store<InternalTableState<T>> {
+export function useTableState<T>(_props: TableProps<T>): [Store<InternalTableState<T>>, () => void] {
+  const [key, setKey] = useState({});
   const props = calcProps(_props);
+
+  function reset() {
+    setKey({});
+  }
 
   const state = useMemo(
     () =>
@@ -35,7 +40,7 @@ export function useTableState<T>(_props: TableProps<T>): Store<InternalTableStat
         activeItemsById: new Map(),
         lastSelectedId: undefined,
       }),
-    [],
+    [key],
   );
 
   filterColumns(state);
@@ -60,5 +65,5 @@ export function useTableState<T>(_props: TableProps<T>): Store<InternalTableStat
     });
   }, [state, props]);
 
-  return state;
+  return [state, reset];
 }
