@@ -13,11 +13,11 @@ export default {
 } as ComponentMeta<typeof Table>;
 
 export const Primary = () => {
-  const [sort, setSort] = useState<Sort[]>();
-  const [firstName, setFirstName] = useState<string>();
-  const [lastName, setLastName] = useState<string>();
-  const [jobTitle, setJobTitle] = useState<Set<string>>();
-  const [birthday, setBirthday] = useState<Date | DateRange | null>();
+  const [sort, setSort] = useState(new Array<Sort>());
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [jobTitle, setJobTitle] = useState(new Set<string>());
+  const [birthday, setBirthday] = useState<Date | DateRange | null>(null);
 
   return (
     <Box>
@@ -39,6 +39,13 @@ export const Primary = () => {
         sort={sort}
         onSortChange={setSort}
         externalSort
+        onReset={() => {
+          setSort([]);
+          setFirstName('');
+          setLastName('');
+          setJobTitle(new Set());
+          setBirthday(null);
+        }}
         columns={(col) => [
           //
           col((x) => x.avatar, {

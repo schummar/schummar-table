@@ -15,10 +15,24 @@ export function useTableState<T>(_props: TableProps<T>): [Store<InternalTableSta
 
   function reset() {
     setKey({});
-    props.onSortChange?.(props.defaultSort ?? []);
-    props.onExpandedChange?.(props.defaultExpanded ?? new Set());
-    props.onSelectionChange?.(props.defaultSelection ?? new Set());
-    props.onHiddenColumnsChange?.(props.defaultHiddenColumns ?? new Set());
+
+    if (props.sort === undefined) {
+      props.onSortChange?.(props.defaultSort ?? []);
+    }
+
+    if (props.expanded === undefined) {
+      props.onExpandedChange?.(props.defaultExpanded ?? new Set());
+    }
+
+    if (props.selection === undefined) {
+      props.onSelectionChange?.(props.defaultSelection ?? new Set());
+    }
+
+    if (props.hiddenColumns === undefined) {
+      props.onHiddenColumnsChange?.(props.defaultHiddenColumns ?? new Set());
+    }
+
+    props.onReset?.();
   }
 
   const state = useMemo(

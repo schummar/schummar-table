@@ -14,7 +14,9 @@ export function useFilter<T, V, F, S extends SerializableValue>(impl: FilterImpl
 
   // On mount and reset: Fire onChange
   useEffect(() => {
-    impl.onChange?.(impl.defaultValue);
+    if (impl.value === undefined) {
+      impl.onChange?.(impl.defaultValue);
+    }
   }, [table]);
 
   // Update implementation
