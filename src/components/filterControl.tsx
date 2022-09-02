@@ -24,7 +24,13 @@ export function FilterControl<T>(): JSX.Element | null {
 
   function reset() {
     table.update((state) => {
-      state.filterValues.delete(columnId);
+      const impl = state.filters.get(columnId);
+
+      impl?.onChange?.(undefined);
+
+      if (impl?.value !== undefined) {
+        state.filterValues.delete(columnId);
+      }
     });
   }
 
