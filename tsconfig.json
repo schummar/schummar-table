@@ -13,6 +13,7 @@
     "target": "ES2015",
     "lib": ["ES2020", "DOM"],
     "allowJs": true,
+    "resolveJsonModule": true,
     "downlevelIteration": true,
     "allowSyntheticDefaultImports": true,
     "noUncheckedIndexedAccess": true,
@@ -21,5 +22,5 @@
     "skipLibCheck": true,
     "sourceMap": true
   },
-  "include": ["src"]
+  "include": ["src", "docs/stories"]
 }

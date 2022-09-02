@@ -12,6 +12,11 @@ export function useFilter<T, V, F, S extends SerializableValue>(impl: FilterImpl
   const cache = useTableMemo();
   const filterBy = impl.filterBy && cache('', impl.filterBy);
 
+  // On mount and reset: Fire onChange
+  useEffect(() => {
+    impl.onChange?.(impl.defaultValue);
+  }, [table]);
+
   // Update implementation
   useEffect(() => {
     table.update((state) => {
@@ -19,7 +24,7 @@ export function useFilter<T, V, F, S extends SerializableValue>(impl: FilterImpl
         state.filterValues.set(columnId, impl.defaultValue);
       }
     });
-  }, []);
+  }, [table]);
 
   useEffect(() => {
     table.update((state) => {

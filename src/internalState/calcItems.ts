@@ -14,13 +14,14 @@ export function calcItems<T>(state: Store<InternalTableState<T>>): void {
             state.props.id,
             state.props.parentId,
             state.props.revealFiltered,
+            state.props.externalSort,
             state.sort,
             state.filters,
             state.filterValues,
             state.activeColumns,
             state.expanded,
           ] as const,
-        ([items = [], id, parentId, revealFiltered, sort, filters, filterValues, activeColumns], draft) => {
+        ([items = [], id, parentId, revealFiltered, externalSort, sort, filters, filterValues, activeColumns], draft) => {
           const tableItems = items.map<TableItem<T>>((item) => ({
             id: id(item),
             parentId: parentId?.(item),
@@ -29,7 +30,7 @@ export function calcItems<T>(state: Store<InternalTableState<T>>): void {
           }));
 
           let sorted;
-          if (sort.length === 0) {
+          if (sort.length === 0 || externalSort) {
             sorted = tableItems;
           } else {
             const selectors = flatMap(sort, (sort) => {
@@ -80,7 +81,7 @@ export function calcItems<T>(state: Store<InternalTableState<T>>): void {
 
               isActive ||= activeColumns.every((column) => {
                 const filter = filters.get(column.id);
-                if (!filter) return true;
+                if (!filter || filter.external) return true;
 
                 const filterValue = filterValues.get(column.id);
                 if (filterValue === undefined || !filter.isActive(filterValue)) return true;

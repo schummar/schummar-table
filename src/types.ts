@@ -137,6 +137,8 @@ export interface TableProps<T> extends PartialTableTheme<T> {
   sort?: Sort[];
   /** Called when sort order changes. */
   onSortChange?: (sort: Sort[]) => void;
+  /** Handle sorting externally, e.g. server side */
+  externalSort?: boolean;
 
   //////////////////////////////////////////////////
   // Selection
@@ -302,6 +304,7 @@ export type InternalTableState<T> = {
   props: InternalTableProps<T>;
 
   // Actual internal state
+  key: any;
   sort: Sort[];
   selection: Set<Id>;
   expanded: Set<Id>;
@@ -331,6 +334,8 @@ export type CommonFilterProps<T, V, F, S extends SerializableValue> = {
   value?: S;
   /** Notifies on filter change. */
   onChange?: (value?: S) => void;
+  /** Table should not filter using this filter. It will be done externally, e.g. server side. */
+  external?: boolean;
   /** Whether to persist filter value (given that filter persitance is enabled for the table).
    * @default true
    */

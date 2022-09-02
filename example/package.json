@@ -1,7 +1,0 @@
-{
-  "name": "example",
-  "devDependencies": {
-    "@fontsource/fira-sans": "^4.5.3",
-    "localforage": "^1.10.0"
-  }
-}
