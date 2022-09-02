@@ -60,7 +60,7 @@
     "@emotion/react": "^11.10.4",
     "dayzed": "^3.2.3",
     "immer": "^9.0.15",
-    "schummar-state": "0.2.1-experimental-13"
+    "schummar-state": "0.4.3"
   },
   "peerDependencies": {
     "@material-ui/core": "^4.12.3",
