@@ -156,10 +156,8 @@ export function useTableStateStorage(table: Store<InternalTableState<any>>) {
               }
             } else {
               if (
-                key === 'expanded' ||
-                key === 'hiddenColumns' ||
-                key === 'selection' ||
-                (key === 'sort' && state.props[key] !== undefined)
+                (key === 'expanded' || key === 'hiddenColumns' || key === 'selection' || key === 'sort') &&
+                state.props[key] !== undefined
               ) {
                 continue;
               }
