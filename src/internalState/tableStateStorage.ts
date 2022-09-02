@@ -100,16 +100,20 @@ export function useTableStateStorage(table: Store<InternalTableState<any>>) {
             ) {
               if (key === 'filterValues') {
                 for (const [id, value] of data[key]) {
-                  if (state.filters.get(id)?.persist ?? true) {
+                  if (state.filters.get(id)?.persist ?? state.filters.get(id)?.value === undefined) {
                     state.filterValues.set(id, value);
                   }
                 }
               } else {
-                state[key] = data[key];
-
                 if (key === 'expanded' || key === 'hiddenColumns' || key === 'selection' || key === 'sort') {
+                  if (state.props[key] !== undefined) {
+                    continue;
+                  }
+
                   state.props[`on${(key.slice(0, 1).toUpperCase() + key.slice(1)) as Capitalize<typeof key>}Change`]?.(data[key]);
                 }
+
+                state[key] = data[key];
               }
             }
           }
@@ -146,11 +150,20 @@ export function useTableStateStorage(table: Store<InternalTableState<any>>) {
             if (key === 'filterValues') {
               data[key] = new Map();
               for (const [id, value] of state.filterValues) {
-                if (state.filters.get(id)?.persist ?? true) {
+                if (state.filters.get(id)?.persist ?? state.filters.get(id)?.value === undefined) {
                   data.filterValues.set(id, value);
                 }
               }
             } else {
+              if (
+                key === 'expanded' ||
+                key === 'hiddenColumns' ||
+                key === 'selection' ||
+                (key === 'sort' && state.props[key] !== undefined)
+              ) {
+                continue;
+              }
+
               data[key] = state[key];
             }
           }
