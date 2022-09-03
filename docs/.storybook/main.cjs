@@ -24,6 +24,10 @@ module.exports = {
       }),
     );
 
+    config.esbuild = {
+      logOverride: { 'this-is-undefined-in-esm': 'silent' },
+    };
+
     return config;
   },
 };
