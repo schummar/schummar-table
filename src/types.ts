@@ -139,6 +139,8 @@ export interface TableProps<T> extends PartialTableTheme<T> {
   onSortChange?: (sort: Sort[]) => void;
   /** Handle sorting externally, e.g. server side */
   externalSort?: boolean;
+  /** Disable sort for all columns (can be override per column) */
+  disableSort?: boolean;
 
   //////////////////////////////////////////////////
   // Selection
@@ -277,6 +279,8 @@ export type Column<T, V> = {
   exportCell?: (value: V, item: T) => string | number;
   /** Customize sort criteria. By default it will be the value itself in case it's a number or Date, or a string representation of the value otherwise. */
   sortBy?: FunctionWithDeps<(value: V, item: T) => unknown>[];
+  /** Disable sort for this column */
+  disableSort?: boolean;
   /** Set filter component that will be displayed in the column header */
   filter?: ReactNode;
   /** Prevent hiding the column. */

@@ -69,3 +69,9 @@ export default {
 } as ComponentMeta<typeof Table>;
 
 export const Primary = {};
+
+export const SortDisabled = {
+  args: {
+    disableSort: true,
+  },
+};
