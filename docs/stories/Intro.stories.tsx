@@ -1,39 +1,7 @@
 import { ComponentMeta } from '@storybook/react';
-import React from 'react';
-import { DateFilter, SelectFilter, Table, TableProps, TextFilter } from '../../src';
-import data, { Person } from './_data';
-
-const dateFormat = new Intl.DateTimeFormat(undefined, { dateStyle: 'medium' });
-
-const defaultColumns: TableProps<Person>['columns'] = (col) => [
-  //
-  col((x) => x.avatar, {
-    header: 'Avatar',
-    renderCell: (avatar) => <img width={50} height={50} src={avatar} />,
-    width: 'max-content',
-  }),
-
-  col((x) => x.first_name, {
-    header: 'First Name',
-    filter: <TextFilter />,
-  }),
-
-  col((x) => x.last_name, {
-    header: 'Last Name',
-    filter: <TextFilter />,
-  }),
-
-  col((x) => x.job_title, {
-    header: 'Job Title',
-    filter: <SelectFilter />,
-  }),
-
-  col((x) => x.birthday, {
-    header: 'Birthday',
-    renderCell: (birthday) => dateFormat.format(new Date(birthday)),
-    filter: <DateFilter />,
-  }),
-];
+import { Table } from '../../src';
+import data from './_data';
+import { defaultColumns } from './_default';
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 export default {
@@ -69,3 +37,18 @@ export default {
 } as ComponentMeta<typeof Table>;
 
 export const Primary = {};
+
+export const SortDisabledAll = {
+  args: {
+    disableSort: true,
+  },
+};
+
+export const SortDisabledOne = {
+  args: {
+    columns: defaultColumns.map((col, i) => ({
+      ...col,
+      disableSort: i === 0,
+    })),
+  },
+};
