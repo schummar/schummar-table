@@ -1,6 +1,6 @@
 export { AutoFocusTextField } from './components/autoFocusTextField';
 export { DateFilter } from './components/dateFilter';
-export { dateIntersect, DatePicker, endOfDay, startOfDay } from './components/datePicker';
+export { dateIntersect, DatePicker, endOfDay, startOfDay, thisWeek, today } from './components/datePicker';
 export type { DatePickerProps, DateRange } from './components/datePicker';
 export { SelectFilter } from './components/selectFilter';
 export { ColumnContext, Table, TableContext, useColumnContext, useTableContext } from './components/table';
