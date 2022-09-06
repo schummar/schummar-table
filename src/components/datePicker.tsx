@@ -1,11 +1,13 @@
 import { useDayzed } from 'dayzed';
-import React, { useEffect, useMemo, useState } from 'react';
+import { ReactNode, useEffect, useMemo, useState } from 'react';
 import { useTheme } from '..';
 import { gray } from '../theme/defaultTheme/defaultClasses';
 import { useCssVariables } from '../theme/useCssVariables';
 import { DateInput } from './dateInput';
 
 export type DateRange = { min: Date; max: Date };
+
+export type DatePickerQuickOption = { label: ReactNode; value: Date | DateRange | (() => Date | DateRange) };
 
 export type DatePickerProps = {
   /** Currently selected day or range of days. */
@@ -18,6 +20,10 @@ export type DatePickerProps = {
   locale?: string;
   /** Which day of the week should be in the first column. */
   firstDayOfWeek?: 0 | 1 | 2 | 3 | 4 | 5 | 6;
+  /** Which month to show initially */
+  defaultDateInView?: Date;
+  /** Show buttons to quickly select suggested dates or date ranges */
+  quickOptions?: DatePickerQuickOption[] | ((onChange: (value: Date | DateRange | null) => void) => ReactNode);
 };
 
 const weekDays = [0, 1, 2, 3, 4, 5, 6] as const;
@@ -65,7 +71,15 @@ export function dateIntersect(a: Date | null | DateRange, b: Date | null | DateR
   return !(endOfDay(a.max) < startOfDay(b.min) || startOfDay(a.min) > endOfDay(b.max));
 }
 
-export function DatePicker({ value, onChange, rangeSelect, locale, firstDayOfWeek = 0 }: DatePickerProps) {
+export function DatePicker({
+  value,
+  onChange,
+  rangeSelect,
+  locale,
+  firstDayOfWeek = 0,
+  defaultDateInView = new Date(),
+  quickOptions,
+}: DatePickerProps) {
   const Button = useTheme((t) => t.components.Button);
   const IconButton = useTheme((t) => t.components.IconButton);
   const ChevronRight = useTheme((t) => t.icons.ChevronRight);
@@ -74,13 +88,17 @@ export function DatePicker({ value, onChange, rangeSelect, locale, firstDayOfWee
   const textReset = useTheme((t) => t.text.reset);
   const cssVariables = useCssVariables();
 
-  const [baseDate] = useState(new Date());
-  const [dateInView, setDateInView] = useState<Date>(baseDate);
+  const [dateInView, setDateInView] = useState<Date>(defaultDateInView);
   const [dirty, setDirty] = useState<Partial<DateRange>>();
   const [hovered, setHovered] = useState<Date>();
 
   const min = dirty ? dirty.min : value instanceof Date ? value : value?.min;
   const max = dirty ? dirty.max : value instanceof Date ? value : value?.max;
+
+  quickOptions ??= [
+    { label: textToday, value: today },
+    { label: textThisWeek, value: thisWeek },
+  ];
 
   const { calendars, getBackProps, getForwardProps, getDateProps } = useDayzed({
     onDateSelected: () => undefined,
@@ -96,7 +114,7 @@ export function DatePicker({ value, onChange, rangeSelect, locale, firstDayOfWee
     return (weekDay: number) => format(new Date(Date.UTC(2021, 5, weekDay)));
   }, [locale]);
 
-  useEffect(() => setDateInView(value === null ? new Date() : value instanceof Date ? value : value.max), [value]);
+  useEffect(() => setDateInView(value === null ? defaultDateInView : value instanceof Date ? value : value.max), [value]);
 
   useEffect(() => {
     if (!rangeSelect) {
@@ -250,35 +268,27 @@ export function DatePicker({ value, onChange, rangeSelect, locale, firstDayOfWee
       ))}
 
       <div css={{ marginTop: 'var(--spacing)', display: 'grid', gridAutoFlow: 'column', justifyContent: 'center' }}>
-        <Button
-          variant="text"
-          onClick={() => {
-            setDirty(undefined);
-            onChange(today());
-          }}
-        >
-          {textToday}
-        </Button>
+        {quickOptions instanceof Function
+          ? quickOptions((value) => {
+              setDirty(undefined);
+              onChange(value);
+            })
+          : [...quickOptions, { label: textReset, value: null }].map(({ label, value }, index) => (
+              <Button
+                key={index}
+                variant="text"
+                onClick={() => {
+                  if (value instanceof Function) {
+                    value = value();
+                  }
 
-        <Button
-          variant="text"
-          onClick={() => {
-            setDirty(undefined);
-            onChange(thisWeek(firstDayOfWeek));
-          }}
-        >
-          {textThisWeek}
-        </Button>
-
-        <Button
-          variant="text"
-          onClick={() => {
-            setDirty(undefined);
-            onChange(null);
-          }}
-        >
-          {textReset}
-        </Button>
+                  setDirty(undefined);
+                  onChange(value);
+                }}
+              >
+                {label}
+              </Button>
+            ))}
       </div>
     </div>
   );

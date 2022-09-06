@@ -1,4 +1,3 @@
-import React from 'react';
 import { useFilter } from '..';
 import { CommonFilterProps } from '../types';
 import { dateIntersect, DatePicker, DatePickerProps, DateRange } from './datePicker';
@@ -28,17 +27,16 @@ function convertDateOrArray(x: unknown): Date | DateRange | (Date | DateRange)[]
 export function DateFilter<T, V>({
   locale,
   firstDayOfWeek,
+  defaultDateInView,
+  quickOptions,
   singleSelect,
   filterBy = convertDateOrArray,
   ...props
 }: {
-  /** Which locale to use to render the calendar. */
-  locale?: string;
-  /** Which day of the week should be in the first column. */
-  firstDayOfWeek?: DatePickerProps['firstDayOfWeek'];
   /** If enabled, only single days can be selected. Ranges otherwise. */
   singleSelect?: boolean;
-} & CommonFilterProps<T, V, Date | DateRange | null, Date | DateRange | null>): JSX.Element {
+} & Pick<DatePickerProps, 'locale' | 'firstDayOfWeek' | 'defaultDateInView' | 'quickOptions'> &
+  CommonFilterProps<T, V, Date | DateRange | null, Date | DateRange | null>): JSX.Element {
   const { value = null, onChange } = useFilter({
     ...props,
     filterBy,
@@ -61,7 +59,15 @@ export function DateFilter<T, V>({
         display: 'grid',
       }}
     >
-      <DatePicker rangeSelect={!singleSelect} value={value} onChange={onChange} locale={locale} firstDayOfWeek={firstDayOfWeek} />
+      <DatePicker
+        rangeSelect={!singleSelect}
+        value={value}
+        onChange={onChange}
+        locale={locale}
+        firstDayOfWeek={firstDayOfWeek}
+        defaultDateInView={defaultDateInView}
+        quickOptions={quickOptions}
+      />
     </div>
   );
 }
