@@ -25,7 +25,7 @@ export function Virtualized<T>({
   header: ReactNode;
   footer: ReactNode;
   children: (itemIds: Id[], startIndex: number) => ReactNode;
-} & HTMLProps<HTMLDivElement>): JSX.Element {
+} & Omit<HTMLProps<HTMLDivElement>, 'children'>): JSX.Element {
   const table = useTableContext<T>();
   const virtual = table.useState('props.virtual');
   const probeRef = useRef<HTMLDivElement>(null);

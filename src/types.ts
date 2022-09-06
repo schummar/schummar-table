@@ -10,7 +10,9 @@ export type Id = string | number;
 export type KeyOfType<T, S> = { [K in keyof T]: T[K] extends S ? K : never }[keyof T];
 
 export type FunctionWithDeps<F extends (...args: any[]) => any> = F | [function: F, ...deps: DependencyList];
-export type MemoizedFunctions<T> = { [K in keyof T]: Exclude<T[K], [function: (...args: any[]) => any, ...deps: DependencyList[]]> };
+export type MemoizedFunctions<T> = {
+  [K in keyof T]: Exclude<T[K], [function: (...args: any[]) => any, ...deps: DependencyList]>;
+};
 
 export interface TableTheme<T = unknown> {
   /** Define display texts. */
@@ -268,9 +270,9 @@ export type Column<T, V> = {
    */
   id?: string;
   /** Render table header for this column. */
-  header?: ReactNode | FunctionWithDeps<(values: V[], items: T[]) => ReactNode>;
+  header?: ReactNode;
   /** Render table header for this column. */
-  footer?: ReactNode | FunctionWithDeps<(values: V[], items: T[]) => ReactNode>;
+  footer?: ReactNode;
   /** Extract value for this column */
   value: FunctionWithDeps<(item: T) => V>;
   /** Render table cell. If not provided, a string representation of the value will be rendered. */

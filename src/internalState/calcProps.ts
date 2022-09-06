@@ -55,8 +55,8 @@ export function calcProps<T>(props: TableProps<T>): InternalTableProps<T> {
 
       return {
         id,
-        header: header instanceof Function ? cache(`columns.${cacheKey}.header`, header) : header,
-        footer: footer instanceof Function ? cache(`columns.${cacheKey}.footer`, footer) : footer,
+        header,
+        footer,
         value: cache(`columns.${cacheKey}.value`, value),
         renderCell: cache(`columns.${cacheKey}.renderCell`, renderCell),
         exportCell,

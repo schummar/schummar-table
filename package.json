@@ -45,15 +45,15 @@
   "license": "ISC",
   "scripts": {
     "start": "npm -w docs start",
-    "build": "runp build:clean :p build:compile:* :s build:cjsPackage",
+    "build": "npm-run-all build:clean -p build:compile:* -s build:cjsPackage",
     "build:clean": "rimraf \"dist/**/*\"",
     "build:compile:js": "vite build",
     "build:compile:types": "tsc",
     "build:cjsPackage": "echo '{\"type\":\"commonjs\"}' > dist/cjs/package.json",
-    "lint": "runp lint:*",
+    "lint": "run-p lint:*",
     "lint:eslint": "eslint src",
     "lint:tsc": "tsc --emitDeclarationOnly false --noEmit",
-    "prepublishOnly": "runp :s lint build",
+    "prepublishOnly": "run-s lint build",
     "docs:build": "npm -w docs run build"
   },
   "dependencies": {
@@ -93,6 +93,7 @@
     "@vitejs/plugin-react": "2.0.1",
     "eslint": "8.23.0",
     "eslint-plugin-storybook": "0.6.4",
+    "npm-run-all": "^4.1.5",
     "prettier": "2.7.1",
     "react": "18.2.0",
     "react-dom": "18.2.0",

@@ -12,8 +12,6 @@ export function SortComponent<T>({ children }: { children: ReactNode }): JSX.Ele
     const index = state.sort.findIndex((s) => s.columnId === columnId) ?? -1;
     const column = state.activeColumns.find((column) => column.id === columnId);
 
-    console.log(column, state);
-
     return {
       direction: state.sort[index]?.direction,
       index: index >= 0 && state.sort.length > 1 ? index + 1 : undefined,
