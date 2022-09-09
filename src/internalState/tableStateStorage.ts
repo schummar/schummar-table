@@ -128,7 +128,7 @@ export function useTableStateStorage(table: Store<InternalTableState<any>>) {
     return () => {
       isCanceled = true;
     };
-  }, []);
+  }, [table]);
 
   // After isHydrated, watch and save state
   useEffect(() => {
@@ -180,7 +180,7 @@ export function useTableStateStorage(table: Store<InternalTableState<any>>) {
       },
       { throttle: 1000 },
     );
-  }, [isHydrated]);
+  }, [table, isHydrated]);
 
   async function clear() {
     await q.run(async () => {
@@ -192,6 +192,7 @@ export function useTableStateStorage(table: Store<InternalTableState<any>>) {
       const { storage, id } = persist;
       await storage.removeItem(storageName(id));
 
+      setIsHydrated(false);
       q.clear();
     });
   }
