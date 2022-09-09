@@ -189,21 +189,8 @@ export function useTableStateStorage(table: Store<InternalTableState<any>>) {
         return;
       }
 
-      const { storage } = persist;
-      const keys =
-        'keys' in storage
-          ? await storage.keys()
-          : await Promise.all(
-              Array(storage.length)
-                .fill(0)
-                .map((_x, i) => storage.key(i)),
-            );
-
-      for (const key of keys) {
-        if (key !== null) {
-          await storage.removeItem(key);
-        }
-      }
+      const { storage, id } = persist;
+      await storage.removeItem(storageName(id));
 
       q.clear();
     });
