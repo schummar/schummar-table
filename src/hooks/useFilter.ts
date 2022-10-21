@@ -77,10 +77,12 @@ export function useFilter<T, V, F, S extends SerializableValue>(impl: FilterImpl
 
   useEffect(() => delayedUpdate.flush(), [delayedUpdate]);
 
+  const context = useContext(FilterControlContext);
+
   return {
     value: dirtyValue ?? value,
     onChange,
-    close: useContext(FilterControlContext),
     filterBy: filterBy ?? ((x) => x as unknown as F | F[]),
+    ...context,
   };
 }

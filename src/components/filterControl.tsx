@@ -1,9 +1,12 @@
-import React, { createContext, useCallback, useState } from 'react';
+import { createContext, useMemo, useState } from 'react';
 import { useTheme } from '../hooks/useTheme';
 import { useCssVariables } from '../theme/useCssVariables';
 import { useColumnContext, useTableContext } from './table';
 
-export const FilterControlContext = createContext((): void => void 0);
+export const FilterControlContext = createContext({
+  isActive: false,
+  close: (): void => void 0,
+});
 
 export function FilterControl<T>(): JSX.Element | null {
   const table = useTableContext<T>();
@@ -34,14 +37,18 @@ export function FilterControl<T>(): JSX.Element | null {
     });
   }
 
-  const close = useCallback(function () {
-    setAnchor(null);
-  }, []);
+  const context = useMemo(
+    () => ({
+      isActive: !!anchor,
+      close: () => setAnchor(null),
+    }),
+    [!!anchor],
+  );
 
   if (!filter) return null;
 
   return (
-    <FilterControlContext.Provider value={close}>
+    <FilterControlContext.Provider value={context}>
       <div
         onClick={(e) => setAnchor(e.currentTarget)}
         onContextMenu={(e) => {
