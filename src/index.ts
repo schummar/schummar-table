@@ -8,6 +8,18 @@ export { TextFilter } from './components/textFilter';
 export { useFilter } from './hooks/useFilter';
 export { useTheme } from './hooks/useTheme';
 export type { TableStateStorage } from './internalState/tableStateStorage';
+export * as helpers from './misc/helpers';
 export { termMatch, textMatch } from './misc/textMatch';
 export { configureTableTheme, mergeThemes, TableThemeContext, TableThemeProvider } from './theme/tableTheme';
-export type { Column, Id, InternalColumn, PartialTableTheme, Sort, SortDirection, TableProps } from './types';
+export type {
+  Column,
+  CommonFilterProps,
+  FilterImplementation,
+  FunctionWithDeps,
+  Id,
+  InternalColumn,
+  PartialTableTheme,
+  Sort,
+  SortDirection,
+  TableProps,
+} from './types';
