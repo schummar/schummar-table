@@ -1,4 +1,3 @@
-import React from 'react';
 import { useFilter } from '../hooks/useFilter';
 import { useTheme } from '../hooks/useTheme';
 import { asStringOrArray } from '../misc/helpers';
@@ -9,12 +8,14 @@ import { AutoFocusTextField } from './autoFocusTextField';
 export function TextFilter<T, V>({
   compare = textMatch,
   filterBy = asStringOrArray,
+  placeholder,
   ...props
 }: {
   /** Custom comparison function. Should return true if an item value matches the current filter value.
    * By default a fuzzy text comparison is used.
    */
   compare?: (itemValue: string, filterValue: string) => boolean;
+  placeholder?: string;
 } & CommonFilterProps<T, V, string, string>): JSX.Element {
   const IconButton = useTheme((t) => t.components.IconButton);
   const Search = useTheme((t) => t.icons.Search);
@@ -46,6 +47,7 @@ export function TextFilter<T, V>({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         endIcon={<IconButton onClick={() => onChange('')}>{!value ? <Search /> : <Clear />}</IconButton>}
+        placeholder={placeholder}
       />
     </div>
   );

@@ -67,6 +67,7 @@ export interface TableTheme<T = unknown> {
       endIcon?: ReactNode;
       className?: string;
       inputRef?: Ref<HTMLInputElement>;
+      placeholder?: string;
     }>;
     Spinner: (props: { className?: string }) => JSX.Element;
   };
