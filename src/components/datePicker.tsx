@@ -18,7 +18,9 @@ export type DatePickerProps = {
   rangeSelect?: boolean;
   /** Which locale to use to render the calendar. */
   locale?: string;
-  /** Which day of the week should be in the first column. */
+  /** Which day of the week should be in the first column. (0=Sunday, 1=Monday, ...)
+   * @default 1
+   */
   firstDayOfWeek?: 0 | 1 | 2 | 3 | 4 | 5 | 6;
   /** Which month to show initially */
   defaultDateInView?: Date;
@@ -39,7 +41,7 @@ export const today = (): DateRange => {
   return { min: today, max: today };
 };
 
-export const thisWeek = (firstDayOfWeek = 0): DateRange => {
+export const thisWeek = (firstDayOfWeek = 1): DateRange => {
   const now = new Date();
   const min = new Date(now);
 
@@ -76,7 +78,7 @@ export function DatePicker({
   onChange,
   rangeSelect,
   locale,
-  firstDayOfWeek = 0,
+  firstDayOfWeek = 1,
   defaultDateInView = new Date(),
   quickOptions,
 }: DatePickerProps) {
@@ -97,7 +99,7 @@ export function DatePicker({
 
   quickOptions ??= [
     { label: textToday, value: today },
-    { label: textThisWeek, value: thisWeek },
+    { label: textThisWeek, value: () => thisWeek(firstDayOfWeek) },
   ];
 
   const { calendars, getBackProps, getForwardProps, getDateProps } = useDayzed({
@@ -111,8 +113,8 @@ export function DatePicker({
 
   const formatWeekday = useMemo(() => {
     const { format } = new Intl.DateTimeFormat(locale, { weekday: 'short' });
-    return (weekDay: number) => format(new Date(Date.UTC(2021, 5, weekDay)));
-  }, [locale]);
+    return (weekDay: number) => format(new Date(Date.UTC(2021, 7, ((weekDay + firstDayOfWeek) % 7) + 1)));
+  }, [locale, firstDayOfWeek]);
 
   useEffect(() => setDateInView(value === null ? defaultDateInView : value instanceof Date ? value : value.max), [value]);
 
