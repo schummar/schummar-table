@@ -35,11 +35,17 @@ export const Popover: TableTheme['components']['Popover'] = ({ anchorEl, open, h
         top: anchorBottom,
       };
 
-      if (next.left + popperWidth + MARGIN > viewportWidth) {
-        next.left = viewportWidth - popperWidth - MARGIN;
+      if (next.left < MARGIN) {
+        next.left = MARGIN;
       }
-      if (next.top + popperHeight + MARGIN > viewportHeight) {
-        next.top = viewportHeight - popperHeight - MARGIN;
+      if (next.left + popperWidth > viewportWidth - MARGIN) {
+        next.left = viewportWidth - MARGIN - popperWidth;
+      }
+      if (next.top < MARGIN) {
+        next.top = MARGIN;
+      }
+      if (next.top + popperHeight > viewportHeight - MARGIN) {
+        next.top = viewportHeight - MARGIN - popperHeight;
       }
 
       if (next.left !== last?.left || next.top !== last?.top) {

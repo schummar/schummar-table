@@ -1,6 +1,5 @@
 import { ComponentMeta } from '@storybook/react';
 import { Table } from '../../src';
-import { Mui5TableThemeProvider } from '../../src/theme/mui5Theme';
 import data from './_data';
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
@@ -11,23 +10,21 @@ export default {
 
 export const ManyColumns = () => {
   return (
-    <Mui5TableThemeProvider>
-      <Table
-        items={data}
-        id="id"
-        virtual
-        stickyHeader
-        fullWidth
-        columns={(col) =>
-          Array(30)
-            .fill(0)
-            .map((_x, i) =>
-              col(() => 'x', {
-                header: String(i),
-              }),
-            )
-        }
-      />
-    </Mui5TableThemeProvider>
+    <Table
+      items={data}
+      id="id"
+      virtual
+      stickyHeader
+      fullWidth
+      columns={(col) =>
+        Array(30)
+          .fill(0)
+          .map((_x, i) =>
+            col(() => 'x', {
+              header: String(i),
+            }),
+          )
+      }
+    />
   );
 };
