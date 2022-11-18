@@ -88,10 +88,11 @@ export const Popover: TableTheme['components']['Popover'] = ({ anchorEl, open, h
               defaultClasses.card,
               {
                 position: 'fixed',
-                maxWidth: document.documentElement.clientWidth,
-                maxHeight: document.documentElement.clientHeight,
+                maxWidth: document.documentElement.clientWidth - 2 * MARGIN,
+                maxHeight: document.documentElement.clientHeight - 2 * MARGIN,
                 ...position,
                 zIndex: 1001 + depth * 2,
+                overflowY: 'auto',
               },
               hidden && { display: 'none' },
               !position && { visibility: 'hidden' },
