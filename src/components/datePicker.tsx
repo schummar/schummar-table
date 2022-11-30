@@ -110,6 +110,7 @@ export function DatePicker({
     onOffsetChanged: (offset) => setDateInView(new Date(dateInView.getFullYear(), dateInView.getMonth() + offset)),
     offset: 0,
   });
+  const now = useMemo(() => startOfDay(new Date()), []);
 
   const formatWeekday = useMemo(() => {
     const { format } = new Intl.DateTimeFormat(locale, { weekday: 'short' });
@@ -215,7 +216,8 @@ export function DatePicker({
                   return <div />;
                 }
 
-                const { prevMonth, nextMonth, date, today } = dateObj;
+                const { prevMonth, nextMonth, date } = dateObj;
+                const today = startOfDay(date).getTime() === now.getTime();
 
                 const selected = date.getTime() === min?.getTime() || (min && max && dateIntersect(date, { min, max }));
                 const preSelected =
