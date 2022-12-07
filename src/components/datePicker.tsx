@@ -143,7 +143,7 @@ export function DatePicker({
 
     if (!min === !max) {
       setDirty(undefined);
-      onChange(min && max ? { min, max } : null);
+      onChange(min && max ? { min, max: endOfDay(max) } : null);
     } else {
       setDirty({ min, max });
     }
