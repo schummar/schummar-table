@@ -4,10 +4,19 @@ import { useTheme } from '..';
 import { gray } from '../theme/defaultTheme/defaultClasses';
 import { useCssVariables } from '../theme/useCssVariables';
 import { DateInput } from './dateInput';
+import { Text } from './text';
 
 export type DateRange = { min: Date; max: Date };
 
-export type DatePickerQuickOption = { label: ReactNode; value: Date | DateRange | (() => Date | DateRange) };
+export type DatePickerQuickOption =
+  | 'today'
+  | 'thisWeek'
+  | 'thisMonth'
+  | 'thisYear'
+  | 'lastSevenDays'
+  | 'lastThirtyDays'
+  | { label: ReactNode; value: Date | DateRange | (() => Date | DateRange) }
+  | ((onChange: (value: Date | DateRange | null) => void) => ReactNode);
 
 export type DatePickerProps = {
   /** Currently selected day or range of days. */
@@ -25,7 +34,7 @@ export type DatePickerProps = {
   /** Which month to show initially */
   defaultDateInView?: Date;
   /** Show buttons to quickly select suggested dates or date ranges */
-  quickOptions?: DatePickerQuickOption[] | ((onChange: (value: Date | DateRange | null) => void) => ReactNode);
+  quickOptions?: DatePickerQuickOption[];
 };
 
 const weekDays = [0, 1, 2, 3, 4, 5, 6] as const;
@@ -36,10 +45,20 @@ export const startOfDay = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d
 /** Rounds a date up to the end of the day. */
 export const endOfDay = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate() + 1, 0, 0, 0, -1);
 
-export const today = (): DateRange => {
-  const today = startOfDay(new Date());
-  return { min: today, max: today };
+export const lastDays = (days: number): DateRange => {
+  const now = new Date();
+  const min = new Date(now);
+  min.setDate(min.getDate() - days);
+
+  return {
+    min: startOfDay(min),
+    max: endOfDay(now),
+  };
 };
+
+export const today = () => lastDays(0);
+export const lastSevenDays = () => lastDays(6);
+export const lastThirtyDays = () => lastDays(29);
 
 export const thisWeek = (firstDayOfWeek = 1): DateRange => {
   const now = new Date();
@@ -54,8 +73,49 @@ export const thisWeek = (firstDayOfWeek = 1): DateRange => {
   const max = new Date(min);
   max.setDate(max.getDate() + 6);
 
-  return { min: startOfDay(min), max: endOfDay(max) };
+  return {
+    min: startOfDay(min),
+    max: endOfDay(max),
+  };
 };
+
+export const thisMonth = (): DateRange => {
+  const now = new Date();
+  const min = new Date(now);
+  min.setDate(1);
+  const max = new Date(min);
+  max.setMonth(max.getMonth() + 1);
+  max.setDate(max.getDate() - 1);
+
+  return {
+    min: startOfDay(min),
+    max: endOfDay(max),
+  };
+};
+
+export const thisYear = (): DateRange => {
+  const now = new Date();
+  const min = new Date(now);
+  min.setDate(1);
+  min.setMonth(0);
+  const max = new Date(min);
+  max.setFullYear(max.getFullYear() + 1);
+  max.setDate(max.getDate() - 1);
+
+  return {
+    min: startOfDay(min),
+    max: endOfDay(max),
+  };
+};
+
+export const commonQuickOptions = {
+  today: { label: <Text id="today" />, value: today },
+  thisWeek: { label: <Text id="thisWeek" />, value: thisWeek },
+  thisMonth: { label: <Text id="thisMonth" />, value: thisMonth },
+  thisYear: { label: <Text id="thisYear" />, value: thisYear },
+  lastSevenDays: { label: <Text id="lastSevenDays" />, value: lastSevenDays },
+  lastThirtyDays: { label: <Text id="lastThirtyDays" />, value: lastThirtyDays },
+} satisfies Record<DatePickerQuickOption & string, { label: ReactNode; value: Date | DateRange | (() => Date | DateRange) }>;
 
 /** Returns whether two dates and/or date ranges intersect. Intersection is considered per day. */
 export function dateIntersect(a: Date | null | DateRange, b: Date | null | DateRange) {
@@ -85,9 +145,6 @@ export function DatePicker({
   const Button = useTheme((t) => t.components.Button);
   const IconButton = useTheme((t) => t.components.IconButton);
   const ChevronRight = useTheme((t) => t.icons.ChevronRight);
-  const textToday = useTheme((t) => t.text.today);
-  const textThisWeek = useTheme((t) => t.text.thisWeek);
-  const textReset = useTheme((t) => t.text.reset);
   const cssVariables = useCssVariables();
 
   const [dateInView, setDateInView] = useState<Date>(defaultDateInView);
@@ -97,10 +154,40 @@ export function DatePicker({
   const min = dirty ? dirty.min : value instanceof Date ? value : value?.min;
   const max = dirty ? dirty.max : value instanceof Date ? value : value?.max;
 
-  quickOptions ??= [
-    { label: textToday, value: today },
-    { label: textThisWeek, value: () => thisWeek(firstDayOfWeek) },
-  ];
+  let resolvedQuickOptions;
+
+  {
+    quickOptions ??= ['today', 'thisWeek', 'thisMonth', 'thisYear', 'lastSevenDays', 'lastThirtyDays'];
+
+    resolvedQuickOptions = [...quickOptions, { label: <Text id="reset" />, value: null }].map((option, index) => {
+      if (option instanceof Function) {
+        return option((value) => {
+          setDirty(undefined);
+          onChange(value);
+        });
+      }
+
+      const { label, value } = typeof option === 'string' ? commonQuickOptions[option] : option;
+
+      return (
+        <Button
+          key={index}
+          variant="text"
+          onClick={() => {
+            setDirty(undefined);
+
+            if (value instanceof Function) {
+              onChange(value());
+            } else {
+              onChange(value);
+            }
+          }}
+        >
+          {label}
+        </Button>
+      );
+    });
+  }
 
   const { calendars, getBackProps, getForwardProps, getDateProps } = useDayzed({
     onDateSelected: () => undefined,
@@ -272,27 +359,7 @@ export function DatePicker({
       ))}
 
       <div css={{ marginTop: 'var(--spacing)', display: 'grid', gridAutoFlow: 'column', justifyContent: 'center' }}>
-        {quickOptions instanceof Function
-          ? quickOptions((value) => {
-              setDirty(undefined);
-              onChange(value);
-            })
-          : [...quickOptions, { label: textReset, value: null }].map(({ label, value }, index) => (
-              <Button
-                key={index}
-                variant="text"
-                onClick={() => {
-                  if (value instanceof Function) {
-                    value = value();
-                  }
-
-                  setDirty(undefined);
-                  onChange(value);
-                }}
-              >
-                {label}
-              </Button>
-            ))}
+        {resolvedQuickOptions}
       </div>
     </div>
   );

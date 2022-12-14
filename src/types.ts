@@ -24,6 +24,10 @@ export interface TableTheme<T = unknown> {
     exportDownload: ReactNode;
     today: ReactNode;
     thisWeek: ReactNode;
+    thisMonth: ReactNode;
+    thisYear: ReactNode;
+    lastSevenDays: ReactNode;
+    lastThirtyDays: ReactNode;
     reset: ReactNode;
     loading: ReactNode;
     clearFilters: ReactNode;
