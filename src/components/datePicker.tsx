@@ -157,7 +157,7 @@ export function DatePicker({
   let resolvedQuickOptions;
 
   {
-    quickOptions ??= ['today', 'thisWeek', 'thisMonth', 'thisYear', 'lastSevenDays', 'lastThirtyDays'];
+    quickOptions ??= ['today', 'thisWeek'];
 
     resolvedQuickOptions = [...quickOptions, { label: <Text id="reset" />, value: null }].map((option, index) => {
       if (option instanceof Function) {
