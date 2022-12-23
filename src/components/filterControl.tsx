@@ -23,6 +23,10 @@ export function FilterControl<T>(): JSX.Element | null {
     const filterValue = state.filterValues.get(columnId);
     return filter !== undefined && filterValue !== undefined && filter.isActive(filterValue);
   });
+  const filterClassNames = table.useState((state) => {
+    const filter = state.filters.get(columnId);
+    return filter?.classNames;
+  });
   const filter = table.useState((state) => state.activeColumns.find((column) => column.id === columnId)?.filter);
 
   function reset() {
@@ -77,7 +81,15 @@ export function FilterControl<T>(): JSX.Element | null {
           e.stopPropagation();
         }}
       >
-        <Popover open hidden={!anchor} onClose={() => setAnchor(null)} anchorEl={anchor ?? document.body} css={cssVariables}>
+        <Popover
+          open
+          hidden={!anchor}
+          onClose={() => setAnchor(null)}
+          anchorEl={anchor ?? document.body}
+          css={cssVariables}
+          className={filterClassNames?.popover}
+          backdropClassName={filterClassNames?.popoverBackdrop}
+        >
           {filter}
         </Popover>
       </div>

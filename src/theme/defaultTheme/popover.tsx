@@ -8,7 +8,16 @@ const MAX_OFFSET = 20;
 
 export const PopoverContext = createContext({ depth: 0, visible: false });
 
-export const Popover: TableTheme['components']['Popover'] = ({ anchorEl, open, hidden, onClose, children, className, align }) => {
+export const Popover: TableTheme['components']['Popover'] = ({
+  anchorEl,
+  open,
+  hidden,
+  onClose,
+  children,
+  className,
+  backdropClassName,
+  align,
+}) => {
   const popper = useRef<HTMLDivElement>(null);
   const [position, setPosition] = useState<{ left: number; top: number }>();
 
@@ -73,6 +82,7 @@ export const Popover: TableTheme['components']['Popover'] = ({ anchorEl, open, h
       {createPortal(
         <>
           <div
+            className={backdropClassName}
             css={[
               {
                 position: 'fixed',

@@ -62,6 +62,7 @@ export interface TableTheme<T = unknown> {
       onClose: () => void;
       children: ReactNode;
       className?: string;
+      backdropClassName?: string;
       align?: 'center' | 'left';
     }>;
     Badge: ComponentType<{ children: ReactNode; badgeContent: ReactNode }>;
@@ -352,6 +353,10 @@ export type CommonFilterProps<T, V, F, S extends SerializableValue> = {
    * @default true
    */
   persist?: boolean;
+  classNames?: {
+    popover?: string;
+    popoverBackdrop?: string;
+  };
 };
 
 export type FilterImplementation<T, V, F, S extends SerializableValue> = CommonFilterProps<T, V, F, S> & {
