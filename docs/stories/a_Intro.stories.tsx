@@ -1,5 +1,6 @@
 import { ComponentMeta } from '@storybook/react';
 import { Table } from '../../src';
+import css from './styles.module.css';
 import data from './_data';
 import { defaultColumns } from './_default';
 
@@ -9,6 +10,11 @@ export default {
   component: Table,
   // More on argTypes: https://storybook.js.org/docs/react/api/argtypes
   argTypes: {
+    classes: {
+      defaultValue: {
+        table: css.table,
+      },
+    },
     items: {
       defaultValue: data,
       table: { disable: true },

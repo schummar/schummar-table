@@ -14,6 +14,7 @@ export function Export<T>(): JSX.Element {
   const exportTitle = useTheme((t) => t.text.exportTitle);
   const exportCopy = useTheme((t) => t.text.exportCopy);
   const exportDownload = useTheme((t) => t.text.exportDownload);
+  const classes = useTheme((t) => t.classes);
   const cssVariables = useCssVariables();
 
   const [anchor, setAnchor] = useState<Element | null>(null);
@@ -47,7 +48,14 @@ export function Export<T>(): JSX.Element {
         <Export css={!!anchor && { color: 'var(--primaryMain)' }} />
       </IconButton>
 
-      <Popover open={!!anchor} onClose={() => setAnchor(null)} anchorEl={anchor} css={cssVariables}>
+      <Popover
+        open={!!anchor}
+        onClose={() => setAnchor(null)}
+        anchorEl={anchor}
+        css={cssVariables}
+        className={classes?.popover}
+        backdropClassName={classes?.popoverBackdrop}
+      >
         <div
           css={{
             padding: `calc(var(--spacing) * 2)`,

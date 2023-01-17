@@ -1,7 +1,7 @@
 import { ComponentType, useContext, useLayoutEffect, useRef } from 'react';
 import { useTheme } from '../hooks/useTheme';
-import { PopoverContext } from '../theme/defaultTheme/popover';
 import { TableTheme } from '../types';
+import { FilterControlContext } from './filterControl';
 
 type Props = TableTheme['components']['TextField'] extends ComponentType<infer T> ? T : never;
 
@@ -9,13 +9,13 @@ export function AutoFocusTextField(props: Omit<Props, 'inputRef'>) {
   const TextField = useTheme((t) => t.components.TextField);
 
   const ref = useRef<HTMLInputElement>(null);
-  const { visible } = useContext(PopoverContext);
+  const { isActive } = useContext(FilterControlContext);
 
   useLayoutEffect(() => {
-    if (visible && ref.current) {
+    if (isActive && ref.current) {
       ref.current.focus();
     }
-  }, [visible]);
+  }, [isActive]);
 
   return <TextField {...props} inputRef={ref} />;
 }

@@ -13,6 +13,7 @@ export function ColumnSelection<T>(): JSX.Element {
   const Settings = useTheme((t) => t.icons.Settings);
   const selectColumns = useTheme((t) => t.text.selectColumns);
   const resetAll = useTheme((t) => t.text.resetAll);
+  const classes = useTheme((t) => t.classes);
   const cssVariables = useCssVariables();
 
   const table = useTableContext<T>();
@@ -46,7 +47,14 @@ export function ColumnSelection<T>(): JSX.Element {
         <Settings />
       </IconButton>
 
-      <Popover anchorEl={anchorEl} open={!!anchorEl} onClose={() => setAnchorEl(null)} css={cssVariables}>
+      <Popover
+        anchorEl={anchorEl}
+        open={!!anchorEl}
+        onClose={() => setAnchorEl(null)}
+        css={cssVariables}
+        className={classes?.popover}
+        backdropClassName={classes?.popoverBackdrop}
+      >
         <div css={{ padding: `calc(var(--spacing) * 2)`, display: 'grid' }}>
           <div css={{ marginBottom: 'var(--spacing)' }}>{selectColumns}</div>
 

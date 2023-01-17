@@ -42,6 +42,8 @@ export interface TableTheme<T = unknown> {
     cell?: string | FunctionWithDeps<(item: T, index: number) => string | undefined>;
     evenCell?: string;
     oddCell?: string;
+    popover?: string;
+    popoverBackdrop?: string;
   };
   /** Define components to be used in the table. */
   components: {

@@ -1,5 +1,6 @@
 import { createContext, useMemo, useState } from 'react';
 import { useTheme } from '../hooks/useTheme';
+import { cx } from '../misc/helpers';
 import { useCssVariables } from '../theme/useCssVariables';
 import { useColumnContext, useTableContext } from './table';
 
@@ -15,6 +16,7 @@ export function FilterControl<T>(): JSX.Element | null {
   const Popover = useTheme((t) => t.components.Popover);
   const FilterList = useTheme((t) => t.icons.FilterList);
   const ArrowDropDown = useTheme((t) => t.icons.ArrowDropDown);
+  const classes = useTheme((t) => t.classes);
   const cssVariables = useCssVariables();
 
   const [anchor, setAnchor] = useState<Element | null>(null);
@@ -87,8 +89,8 @@ export function FilterControl<T>(): JSX.Element | null {
           onClose={() => setAnchor(null)}
           anchorEl={anchor ?? document.body}
           css={cssVariables}
-          className={filterClassNames?.popover}
-          backdropClassName={filterClassNames?.popoverBackdrop}
+          className={cx(classes?.popover, filterClassNames?.popover)}
+          backdropClassName={cx(classes?.popoverBackdrop, filterClassNames?.popoverBackdrop)}
         >
           {filter}
         </Popover>

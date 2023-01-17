@@ -1,12 +1,10 @@
-import React, { createContext, useContext, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { useLayoutEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { TableTheme } from '../../types';
 import { defaultClasses } from './defaultClasses';
 
 const MARGIN = 10;
 const MAX_OFFSET = 20;
-
-export const PopoverContext = createContext({ depth: 0, visible: false });
 
 export const Popover: TableTheme['components']['Popover'] = ({
   anchorEl,
@@ -20,6 +18,7 @@ export const Popover: TableTheme['components']['Popover'] = ({
 }) => {
   const popper = useRef<HTMLDivElement>(null);
   const [position, setPosition] = useState<{ left: number; top: number }>();
+  const [zIndex, setZIndex] = useState(1);
 
   useLayoutEffect(() => {
     if (!anchorEl || !open) {
@@ -71,14 +70,33 @@ export const Popover: TableTheme['components']['Popover'] = ({
     };
   }, [anchorEl, open]);
 
-  const { depth } = useContext(PopoverContext);
-  const visible = !hidden && !!position;
-  const context = useMemo(() => ({ depth: depth + 1, visible }), [depth, visible]);
+  function updateZIndex(div: HTMLDivElement | null) {
+    const ancestors = [];
+    for (let node = div?.parentElement; node; node = node.parentElement) {
+      ancestors.push(node);
+    }
+
+    for (const node of ancestors.reverse()) {
+      const value = document.defaultView?.getComputedStyle(node).getPropertyValue('z-index');
+
+      if (value && !isNaN(Number(value))) {
+        setZIndex(Number(value) + 1);
+        return;
+      }
+    }
+  }
 
   if (!open) return null;
 
   return (
-    <PopoverContext.Provider value={context}>
+    <>
+      <div
+        ref={updateZIndex}
+        css={{
+          display: 'none',
+        }}
+      />
+
       {createPortal(
         <>
           <div
@@ -90,7 +108,7 @@ export const Popover: TableTheme['components']['Popover'] = ({
                 right: 0,
                 top: 0,
                 bottom: 0,
-                zIndex: 1000 + depth * 2,
+                zIndex,
               },
               hidden && { display: 'none' },
             ]}
@@ -107,7 +125,7 @@ export const Popover: TableTheme['components']['Popover'] = ({
                 maxWidth: document.documentElement.clientWidth - 2 * MARGIN,
                 maxHeight: document.documentElement.clientHeight - 2 * MARGIN,
                 ...position,
-                zIndex: 1001 + depth * 2,
+                zIndex: zIndex + 1,
                 overflowY: 'auto',
               },
               hidden && { display: 'none' },
@@ -119,6 +137,6 @@ export const Popover: TableTheme['components']['Popover'] = ({
         </>,
         document.body,
       )}
-    </PopoverContext.Provider>
+    </>
   );
 };
