@@ -24,6 +24,8 @@ export function SelectFilter<T, V, F extends SerializableValue>({
   stringValue = asString,
   render = stringValue,
   singleSelect,
+  hideSearchField,
+  hideResetButton,
   ...props
 }: {
   /** Which options are provided to select. By default all unique item values are used. */
@@ -34,6 +36,10 @@ export function SelectFilter<T, V, F extends SerializableValue>({
   render?: (value: F) => ReactNode;
   /** If enabled, only one option can be selected at a time. */
   singleSelect?: boolean;
+  /** If enabled, the search field is hidden. */
+  hideSearchField?: boolean;
+  /** If enabled, the reset button is hidden. */
+  hideResetButton?: boolean;
 } & CommonFilterProps<T, V, F, Set<F>>): JSX.Element {
   const IconButton = useTheme((t) => t.components.IconButton);
   const Checkbox = useTheme((t) => t.components.Checkbox);
@@ -91,23 +97,27 @@ export function SelectFilter<T, V, F extends SerializableValue>({
         gap: 'var(--spacing)',
       }}
     >
-      <AutoFocusTextField
-        value={query}
-        onChange={(event) => setQuery(event.target.value)}
-        endIcon={
-          <IconButton onClick={() => setQuery('')}>{!query ? <Search /> : <Clear />}</IconButton>
-        }
-        css={{ marginBottom: 'var(--spacing)' }}
-      />
+      {!hideSearchField && (
+        <AutoFocusTextField
+          value={query}
+          onChange={(event) => setQuery(event.target.value)}
+          endIcon={
+            <IconButton onClick={() => setQuery('')}>{!query ? <Search /> : <Clear />}</IconButton>
+          }
+          css={{ marginBottom: 'var(--spacing)' }}
+        />
+      )}
 
-      <Button
-        disabled={value.size === 0}
-        onClick={() => onChange(new Set())}
-        variant="outlined"
-        css={{ justifyContent: 'center', width: '100%', marginBottom: 'var(--spacing)' }}
-      >
-        {deselectAll}
-      </Button>
+      {!hideResetButton && (
+        <Button
+          disabled={value.size === 0}
+          onClick={() => onChange(new Set())}
+          variant="outlined"
+          css={{ justifyContent: 'center', width: '100%', marginBottom: 'var(--spacing)' }}
+        >
+          {deselectAll}
+        </Button>
+      )}
 
       <div css={{ maxHeight: '20em', overflowY: 'auto' }}>
         {filtered.map((option, index) => (
