@@ -1,5 +1,5 @@
 import { Spinner } from '../../components/spinnner';
-import { TableTheme } from '../../types';
+import type { TableTheme } from '../../types';
 import { Badge } from './badge';
 import { Button } from './button';
 import { Checkbox } from './checkbox';

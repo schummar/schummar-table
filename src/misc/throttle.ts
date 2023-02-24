@@ -1,5 +1,5 @@
 export function throttle<Args extends any[]>(
-  fn: (...args: Args) => void,
+  function_: (...args: Args) => void,
   ms: number,
 ): { (...args: Args): void; flush(): void; cancel(): void } {
   let last = 0;
@@ -13,8 +13,7 @@ export function throttle<Args extends any[]>(
     lastArgs = undefined;
     timeout = undefined;
 
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    fn(...args!);
+    function_(...args!);
   }
 
   return Object.assign(

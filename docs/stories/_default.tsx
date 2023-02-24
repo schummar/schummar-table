@@ -1,5 +1,6 @@
-import { DateFilter, SelectFilter, TableProps, TextFilter } from '../../src';
-import { Person } from './_data';
+import type { TableProps } from '../../src';
+import { DateFilter, SelectFilter, TextFilter } from '../../src';
+import type { Person } from './_data';
 
 const dateFormat = new Intl.DateTimeFormat(undefined, { dateStyle: 'medium' });
 

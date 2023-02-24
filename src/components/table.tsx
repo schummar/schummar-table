@@ -1,12 +1,17 @@
-import React, { createContext, memo, useContext, useEffect, useLayoutEffect, useState } from 'react';
-import { Store } from 'schummar-state/react';
-import { useTheme } from '..';
+import { memo, useEffect, useLayoutEffect, useState } from 'react';
 import { TableMemoContextProvider } from '../hooks/useTableMemo';
+import { useTheme } from '../hooks/useTheme';
 import { useTableStateStorage } from '../internalState/tableStateStorage';
 import { useTableState } from '../internalState/useTableState';
+import {
+  ColumnContext,
+  TableContext,
+  TableResetContext,
+  useTableContext,
+} from '../misc/tableContext';
 import { defaultClasses } from '../theme/defaultTheme/defaultClasses';
 import { useCssVariables } from '../theme/useCssVariables';
-import { Id, InternalTableState, TableProps } from '../types';
+import type { TableProps } from '../types';
 import ClearFiltersButton from './clearFiltersButton';
 import { ColumnFooter } from './columnFooter';
 import { ColumnHeader, ColumnHeaderContext } from './columnHeader';
@@ -16,20 +21,6 @@ import { ResizeHandleView } from './resizeHandle';
 import { Row } from './row';
 import { SelectComponent } from './selectComponent';
 import { Virtualized } from './virtualized';
-
-export const TableContext = createContext<Store<InternalTableState<any>> | null>(null);
-export const TableResetContext = createContext<() => void>(() => undefined);
-export const ColumnContext = createContext<Id | null>(null);
-export function useTableContext<T>(): Store<InternalTableState<T>> {
-  const value = useContext(TableContext);
-  if (!value) throw Error('No table context available');
-  return value as Store<InternalTableState<T>>;
-}
-export function useColumnContext(): Id {
-  const value = useContext(ColumnContext);
-  if (value === null) throw Error('No column context available');
-  return value;
-}
 
 export function Table<T>(props: TableProps<T>): JSX.Element {
   const [table, resetState] = useTableState(props);
@@ -96,7 +87,9 @@ const TableInner = memo(function TableInner<T>({ hidden }: { hidden: boolean }) 
 
   const enableSelection = table.useState('props.enableSelection');
   const enableColumnSelection = table.useState('props.enableColumnSelection');
-  const enableExport = table.useState((state) => !!state.props.enableExport.copy || !!state.props.enableExport.download);
+  const enableExport = table.useState(
+    (state) => !!state.props.enableExport.copy || !!state.props.enableExport.download,
+  );
   const cssVariables = useCssVariables();
 
   const enableClearFiltersButton = table.useState('props.enableClearFiltersButton');
@@ -114,7 +107,9 @@ const TableInner = memo(function TableInner<T>({ hidden }: { hidden: boolean }) 
             //
             fullWidth === 'right' || fullWidth === true ? 'auto' : '0',
             'max-content',
-            ...activeColumns.map((column) => columnWidths.get(column.id) ?? column.width ?? 'max-content'),
+            ...activeColumns.map(
+              (column) => columnWidths.get(column.id) ?? column.width ?? 'max-content',
+            ),
             fullWidth === 'left' || fullWidth === true ? 'auto' : '0',
           ].join(' '),
         },
@@ -124,12 +119,20 @@ const TableInner = memo(function TableInner<T>({ hidden }: { hidden: boolean }) 
         <>
           <div
             className={classes?.headerCell}
-            css={[defaultClasses.headerFill, stickyHeader && defaultClasses.sticky, stickyHeader instanceof Object && stickyHeader]}
+            css={[
+              defaultClasses.headerFill,
+              stickyHeader && defaultClasses.sticky,
+              stickyHeader instanceof Object && stickyHeader,
+            ]}
           />
 
           <div
             className={classes?.headerCell}
-            css={[defaultClasses.headerCell, stickyHeader && defaultClasses.sticky, stickyHeader instanceof Object && stickyHeader]}
+            css={[
+              defaultClasses.headerCell,
+              stickyHeader && defaultClasses.sticky,
+              stickyHeader instanceof Object && stickyHeader,
+            ]}
           >
             {enableSelection && <SelectComponent />}
 
@@ -151,7 +154,11 @@ const TableInner = memo(function TableInner<T>({ hidden }: { hidden: boolean }) 
 
           <div
             className={classes?.headerCell}
-            css={[defaultClasses.headerFill, stickyHeader && defaultClasses.sticky, stickyHeader instanceof Object && stickyHeader]}
+            css={[
+              defaultClasses.headerFill,
+              stickyHeader && defaultClasses.sticky,
+              stickyHeader instanceof Object && stickyHeader,
+            ]}
           />
         </>
       }
@@ -196,7 +203,11 @@ const TableInner = memo(function TableInner<T>({ hidden }: { hidden: boolean }) 
         </>
       }
     >
-      {(itemIds, startIndex) => itemIds.map((itemId, index) => <Row key={itemId} itemId={itemId} rowIndex={startIndex + index} />)}
+      {(itemIds, startIndex) =>
+        itemIds.map((itemId, index) => (
+          <Row key={itemId} itemId={itemId} rowIndex={startIndex + index} />
+        ))
+      }
     </Virtualized>
   );
 });

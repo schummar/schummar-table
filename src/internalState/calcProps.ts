@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { useTableMemo } from '../hooks/useTableMemo';
 import { asString } from '../misc/helpers';
-import { Column, Id, InternalColumn, InternalTableProps, TableProps } from '../types';
+import type { Column, Id, InternalColumn, InternalTableProps, TableProps } from '../types';
 
 const noopParentId = () => undefined;
 
@@ -20,7 +20,10 @@ export function calcProps<T>(props: TableProps<T>): InternalTableProps<T> {
     if (props.parentId instanceof Function || Array.isArray(props.parentId)) {
       parentId = cache('parentId', props.parentId);
     } else if (props.parentId !== undefined) {
-      parentId = cache('parentId', [(item: T) => item[props.parentId as keyof T] as unknown as Id | undefined, props.parentId]);
+      parentId = cache('parentId', [
+        (item: T) => item[props.parentId as keyof T] as unknown as Id | undefined,
+        props.parentId,
+      ]);
     } else {
       parentId = noopParentId;
     }
@@ -32,21 +35,23 @@ export function calcProps<T>(props: TableProps<T>): InternalTableProps<T> {
       inputColumns = props.columns.map((column) => ({ ...column, dependecies: undefined }));
     }
 
-    const defCol = props.defaultColumnProps;
+    const defaults = props.defaultColumnProps;
     const mapColumn = <V>(
       {
         id: _id,
-        header = defCol?.header ?? null,
-        footer = defCol?.footer ?? null,
+        header = defaults?.header ?? null,
+        footer = defaults?.footer ?? null,
         value,
-        renderCell = defCol?.renderCell ?? asString,
-        exportCell = defCol?.exportCell ?? asString,
-        sortBy = defCol?.sortBy ?? [(v) => (typeof v === 'number' || v instanceof Date ? v : String(v))],
+        renderCell = defaults?.renderCell ?? asString,
+        exportCell = defaults?.exportCell ?? asString,
+        sortBy = defaults?.sortBy ?? [
+          (v) => (typeof v === 'number' || v instanceof Date ? v : String(v)),
+        ],
         disableSort,
-        cannotHide = defCol?.cannotHide,
-        classes = defCol?.classes,
-        filter = defCol?.filter,
-        width = defCol?.width,
+        cannotHide = defaults?.cannotHide,
+        classes = defaults?.classes,
+        filter = defaults?.filter,
+        width = defaults?.width,
       }: Column<T, V>,
       index: number,
     ): InternalColumn<T, V> => {
@@ -60,7 +65,7 @@ export function calcProps<T>(props: TableProps<T>): InternalTableProps<T> {
         value: cache(`columns.${cacheKey}.value`, value),
         renderCell: cache(`columns.${cacheKey}.renderCell`, renderCell),
         exportCell,
-        sortBy: sortBy.map((fn, i) => cache(`columns.${cacheKey}.sortBy.${i}`, fn)),
+        sortBy: sortBy.map((function_, i) => cache(`columns.${cacheKey}.sortBy.${i}`, function_)),
         disableSort,
         cannotHide,
         classes,
@@ -74,17 +79,25 @@ export function calcProps<T>(props: TableProps<T>): InternalTableProps<T> {
     const wrapCell = props.wrapCell && cache('wrapCell', props.wrapCell);
 
     const rowAction =
-      props.rowAction instanceof Function || Array.isArray(props.rowAction) ? cache('rowAction', props.rowAction) : props.rowAction;
+      props.rowAction instanceof Function || Array.isArray(props.rowAction)
+        ? cache('rowAction', props.rowAction)
+        : props.rowAction;
 
     let copy;
-    if (props.enableExport === true || (props.enableExport instanceof Object && props.enableExport.copy === true)) {
+    if (
+      props.enableExport === true ||
+      (props.enableExport instanceof Object && props.enableExport.copy === true)
+    ) {
       copy = { separator: '\t' };
     } else if (props.enableExport && props.enableExport.copy instanceof Object) {
       copy = props.enableExport.copy;
     }
 
     let download;
-    if (props.enableExport === true || (props.enableExport instanceof Object && props.enableExport.download === true)) {
+    if (
+      props.enableExport === true ||
+      (props.enableExport instanceof Object && props.enableExport.download === true)
+    ) {
       download = { sepPrefix: true };
     } else if (props.enableExport && props.enableExport.download instanceof Object) {
       download = props.enableExport.download;

@@ -1,4 +1,4 @@
-import { TableTheme } from '../../types';
+import type { TableTheme } from '../../types';
 
 export const IconButton: TableTheme['components']['IconButton'] = (props) => {
   return (

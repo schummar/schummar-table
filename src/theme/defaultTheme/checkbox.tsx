@@ -1,4 +1,4 @@
-import { TableTheme } from '../../types';
+import type { TableTheme } from '../../types';
 
 export const Checkbox: TableTheme['components']['Checkbox'] = ({ className, ...props }) => {
   return (

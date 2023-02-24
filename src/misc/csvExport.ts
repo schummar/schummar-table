@@ -1,4 +1,9 @@
-export type CsvExportOptions = { sepPrefix?: boolean; separator?: string; quote?: string; eol?: string };
+export type CsvExportOptions = {
+  sepPrefix?: boolean;
+  separator?: string;
+  quote?: string;
+  eol?: string;
+};
 
 export function csvExport(
   data: (string | number)[][],
@@ -14,5 +19,7 @@ export function csvExport(
     }),
   );
 
-  return (sepPrefix ? `SEP=${separator}\n` : '') + cells.map((line) => line.join(separator)).join(eol);
+  return (
+    (sepPrefix ? `SEP=${separator}\n` : '') + cells.map((line) => line.join(separator)).join(eol)
+  );
 }

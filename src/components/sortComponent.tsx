@@ -1,6 +1,7 @@
-import React, { ReactNode } from 'react';
-import { useTheme } from '..';
-import { useColumnContext, useTableContext } from './table';
+import type { ReactNode } from 'react';
+import type React from 'react';
+import { useTheme } from '../hooks/useTheme';
+import { useColumnContext, useTableContext } from '../misc/tableContext';
 
 export function SortComponent<T>({ children }: { children: ReactNode }): JSX.Element {
   const table = useTableContext<T>();
@@ -19,7 +20,7 @@ export function SortComponent<T>({ children }: { children: ReactNode }): JSX.Ele
     };
   });
 
-  function toggle(e: React.MouseEvent, off?: boolean) {
+  function toggle(event: React.MouseEvent, off?: boolean) {
     if (sortDisabled) {
       return;
     }
@@ -29,7 +30,10 @@ export function SortComponent<T>({ children }: { children: ReactNode }): JSX.Ele
     } = table.getState();
 
     const newDirection = direction === 'asc' ? 'desc' : 'asc';
-    const newSort = e.getModifierState('Control') || off ? table.getState().sort.filter((s) => s.columnId !== columnId) : [];
+    const newSort =
+      event.getModifierState('Control') || off
+        ? table.getState().sort.filter((s) => s.columnId !== columnId)
+        : [];
     if (!off) {
       newSort.push({
         columnId,
@@ -45,7 +49,7 @@ export function SortComponent<T>({ children }: { children: ReactNode }): JSX.Ele
       });
     }
 
-    e.preventDefault();
+    event.preventDefault();
     return false;
   }
 
@@ -63,8 +67,8 @@ export function SortComponent<T>({ children }: { children: ReactNode }): JSX.Ele
           textOverflow: 'ellipsis',
         },
       }}
-      onClick={(e) => toggle(e)}
-      onContextMenu={(e) => toggle(e, true)}
+      onClick={(event) => toggle(event)}
+      onContextMenu={(event) => toggle(event, true)}
     >
       <div>{children}</div>
 

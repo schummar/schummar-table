@@ -1,4 +1,4 @@
-import { TableTheme } from '../../types';
+import type { TableTheme } from '../../types';
 import { defaultColors } from './defaultColors';
 import { defaultComponents } from './defaultComponents';
 import { defaultIcons } from './defaultIcons';

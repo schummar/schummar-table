@@ -1,4 +1,4 @@
-import { ComponentMeta } from '@storybook/react';
+import type { ComponentMeta } from '@storybook/react';
 import { Table } from '../../src';
 import data from './_data';
 
@@ -17,7 +17,7 @@ export const ManyColumns = () => {
       stickyHeader
       fullWidth
       columns={(col) =>
-        Array(30)
+        Array.from({ length: 30 })
           .fill(0)
           .map((_x, i) =>
             col(() => 'x', {

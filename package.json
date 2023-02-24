@@ -1,12 +1,21 @@
 {
   "name": "schummar-table",
-  "repository": "schummar/schummar-table",
   "version": "0.10.3",
   "description": "",
+  "license": "ISC",
+  "repository": "schummar/schummar-table",
+  "author": {
+    "name": "Marco Schumacher",
+    "email": "marco@schumacher.dev"
+  },
   "type": "module",
   "sideEffects": false,
+  "files": [
+    "dist"
+  ],
   "main": "dist/cjs/index.js",
   "module": "dist/es/index.js",
+  "types": "dist/types/index.d.ts",
   "exports": {
     ".": {
       "import": "./dist/es/index.js",
@@ -24,7 +33,6 @@
       "default": "./dist/es/mui4Theme.js"
     }
   },
-  "types": "dist/types/index.d.ts",
   "typesVersions": {
     "*": {
       "*": [
@@ -38,11 +46,6 @@
       ]
     }
   },
-  "author": {
-    "name": "Marco Schumacher",
-    "email": "marco@schumacher.dev"
-  },
-  "license": "ISC",
   "scripts": {
     "start": "npm -w docs start",
     "build": "runp -k build:clean :p build:compile:* :s build:cjsPackage",
@@ -51,16 +54,10 @@
     "build:compile:types": "tsc",
     "build:cjsPackage": "echo '{\"type\":\"commonjs\"}' > dist/cjs/package.json",
     "lint": "runp lint:*",
-    "lint:eslint": "eslint src",
+    "lint:eslint": "lint .",
     "lint:tsc": "tsc --emitDeclarationOnly false --noEmit",
     "prepublishOnly": "runp lint build",
     "docs:build": "npm -w docs run build"
-  },
-  "dependencies": {
-    "@emotion/react": "^11.10.5",
-    "dayzed": "^3.2.3",
-    "immer": "^9.0.16",
-    "schummar-state": "0.2.1-experimental-13"
   },
   "peerDependencies": {
     "@material-ui/core": ">=4",
@@ -81,34 +78,56 @@
       "optional": true
     }
   },
+  "dependencies": {
+    "@emotion/react": "11.10.5",
+    "dayzed": "3.2.3",
+    "immer": "9.0.16",
+    "nanoid": "4.0.1",
+    "schummar-state": "0.2.1-experimental-13"
+  },
   "devDependencies": {
-    "@emotion/styled": "^11.10.5",
+    "@emotion/styled": "11.10.5",
     "@material-ui/core": "4.12.4",
-    "@mui/material": "^5.11.0",
-    "@schummar/runp": "^1.8.2",
-    "@types/react": "^18.0.26",
-    "@types/react-dom": "^18.0.9",
-    "@typescript-eslint/eslint-plugin": "^5.46.1",
-    "@typescript-eslint/parser": "^5.46.1",
-    "@vitejs/plugin-react": "^3.0.0",
-    "eslint": "^8.29.0",
-    "eslint-plugin-storybook": "^0.6.8",
-    "prettier": "^2.8.1",
+    "@mui/material": "5.11.0",
+    "@schummar/eslint-config": "github:schummar/eslint-config",
+    "@schummar/prettier-config": "github:schummar/prettier-config",
+    "@schummar/runp": "1.8.2",
+    "@types/react": "18.0.26",
+    "@types/react-dom": "18.0.9",
+    "@vitejs/plugin-react": "3.0.0",
+    "eslint": "8.29.0",
+    "eslint-plugin-storybook": "0.6.8",
+    "prettier": "2.8.1",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "rimraf": "3.0.2",
     "semantic-release": "19.0.5",
-    "typescript": "^4.9.4",
-    "vite": "^4.0.1"
+    "typescript": "4.9.4",
+    "vite": "4.0.1"
   },
-  "files": [
-    "dist"
-  ],
   "workspaces": [
     "docs"
   ],
   "volta": {
     "node": "16.17.0",
     "npm": "8.19.2"
-  }
+  },
+  "eslintConfig": {
+    "extends": [
+      "@schummar/eslint-config",
+      "plugin:storybook/recommended"
+    ],
+    "rules": {
+      "react/no-unknown-property": [
+        "error",
+        {
+          "ignore": [
+            "css"
+          ]
+        }
+      ],
+      "node/no-unpublished-import": "off"
+    }
+  },
+  "prettier": "@schummar/prettier-config"
 }

@@ -1,15 +1,16 @@
-import React, { useState } from 'react';
-import { useTheme } from '..';
-import { csvExport, CsvExportOptions } from '../misc/csvExport';
+import { useState } from 'react';
+import { useTheme } from '../hooks/useTheme';
+import type { CsvExportOptions } from '../misc/csvExport';
+import { csvExport } from '../misc/csvExport';
+import { useTableContext } from '../misc/tableContext';
 import { useCssVariables } from '../theme/useCssVariables';
-import { useTableContext } from './table';
 
 export function Export<T>(): JSX.Element {
   const table = useTableContext<T>();
   const Button = useTheme((t) => t.components.Button);
   const IconButton = useTheme((t) => t.components.IconButton);
   const Popover = useTheme((t) => t.components.Popover);
-  const Export = useTheme((t) => t.icons.Export);
+  const ExportIcon = useTheme((t) => t.icons.Export);
   const Clipboard = useTheme((t) => t.icons.Clipboard);
   const exportTitle = useTheme((t) => t.text.exportTitle);
   const exportCopy = useTheme((t) => t.text.exportCopy);
@@ -24,7 +25,9 @@ export function Export<T>(): JSX.Element {
 
     const data = [
       activeColumns.map((column) => String(column.id)),
-      ...activeItems.map((item) => activeColumns.map((column) => column.exportCell(column.value(item.value), item.value))),
+      ...activeItems.map((item) =>
+        activeColumns.map((column) => column.exportCell(column.value(item.value), item.value)),
+      ),
     ];
     return csvExport(data, options);
   };
@@ -35,17 +38,19 @@ export function Export<T>(): JSX.Element {
 
   const download = () => {
     const a = document.createElement('a');
-    a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(generate(table.getState().props.enableExport.download));
+    a.href = `data:text/csv;charset=utf-8,${encodeURIComponent(
+      generate(table.getState().props.enableExport.download),
+    )}`;
     a.download = 'export.csv';
-    document.body.appendChild(a);
+    document.body.append(a);
     a.click();
-    document.body.removeChild(a);
+    a.remove();
   };
 
   return (
     <>
-      <IconButton onClick={(e) => setAnchor(anchor ? null : e.currentTarget)}>
-        <Export css={!!anchor && { color: 'var(--primaryMain)' }} />
+      <IconButton onClick={(event) => setAnchor(anchor ? null : event.currentTarget)}>
+        <ExportIcon css={!!anchor && { color: 'var(--primaryMain)' }} />
       </IconButton>
 
       <Popover
@@ -72,7 +77,7 @@ export function Export<T>(): JSX.Element {
           <Button startIcon={<Clipboard />} onClick={copy}>
             {exportCopy}
           </Button>
-          <Button startIcon={<Export />} onClick={download}>
+          <Button startIcon={<ExportIcon />} onClick={download}>
             {exportDownload}
           </Button>
         </div>

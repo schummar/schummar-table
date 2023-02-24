@@ -1,7 +1,8 @@
-import { Box, Typography } from '@material-ui/core';
-import { ComponentMeta } from '@storybook/react';
-import React, { useState } from 'react';
-import { DateFilter, DateRange, SelectFilter, Sort, Table, TextFilter } from '../../src';
+import { Box, Typography } from '@mui/material';
+import type { ComponentMeta } from '@storybook/react';
+import { useState } from 'react';
+import type { DateRange, Sort } from '../../src';
+import { DateFilter, SelectFilter, Table, TextFilter } from '../../src';
 import data from './_data';
 
 const dateFormat = new Intl.DateTimeFormat(undefined, { dateStyle: 'medium' });
@@ -56,7 +57,9 @@ export const Primary = () => {
 
           col((x) => x.first_name, {
             header: 'First Name',
-            filter: <TextFilter external value={firstName} onChange={(v) => setFirstName(v ?? '')} />,
+            filter: (
+              <TextFilter external value={firstName} onChange={(v) => setFirstName(v ?? '')} />
+            ),
           }),
 
           col((x) => x.last_name, {
@@ -66,13 +69,21 @@ export const Primary = () => {
 
           col((x) => x.job_title, {
             header: 'Job Title',
-            filter: <SelectFilter external value={jobTitle} onChange={(v) => setJobTitle(v ?? new Set())} />,
+            filter: (
+              <SelectFilter
+                external
+                value={jobTitle}
+                onChange={(v) => setJobTitle(v ?? new Set())}
+              />
+            ),
           }),
 
           col((x) => x.birthday, {
             header: 'Birthday',
             renderCell: (birthday) => dateFormat.format(new Date(birthday)),
-            filter: <DateFilter external value={birthday} onChange={(v) => setBirthday(v ?? null)} />,
+            filter: (
+              <DateFilter external value={birthday} onChange={(v) => setBirthday(v ?? null)} />
+            ),
           }),
         ]}
       />

@@ -1,22 +1,29 @@
-import { DependencyList, useMemo } from 'react';
-import { FunctionWithDeps } from '../types';
+import type { DependencyList } from 'react';
+import { useMemo } from 'react';
+import type { FunctionWithDeps } from '../types';
 
 export function useMemoMap() {
   const memoCache = useMemo(() => new Map<string, [value: any, deps: DependencyList]>(), []);
 
-  return <Fn extends (...args: any[]) => any>(key: string, fn: FunctionWithDeps<Fn>): Fn => {
+  return <Function_ extends (...args: any[]) => any>(
+    key: string,
+    function_: FunctionWithDeps<Function_>,
+  ): Function_ => {
     let deps: DependencyList;
-    if (Array.isArray(fn)) {
-      deps = fn.slice(1);
-      fn = fn[0];
+    if (Array.isArray(function_)) {
+      deps = function_.slice(1);
+      function_ = function_[0];
     } else {
-      deps = [fn.toString()];
+      deps = [function_.toString()];
     }
 
     let cachedValue = memoCache.get(key);
-    const hit = cachedValue && cachedValue[1].length === deps.length && cachedValue[1].every((x, i) => x === deps[i]);
+    const hit =
+      cachedValue &&
+      cachedValue[1].length === deps.length &&
+      cachedValue[1].every((x, i) => x === deps[i]);
     if (!cachedValue || !hit) {
-      cachedValue = [fn, deps];
+      cachedValue = [function_, deps];
       memoCache.set(key, cachedValue);
     }
     return cachedValue[0];

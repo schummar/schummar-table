@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
-import { Store } from 'schummar-state/react';
+import type { Store } from 'schummar-state/react';
 import { getAncestors, orderBy } from '../misc/helpers';
-import { Id, InternalTableState } from '../types';
+import type { Id, InternalTableState } from '../types';
 
 export function normalizeExpanded<T>(table: Store<InternalTableState<T>>): void {
   useEffect(
@@ -24,8 +24,13 @@ export function normalizeExpanded<T>(table: Store<InternalTableState<T>>): void 
           if (expandOnlyOne) {
             const withMostAncestors = orderBy(allAncestors, [(x) => x.ancestors.size], ['desc'])[0];
 
-            if ([...expanded].some((id) => id !== withMostAncestors?.id && !withMostAncestors?.ancestors.has(id))) {
-              expanded = state.expanded = withMostAncestors?.ancestors ?? new Set();
+            if (
+              [...expanded].some(
+                (id) => id !== withMostAncestors?.id && !withMostAncestors?.ancestors.has(id),
+              )
+            ) {
+              expanded = withMostAncestors?.ancestors ?? new Set();
+              state.expanded = expanded;
 
               state.props.onExpandedChange?.(expanded);
               return;

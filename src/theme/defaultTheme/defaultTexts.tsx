@@ -1,4 +1,4 @@
-import { TableTheme } from '../../types';
+import type { TableTheme } from '../../types';
 
 export const defaultTexts: TableTheme['text'] = {
   selectColumns: 'Select visible columns',
@@ -17,4 +17,6 @@ export const defaultTexts: TableTheme['text'] = {
   loading: 'Loading',
   deselectAll: 'Deselect all',
   resetAll: 'Reset table state',
+  rangeMin: 'Min',
+  rangeMax: 'Max',
 };

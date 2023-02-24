@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
-import { Store } from 'schummar-state/react';
-import { InternalTableState } from '../types';
+import type { Store } from 'schummar-state/react';
+import type { InternalTableState } from '../types';
 
 export function syncSelections<T>(table: Store<InternalTableState<T>>): void {
   useEffect(

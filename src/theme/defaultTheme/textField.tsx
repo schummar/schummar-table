@@ -1,43 +1,57 @@
 import { useState } from 'react';
-import { TableTheme } from '../../types';
+import type { TableTheme } from '../../types';
 import { darkGray } from './defaultClasses';
 
-export const TextField: TableTheme['components']['TextField'] = ({ endIcon, className, inputRef, ...props }) => {
+export const TextField: TableTheme['components']['TextField'] = ({
+  startIcon,
+  endIcon,
+  className,
+  inputRef,
+  onBlur,
+  ...props
+}) => {
   const [focus, setFocus] = useState(false);
 
   return (
-    <div className={className} css={{ display: 'flex' }}>
-      <span
-        css={[
-          {
-            flex: 1,
-            display: 'flex',
-            alignItems: 'center',
-            border: `1px solid ${darkGray}`,
-            borderRadius: 4,
-          },
-          focus && { border: '2px solid var(--primaryMain)', margin: -1 },
-        ]}
-      >
-        <input
-          ref={inputRef}
-          {...props}
-          value={props.value ?? ''}
-          onFocus={() => setFocus(true)}
-          onBlur={() => setFocus(false)}
-          css={{
-            flex: 1,
-            border: 'none',
-            outline: 'none',
-            borderRadius: 4,
-            padding: 'calc(var(--spacing) * 2)',
-            paddingRight: 0,
-            transition: 'outline 500ms',
-          }}
-        />
+    <div
+      className={className}
+      css={[
+        {
+          flex: 1,
+          display: 'flex',
+          alignItems: 'center',
+          border: `1px solid ${darkGray}`,
+          borderRadius: 4,
+        },
+        focus && { border: '2px solid var(--primaryMain)', margin: -1 },
+      ]}
+    >
+      {startIcon}
 
-        {endIcon}
-      </span>
+      <input
+        ref={inputRef}
+        {...props}
+        value={props.value ?? ''}
+        onFocus={() => setFocus(true)}
+        onBlur={(event) => {
+          setFocus(false);
+          onBlur?.(event);
+        }}
+        css={{
+          minWidth: 0,
+          width: '100%',
+          flex: 1,
+          border: 'none',
+          outline: 'none',
+          borderRadius: 4,
+          padding: 'calc(var(--spacing) * 2)',
+          paddingLeft: startIcon ? 0 : undefined,
+          paddingRight: endIcon ? 0 : undefined,
+          transition: 'outline 500ms',
+        }}
+      />
+
+      {endIcon}
     </div>
   );
 };

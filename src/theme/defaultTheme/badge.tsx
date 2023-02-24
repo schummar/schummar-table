@@ -1,8 +1,6 @@
-import { TableTheme } from '../../types';
+import type { TableTheme } from '../../types';
 
 export const Badge: TableTheme['components']['Badge'] = ({ badgeContent, children }) => {
-  if (!open) return null;
-
   return (
     <span
       css={{

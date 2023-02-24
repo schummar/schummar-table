@@ -1,10 +1,12 @@
-import React, { ReactNode, useState } from 'react';
-import { useColumnContext, useFilter, useTheme } from '..';
+import type { ReactNode } from 'react';
+import { useState } from 'react';
+import { useFilter } from '../hooks/useFilter';
+import { useTheme } from '../hooks/useTheme';
 import { asString, castArray, flatMap, uniq } from '../misc/helpers';
-import { CommonFilterProps, InternalColumn, SerializableValue } from '../types';
+import { useColumnContext, useTableContext } from '../misc/tableContext';
+import type { CommonFilterProps, InternalColumn, SerializableValue } from '../types';
 import { AutoFocusTextField } from './autoFocusTextField';
 import { FormControlLabel } from './formControlLabel';
-import { useTableContext } from './table';
 
 function toggle<T>(set: Set<T>, value: T, singleSelect?: boolean) {
   const newSet = new Set(singleSelect ? [] : set);
@@ -64,14 +66,20 @@ export function SelectFilter<T, V, F extends SerializableValue>({
   const options = table.useState((state) => {
     if (providedOptions) return uniq(providedOptions);
 
-    const column = state.activeColumns.find((column) => column.id === columnId) as InternalColumn<T, V> | undefined;
+    const column = state.activeColumns.find((column) => column.id === columnId) as
+      | InternalColumn<T, V>
+      | undefined;
     if (!column) return [];
 
-    return uniq(flatMap(state.items, (item) => castArray(filterBy(column.value(item.value), item.value))));
+    return uniq(
+      flatMap(state.items, (item) => castArray(filterBy(column.value(item.value), item.value))),
+    );
   });
 
   const [query, setQuery] = useState('');
-  const filtered = options.filter((option) => !query || stringValue(option).toLowerCase().includes(query.toLowerCase()));
+  const filtered = options.filter(
+    (option) => !query || stringValue(option).toLowerCase().includes(query.toLowerCase()),
+  );
 
   const Button = useTheme((t) => t.components.Button);
 
@@ -85,13 +93,15 @@ export function SelectFilter<T, V, F extends SerializableValue>({
     >
       <AutoFocusTextField
         value={query}
-        onChange={(e) => setQuery(e.target.value)}
-        endIcon={<IconButton onClick={() => setQuery('')}>{!query ? <Search /> : <Clear />}</IconButton>}
+        onChange={(event) => setQuery(event.target.value)}
+        endIcon={
+          <IconButton onClick={() => setQuery('')}>{!query ? <Search /> : <Clear />}</IconButton>
+        }
         css={{ marginBottom: 'var(--spacing)' }}
       />
 
       <Button
-        disabled={!(value.size > 0)}
+        disabled={value.size === 0}
         onClick={() => onChange(new Set())}
         variant="outlined"
         css={{ justifyContent: 'center', width: '100%', marginBottom: 'var(--spacing)' }}
@@ -103,7 +113,12 @@ export function SelectFilter<T, V, F extends SerializableValue>({
         {filtered.map((option, index) => (
           <FormControlLabel
             key={index}
-            control={<Checkbox checked={value.has(option)} onChange={() => onChange(toggle(value, option, singleSelect))} />}
+            control={
+              <Checkbox
+                checked={value.has(option)}
+                onChange={() => onChange(toggle(value, option, singleSelect))}
+              />
+            }
             label={render(option)}
           ></FormControlLabel>
         ))}

@@ -1,4 +1,4 @@
-import { ComponentMeta } from '@storybook/react';
+import type { ComponentMeta } from '@storybook/react';
 import { Table } from '../../src';
 import css from './styles.module.css';
 import data from './_data';

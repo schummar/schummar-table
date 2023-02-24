@@ -1,16 +1,20 @@
 import { castDraft } from 'immer';
 import { useContext, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
-import { useColumnContext, useTableContext } from '..';
+import { nanoid } from 'nanoid';
 import { FilterControlContext } from '../components/filterControl';
 import { debounce } from '../misc/debounce';
-import { FilterImplementation, SerializableValue } from '../types';
+import type { FilterImplementation, SerializableValue } from '../types';
+import { useColumnContext, useTableContext } from '../misc/tableContext';
 import { useTableMemo } from './useTableMemo';
 
-export function useFilter<T, V, F, S extends SerializableValue>(impl: FilterImplementation<T, V, F, S>) {
+export function useFilter<T, V, F, S extends SerializableValue>(
+  impl: FilterImplementation<T, V, F, S>,
+) {
   const table = useTableContext<T>();
   const columnId = useColumnContext();
   const cache = useTableMemo();
-  const filterBy = impl.filterBy && cache('', impl.filterBy);
+  const cacheId = useMemo(() => nanoid(), []);
+  const filterBy = impl.filterBy && cache(cacheId, impl.filterBy);
 
   // On mount and reset: Fire onChange
   useEffect(() => {

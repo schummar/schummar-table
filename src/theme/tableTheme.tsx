@@ -1,14 +1,23 @@
-import { createContext, ReactNode } from 'react';
-import { PartialTableTheme } from '../types';
+import type { ReactNode } from 'react';
+import { createContext } from 'react';
+import { Store } from 'schummar-state/react';
+import type { PartialTableTheme } from '../types';
 
-export let globalTableTheme: PartialTableTheme = {};
+export const globalTableTheme = new Store<PartialTableTheme>({});
+
 export function configureTableTheme(tableTheme: PartialTableTheme) {
-  globalTableTheme = tableTheme;
+  globalTableTheme.set(tableTheme);
 }
 
 export const TableThemeContext = createContext<PartialTableTheme>({});
 
-export function TableThemeProvider({ theme, children }: { theme: PartialTableTheme; children: ReactNode }) {
+export function TableThemeProvider({
+  theme,
+  children,
+}: {
+  theme: PartialTableTheme;
+  children: ReactNode;
+}) {
   return <TableThemeContext.Provider value={theme}>{children}</TableThemeContext.Provider>;
 }
 

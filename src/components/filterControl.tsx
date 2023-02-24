@@ -1,12 +1,12 @@
 import { createContext, useMemo, useState } from 'react';
 import { useTheme } from '../hooks/useTheme';
 import { cx } from '../misc/helpers';
+import { useColumnContext, useTableContext } from '../misc/tableContext';
 import { useCssVariables } from '../theme/useCssVariables';
-import { useColumnContext, useTableContext } from './table';
 
 export const FilterControlContext = createContext({
   isActive: false,
-  close: (): void => void 0,
+  close: (): void => undefined,
 });
 
 export function FilterControl<T>(): JSX.Element | null {
@@ -29,7 +29,9 @@ export function FilterControl<T>(): JSX.Element | null {
     const filter = state.filters.get(columnId);
     return filter?.classNames;
   });
-  const filter = table.useState((state) => state.activeColumns.find((column) => column.id === columnId)?.filter);
+  const filter = table.useState(
+    (state) => state.activeColumns.find((column) => column.id === columnId)?.filter,
+  );
 
   function reset() {
     table.update((state) => {
@@ -37,7 +39,7 @@ export function FilterControl<T>(): JSX.Element | null {
 
       impl?.onChange?.(undefined);
 
-      if (impl?.value !== undefined) {
+      if (impl?.value === undefined) {
         state.filterValues.delete(columnId);
       }
     });
@@ -48,7 +50,7 @@ export function FilterControl<T>(): JSX.Element | null {
       isActive: !!anchor,
       close: () => setAnchor(null),
     }),
-    [!!anchor],
+    [anchor],
   );
 
   if (!filter) return null;
@@ -56,10 +58,10 @@ export function FilterControl<T>(): JSX.Element | null {
   return (
     <FilterControlContext.Provider value={context}>
       <div
-        onClick={(e) => setAnchor(e.currentTarget)}
-        onContextMenu={(e) => {
+        onClick={(event) => setAnchor(event.currentTarget)}
+        onContextMenu={(event) => {
           reset();
-          e.preventDefault();
+          event.preventDefault();
           return false;
         }}
       >
@@ -76,11 +78,11 @@ export function FilterControl<T>(): JSX.Element | null {
       </div>
 
       <div
-        onPointerDown={(e) => {
-          e.stopPropagation();
+        onPointerDown={(event) => {
+          event.stopPropagation();
         }}
-        onPointerMove={(e) => {
-          e.stopPropagation();
+        onPointerMove={(event) => {
+          event.stopPropagation();
         }}
       >
         <Popover

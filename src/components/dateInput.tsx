@@ -16,14 +16,15 @@ const defaultLengths = {
 const maxLengths = {
   day: 2,
   month: 2,
-  year: Infinity,
+  year: Number.POSITIVE_INFINITY,
 };
 
-const length = (type: 'day' | 'month' | 'year', value: string) => Math.max(value.length, defaultLengths[type]);
+const length = (type: 'day' | 'month' | 'year', value: string) =>
+  Math.max(value.length, defaultLengths[type]);
 
-const tabNext = (e: Element) => {
+const tabNext = (event: Element) => {
   const all = Array.from(document.querySelectorAll(`.${className}`));
-  const index = all.indexOf(e);
+  const index = all.indexOf(event);
   const next = all[(index + 1) % all.length];
 
   if (next instanceof HTMLElement) {
@@ -31,7 +32,15 @@ const tabNext = (e: Element) => {
   }
 };
 
-export function DateInput({ value, onChange, locale }: { value: Date | null; onChange: (date: Date | null) => void; locale?: string }) {
+export function DateInput({
+  value,
+  onChange,
+  locale,
+}: {
+  value: Date | null;
+  onChange: (date: Date | null) => void;
+  locale?: string;
+}) {
   const [override, setOverride] = useState<{ type: string; value: string }>();
 
   const commit = () => {
@@ -47,12 +56,25 @@ export function DateInput({ value, onChange, locale }: { value: Date | null; onC
     }
 
     const newValue = value ? new Date(value) : new Date();
-    if (override.type === 'day') {
-      newValue.setDate(Number(override.value));
-    } else if (override.type === 'month') {
-      newValue.setMonth(Number(override.value) - 1);
-    } else if (override.type === 'year') {
-      newValue.setFullYear(Number(override.value));
+    switch (override.type) {
+      case 'day': {
+        newValue.setDate(Number(override.value));
+        break;
+      }
+
+      case 'month': {
+        newValue.setMonth(Number(override.value) - 1);
+        break;
+      }
+
+      case 'year': {
+        newValue.setFullYear(Number(override.value));
+        break;
+      }
+
+      default: {
+        break;
+      }
     }
 
     onChange(newValue);
@@ -97,13 +119,13 @@ export function DateInput({ value, onChange, locale }: { value: Date | null; onC
               }}
               placeholder={''.padEnd(length(type, value), '0')}
               value={override?.type === type ? override.value : !isEmpty ? value : ''}
-              onChange={(e) => {
-                setOverride({ type, value: e.target.value });
-                if (e.target.value.length >= maxLengths[type]) {
-                  setTimeout(() => tabNext(e.target));
+              onChange={(event) => {
+                setOverride({ type, value: event.target.value });
+                if (event.target.value.length >= maxLengths[type]) {
+                  setTimeout(() => tabNext(event.target));
                 }
               }}
-              onFocus={(e) => e.target.select()}
+              onFocus={(event) => event.target.select()}
               onBlur={commit}
             />
           ) : type === 'literal' ? (

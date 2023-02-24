@@ -1,28 +1,35 @@
-import React, { memo, useEffect, useLayoutEffect, useRef } from 'react';
+import { memo, useEffect, useLayoutEffect, useRef } from 'react';
 import { useTheme } from '../hooks/useTheme';
+import { calcClassNames } from '../misc/calcClassNames';
 import { cx, getAncestors } from '../misc/helpers';
+import { ColumnContext, useTableContext } from '../misc/tableContext';
 import { defaultClasses } from '../theme/defaultTheme/defaultClasses';
-import { Id, MemoizedTableTheme } from '../types';
+import type { Id } from '../types';
 import { Cell } from './cell';
 import { ExpandControl } from './expandControl';
 import { SelectComponent } from './selectComponent';
-import { ColumnContext, useTableContext } from './table';
 
-export function calcClassNames<T>(classes: MemoizedTableTheme<any>['classes'] | undefined, item: T, index: number) {
-  return [
-    classes?.cell instanceof Function ? classes.cell(item, index) : classes?.cell,
-    index % 2 === 0 && classes?.evenCell,
-    index % 2 === 1 && classes?.oddCell,
-  ];
-}
-
-export const Row = memo(function Row<T>({ itemId, rowIndex }: { itemId: Id; rowIndex: number }): JSX.Element | null {
+export const Row = memo(function Row<T>({
+  itemId,
+  rowIndex,
+}: {
+  itemId: Id;
+  rowIndex: number;
+}): JSX.Element | null {
   const table = useTableContext<T>();
   const divRef = useRef<HTMLDivElement>(null);
 
   const classes = useTheme((t) => t.classes);
 
-  const { className, indent, hasChildren, hasDeferredChildren, columnIds, enableSelection, rowAction } = table.useState((state) => {
+  const {
+    className,
+    indent,
+    hasChildren,
+    hasDeferredChildren,
+    columnIds,
+    enableSelection,
+    rowAction,
+  } = table.useState((state) => {
     const item = state.activeItemsById.get(itemId);
 
     return {
@@ -33,7 +40,11 @@ export const Row = memo(function Row<T>({ itemId, rowIndex }: { itemId: Id; rowI
       columnIds: state.activeColumns.map((column) => column.id),
       enableSelection: state.props.enableSelection,
       rowAction:
-        state.props.rowAction instanceof Function ? (item ? state.props.rowAction(item.value, rowIndex) : null) : state.props.rowAction,
+        state.props.rowAction instanceof Function
+          ? item
+            ? state.props.rowAction(item.value, rowIndex)
+            : null
+          : state.props.rowAction,
     };
   });
 
@@ -50,7 +61,7 @@ export const Row = memo(function Row<T>({ itemId, rowIndex }: { itemId: Id; rowI
     o.observe(div);
 
     return () => o.disconnect();
-  }, [divRef.current]);
+  }, [table, itemId]);
 
   useLayoutEffect(() => table.getState().props.debugRender?.('render row', itemId));
 
@@ -63,7 +74,9 @@ export const Row = memo(function Row<T>({ itemId, rowIndex }: { itemId: Id; rowI
 
         {enableSelection && <SelectComponent itemId={itemId} />}
 
-        {(hasChildren || hasDeferredChildren) && <ExpandControl itemId={itemId} hasDeferredChildren={hasDeferredChildren} />}
+        {(hasChildren || hasDeferredChildren) && (
+          <ExpandControl itemId={itemId} hasDeferredChildren={hasDeferredChildren} />
+        )}
 
         {rowAction}
       </div>

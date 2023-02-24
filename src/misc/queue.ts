@@ -1,5 +1,10 @@
 export class Queue {
-  private q = new Array<{ job: () => Promise<any>; resolve: (value: any) => void; reject: (reason?: any) => void }>();
+  private q = new Array<{
+    job: () => Promise<any>;
+    resolve: (value: any) => void;
+    reject: (reason?: any) => void;
+  }>();
+
   private isRunning = false;
 
   run<T>(job: () => Promise<T>, replace?: boolean) {
@@ -25,8 +30,8 @@ export class Queue {
       try {
         const result = await next.job();
         next.resolve(result);
-      } catch (e) {
-        next.reject(e);
+      } catch (error) {
+        next.reject(error);
       }
     }
 

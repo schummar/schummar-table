@@ -1,9 +1,17 @@
 import { useEffect, useState } from 'react';
-import { Store } from 'schummar-state/react';
+import type { Store } from 'schummar-state/react';
 import { Queue } from '../misc/queue';
-import { InternalTableState, SerializableValue } from '../types';
+import type { InternalTableState, SerializableValue } from '../types';
 
-const KEYS = ['sort', 'selection', 'expanded', 'hiddenColumns', 'filterValues', 'columnWidths', 'columnOrder'] as const;
+const KEYS = [
+  'sort',
+  'selection',
+  'expanded',
+  'hiddenColumns',
+  'filterValues',
+  'columnWidths',
+  'columnOrder',
+] as const;
 
 const storageName = (id: string) => `schummar-table_state-v1_${id}`;
 
@@ -35,7 +43,7 @@ function stringify(value: SerializableValue) {
       return { __map: Array.from(value.entries()).map((entry) => entry.map(prepare)) };
     }
 
-    if (value instanceof Array) {
+    if (Array.isArray(value)) {
       return value.map(prepare);
     }
 
@@ -100,17 +108,29 @@ export function useTableStateStorage(table: Store<InternalTableState<any>>) {
             ) {
               if (key === 'filterValues') {
                 for (const [id, value] of data[key]) {
-                  if (state.filters.get(id)?.persist ?? state.filters.get(id)?.value === undefined) {
+                  if (
+                    state.filters.get(id)?.persist ??
+                    state.filters.get(id)?.value === undefined
+                  ) {
                     state.filterValues.set(id, value);
                   }
                 }
               } else {
-                if (key === 'expanded' || key === 'hiddenColumns' || key === 'selection' || key === 'sort') {
+                if (
+                  key === 'expanded' ||
+                  key === 'hiddenColumns' ||
+                  key === 'selection' ||
+                  key === 'sort'
+                ) {
                   if (state.props[key] !== undefined) {
                     continue;
                   }
 
-                  state.props[`on${(key.slice(0, 1).toUpperCase() + key.slice(1)) as Capitalize<typeof key>}Change`]?.(data[key]);
+                  state.props[
+                    `on${
+                      (key.slice(0, 1).toUpperCase() + key.slice(1)) as Capitalize<typeof key>
+                    }Change`
+                  ]?.(data[key]);
                 }
 
                 state[key] = data[key];
@@ -118,8 +138,8 @@ export function useTableStateStorage(table: Store<InternalTableState<any>>) {
             }
           }
         });
-      } catch (e) {
-        console.error('Failed to load table state:', e);
+      } catch (error) {
+        console.error('Failed to load table state:', error);
       } finally {
         setIsHydrated(true);
       }
@@ -156,7 +176,10 @@ export function useTableStateStorage(table: Store<InternalTableState<any>>) {
               }
             } else {
               if (
-                (key === 'expanded' || key === 'hiddenColumns' || key === 'selection' || key === 'sort') &&
+                (key === 'expanded' ||
+                  key === 'hiddenColumns' ||
+                  key === 'selection' ||
+                  key === 'sort') &&
                 state.props[key] !== undefined
               ) {
                 continue;

@@ -1,4 +1,7 @@
-export function debounce<Args extends any[]>(fn: (...args: Args) => void, ms: number): { (...args: Args): void; flush(): void } {
+export function debounce<Args extends any[]>(
+  function_: (...args: Args) => void,
+  ms: number,
+): { (...args: Args): void; flush(): void } {
   let lastArgs: Args | undefined;
   let timeout: ReturnType<typeof setTimeout> | undefined;
 
@@ -8,7 +11,7 @@ export function debounce<Args extends any[]>(fn: (...args: Args) => void, ms: nu
     lastArgs = undefined;
     timeout = undefined;
 
-    fn(...(args as Args));
+    function_(...(args as Args));
   }
 
   return Object.assign(

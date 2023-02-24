@@ -1,7 +1,7 @@
 import { castDraft } from 'immer';
 import { useEffect, useMemo, useState } from 'react';
 import { Store } from 'schummar-state/react';
-import { InternalTableState, TableProps } from '../types';
+import type { InternalTableState, TableProps } from '../types';
 import { calcItems } from './calcItems';
 import { calcProps } from './calcProps';
 import { cleanupState } from './cleanupState';
@@ -9,7 +9,9 @@ import { filterColumns } from './filterColumns';
 import { normalizeExpanded } from './normalizeExpanded';
 import { syncSelections } from './syncSelections';
 
-export function useTableState<T>(_props: TableProps<T>): [Store<InternalTableState<T>>, () => void] {
+export function useTableState<T>(
+  _props: TableProps<T>,
+): [Store<InternalTableState<T>>, () => void] {
   const [key, setKey] = useState({});
   const props = calcProps(_props);
 

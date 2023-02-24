@@ -1,6 +1,7 @@
-import { useFilter } from '..';
-import { CommonFilterProps } from '../types';
-import { dateIntersect, DatePicker, DatePickerProps, DateRange } from './datePicker';
+import { useFilter } from '../hooks/useFilter';
+import type { CommonFilterProps } from '../types';
+import type { DatePickerProps, DateRange } from './datePicker';
+import { dateIntersect, DatePicker } from './datePicker';
 
 function convertDate(x: unknown): Date | null {
   if (x instanceof Date) return x;
@@ -20,7 +21,7 @@ function convertDateOrRange(x: unknown): Date | DateRange | null {
 }
 
 function convertDateOrArray(x: unknown): Date | DateRange | (Date | DateRange)[] | null {
-  if (x instanceof Array) return x.map(convertDateOrRange).filter(Boolean) as (Date | DateRange)[];
+  if (Array.isArray(x)) return x.map(convertDateOrRange).filter(Boolean) as (Date | DateRange)[];
   return convertDateOrRange(x);
 }
 

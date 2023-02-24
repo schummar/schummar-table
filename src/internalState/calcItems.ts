@@ -1,8 +1,8 @@
 import { castDraft } from 'immer';
 import { useEffect } from 'react';
-import { Store } from 'schummar-state/react';
+import type { Store } from 'schummar-state/react';
 import { castArray, flatMap, orderBy } from '../misc/helpers';
-import { Id, InternalTableState, TableItem } from '../types';
+import type { Id, InternalTableState, TableItem } from '../types';
 
 export function calcItems<T>(state: Store<InternalTableState<T>>): void {
   useEffect(
@@ -21,7 +21,20 @@ export function calcItems<T>(state: Store<InternalTableState<T>>): void {
             state.activeColumns,
             state.expanded,
           ] as const,
-        ([items = [], id, parentId, revealFiltered, externalSort, sort, filters, filterValues, activeColumns], draft) => {
+        (
+          [
+            items = [],
+            id,
+            parentId,
+            revealFiltered,
+            externalSort,
+            sort,
+            filters,
+            filterValues,
+            activeColumns,
+          ],
+          draft,
+        ) => {
           const tableItems = items.map<TableItem<T>>((item) => ({
             id: id(item),
             parentId: parentId?.(item),

@@ -1,12 +1,14 @@
-import React, { HTMLProps, ReactNode, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import type { HTMLProps, ReactNode } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { useTableContext } from '../misc/tableContext';
 import { throttle } from '../misc/throttle';
-import { Id } from '../types';
-import { useTableContext } from './table';
+import type { Id } from '../types';
 
 const findScrollRoot = (x: HTMLElement): HTMLElement => {
   const parent = x.parentElement;
   if (!parent) return document.documentElement;
-  if (parent.scrollHeight > parent.clientHeight && getComputedStyle(parent).overflowY !== 'visible') return parent;
+  if (parent.scrollHeight > parent.clientHeight && getComputedStyle(parent).overflowY !== 'visible')
+    return parent;
   return findScrollRoot(parent);
 };
 
@@ -54,7 +56,11 @@ export function Virtualized<T>({
 
       let totalHeight = 0;
       const rowHeights = itemIds.map((itemId, index) => {
-        const h = rowHeight ?? state.rowHeights.get(itemId) ?? initalRowHeight ?? (index === 0 ? 100 : totalHeight / index);
+        const h =
+          rowHeight ??
+          state.rowHeights.get(itemId) ??
+          initalRowHeight ??
+          (index === 0 ? 100 : totalHeight / index);
         totalHeight += h;
         return h;
       });
@@ -64,10 +70,10 @@ export function Virtualized<T>({
       const topOfTable = root.scrollTop - probeOffset + headerHeight;
       const bottomOfTable = topOfTable + root.clientHeight - headerHeight;
 
-      let from = 0,
-        to = itemIds.length,
-        before = 0,
-        after = 0;
+      let from = 0;
+      let to = itemIds.length;
+      let before = 0;
+      let after = 0;
       for (const h of rowHeights) {
         if (before + h > topOfTable - (overscanTop ?? overscan)) break;
         from++;
@@ -86,7 +92,10 @@ export function Virtualized<T>({
   );
 
   const throttleScroll = (typeof virtual === 'boolean' ? undefined : virtual)?.throttleScroll ?? 16;
-  const incCounter = useMemo(() => throttle(() => setCounter((c) => c + 1), throttleScroll), [throttleScroll]);
+  const incCounter = useMemo(
+    () => throttle(() => setCounter((c) => c + 1), throttleScroll),
+    [throttleScroll],
+  );
 
   useEffect(() => {
     if (!virtual || !probeRef.current) return;
@@ -97,11 +106,13 @@ export function Virtualized<T>({
       window.removeEventListener('scroll', incCounter, true);
       window.removeEventListener('resize', incCounter, true);
     };
-  }, [probeRef.current, incCounter]);
+  }, [incCounter, virtual]);
 
   useEffect(() => incCounter.cancel, [incCounter]);
 
-  useLayoutEffect(() => table.getState().props.debugRender?.(`Virtualalized render ${from} to ${to}`));
+  useLayoutEffect(() =>
+    table.getState().props.debugRender?.(`Virtualalized render ${from} to ${to}`),
+  );
 
   return (
     <div {...props}>

@@ -1,6 +1,6 @@
-import React from 'react';
+import { useTheme } from '../hooks/useTheme';
+import { useTableContext } from '../misc/tableContext';
 import { defaultClasses } from '../theme/defaultTheme/defaultClasses';
-import { useTableContext, useTheme } from '..';
 
 export default function ClearFiltersButton<T>() {
   const Button = useTheme((t) => t.components.Button);

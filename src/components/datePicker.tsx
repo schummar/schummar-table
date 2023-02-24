@@ -1,6 +1,7 @@
 import { useDayzed } from 'dayzed';
-import { ReactNode, useEffect, useMemo, useState } from 'react';
-import { useTheme } from '..';
+import type { ReactNode } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { useTheme } from '../hooks/useTheme';
 import { gray } from '../theme/defaultTheme/defaultClasses';
 import { useCssVariables } from '../theme/useCssVariables';
 import { DateInput } from './dateInput';
@@ -43,7 +44,8 @@ const weekDays = [0, 1, 2, 3, 4, 5, 6] as const;
 export const startOfDay = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate());
 
 /** Rounds a date up to the end of the day. */
-export const endOfDay = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate() + 1, 0, 0, 0, -1);
+export const endOfDay = (d: Date) =>
+  new Date(d.getFullYear(), d.getMonth(), d.getDate() + 1, 0, 0, 0, -1);
 
 export const lastDays = (days: number): DateRange => {
   const now = new Date();
@@ -115,7 +117,10 @@ export const commonQuickOptions = {
   thisYear: { label: <Text id="thisYear" />, value: thisYear },
   lastSevenDays: { label: <Text id="lastSevenDays" />, value: lastSevenDays },
   lastThirtyDays: { label: <Text id="lastThirtyDays" />, value: lastThirtyDays },
-} satisfies Record<DatePickerQuickOption & string, { label: ReactNode; value: Date | DateRange | (() => Date | DateRange) }>;
+} satisfies Record<
+  DatePickerQuickOption & string,
+  { label: ReactNode; value: Date | DateRange | (() => Date | DateRange) }
+>;
 
 /** Returns whether two dates and/or date ranges intersect. Intersection is considered per day. */
 export function dateIntersect(a: Date | null | DateRange, b: Date | null | DateRange) {
@@ -154,12 +159,10 @@ export function DatePicker({
   const min = dirty ? dirty.min : value instanceof Date ? value : value?.min;
   const max = dirty ? dirty.max : value instanceof Date ? value : value?.max;
 
-  let resolvedQuickOptions;
+  quickOptions ??= ['today', 'thisWeek'];
 
-  {
-    quickOptions ??= ['today', 'thisWeek'];
-
-    resolvedQuickOptions = [...quickOptions, { label: <Text id="reset" />, value: null }].map((option, index) => {
+  const resolvedQuickOptions = [...quickOptions, { label: <Text id="reset" />, value: null }].map(
+    (option, index) => {
       if (option instanceof Function) {
         return option((value) => {
           setDirty(undefined);
@@ -186,25 +189,31 @@ export function DatePicker({
           {label}
         </Button>
       );
-    });
-  }
+    },
+  );
 
   const { calendars, getBackProps, getForwardProps, getDateProps } = useDayzed({
     onDateSelected: () => undefined,
     firstDayOfWeek,
     showOutsideDays: true,
     date: dateInView,
-    onOffsetChanged: (offset) => setDateInView(new Date(dateInView.getFullYear(), dateInView.getMonth() + offset)),
+    onOffsetChanged: (offset) =>
+      setDateInView(new Date(dateInView.getFullYear(), dateInView.getMonth() + offset)),
     offset: 0,
   });
   const now = useMemo(() => startOfDay(new Date()), []);
 
   const formatWeekday = useMemo(() => {
     const { format } = new Intl.DateTimeFormat(locale, { weekday: 'short' });
-    return (weekDay: number) => format(new Date(Date.UTC(2021, 7, ((weekDay + firstDayOfWeek) % 7) + 1)));
+    return (weekDay: number) =>
+      format(new Date(Date.UTC(2021, 7, ((weekDay + firstDayOfWeek) % 7) + 1)));
   }, [locale, firstDayOfWeek]);
 
-  useEffect(() => setDateInView(value === null ? defaultDateInView : value instanceof Date ? value : value.max), [value]);
+  useEffect(
+    () =>
+      setDateInView(value === null ? defaultDateInView : value instanceof Date ? value : value.max),
+    [value, defaultDateInView],
+  );
 
   useEffect(() => {
     if (!rangeSelect) {
@@ -248,13 +257,29 @@ export function DatePicker({
 
   return (
     <div css={cssVariables}>
-      <div css={{ display: 'grid', gridAutoFlow: 'column', justifyContent: 'center', alignItems: 'baseline', gap: 'var(--spacing)' }}>
-        <DateInput value={min ?? null} onChange={(date) => set(date ?? undefined, max, 'min')} locale={locale} />
+      <div
+        css={{
+          display: 'grid',
+          gridAutoFlow: 'column',
+          justifyContent: 'center',
+          alignItems: 'baseline',
+          gap: 'var(--spacing)',
+        }}
+      >
+        <DateInput
+          value={min ?? null}
+          onChange={(date) => set(date ?? undefined, max, 'min')}
+          locale={locale}
+        />
 
         {rangeSelect && (
           <>
             {' - '}
-            <DateInput value={max ?? null} onChange={(date) => set(min, date ?? undefined, 'max')} locale={locale} />
+            <DateInput
+              value={max ?? null}
+              onChange={(date) => set(min, date ?? undefined, 'max')}
+              locale={locale}
+            />
           </>
         )}
       </div>
@@ -298,19 +323,27 @@ export function DatePicker({
             ))}
 
             {weeks.map((week, index) =>
-              week.map((dateObj, dayIndex) => {
-                if (!dateObj) {
-                  return <div />;
+              week.map((dateObject, dayIndex) => {
+                if (!dateObject) {
+                  return <div key={`${index}-${dayIndex}`} />;
                 }
 
-                const { prevMonth, nextMonth, date } = dateObj;
+                const { prevMonth, nextMonth, date } = dateObject;
                 const today = startOfDay(date).getTime() === now.getTime();
 
-                const selected = date.getTime() === min?.getTime() || (min && max && dateIntersect(date, { min, max }));
+                const selected =
+                  date.getTime() === min?.getTime() ||
+                  (min && max && dateIntersect(date, { min, max }));
                 const preSelected =
                   !selected &&
                   (date.getTime() === hovered?.getTime() ||
-                    (min && !max && hovered && dateIntersect(date, min <= hovered ? { min, max: hovered } : { min: hovered, max: min })));
+                    (min &&
+                      !max &&
+                      hovered &&
+                      dateIntersect(
+                        date,
+                        min <= hovered ? { min, max: hovered } : { min: hovered, max: min },
+                      )));
 
                 return (
                   <button
@@ -337,7 +370,7 @@ export function DatePicker({
                         color: 'var(--primaryContrastText)',
                       },
                     ]}
-                    {...getDateProps({ dateObj })}
+                    {...getDateProps({ dateObj: dateObject })}
                     onClick={() => {
                       if (dirty) {
                         if (min) set(min, date);
@@ -358,7 +391,14 @@ export function DatePicker({
         </div>
       ))}
 
-      <div css={{ marginTop: 'var(--spacing)', display: 'grid', gridAutoFlow: 'column', justifyContent: 'center' }}>
+      <div
+        css={{
+          marginTop: 'var(--spacing)',
+          display: 'grid',
+          gridAutoFlow: 'column',
+          justifyContent: 'center',
+        }}
+      >
         {resolvedQuickOptions}
       </div>
     </div>

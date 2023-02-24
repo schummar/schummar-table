@@ -1,8 +1,11 @@
-import React, { memo, ReactNode, useLayoutEffect } from 'react';
-import { Id, useColumnContext, useTableContext, useTheme } from '..';
+import type { ReactNode } from 'react';
+import { memo, useLayoutEffect } from 'react';
+import { useTheme } from '../hooks/useTheme';
+import { calcClassNames } from '../misc/calcClassNames';
 import { cx } from '../misc/helpers';
+import { useColumnContext, useTableContext } from '../misc/tableContext';
 import { defaultClasses } from '../theme/defaultTheme/defaultClasses';
-import { calcClassNames } from './row';
+import type { Id } from '../types';
 
 const defaultWrapCell = (content: ReactNode) => {
   if (typeof content === 'string') {
@@ -30,7 +33,9 @@ export const Cell = memo(function Cell<T>({ itemId, rowIndex }: { itemId: Id; ro
   });
   const wrapCell = table.useState((state) => state.props.wrapCell) ?? defaultWrapCell;
   const item = table.useState((state) => state.activeItemsById.get(itemId));
-  const columnStyleOverride = table.useState((state) => state.columnStyleOverride.get(columnId), { throttle: 16 });
+  const columnStyleOverride = table.useState((state) => state.columnStyleOverride.get(columnId), {
+    throttle: 16,
+  });
 
   useLayoutEffect(() => table.getState().props.debugRender?.('render cell', itemId, columnId));
   const className = useTheme((t) => cx(...calcClassNames(t.classes, item, rowIndex)));

@@ -1,6 +1,14 @@
-import { ReactNode } from 'react';
+import type { ReactNode } from 'react';
 
-export function FormControlLabel({ control, label, disabled }: { control: ReactNode; label: ReactNode; disabled?: boolean }) {
+export function FormControlLabel({
+  control,
+  label,
+  disabled,
+}: {
+  control: ReactNode;
+  label: ReactNode;
+  disabled?: boolean;
+}) {
   return (
     <label
       css={[

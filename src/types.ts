@@ -1,7 +1,8 @@
-import { CSSInterpolation } from '@emotion/serialize';
-import React, { ComponentType, DependencyList, ReactNode, Ref } from 'react';
-import { TableStateStorage } from './internalState/tableStateStorage';
-import { CsvExportOptions } from './misc/csvExport';
+import type { CSSInterpolation } from '@emotion/serialize';
+import type { ComponentType, DependencyList, ReactNode, Ref } from 'react';
+import type React from 'react';
+import type { TableStateStorage } from './internalState/tableStateStorage';
+import type { CsvExportOptions } from './misc/csvExport';
 
 export type Sort = { columnId: string | number; direction: SortDirection };
 export type SortDirection = 'asc' | 'desc';
@@ -9,7 +10,9 @@ export type SortDirection = 'asc' | 'desc';
 export type Id = string | number;
 export type KeyOfType<T, S> = { [K in keyof T]: T[K] extends S ? K : never }[keyof T];
 
-export type FunctionWithDeps<F extends (...args: any[]) => any> = F | [function: F, ...deps: DependencyList];
+export type FunctionWithDeps<F extends (...args: any[]) => any> =
+  | F
+  | [function: F, ...deps: DependencyList];
 export type MemoizedFunctions<T> = {
   [K in keyof T]: Exclude<T[K], [function: (...args: any[]) => any, ...deps: DependencyList]>;
 };
@@ -33,6 +36,8 @@ export interface TableTheme<T = unknown> {
     clearFilters: ReactNode;
     deselectAll: ReactNode;
     resetAll: ReactNode;
+    rangeMin: ReactNode;
+    rangeMax: ReactNode;
   };
   /** Define styles. */
   classes?: {
@@ -47,16 +52,25 @@ export interface TableTheme<T = unknown> {
   };
   /** Define components to be used in the table. */
   components: {
-    IconButton: ComponentType<{ children: ReactNode; onClick?: (e: React.MouseEvent<Element>) => void; className?: string }>;
+    IconButton: ComponentType<{
+      children: ReactNode;
+      onClick?: (event: React.MouseEvent<Element>) => void;
+      className?: string;
+    }>;
     Button: ComponentType<{
       children: ReactNode;
-      onClick?: (e: React.MouseEvent<Element>) => void;
+      onClick?: (event: React.MouseEvent<Element>) => void;
       startIcon?: ReactNode;
       variant?: 'text' | 'outlined' | 'contained';
       disabled?: boolean;
       className?: string;
     }>;
-    Checkbox: ComponentType<{ checked: boolean; onChange: (e: React.ChangeEvent) => void; disabled?: boolean; className?: string }>;
+    Checkbox: ComponentType<{
+      checked: boolean;
+      onChange: (event: React.ChangeEvent) => void;
+      disabled?: boolean;
+      className?: string;
+    }>;
     Popover: ComponentType<{
       anchorEl: Element | null;
       open: boolean;
@@ -69,8 +83,10 @@ export interface TableTheme<T = unknown> {
     }>;
     Badge: ComponentType<{ children: ReactNode; badgeContent: ReactNode }>;
     TextField: ComponentType<{
-      value: string | null;
-      onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+      value?: string | null;
+      onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
+      onBlur?: (event: React.FocusEvent<HTMLInputElement>) => void;
+      startIcon?: ReactNode;
       endIcon?: ReactNode;
       className?: string;
       inputRef?: Ref<HTMLInputElement>;
@@ -100,10 +116,14 @@ export interface TableTheme<T = unknown> {
   };
   /** Spacing. */
   spacing: string | number;
+  /** Locale for number and date rendering */
+  locale?: string;
 }
 
 export type PartialTableTheme<T = unknown> = {
-  [K in keyof TableTheme<T>]?: TableTheme<T>[K] extends Record<string, any> ? Partial<TableTheme<T>[K]> : TableTheme<T>[K];
+  [K in keyof TableTheme<T>]?: TableTheme<T>[K] extends Record<string, any>
+    ? Partial<TableTheme<T>[K]>
+    : TableTheme<T>[K];
 };
 
 export type MemoizedTableTheme<T> = Omit<TableTheme, 'classes' | 'text'> & {
@@ -112,9 +132,9 @@ export type MemoizedTableTheme<T> = Omit<TableTheme, 'classes' | 'text'> & {
 };
 
 export interface TableProps<T> extends PartialTableTheme<T> {
-  //////////////////////////////////////////////////
+  /// ///////////////////////////////////////////////
   // Table data
-  //////////////////////////////////////////////////
+  /// ///////////////////////////////////////////////
 
   /** The data to be rendered. One item per row. */
   items?: T[];
@@ -125,22 +145,28 @@ export interface TableProps<T> extends PartialTableTheme<T> {
   /** If true for an item, it means that children will be loaded asynchronously as soon as item is expanded. */
   hasDeferredChildren?: (item: T) => boolean;
 
-  //////////////////////////////////////////////////
+  /// ///////////////////////////////////////////////
   // Columns and rows
-  //////////////////////////////////////////////////
+  /// ///////////////////////////////////////////////
   /** Column definitions. */
-  columns: Column<T, any>[] | ((col: <V>(value: (item: T) => V, column: Omit<Column<T, V>, 'value'>) => Column<T, V>) => Column<T, any>[]);
+  columns:
+    | Column<T, any>[]
+    | ((
+        col: <V>(value: (item: T) => V, column: Omit<Column<T, V>, 'value'>) => Column<T, V>,
+      ) => Column<T, any>[]);
   /** Default props for all column. Will take effect if not overriden in column definition. */
   defaultColumnProps?: Omit<Column<T, unknown>, 'id' | 'value'>;
   /** Wrap each cell */
-  wrapCell?: FunctionWithDeps<(content: ReactNode, value: unknown, item: T, index: number) => ReactNode>;
+  wrapCell?: FunctionWithDeps<
+    (content: ReactNode, value: unknown, item: T, index: number) => ReactNode
+  >;
 
   /** Display a cell at the start of each row. Useful for "go to details" button for example. */
   rowAction?: ReactNode | FunctionWithDeps<(item: T, index: number) => ReactNode>;
 
-  //////////////////////////////////////////////////
+  /// ///////////////////////////////////////////////
   // Sorting
-  //////////////////////////////////////////////////
+  /// ///////////////////////////////////////////////
   /** Default sort order. */
   defaultSort?: Sort[];
   /** If given, controls the sort order. */
@@ -152,9 +178,9 @@ export interface TableProps<T> extends PartialTableTheme<T> {
   /** Disable sort for all columns (can be override per column) */
   disableSort?: boolean;
 
-  //////////////////////////////////////////////////
+  /// ///////////////////////////////////////////////
   // Selection
-  //////////////////////////////////////////////////
+  /// ///////////////////////////////////////////////
   /** Default selection. */
   defaultSelection?: Set<Id>;
   /** If given, controls the selection. */
@@ -174,9 +200,9 @@ export interface TableProps<T> extends PartialTableTheme<T> {
    */
   revealFiltered?: boolean;
 
-  //////////////////////////////////////////////////
+  /// ///////////////////////////////////////////////
   // Expansion
-  //////////////////////////////////////////////////
+  /// ///////////////////////////////////////////////
   /** Default expanded rows. */
   defaultExpanded?: Set<Id>;
   /** If given, controls expanded rows. */
@@ -188,9 +214,9 @@ export interface TableProps<T> extends PartialTableTheme<T> {
    */
   expandOnlyOne?: boolean;
 
-  //////////////////////////////////////////////////
+  /// ///////////////////////////////////////////////
   // Hidden columns
-  //////////////////////////////////////////////////
+  /// ///////////////////////////////////////////////
   /** Default hidden columns. */
   defaultHiddenColumns?: Set<Id>;
   /** If given, controls hidden columns. */
@@ -198,9 +224,9 @@ export interface TableProps<T> extends PartialTableTheme<T> {
   /** Called when hidden columns change. */
   onHiddenColumnsChange?: (hiddenColumns: Set<Id>) => void;
 
-  //////////////////////////////////////////////////
+  /// ///////////////////////////////////////////////
   // Layout
-  //////////////////////////////////////////////////
+  /// ///////////////////////////////////////////////
 
   /** Whether to stretch the table component over the available space. If value is "left" or "right", align accordingly. */
   fullWidth?: boolean | 'left' | 'right';
@@ -226,9 +252,9 @@ export interface TableProps<T> extends PartialTableTheme<T> {
         overscanTop?: number;
       };
 
-  //////////////////////////////////////////////////
+  /// ///////////////////////////////////////////////
   // Misc
-  //////////////////////////////////////////////////
+  /// ///////////////////////////////////////////////
   /** Enable menu to select which columns are visible.
    * @default true
    */
@@ -236,7 +262,9 @@ export interface TableProps<T> extends PartialTableTheme<T> {
   /** Enable exporting to csv.
    * @default false
    */
-  enableExport?: boolean | { copy?: boolean | CsvExportOptions; download?: boolean | CsvExportOptions };
+  enableExport?:
+    | boolean
+    | { copy?: boolean | CsvExportOptions; download?: boolean | CsvExportOptions };
   /** Shows a button to clear all filters while any are active
    * @default false
    */
@@ -253,8 +281,24 @@ export interface TableProps<T> extends PartialTableTheme<T> {
   persist?: {
     storage: TableStateStorage;
     id: string;
-    include?: ('sort' | 'selection' | 'expanded' | 'hiddenColumns' | 'filterValues' | 'columnWidths' | 'columnOrder')[];
-    exclude?: ('sort' | 'selection' | 'expanded' | 'hiddenColumns' | 'filterValues' | 'columnWidths' | 'columnOrder')[];
+    include?: (
+      | 'sort'
+      | 'selection'
+      | 'expanded'
+      | 'hiddenColumns'
+      | 'filterValues'
+      | 'columnWidths'
+      | 'columnOrder'
+    )[];
+    exclude?: (
+      | 'sort'
+      | 'selection'
+      | 'expanded'
+      | 'hiddenColumns'
+      | 'filterValues'
+      | 'columnWidths'
+      | 'columnOrder'
+    )[];
   };
   debug?: (...output: any) => void;
   debugRender?: (...output: any) => void;
@@ -304,7 +348,10 @@ export type Column<T, V> = {
 };
 
 export type InternalColumn<T, V> = MemoizedFunctions<
-  Required<Omit<Column<T, V>, 'id' | 'sortBy'>, 'header' | 'renderCell' | 'exportCell' | 'sortBy'> & {
+  Required<
+    Omit<Column<T, V>, 'id' | 'sortBy'>,
+    'header' | 'renderCell' | 'exportCell' | 'sortBy'
+  > & {
     id: Id;
     sortBy: ((value: V, item: T) => unknown)[];
   }
@@ -361,7 +408,12 @@ export type CommonFilterProps<T, V, F, S extends SerializableValue> = {
   };
 };
 
-export type FilterImplementation<T, V, F, S extends SerializableValue> = CommonFilterProps<T, V, F, S> & {
+export type FilterImplementation<T, V, F, S extends SerializableValue> = CommonFilterProps<
+  T,
+  V,
+  F,
+  S
+> & {
   /** Unique filter id. Used to persist filter values. */
   id: string;
   /** Whether the filter is active currently. */

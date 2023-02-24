@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
-import { Store } from 'schummar-state/react';
+import type { Store } from 'schummar-state/react';
 import { orderBy } from '../misc/helpers';
-import { InternalTableState } from '../types';
+import type { InternalTableState } from '../types';
 
 export function filterColumns<T>(state: Store<InternalTableState<T>>): void {
   useEffect(

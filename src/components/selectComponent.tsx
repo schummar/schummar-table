@@ -1,8 +1,8 @@
-import React from 'react';
-import { useTheme } from '..';
+import type React from 'react';
+import { useTheme } from '../hooks/useTheme';
 import { getAncestors, getDescendants } from '../misc/helpers';
-import { Id } from '../types';
-import { useTableContext } from './table';
+import { useTableContext } from '../misc/tableContext';
+import type { Id } from '../types';
 
 export function SelectComponent<T>({ itemId }: { itemId?: Id }): JSX.Element {
   const table = useTableContext<T>();
@@ -13,8 +13,8 @@ export function SelectComponent<T>({ itemId }: { itemId?: Id }): JSX.Element {
     return state.activeItemsById.size > 0 && itemIds.every((itemId) => state.selection.has(itemId));
   });
 
-  function toggle(e: React.ChangeEvent) {
-    const mouseEvent = e.nativeEvent as MouseEvent;
+  function toggle(event: React.ChangeEvent) {
+    const mouseEvent = event.nativeEvent as MouseEvent;
 
     const {
       activeItems,

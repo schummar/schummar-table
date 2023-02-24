@@ -1,5 +1,5 @@
+import path from 'path';
 import react from '@vitejs/plugin-react';
-import { isAbsolute } from 'path';
 import { defineConfig } from 'vite';
 
 // https://vitejs.dev/config/
@@ -27,7 +27,6 @@ export default defineConfig({
       // entry: './src/index.ts',
       formats: ['es', 'cjs'],
       // fileName:'[format]/[name].js',
-
     },
 
     rollupOptions: {
@@ -41,7 +40,7 @@ export default defineConfig({
         chunkFileNames: '[format]/[name].js',
       },
       external: (source) => {
-        return !(isAbsolute(source) || source.startsWith('.'));
+        return !(path.isAbsolute(source) || source.startsWith('.'));
       },
     },
   },

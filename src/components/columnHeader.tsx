@@ -1,10 +1,12 @@
 import { castDraft } from 'immer';
-import React, { useEffect, useRef } from 'react';
+import type React from 'react';
+import { useEffect, useRef } from 'react';
 import { StoreScope } from 'schummar-state/react';
-import { Id, useColumnContext, useTableContext } from '..';
+import { useColumnContext, useTableContext } from '../misc/tableContext';
 import { useTheme } from '../hooks/useTheme';
 import { cx } from '../misc/helpers';
 import { defaultClasses } from '../theme/defaultTheme/defaultClasses';
+import type { Id } from '../types';
 import { FilterControl } from './filterControl';
 import { ResizeHandle } from './resizeHandle';
 import { SortComponent } from './sortComponent';
@@ -18,7 +20,9 @@ export function ColumnHeader() {
   const columnId = useColumnContext();
   const table = useTableContext();
   const enabled = table.useState('props.enableColumnReorder');
-  const columnStyleOverride = table.useState((state) => state.columnStyleOverride.get(columnId), { throttle: 16 });
+  const columnStyleOverride = table.useState((state) => state.columnStyleOverride.get(columnId), {
+    throttle: 16,
+  });
   const stickyHeader = table.useState('props.stickyHeader');
   const classes = useTheme((theme) => theme.classes);
 
@@ -48,11 +52,13 @@ export function ColumnHeader() {
         state.items.delete(columnId);
       });
     };
-  }, [ref.current, store, columnId]);
+  }, [store, columnId]);
 
   // Calculate which index the current header would get, given the current offset
   function calcTargetIndex(offsetLeft: number) {
-    const cols = table.getState().columnOrder.map((id) => ({ id, div: store.getState().items.get(id) }));
+    const cols = table
+      .getState()
+      .columnOrder.map((id) => ({ id, div: store.getState().items.get(id) }));
 
     const otherCols = cols.filter((col) => col.id !== columnId);
 
@@ -70,20 +76,25 @@ export function ColumnHeader() {
   }
 
   // When starting clicking: Record initial mouse and div's bounds
-  function onPointerDown(e: React.PointerEvent) {
+  function onPointerDown(event: React.PointerEvent) {
     const div = ref.current;
     if (!div) return;
-    draggingStart.current = { mouseX: e.clientX, bounds: div.getBoundingClientRect() };
+    draggingStart.current = { mouseX: event.clientX, bounds: div.getBoundingClientRect() };
   }
 
   // When mouse moves while clicked: Calculate transforms
-  function onPointerMove(e: React.PointerEvent) {
+  function onPointerMove(event: React.PointerEvent) {
     table.update((state) => {
       const div = ref.current;
-      if (!div || draggingStart.current === undefined || Math.abs(e.clientX - draggingStart.current.mouseX) < 5) return;
+      if (
+        !div ||
+        draggingStart.current === undefined ||
+        Math.abs(event.clientX - draggingStart.current.mouseX) < 5
+      )
+        return;
 
-      e.stopPropagation();
-      div.setPointerCapture(e.pointerId);
+      event.stopPropagation();
+      div.setPointerCapture(event.pointerId);
 
       // Create clone of header div to move around with mouse
       if (!clone.current) {
@@ -101,7 +112,8 @@ export function ColumnHeader() {
         Object.assign(clone.current.style, {
           pointerEvents: 'none',
           position: 'fixed',
-          boxShadow: '0px 5px 5px -3px rgb(0 0 0 / 20%), 0px 8px 10px 1px rgb(0 0 0 / 14%), 0px 3px 14px 2px rgb(0 0 0 / 12%)',
+          boxShadow:
+            '0px 5px 5px -3px rgb(0 0 0 / 20%), 0px 8px 10px 1px rgb(0 0 0 / 14%), 0px 3px 14px 2px rgb(0 0 0 / 12%)',
           left: `${draggingStart.current.bounds.left}px`,
           top: `${draggingStart.current.bounds.top}px`,
         });
@@ -110,23 +122,31 @@ export function ColumnHeader() {
       }
 
       // Update clone's position each time
-      clone.current.style.left = `${draggingStart.current.bounds.left + e.clientX - draggingStart.current.mouseX}px`;
+      clone.current.style.left = `${
+        draggingStart.current.bounds.left + event.clientX - draggingStart.current.mouseX
+      }px`;
 
       // Calculate target index
       const index = state.columnOrder.indexOf(columnId);
-      const targetIndex = calcTargetIndex(div.offsetLeft + e.clientX - draggingStart.current.mouseX);
+      const targetIndex = calcTargetIndex(
+        div.offsetLeft + event.clientX - draggingStart.current.mouseX,
+      );
 
       // Apply transforms to each column
-      const columns = table
-        .getState()
-        .columnOrder.map((id, index) => ({ id, index, width: store.getState().items.get(id)?.offsetWidth ?? 0 }));
+      const columns = table.getState().columnOrder.map((id, index) => ({
+        id,
+        index,
+        width: store.getState().items.get(id)?.offsetWidth ?? 0,
+      }));
 
       state.columnOrder.forEach((id, i) => {
         let offset = 0;
         if (i === index) {
           // Current column: Move to target pos
           if (targetIndex > index) {
-            offset = columns.slice(index + 1, targetIndex + 1).reduce((sum, col) => sum + col.width, 0);
+            offset = columns
+              .slice(index + 1, targetIndex + 1)
+              .reduce((sum, col) => sum + col.width, 0);
           } else if (targetIndex < index) {
             offset = -columns.slice(targetIndex, index).reduce((sum, col) => sum + col.width, 0);
           }
@@ -148,14 +168,16 @@ export function ColumnHeader() {
   }
 
   // When releasing mouse: Reset draggin state and apply column move
-  function onPointerUp(e: React.PointerEvent) {
+  function onPointerUp(event: React.PointerEvent) {
     table.update((state) => {
       const div = ref.current;
       if (!div || draggingStart.current === undefined) return;
 
       // Apply column move
       const index = state.columnOrder.indexOf(columnId);
-      const targetIndex = calcTargetIndex(div.offsetLeft + e.clientX - draggingStart.current.mouseX);
+      const targetIndex = calcTargetIndex(
+        div.offsetLeft + event.clientX - draggingStart.current.mouseX,
+      );
 
       state.columnOrder.splice(index, 1);
       state.columnOrder.splice(targetIndex, 0, columnId);

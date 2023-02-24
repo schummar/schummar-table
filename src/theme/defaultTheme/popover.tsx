@@ -1,6 +1,6 @@
 import { useLayoutEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { TableTheme } from '../../types';
+import type { TableTheme } from '../../types';
 import { defaultClasses } from './defaultClasses';
 
 const MARGIN = 10;
@@ -30,8 +30,13 @@ export const Popover: TableTheme['components']['Popover'] = ({
 
     function check() {
       if (!anchorEl) return;
-      const { left: anchorLeft, bottom: anchorBottom, width: anchorWidth } = anchorEl.getBoundingClientRect();
-      const { width: popperWidth = 0, height: popperHeight = 0 } = popper.current?.getBoundingClientRect() ?? {};
+      const {
+        left: anchorLeft,
+        bottom: anchorBottom,
+        width: anchorWidth,
+      } = anchorEl.getBoundingClientRect();
+      const { width: popperWidth = 0, height: popperHeight = 0 } =
+        popper.current?.getBoundingClientRect() ?? {};
       const viewportWidth = document.documentElement.clientWidth;
       const viewportHeight = document.documentElement.clientHeight;
 
@@ -39,7 +44,8 @@ export const Popover: TableTheme['components']['Popover'] = ({
         left:
           align === 'center'
             ? anchorLeft + anchorWidth / 2 - popperWidth / 2
-            : anchorLeft - Math.min(popperWidth ? popperWidth / 2 : Infinity, MAX_OFFSET),
+            : anchorLeft -
+              Math.min(popperWidth ? popperWidth / 2 : Number.POSITIVE_INFINITY, MAX_OFFSET),
         top: anchorBottom,
       };
 
@@ -68,7 +74,7 @@ export const Popover: TableTheme['components']['Popover'] = ({
     return () => {
       clearInterval(handle);
     };
-  }, [anchorEl, open]);
+  }, [anchorEl, open, align]);
 
   function updateZIndex(div: HTMLDivElement | null) {
     const ancestors = [];
@@ -79,7 +85,7 @@ export const Popover: TableTheme['components']['Popover'] = ({
     for (const node of ancestors.reverse()) {
       const value = document.defaultView?.getComputedStyle(node).getPropertyValue('z-index');
 
-      if (value && !isNaN(Number(value))) {
+      if (value && !Number.isNaN(Number(value))) {
         setZIndex(Number(value) + 1);
         return;
       }

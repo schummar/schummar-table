@@ -1,17 +1,24 @@
-import React from 'react';
-import { useTheme } from '..';
+import { useTheme } from '../hooks/useTheme';
 import { getAncestors } from '../misc/helpers';
-import { Id } from '../types';
-import { useTableContext } from './table';
+import { useTableContext } from '../misc/tableContext';
+import type { Id } from '../types';
 
-export function ExpandControl<T>({ itemId, hasDeferredChildren }: { itemId: Id; hasDeferredChildren?: boolean }): JSX.Element {
+export function ExpandControl<T>({
+  itemId,
+  hasDeferredChildren,
+}: {
+  itemId: Id;
+  hasDeferredChildren?: boolean;
+}): JSX.Element {
   const IconButton = useTheme((t) => t.components.IconButton);
   const Spinner = useTheme((t) => t.components.Spinner);
   const ChevronRight = useTheme((t) => t.icons.ChevronRight);
 
   const table = useTableContext<T>();
   const isExpanded = table.useState((state) => state.expanded.has(itemId));
-  const hasChildren = table.useState((state) => !!state.activeItemsById.get(itemId)?.children.length);
+  const hasChildren = table.useState(
+    (state) => !!state.activeItemsById.get(itemId)?.children.length,
+  );
 
   function toggle() {
     const {

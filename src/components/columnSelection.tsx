@@ -1,9 +1,9 @@
-import React, { useContext, useState } from 'react';
-import { useTheme } from '..';
+import { useContext, useState } from 'react';
+import { useTheme } from '../hooks/useTheme';
+import { TableResetContext, useTableContext } from '../misc/tableContext';
 import { useCssVariables } from '../theme/useCssVariables';
-import { InternalColumn } from '../types';
+import type { InternalColumn } from '../types';
 import { FormControlLabel } from './formControlLabel';
-import { TableResetContext, useTableContext } from './table';
 
 export function ColumnSelection<T>(): JSX.Element {
   const IconButton = useTheme((t) => t.components.IconButton);
@@ -21,7 +21,7 @@ export function ColumnSelection<T>(): JSX.Element {
   const columns = table.useState('props.columns');
   const hiddenColumns = table.useState('hiddenColumns');
 
-  const [anchorEl, setAnchorEl] = useState<Element | null>(null);
+  const [anchorElement, setAnchorElement] = useState<Element | null>(null);
 
   const toggle = (column: InternalColumn<T, unknown>) => {
     const {
@@ -43,14 +43,14 @@ export function ColumnSelection<T>(): JSX.Element {
 
   return (
     <>
-      <IconButton onClick={(e) => setAnchorEl(anchorEl ? null : e.currentTarget)}>
+      <IconButton onClick={(event) => setAnchorElement(anchorElement ? null : event.currentTarget)}>
         <Settings />
       </IconButton>
 
       <Popover
-        anchorEl={anchorEl}
-        open={!!anchorEl}
-        onClose={() => setAnchorEl(null)}
+        anchorEl={anchorElement}
+        open={!!anchorElement}
+        onClose={() => setAnchorElement(null)}
         css={cssVariables}
         className={classes?.popover}
         backdropClassName={classes?.popoverBackdrop}
@@ -61,7 +61,13 @@ export function ColumnSelection<T>(): JSX.Element {
           {columns.map((column) => (
             <FormControlLabel
               key={column.id}
-              control={<Checkbox checked={!hiddenColumns.has(column.id)} onChange={() => toggle(column)} disabled={column.cannotHide} />}
+              control={
+                <Checkbox
+                  checked={!hiddenColumns.has(column.id)}
+                  onChange={() => toggle(column)}
+                  disabled={column.cannotHide}
+                />
+              }
               label={column.header}
             ></FormControlLabel>
           ))}

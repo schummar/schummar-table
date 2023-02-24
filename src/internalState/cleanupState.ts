@@ -1,13 +1,19 @@
 import { useEffect } from 'react';
-import { Store } from 'schummar-state/react';
+import type { Store } from 'schummar-state/react';
 import { intersect } from '../misc/helpers';
-import { InternalTableState } from '../types';
+import type { InternalTableState } from '../types';
 
 export function cleanupState<T>(state: Store<InternalTableState<T>>): void {
   useEffect(
     () =>
       state.addReaction(
-        (state) => [state.props.columns, state.itemsById, state.activeItemsById, state.activeColumns] as const,
+        (state) =>
+          [
+            state.props.columns,
+            state.itemsById,
+            state.activeItemsById,
+            state.activeColumns,
+          ] as const,
         ([columns, itemsById, activeItemsById, activeColumns], draft) => {
           const columnIds = new Set(columns.map((column) => column.id));
           const activeColumnIds = new Set(activeColumns.map((column) => column.id));

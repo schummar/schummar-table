@@ -1,42 +1,43 @@
-import React, { HTMLProps } from 'react';
-import { useColumnContext, useTableContext } from '..';
+import type { HTMLProps } from 'react';
+import type React from 'react';
+import { useColumnContext, useTableContext } from '../misc/tableContext';
 
 export function ResizeHandle() {
   const table = useTableContext();
   const columnId = useColumnContext();
   const enabled = table.useState('props.enableColumnResize');
 
-  function onPointerDown(e: React.PointerEvent) {
-    e.stopPropagation();
+  function onPointerDown(event: React.PointerEvent) {
+    event.stopPropagation();
 
-    const div = e.target as HTMLDivElement;
-    div.setPointerCapture(e.pointerId);
+    const div = event.target as HTMLDivElement;
+    div.setPointerCapture(event.pointerId);
   }
 
-  function onPointerMove(e: React.PointerEvent) {
-    e.stopPropagation();
+  function onPointerMove(event: React.PointerEvent) {
+    event.stopPropagation();
 
-    const div = e.target as HTMLDivElement;
-    if (!div.hasPointerCapture(e.pointerId)) return;
+    const div = event.target as HTMLDivElement;
+    if (!div.hasPointerCapture(event.pointerId)) return;
 
     const parent = div.parentElement as HTMLDivElement;
-    const width = Math.max(e.clientX - parent.getBoundingClientRect().left + 5, 50);
+    const width = Math.max(event.clientX - parent.getBoundingClientRect().left + 5, 50);
 
     table.update((state) => {
       state.columnWidths.set(columnId, `${width}px`);
     });
   }
 
-  function onPointerUp(e: React.PointerEvent) {
-    e.stopPropagation();
+  function onPointerUp(event: React.PointerEvent) {
+    event.stopPropagation();
 
-    const div = e.target as HTMLDivElement;
-    div.releasePointerCapture(e.pointerId);
+    const div = event.target as HTMLDivElement;
+    div.releasePointerCapture(event.pointerId);
   }
 
-  function onDoubleClick(e: React.MouseEvent) {
+  function onDoubleClick(event: React.MouseEvent) {
     table.update((state) => {
-      if (e.getModifierState('Control')) {
+      if (event.getModifierState('Control')) {
         state.columnWidths.delete(columnId);
       } else {
         state.columnWidths.set(columnId, 'max-content');
@@ -55,7 +56,10 @@ export function ResizeHandle() {
   );
 }
 
-export function ResizeHandleView({ enabled, ...props }: HTMLProps<HTMLDivElement> & { enabled?: boolean }) {
+export function ResizeHandleView({
+  enabled,
+  ...props
+}: HTMLProps<HTMLDivElement> & { enabled?: boolean }) {
   return (
     <div
       css={{
