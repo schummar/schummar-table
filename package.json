@@ -83,7 +83,7 @@
     "dayzed": "3.2.3",
     "immer": "9.0.16",
     "nanoid": "4.0.1",
-    "schummar-state": "0.2.1-experimental-13"
+    "schummar-state": "0.4.6"
   },
   "devDependencies": {
     "@emotion/styled": "11.10.5",
