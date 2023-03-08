@@ -1,3 +1,4 @@
+import type { WritableDraft } from 'immer/dist/internal';
 import { useEffect, useState } from 'react';
 import type { Store } from 'schummar-state/react';
 import { Queue } from '../misc/queue';
@@ -98,47 +99,59 @@ export function useTableStateStorage(table: Store<InternalTableState<any>>) {
         const data = parse(json);
         table.getState().props.debug?.('load', json, data);
 
-        table.update((state) => {
-          for (const key of KEYS) {
-            if (
-              //
-              (!include || include.includes(key)) &&
-              !exclude?.includes(key) &&
-              key in data
-            ) {
-              if (key === 'filterValues') {
-                for (const [id, value] of data[key]) {
-                  if (
-                    state.filters.get(id)?.persist ??
-                    state.filters.get(id)?.value === undefined
-                  ) {
-                    state.filterValues.set(id, value);
-                    state.filters.get(id)?.onChange?.(value);
-                  }
-                }
-              } else {
-                if (
-                  key === 'expanded' ||
-                  key === 'hiddenColumns' ||
-                  key === 'selection' ||
-                  key === 'sort'
-                ) {
-                  if (state.props[key] !== undefined) {
-                    continue;
-                  }
+        function applyUpdate(
+          state: WritableDraft<InternalTableState<any>>,
+          key: typeof KEYS[number],
+        ) {
+          if (
+            //
+            (!include || include.includes(key)) &&
+            !exclude?.includes(key) &&
+            key in data
+          ) {
+            if (key === 'filterValues') {
+              for (const [id, value] of data[key]) {
+                const filter = state.filters.get(id);
 
-                  state.props[
-                    `on${
-                      (key.slice(0, 1).toUpperCase() + key.slice(1)) as Capitalize<typeof key>
-                    }Change`
-                  ]?.(data[key]);
+                if (filter && (filter.persist ?? filter.value === undefined)) {
+                  state.filterValues.set(id, value);
+                  state.filters.get(id)?.onChange?.(value);
                 }
-
-                state[key] = data[key];
               }
+            } else {
+              if (
+                key === 'expanded' ||
+                key === 'hiddenColumns' ||
+                key === 'selection' ||
+                key === 'sort'
+              ) {
+                if (state.props[key] !== undefined) {
+                  return;
+                }
+
+                state.props[
+                  `on${
+                    (key.slice(0, 1).toUpperCase() + key.slice(1)) as Capitalize<typeof key>
+                  }Change`
+                ]?.(data[key]);
+              }
+
+              state[key] = data[key];
             }
           }
+        }
+
+        table.update((state) => {
+          for (const key of KEYS.filter((key) => key !== 'filterValues')) {
+            applyUpdate(state, key);
+          }
         });
+
+        // First apply other keys and wait until changes take effect. Filters cannot be applied to hidden columns.
+        await new Promise((resolve) => {
+          setTimeout(resolve);
+        });
+        table.update((state) => applyUpdate(state, 'filterValues'));
       } catch (error) {
         console.error('Failed to load table state:', error);
       } finally {
