@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useFilter } from '../hooks/useFilter';
 import { useTheme } from '../hooks/useTheme';
 import { asString, castArray, flatMap, uniq } from '../misc/helpers';
@@ -55,6 +55,7 @@ export function SelectFilter<T, V, F extends SerializableValue>({
     value = new Set<F>(),
     onChange,
     filterBy,
+    isActive,
   } = useFilter({
     ...props,
 
@@ -86,6 +87,11 @@ export function SelectFilter<T, V, F extends SerializableValue>({
   const filtered = options.filter(
     (option) => !query || stringValue(option).toLowerCase().includes(query.toLowerCase()),
   );
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const delayedValue = useMemo(() => value, [isActive]);
+  const ordered = filtered
+    .filter((option) => delayedValue.has(option))
+    .concat(filtered.filter((option) => !delayedValue.has(option)));
 
   const Button = useTheme((t) => t.components.Button);
 
@@ -120,7 +126,7 @@ export function SelectFilter<T, V, F extends SerializableValue>({
       )}
 
       <div css={{ maxHeight: '20em', overflowY: 'auto' }}>
-        {filtered.map((option, index) => (
+        {ordered.map((option, index) => (
           <FormControlLabel
             key={index}
             control={
@@ -134,7 +140,7 @@ export function SelectFilter<T, V, F extends SerializableValue>({
         ))}
       </div>
 
-      {filtered.length === 0 && <span css={{ textAlign: 'center' }}>{noResults}</span>}
+      {ordered.length === 0 && <span css={{ textAlign: 'center' }}>{noResults}</span>}
     </div>
   );
 }
