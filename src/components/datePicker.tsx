@@ -144,7 +144,7 @@ export function DatePicker({
   rangeSelect,
   locale,
   firstDayOfWeek = 1,
-  defaultDateInView = new Date(),
+  defaultDateInView,
   quickOptions,
 }: DatePickerProps) {
   const Button = useTheme((t) => t.components.Button);
@@ -152,7 +152,8 @@ export function DatePicker({
   const ChevronRight = useTheme((t) => t.icons.ChevronRight);
   const cssVariables = useCssVariables();
 
-  const [dateInView, setDateInView] = useState<Date>(defaultDateInView);
+  const mountTime = useMemo(() => new Date(), []);
+  const [dateInView, setDateInView] = useState<Date>(defaultDateInView ?? mountTime);
   const [dirty, setDirty] = useState<Partial<DateRange>>();
   const [hovered, setHovered] = useState<Date>();
 
@@ -211,8 +212,10 @@ export function DatePicker({
 
   useEffect(
     () =>
-      setDateInView(value === null ? defaultDateInView : value instanceof Date ? value : value.max),
-    [value, defaultDateInView],
+      setDateInView(
+        value === null ? defaultDateInView ?? mountTime : value instanceof Date ? value : value.max,
+      ),
+    [value, defaultDateInView, mountTime],
   );
 
   useEffect(() => {
