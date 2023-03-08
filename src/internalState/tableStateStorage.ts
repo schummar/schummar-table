@@ -113,6 +113,7 @@ export function useTableStateStorage(table: Store<InternalTableState<any>>) {
                     state.filters.get(id)?.value === undefined
                   ) {
                     state.filterValues.set(id, value);
+                    state.filters.get(id)?.onChange?.(value);
                   }
                 }
               } else {

@@ -61,6 +61,6 @@ export const SortDisabledOne = {
 
 export const Persitance = {
   args: {
-    persist: { storage: localStorage, id: 'tablePersitance' },
+    persist: { storage: localStorage, id: 'tablePersistance' },
   },
 };
