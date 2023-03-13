@@ -34,7 +34,7 @@ export default {
         }),
         col((x: any) => x.age, {
           header: 'Age',
-          filter: <RangeFilter />,
+          filter: <RangeFilter min={-42} />,
         }),
       ],
     },

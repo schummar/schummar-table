@@ -5,10 +5,18 @@ import { useColumnContext, useTableContext } from '../misc/tableContext';
 import type { CommonFilterProps } from '../types';
 import { NumberField } from './numberField';
 
+export interface RangeFilterProps<T, V>
+  extends CommonFilterProps<T, V, number | null, [number | null, number | null] | null> {
+  min?: number;
+  max?: number;
+}
+
 export function RangeFilter<T, V>({
+  min,
+  max,
   filterBy = asNumberOrArray,
   ...props
-}: CommonFilterProps<T, V, number | null, [number | null, number | null] | null>): JSX.Element {
+}: RangeFilterProps<T, V>): JSX.Element {
   const rangeMinText = useTheme((t) => t.text.rangeMin);
   const rangeMaxText = useTheme((t) => t.text.rangeMax);
 
@@ -17,6 +25,10 @@ export function RangeFilter<T, V>({
   const filterByFunction = filterBy instanceof Function ? filterBy : filterBy[0];
 
   const [minValue, maxValue] = table.useState((state) => {
+    if (typeof min === 'number' && typeof max === 'number') {
+      return [min, max];
+    }
+
     const column = state.activeColumns.find((c) => c.id === columnId);
 
     if (!column) {
@@ -38,7 +50,7 @@ export function RangeFilter<T, V>({
       }
     }
 
-    return [minValue, maxValue];
+    return [min ?? minValue, max ?? maxValue];
   });
 
   const { value, onChange } = useFilter({
@@ -83,9 +95,9 @@ export function RangeFilter<T, V>({
       >
         <NumberField
           value={value?.[0]}
-          onChange={(newMin) => onChange(normalize(newMin, value?.[1], 'min'))}
+          onChange={(newMin) => onChange(normalize(newMin, value?.[1], 'min', { min, max }))}
           startIcon={<span css={{ margin: '0 calc(var(--spacing) * 2)' }}>{rangeMinText}</span>}
-          placeholder={String(minValue)}
+          placeholder={String(minValue ?? '')}
           css={{
             alignItems: 'baseline',
           }}
@@ -93,9 +105,9 @@ export function RangeFilter<T, V>({
         -
         <NumberField
           value={value?.[1]}
-          onChange={(newMax) => onChange(normalize(value?.[0], newMax, 'max'))}
+          onChange={(newMax) => onChange(normalize(value?.[0], newMax, 'max', { min, max }))}
           startIcon={<span css={{ margin: '0 calc(var(--spacing) * 2)' }}>{rangeMaxText}</span>}
-          placeholder={String(maxValue)}
+          placeholder={String(maxValue ?? '')}
           css={{
             alignItems: 'baseline',
           }}
@@ -109,6 +121,7 @@ function normalize(
   min: number | null | undefined,
   max: number | null | undefined,
   changed: 'min' | 'max',
+  limits: { min?: number; max?: number },
 ): [number | null, number | null] | null {
   min ??= null;
   max ??= null;
@@ -121,5 +134,15 @@ function normalize(
     }
   }
 
-  return min !== null || max !== null ? [min, max] : null;
+  return min !== null || max !== null
+    ? [clamp(min, limits.min, limits.max), clamp(max, limits.min, limits.max)]
+    : null;
+}
+
+function clamp(
+  value: number | null,
+  min = Number.NEGATIVE_INFINITY,
+  max = Number.POSITIVE_INFINITY,
+): number | null {
+  return value === null ? null : Math.min(Math.max(value, min), max);
 }
