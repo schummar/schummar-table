@@ -337,8 +337,8 @@ export type Column<T, V> = {
   disableSort?: boolean;
   /** Set filter component that will be displayed in the column header */
   filter?: ReactNode;
-  /** Prevent hiding the column. */
-  cannotHide?: boolean;
+  /** Override whether the column is hidden. If set, prevents toggling the column via menu. */
+  hidden?: boolean;
   /** Specify a css width.
    * @default 'max-content'
    */

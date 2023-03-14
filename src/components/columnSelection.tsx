@@ -63,9 +63,9 @@ export function ColumnSelection<T>(): JSX.Element {
               key={column.id}
               control={
                 <Checkbox
-                  checked={!hiddenColumns.has(column.id)}
+                  checked={!(column.hidden ?? hiddenColumns.has(column.id))}
                   onChange={() => toggle(column)}
-                  disabled={column.cannotHide}
+                  disabled={column.hidden !== undefined}
                 />
               }
               label={column.header}

@@ -64,3 +64,13 @@ export const Persitance = {
     persist: { storage: localStorage, id: 'tablePersistance' },
   },
 };
+
+export const HiddenColumns = {
+  args: {
+    defaultHiddenColumns: new Set([1, 2]),
+    columns: defaultColumns.map((col, i) => ({
+      ...col,
+      hidden: i === 0 ? false : i === 1 ? true : undefined,
+    })),
+  },
+};

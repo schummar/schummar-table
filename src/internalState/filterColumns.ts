@@ -10,7 +10,7 @@ export function filterColumns<T>(state: Store<InternalTableState<T>>): void {
         (state) => [state.props.columns, state.hiddenColumns, state.columnOrder] as const,
         ([columns, hiddenColumns, columnOrder], draft) => {
           draft.activeColumns = orderBy(
-            columns.filter((column) => !hiddenColumns.has(column.id)),
+            columns.filter((column) => !(column.hidden ?? hiddenColumns.has(column.id))),
             [(column) => columnOrder.indexOf(column.id)],
           );
         },
