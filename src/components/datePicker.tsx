@@ -50,7 +50,7 @@ export const endOfDay = (d: Date) =>
 export const lastDays = (days: number): DateRange => {
   const now = new Date();
   const min = new Date(now);
-  min.setDate(min.getDate() - days);
+  min.setDate(min.getDate() - days + 1);
 
   return {
     min: startOfDay(min),
@@ -58,11 +58,9 @@ export const lastDays = (days: number): DateRange => {
   };
 };
 
-export const today = () => lastDays(0);
-export const lastSevenDays = () => lastDays(6);
-export const lastThirtyDays = () => lastDays(29);
+export const today = () => lastDays(1);
 
-export const thisWeek = (firstDayOfWeek = 1): DateRange => {
+export const thisWeek = (delta = 0, firstDayOfWeek = 1): DateRange => {
   const now = new Date();
   const min = new Date(now);
 
@@ -70,7 +68,7 @@ export const thisWeek = (firstDayOfWeek = 1): DateRange => {
   if (diff < 0) {
     diff += 7;
   }
-  min.setDate(min.getDate() - diff);
+  min.setDate(min.getDate() - diff + delta * 7);
 
   const max = new Date(min);
   max.setDate(max.getDate() + 6);
@@ -81,10 +79,11 @@ export const thisWeek = (firstDayOfWeek = 1): DateRange => {
   };
 };
 
-export const thisMonth = (): DateRange => {
+export const thisMonth = (delta = 0): DateRange => {
   const now = new Date();
   const min = new Date(now);
   min.setDate(1);
+  min.setFullYear(min.getFullYear() + delta);
   const max = new Date(min);
   max.setMonth(max.getMonth() + 1);
   max.setDate(max.getDate() - 1);
@@ -95,11 +94,12 @@ export const thisMonth = (): DateRange => {
   };
 };
 
-export const thisYear = (): DateRange => {
+export const thisYear = (delta = 0): DateRange => {
   const now = new Date();
   const min = new Date(now);
   min.setDate(1);
   min.setMonth(0);
+  min.setFullYear(min.getFullYear() + delta);
   const max = new Date(min);
   max.setFullYear(max.getFullYear() + 1);
   max.setDate(max.getDate() - 1);
@@ -112,14 +112,14 @@ export const thisYear = (): DateRange => {
 
 export const commonQuickOptions = {
   today: { label: <Text id="today" />, value: today },
-  thisWeek: { label: <Text id="thisWeek" />, value: thisWeek },
-  thisMonth: { label: <Text id="thisMonth" />, value: thisMonth },
-  thisYear: { label: <Text id="thisYear" />, value: thisYear },
-  lastSevenDays: { label: <Text id="lastSevenDays" />, value: lastSevenDays },
-  lastThirtyDays: { label: <Text id="lastThirtyDays" />, value: lastThirtyDays },
+  thisWeek: { label: <Text id="thisWeek" />, value: (props) => thisWeek(0, props.firstDayOfWeek) },
+  thisMonth: { label: <Text id="thisMonth" />, value: () => thisMonth() },
+  thisYear: { label: <Text id="thisYear" />, value: () => thisYear() },
+  lastSevenDays: { label: <Text id="lastSevenDays" />, value: () => lastDays(7) },
+  lastThirtyDays: { label: <Text id="lastThirtyDays" />, value: () => lastDays(30) },
 } satisfies Record<
   DatePickerQuickOption & string,
-  { label: ReactNode; value: Date | DateRange | (() => Date | DateRange) }
+  { label: ReactNode; value: Date | DateRange | ((props: DatePickerProps) => Date | DateRange) }
 >;
 
 /** Returns whether two dates and/or date ranges intersect. Intersection is considered per day. */
@@ -138,15 +138,17 @@ export function dateIntersect(a: Date | null | DateRange, b: Date | null | DateR
   return !(endOfDay(a.max) < startOfDay(b.min) || startOfDay(a.min) > endOfDay(b.max));
 }
 
-export function DatePicker({
-  value,
-  onChange,
-  rangeSelect,
-  locale,
-  firstDayOfWeek = 1,
-  defaultDateInView,
-  quickOptions,
-}: DatePickerProps) {
+export function DatePicker(props: DatePickerProps) {
+  const {
+    value,
+    onChange,
+    rangeSelect,
+    locale,
+    firstDayOfWeek = 1,
+    defaultDateInView,
+    quickOptions = ['today', 'thisWeek'],
+  } = props;
+
   const Button = useTheme((t) => t.components.Button);
   const IconButton = useTheme((t) => t.components.IconButton);
   const ChevronRight = useTheme((t) => t.icons.ChevronRight);
@@ -159,8 +161,6 @@ export function DatePicker({
 
   const min = dirty ? dirty.min : value instanceof Date ? value : value?.min;
   const max = dirty ? dirty.max : value instanceof Date ? value : value?.max;
-
-  quickOptions ??= ['today', 'thisWeek'];
 
   const resolvedQuickOptions = [...quickOptions, { label: <Text id="reset" />, value: null }].map(
     (option, index) => {
@@ -181,7 +181,7 @@ export function DatePicker({
             setDirty(undefined);
 
             if (value instanceof Function) {
-              onChange(value());
+              onChange(value(props));
             } else {
               onChange(value);
             }
