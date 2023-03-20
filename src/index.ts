@@ -7,8 +7,14 @@ export {
   startOfDay,
   thisWeek,
   today,
+  commonQuickOptions,
+  lastDays,
+  lastSevenDays,
+  lastThirtyDays,
+  thisMonth,
+  thisYear,
 } from './components/datePicker';
-export type { DatePickerProps, DateRange } from './components/datePicker';
+export type { DatePickerProps, DateRange, DatePickerQuickOption } from './components/datePicker';
 export { RangeFilter } from './components/rangeFilter';
 export { SelectFilter } from './components/selectFilter';
 export { Table } from './components/table';
