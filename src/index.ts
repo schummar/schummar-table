@@ -9,8 +9,6 @@ export {
   today,
   commonQuickOptions,
   lastDays,
-  lastSevenDays,
-  lastThirtyDays,
   thisMonth,
   thisYear,
 } from './components/datePicker';

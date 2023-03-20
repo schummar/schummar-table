@@ -16,7 +16,7 @@ export function TableThemeProvider({
   children,
 }: {
   theme: PartialTableTheme;
-  children: ReactNode;
+  children?: ReactNode;
 }) {
   return <TableThemeContext.Provider value={theme}>{children}</TableThemeContext.Provider>;
 }
