@@ -83,7 +83,7 @@ export const thisMonth = (delta = 0): DateRange => {
   const now = new Date();
   const min = new Date(now);
   min.setDate(1);
-  min.setFullYear(min.getFullYear() + delta);
+  min.setMonth(min.getMonth() + delta);
   const max = new Date(min);
   max.setMonth(max.getMonth() + 1);
   max.setDate(max.getDate() - 1);
