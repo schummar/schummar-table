@@ -105,7 +105,6 @@ export function DateInput({
             <input
               className={className}
               css={{
-                width: `${length(type, value)}ch`,
                 boxSizing: 'content-box',
                 overflow: 'visible',
                 border: 'none',
@@ -116,6 +115,9 @@ export function DateInput({
                 '&:focus': {
                   borderBottom: '2px solid var(--primaryMain)',
                 },
+              }}
+              style={{
+                width: `${length(type, value)}ch`,
               }}
               placeholder={''.padEnd(length(type, value), '0')}
               value={override?.type === type ? override.value : !isEmpty ? value : ''}

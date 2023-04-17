@@ -50,6 +50,7 @@ export function calcProps<T>(props: TableProps<T>): InternalTableProps<T> {
         disableSort,
         hidden = defaults?.hidden,
         classes = defaults?.classes,
+        css = defaults?.css,
         filter = defaults?.filter,
         width = defaults?.width,
       }: Column<T, V>,
@@ -69,6 +70,7 @@ export function calcProps<T>(props: TableProps<T>): InternalTableProps<T> {
         disableSort,
         hidden,
         classes,
+        css,
         filter,
         width,
       };

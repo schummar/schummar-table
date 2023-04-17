@@ -1,6 +1,6 @@
 import { memo, useEffect, useLayoutEffect, useRef } from 'react';
 import { useTheme } from '../hooks/useTheme';
-import { calcClassNames } from '../misc/calcClassNames';
+import { calcClassNames, calcCss } from '../misc/calcClassNames';
 import { cx, getAncestors } from '../misc/helpers';
 import { ColumnContext, useTableContext } from '../misc/tableContext';
 import { defaultClasses } from '../theme/defaultTheme/defaultClasses';
@@ -20,9 +20,11 @@ export const Row = memo(function Row<T>({
   const divRef = useRef<HTMLDivElement>(null);
 
   const classes = useTheme((t) => t.classes);
+  const css = useTheme((t) => t.css);
 
   const {
     className,
+    css_,
     indent,
     hasChildren,
     hasDeferredChildren,
@@ -34,6 +36,7 @@ export const Row = memo(function Row<T>({
 
     return {
       className: cx(...calcClassNames(classes, item, rowIndex)),
+      css_: calcCss(css, item, rowIndex),
       indent: item ? getAncestors(state.activeItemsById, item).size : 0,
       hasChildren: !!item?.children.length,
       hasDeferredChildren: item && state.props.hasDeferredChildren?.(item.value),
@@ -67,9 +70,9 @@ export const Row = memo(function Row<T>({
 
   return (
     <>
-      <div className={className} css={[defaultClasses.cellFill]} ref={divRef} />
+      <div className={className} css={[defaultClasses.cellFill, css_]} ref={divRef} />
 
-      <div className={className} css={[defaultClasses.cell, defaultClasses.firstCell]}>
+      <div className={className} css={[defaultClasses.cell, defaultClasses.firstCell, css_]}>
         <div css={{ width: indent * 20 }} />
 
         {enableSelection && <SelectComponent itemId={itemId} />}
@@ -87,7 +90,7 @@ export const Row = memo(function Row<T>({
         </ColumnContext.Provider>
       ))}
 
-      <div className={className} css={[defaultClasses.cellFill]} />
+      <div className={className} css={[defaultClasses.cellFill, css_]} />
     </>
   );
 });

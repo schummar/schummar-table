@@ -19,18 +19,20 @@ export function ColumnHeader() {
   const ref = useRef<HTMLDivElement>(null);
   const columnId = useColumnContext();
   const table = useTableContext();
-  const enabled = table.useState('props.enableColumnReorder');
+  const enabled = table.useState((state) => state.props.enableColumnReorder);
   const columnStyleOverride = table.useState((state) => state.columnStyleOverride.get(columnId), {
     throttle: 16,
   });
-  const stickyHeader = table.useState('props.stickyHeader');
-  const classes = useTheme((theme) => theme.classes);
+  const stickyHeader = table.useState((state) => state.props.stickyHeader);
+  const classes = useTheme((theme) => theme.classes?.headerCell);
+  const css = useTheme((theme) => theme.css?.headerCell);
 
-  const { header, columnClasses } = table.useState((state) => {
+  const { header, columnClasses, columnCss } = table.useState((state) => {
     const column = state.activeColumns.find((column) => column.id === columnId);
     return {
       header: column?.header,
-      columnClasses: column?.classes,
+      columnClasses: column?.classes?.headerCell,
+      columnCss: column?.css?.headerCell,
     };
   });
 
@@ -194,17 +196,19 @@ export function ColumnHeader() {
   return (
     <div
       ref={ref}
-      className={cx(classes?.headerCell, columnClasses?.headerCell)}
+      className={cx(classes, columnClasses)}
       css={[
         {
           position: 'relative',
           userSelect: 'none',
         },
         defaultClasses.headerCell,
-        columnStyleOverride,
+        css,
+        columnCss,
         stickyHeader && defaultClasses.sticky,
         stickyHeader instanceof Object && stickyHeader,
       ]}
+      style={columnStyleOverride}
       onPointerDown={enabled ? onPointerDown : undefined}
       onPointerMove={enabled ? onPointerMove : undefined}
       onPointerUp={enabled ? onPointerUp : undefined}

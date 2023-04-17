@@ -1,6 +1,6 @@
-import type { WritableDraft } from 'immer/dist/internal';
 import { useEffect, useState } from 'react';
 import type { Store } from 'schummar-state/react';
+import type { Draft } from 'immer';
 import { Queue } from '../misc/queue';
 import type { InternalTableState, SerializableValue } from '../types';
 
@@ -99,10 +99,7 @@ export function useTableStateStorage(table: Store<InternalTableState<any>>) {
         const data = parse(json);
         table.getState().props.debug?.('load', json, data);
 
-        function applyUpdate(
-          state: WritableDraft<InternalTableState<any>>,
-          key: typeof KEYS[number],
-        ) {
+        function applyUpdate(state: Draft<InternalTableState<any>>, key: (typeof KEYS)[number]) {
           if (
             //
             (!include || include.includes(key)) &&

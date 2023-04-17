@@ -1,38 +1,18 @@
-import type { ComponentMeta } from '@storybook/react';
+import type { Meta } from '@storybook/react';
 import { Table } from '../../src';
-import css from './styles.module.css';
 import data from './_data';
 import { defaultColumns } from './_default';
+import css from './styles.module.css';
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 export default {
   title: 'Intro',
   component: Table,
+
   // More on argTypes: https://storybook.js.org/docs/react/api/argtypes
   argTypes: {
-    classes: {
-      defaultValue: {
-        table: css.table,
-      },
-    },
     items: {
-      defaultValue: data,
       table: { disable: true },
-    },
-    id: {
-      defaultValue: 'id',
-    },
-    columns: {
-      defaultValue: defaultColumns,
-    },
-    virtual: {
-      defaultValue: true,
-    },
-    enableExport: {
-      defaultValue: true,
-    },
-    stickyHeader: {
-      defaultValue: true,
     },
     fullWidth: {
       defaultValue: true,
@@ -40,18 +20,31 @@ export default {
       control: { type: 'inline-radio' },
     },
   },
-} as ComponentMeta<typeof Table>;
+} as Meta<typeof Table>;
 
-export const Primary = {};
+export const Primary = {
+  args: {
+    classes: { table: css.table },
+    items: data,
+    id: 'id',
+    columns: defaultColumns,
+    virtual: true,
+    enableExport: true,
+    stickyHeader: true,
+    fullWidth: true,
+  },
+};
 
 export const SortDisabledAll = {
   args: {
+    ...Primary.args,
     disableSort: true,
   },
 };
 
 export const SortDisabledOne = {
   args: {
+    ...Primary.args,
     columns: defaultColumns.map((col, i) => ({
       ...col,
       disableSort: i === 0,
@@ -61,16 +54,29 @@ export const SortDisabledOne = {
 
 export const Persitance = {
   args: {
+    ...Primary.args,
     persist: { storage: localStorage, id: 'tablePersistance' },
   },
 };
 
 export const HiddenColumns = {
   args: {
+    ...Primary.args,
     defaultHiddenColumns: new Set([1, 2]),
     columns: defaultColumns.map((col, i) => ({
       ...col,
       hidden: i === 0 ? false : i === 1 ? true : undefined,
     })),
+  },
+};
+
+export const StyledCells = {
+  args: {
+    ...Primary.args,
+    css: {
+      evenCell: {
+        backgroundColor: 'rgba(0, 0, 0, 0.05)',
+      },
+    },
   },
 };

@@ -1,6 +1,6 @@
-import type { CSSInterpolation } from '@emotion/serialize';
-import type { ComponentType, DependencyList, ReactNode, Ref } from 'react';
+import type { CSSObject } from '@emotion/react';
 import type React from 'react';
+import type { CSSProperties, ComponentType, DependencyList, ReactNode, Ref } from 'react';
 import type { TableStateStorage } from './internalState/tableStateStorage';
 import type { CsvExportOptions } from './misc/csvExport';
 
@@ -49,6 +49,14 @@ export interface TableTheme<T = unknown> {
     oddCell?: string;
     popover?: string;
     popoverBackdrop?: string;
+  };
+  css?: {
+    table?: CSSObject;
+    headerCell?: CSSObject;
+    footerCell?: CSSObject;
+    cell?: CSSObject | FunctionWithDeps<(item: T, index: number) => CSSObject>;
+    evenCell?: CSSObject;
+    oddCell?: CSSObject;
   };
   /** Define components to be used in the table. */
   components: {
@@ -126,8 +134,9 @@ export type PartialTableTheme<T = unknown> = {
     : TableTheme<T>[K];
 };
 
-export type MemoizedTableTheme<T> = Omit<TableTheme, 'classes' | 'text'> & {
+export type MemoizedTableTheme<T> = Omit<TableTheme, 'classes' | 'css' | 'text'> & {
   classes: MemoizedFunctions<TableTheme<T>['classes']>;
+  css: MemoizedFunctions<TableTheme<T>['css']>;
   text: MemoizedFunctions<TableTheme<T>['text']>;
 };
 
@@ -344,7 +353,9 @@ export type Column<T, V> = {
    */
   width?: string;
   /** Provide css class names to override columns styles. */
-  classes?: TableTheme<T>['classes'];
+  classes?: Omit<NonNullable<TableTheme<T>['classes']>, 'table'>;
+  /** Provide css styles to override columns styles. */
+  css?: Omit<NonNullable<TableTheme<T>['css']>, 'table'>;
 };
 
 export type InternalColumn<T, V> = MemoizedFunctions<
@@ -376,7 +387,7 @@ export type InternalTableState<T> = {
   hiddenColumns: Set<Id>;
   columnWidths: Map<Id, string>;
   columnOrder: Id[];
-  columnStyleOverride: Map<Id, CSSInterpolation>;
+  columnStyleOverride: Map<Id, CSSProperties>;
 
   // Helper data structures for efficient lookup etc.
   activeColumns: InternalColumn<T, unknown>[];

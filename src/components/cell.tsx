@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import { memo, useLayoutEffect } from 'react';
 import { useTheme } from '../hooks/useTheme';
-import { calcClassNames } from '../misc/calcClassNames';
+import { calcClassNames, calcCss } from '../misc/calcClassNames';
 import { cx } from '../misc/helpers';
 import { useColumnContext, useTableContext } from '../misc/tableContext';
 import { defaultClasses } from '../theme/defaultTheme/defaultClasses';
@@ -39,13 +39,14 @@ export const Cell = memo(function Cell<T>({ itemId, rowIndex }: { itemId: Id; ro
 
   useLayoutEffect(() => table.getState().props.debugRender?.('render cell', itemId, columnId));
   const className = useTheme((t) => cx(...calcClassNames(t.classes, item, rowIndex)));
+  const css = useTheme((t) => calcCss(t.css, item, rowIndex));
 
   if (!column || !item) return null;
 
   const content = column.renderCell(column.value(item.value), item.value);
 
   return (
-    <div className={className} css={[defaultClasses.cell, columnStyleOverride]}>
+    <div className={className} css={[defaultClasses.cell, css]} style={columnStyleOverride}>
       {wrapCell(content, column.value(item.value), item.value, rowIndex)}
     </div>
   );

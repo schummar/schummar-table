@@ -1,21 +1,26 @@
 {
   "name": "docs",
   "scripts": {
-    "start": "start-storybook -p 6006",
-    "build": "build-storybook"
+    "start": "storybook dev -p 6006",
+    "build": "storybook build"
   },
   "dependencies": {
     "@babel/core": "7.21.0",
-    "@storybook/addon-actions": "6.5.16",
-    "@storybook/addon-essentials": "6.5.16",
-    "@storybook/addon-interactions": "6.5.16",
-    "@storybook/addon-links": "6.5.16",
-    "@storybook/builder-vite": "0.4.2",
-    "@storybook/react": "6.5.16",
-    "@storybook/testing-library": "0.0.13",
-    "babel-loader": "9.1.2",
     "@material-ui/core": "4.12.4",
     "@mui/material": "5.11.12",
-    "@types/react": "18.0.28"
+    "@storybook/addon-actions": "7.0.4",
+    "@storybook/addon-essentials": "7.0.4",
+    "@storybook/addon-interactions": "7.0.4",
+    "@storybook/addon-links": "7.0.4",
+    "@storybook/react": "7.0.4",
+    "@storybook/testing-library": "0.1.0",
+    "@types/react": "18.0.28",
+    "babel-loader": "9.1.2"
+  },
+  "devDependencies": {
+    "@storybook/react-vite": "^7.0.4",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "storybook": "^7.0.4"
   }
 }

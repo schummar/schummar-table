@@ -63,12 +63,13 @@ function TableLoadingState({ isHydrated }: { isHydrated: boolean }) {
 
 const TableInner = memo(function TableInner<T>({ hidden }: { hidden: boolean }) {
   const table = useTableContext<T>();
-  const fullWidth = table.useState('props.fullWidth');
+  const fullWidth = table.useState((state) => state.props.fullWidth);
   const activeColumns = table.useState((state) =>
     state.activeColumns.map((column) => ({
       id: column.id,
       width: column.width,
       classes: column.classes,
+      css: column.css,
     })),
   );
   const hasActiveFilters = table.useState((state) => {
@@ -78,49 +79,47 @@ const TableInner = memo(function TableInner<T>({ hidden }: { hidden: boolean }) 
       return filter !== undefined && filterValue !== undefined && filter.isActive(filterValue);
     });
   });
-  const columnWidths = table.useState('columnWidths', { throttle: 16 });
+  const columnWidths = table.useState((state) => state.columnWidths, { throttle: 16 });
   const hasFooter = table.useState((state) => state.activeColumns.some((column) => column.footer));
 
   const classes = useTheme((theme) => theme.classes);
-  const stickyHeader = table.useState('props.stickyHeader');
-  const stickyFooter = table.useState('props.stickyFooter');
+  const css = useTheme((theme) => theme.css);
+  const stickyHeader = table.useState((state) => state.props.stickyHeader);
+  const stickyFooter = table.useState((state) => state.props.stickyFooter);
 
-  const enableSelection = table.useState('props.enableSelection');
-  const enableColumnSelection = table.useState('props.enableColumnSelection');
+  const enableSelection = table.useState((state) => state.props.enableSelection);
+  const enableColumnSelection = table.useState((state) => state.props.enableColumnSelection);
   const enableExport = table.useState(
     (state) => !!state.props.enableExport.copy || !!state.props.enableExport.download,
   );
   const cssVariables = useCssVariables();
 
-  const enableClearFiltersButton = table.useState('props.enableClearFiltersButton');
+  const enableClearFiltersButton = table.useState((state) => state.props.enableClearFiltersButton);
 
   useLayoutEffect(() => table.getState().props.debugRender?.('render table inner'));
 
   return (
     <Virtualized
       className={classes?.table}
-      css={[
-        cssVariables,
-        defaultClasses.table,
-        {
-          gridTemplateColumns: [
-            //
-            fullWidth === 'right' || fullWidth === true ? 'auto' : '0',
-            'max-content',
-            ...activeColumns.map(
-              (column) => columnWidths.get(column.id) ?? column.width ?? 'max-content',
-            ),
-            fullWidth === 'left' || fullWidth === true ? 'auto' : '0',
-          ].join(' '),
-        },
-        hidden && { visibility: 'hidden' },
-      ]}
+      css={[cssVariables, defaultClasses.table, css?.table, hidden && { visibility: 'hidden' }]}
+      style={{
+        gridTemplateColumns: [
+          //
+          fullWidth === 'right' || fullWidth === true ? 'auto' : '0',
+          'max-content',
+          ...activeColumns.map(
+            (column) => columnWidths.get(column.id) ?? column.width ?? 'max-content',
+          ),
+          fullWidth === 'left' || fullWidth === true ? 'auto' : '0',
+        ].join(' '),
+      }}
       header={
         <>
           <div
             className={classes?.headerCell}
             css={[
               defaultClasses.headerFill,
+              css?.headerCell,
               stickyHeader && defaultClasses.sticky,
               stickyHeader instanceof Object && stickyHeader,
             ]}
@@ -130,6 +129,7 @@ const TableInner = memo(function TableInner<T>({ hidden }: { hidden: boolean }) 
             className={classes?.headerCell}
             css={[
               defaultClasses.headerCell,
+              css?.headerCell,
               stickyHeader && defaultClasses.sticky,
               stickyHeader instanceof Object && stickyHeader,
             ]}
@@ -156,6 +156,7 @@ const TableInner = memo(function TableInner<T>({ hidden }: { hidden: boolean }) 
             className={classes?.headerCell}
             css={[
               defaultClasses.headerFill,
+              css?.headerCell,
               stickyHeader && defaultClasses.sticky,
               stickyHeader instanceof Object && stickyHeader,
             ]}
@@ -171,6 +172,7 @@ const TableInner = memo(function TableInner<T>({ hidden }: { hidden: boolean }) 
                 className={classes?.footerCell}
                 css={[
                   defaultClasses.footerFill,
+                  css?.footerCell,
                   stickyFooter && defaultClasses.stickyBottom,
                   stickyFooter instanceof Object && stickyFooter,
                 ]}
@@ -179,6 +181,7 @@ const TableInner = memo(function TableInner<T>({ hidden }: { hidden: boolean }) 
                 className={classes?.footerCell}
                 css={[
                   defaultClasses.footerFill,
+                  css?.footerCell,
                   stickyFooter && defaultClasses.stickyBottom,
                   stickyFooter instanceof Object && stickyFooter,
                 ]}
@@ -194,6 +197,7 @@ const TableInner = memo(function TableInner<T>({ hidden }: { hidden: boolean }) 
                 className={classes?.footerCell}
                 css={[
                   defaultClasses.footerFill,
+                  css?.footerCell,
                   stickyFooter && defaultClasses.stickyBottom,
                   stickyFooter instanceof Object && stickyFooter,
                 ]}

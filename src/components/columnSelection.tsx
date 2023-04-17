@@ -18,8 +18,8 @@ export function ColumnSelection<T>(): JSX.Element {
 
   const table = useTableContext<T>();
   const reset = useContext(TableResetContext);
-  const columns = table.useState('props.columns');
-  const hiddenColumns = table.useState('hiddenColumns');
+  const columns = table.useState((state) => state.props.columns);
+  const hiddenColumns = table.useState((state) => state.hiddenColumns);
 
   const [anchorElement, setAnchorElement] = useState<Element | null>(null);
 

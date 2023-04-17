@@ -11,3 +11,15 @@ export function calcClassNames<T>(
     index % 2 === 1 && classes?.oddCell,
   ];
 }
+
+export function calcCss<T>(
+  css: MemoizedTableTheme<any>['css'] | undefined,
+  item: T,
+  index: number,
+) {
+  return [
+    css?.cell instanceof Function ? css.cell(item, index) : css?.cell,
+    index % 2 === 0 && css?.evenCell,
+    index % 2 === 1 && css?.oddCell,
+  ];
+}

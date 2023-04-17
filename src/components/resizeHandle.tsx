@@ -5,7 +5,7 @@ import { useColumnContext, useTableContext } from '../misc/tableContext';
 export function ResizeHandle() {
   const table = useTableContext();
   const columnId = useColumnContext();
-  const enabled = table.useState('props.enableColumnResize');
+  const enabled = table.useState((state) => state.props.enableColumnResize);
 
   function onPointerDown(event: React.PointerEvent) {
     event.stopPropagation();

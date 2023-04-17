@@ -25,6 +25,7 @@ export function mergeThemes<T>(...themes: PartialTableTheme<T>[]): PartialTableT
   return {
     text: Object.assign({}, ...themes.map((theme) => theme.text)),
     classes: Object.assign({}, ...themes.map((theme) => theme.classes)),
+    css: Object.assign({}, ...themes.map((theme) => theme.css)),
     components: Object.assign({}, ...themes.map((theme) => theme.components)),
     icons: Object.assign({}, ...themes.map((theme) => theme.icons)),
     colors: {
