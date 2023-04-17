@@ -69,7 +69,7 @@ export const Row = memo(function Row<T>({
   useLayoutEffect(() => table.getState().props.debugRender?.('render row', itemId));
 
   return (
-    <>
+    <div css={{ display: 'contents' }}>
       <div className={className} css={[defaultClasses.cellFill, css_]} ref={divRef} />
 
       <div className={className} css={[defaultClasses.cell, defaultClasses.firstCell, css_]}>
@@ -91,6 +91,6 @@ export const Row = memo(function Row<T>({
       ))}
 
       <div className={className} css={[defaultClasses.cellFill, css_]} />
-    </>
+    </div>
   );
 });

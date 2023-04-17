@@ -74,8 +74,13 @@ export const StyledCells = {
   args: {
     ...Primary.args,
     styles: {
+      cell: {
+        'div:hover > &': {
+          backgroundColor: 'rgba(0, 0, 0, 0.05)',
+        },
+      },
       evenCell: {
-        backgroundColor: 'rgba(0, 0, 0, 0.05)',
+        backgroundColor: 'rgba(0, 0, 0, 0.02)',
       },
     },
   },
