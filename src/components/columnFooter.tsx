@@ -15,9 +15,9 @@ export function ColumnFooter() {
   );
   const classes = useTheme((theme) => theme.classes?.footerCell);
   const columnCss = table.useState(
-    (state) => state.activeColumns.find((column) => column.id === columnId)?.css?.footerCell,
+    (state) => state.activeColumns.find((column) => column.id === columnId)?.styles?.footerCell,
   );
-  const css = useTheme((theme) => theme.css?.footerCell);
+  const styles = useTheme((theme) => theme.styles?.footerCell);
 
   const content = table.useState((state) => {
     const column = state.activeColumns.find((column) => column.id === columnId);
@@ -30,7 +30,7 @@ export function ColumnFooter() {
       className={cx(classes, columnClasses)}
       css={[
         defaultClasses.footerCell,
-        css,
+        styles,
         columnCss,
         stickyFooter && defaultClasses.stickyBottom,
         stickyFooter instanceof Object && stickyFooter,

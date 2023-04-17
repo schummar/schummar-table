@@ -25,14 +25,14 @@ export function ColumnHeader() {
   });
   const stickyHeader = table.useState((state) => state.props.stickyHeader);
   const classes = useTheme((theme) => theme.classes?.headerCell);
-  const css = useTheme((theme) => theme.css?.headerCell);
+  const styles = useTheme((theme) => theme.styles?.headerCell);
 
-  const { header, columnClasses, columnCss } = table.useState((state) => {
+  const { header, columnClasses, columnStyles } = table.useState((state) => {
     const column = state.activeColumns.find((column) => column.id === columnId);
     return {
       header: column?.header,
       columnClasses: column?.classes?.headerCell,
-      columnCss: column?.css?.headerCell,
+      columnStyles: column?.styles?.headerCell,
     };
   });
 
@@ -203,8 +203,8 @@ export function ColumnHeader() {
           userSelect: 'none',
         },
         defaultClasses.headerCell,
-        css,
-        columnCss,
+        styles,
+        columnStyles,
         stickyHeader && defaultClasses.sticky,
         stickyHeader instanceof Object && stickyHeader,
       ]}

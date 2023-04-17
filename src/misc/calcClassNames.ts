@@ -13,13 +13,13 @@ export function calcClassNames<T>(
 }
 
 export function calcCss<T>(
-  css: MemoizedTableTheme<any>['css'] | undefined,
+  styles: MemoizedTableTheme<any>['styles'] | undefined,
   item: T,
   index: number,
 ) {
   return [
-    css?.cell instanceof Function ? css.cell(item, index) : css?.cell,
-    index % 2 === 0 && css?.evenCell,
-    index % 2 === 1 && css?.oddCell,
+    styles?.cell instanceof Function ? styles.cell(item, index) : styles?.cell,
+    index % 2 === 0 && styles?.evenCell,
+    index % 2 === 1 && styles?.oddCell,
   ];
 }

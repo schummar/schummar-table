@@ -73,7 +73,7 @@ export const HiddenColumns = {
 export const StyledCells = {
   args: {
     ...Primary.args,
-    css: {
+    styles: {
       evenCell: {
         backgroundColor: 'rgba(0, 0, 0, 0.05)',
       },

@@ -69,7 +69,7 @@ const TableInner = memo(function TableInner<T>({ hidden }: { hidden: boolean }) 
       id: column.id,
       width: column.width,
       classes: column.classes,
-      css: column.css,
+      styles: column.styles,
     })),
   );
   const hasActiveFilters = table.useState((state) => {
@@ -83,7 +83,7 @@ const TableInner = memo(function TableInner<T>({ hidden }: { hidden: boolean }) 
   const hasFooter = table.useState((state) => state.activeColumns.some((column) => column.footer));
 
   const classes = useTheme((theme) => theme.classes);
-  const css = useTheme((theme) => theme.css);
+  const styles = useTheme((theme) => theme.styles);
   const stickyHeader = table.useState((state) => state.props.stickyHeader);
   const stickyFooter = table.useState((state) => state.props.stickyFooter);
 
@@ -101,7 +101,7 @@ const TableInner = memo(function TableInner<T>({ hidden }: { hidden: boolean }) 
   return (
     <Virtualized
       className={classes?.table}
-      css={[cssVariables, defaultClasses.table, css?.table, hidden && { visibility: 'hidden' }]}
+      css={[cssVariables, defaultClasses.table, styles?.table, hidden && { visibility: 'hidden' }]}
       style={{
         gridTemplateColumns: [
           //
@@ -119,7 +119,7 @@ const TableInner = memo(function TableInner<T>({ hidden }: { hidden: boolean }) 
             className={classes?.headerCell}
             css={[
               defaultClasses.headerFill,
-              css?.headerCell,
+              styles?.headerCell,
               stickyHeader && defaultClasses.sticky,
               stickyHeader instanceof Object && stickyHeader,
             ]}
@@ -129,7 +129,7 @@ const TableInner = memo(function TableInner<T>({ hidden }: { hidden: boolean }) 
             className={classes?.headerCell}
             css={[
               defaultClasses.headerCell,
-              css?.headerCell,
+              styles?.headerCell,
               stickyHeader && defaultClasses.sticky,
               stickyHeader instanceof Object && stickyHeader,
             ]}
@@ -156,7 +156,7 @@ const TableInner = memo(function TableInner<T>({ hidden }: { hidden: boolean }) 
             className={classes?.headerCell}
             css={[
               defaultClasses.headerFill,
-              css?.headerCell,
+              styles?.headerCell,
               stickyHeader && defaultClasses.sticky,
               stickyHeader instanceof Object && stickyHeader,
             ]}
@@ -172,7 +172,7 @@ const TableInner = memo(function TableInner<T>({ hidden }: { hidden: boolean }) 
                 className={classes?.footerCell}
                 css={[
                   defaultClasses.footerFill,
-                  css?.footerCell,
+                  styles?.footerCell,
                   stickyFooter && defaultClasses.stickyBottom,
                   stickyFooter instanceof Object && stickyFooter,
                 ]}
@@ -181,7 +181,7 @@ const TableInner = memo(function TableInner<T>({ hidden }: { hidden: boolean }) 
                 className={classes?.footerCell}
                 css={[
                   defaultClasses.footerFill,
-                  css?.footerCell,
+                  styles?.footerCell,
                   stickyFooter && defaultClasses.stickyBottom,
                   stickyFooter instanceof Object && stickyFooter,
                 ]}
@@ -197,7 +197,7 @@ const TableInner = memo(function TableInner<T>({ hidden }: { hidden: boolean }) 
                 className={classes?.footerCell}
                 css={[
                   defaultClasses.footerFill,
-                  css?.footerCell,
+                  styles?.footerCell,
                   stickyFooter && defaultClasses.stickyBottom,
                   stickyFooter instanceof Object && stickyFooter,
                 ]}

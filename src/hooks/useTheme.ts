@@ -17,7 +17,7 @@ export function useTheme<T, S>(selector: (theme: MemoizedTableTheme<T>) => S): S
 
   const process = (t: TableTheme<T>): MemoizedTableTheme<T> => {
     const cellClass = t.classes?.cell;
-    const cellCss = t.css?.cell;
+    const cellStyles = t.styles?.cell;
 
     return {
       ...t,
@@ -28,12 +28,12 @@ export function useTheme<T, S>(selector: (theme: MemoizedTableTheme<T>) => S): S
             ? memo('theme.classes.cell', cellClass)
             : cellClass,
       },
-      css: {
-        ...t.css,
+      styles: {
+        ...t.styles,
         cell:
-          cellCss instanceof Function || Array.isArray(cellCss)
-            ? memo('theme.css.cell', cellCss)
-            : cellCss,
+          cellStyles instanceof Function || Array.isArray(cellStyles)
+            ? memo('theme.styles.cell', cellStyles)
+            : cellStyles,
       },
       text: {
         ...t.text,
@@ -46,7 +46,7 @@ export function useTheme<T, S>(selector: (theme: MemoizedTableTheme<T>) => S): S
       const localTheme = {
         text: state.props.text,
         classes: state.props.classes,
-        css: state.props.css,
+        styles: state.props.styles,
         components: state.props.components,
         icons: state.props.icons,
         colors: state.props.colors,
@@ -56,7 +56,7 @@ export function useTheme<T, S>(selector: (theme: MemoizedTableTheme<T>) => S): S
       const column = state.activeColumns.find((column) => column.id === columnId);
       const columnsTheme = {
         classes: column?.classes,
-        css: column?.css,
+        styles: column?.styles,
       };
 
       const theme = mergeThemes(

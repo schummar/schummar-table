@@ -20,7 +20,7 @@ export const Row = memo(function Row<T>({
   const divRef = useRef<HTMLDivElement>(null);
 
   const classes = useTheme((t) => t.classes);
-  const css = useTheme((t) => t.css);
+  const styles = useTheme((t) => t.styles);
 
   const {
     className,
@@ -36,7 +36,7 @@ export const Row = memo(function Row<T>({
 
     return {
       className: cx(...calcClassNames(classes, item, rowIndex)),
-      css_: calcCss(css, item, rowIndex),
+      css_: calcCss(styles, item, rowIndex),
       indent: item ? getAncestors(state.activeItemsById, item).size : 0,
       hasChildren: !!item?.children.length,
       hasDeferredChildren: item && state.props.hasDeferredChildren?.(item.value),

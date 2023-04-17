@@ -39,14 +39,14 @@ export const Cell = memo(function Cell<T>({ itemId, rowIndex }: { itemId: Id; ro
 
   useLayoutEffect(() => table.getState().props.debugRender?.('render cell', itemId, columnId));
   const className = useTheme((t) => cx(...calcClassNames(t.classes, item, rowIndex)));
-  const css = useTheme((t) => calcCss(t.css, item, rowIndex));
+  const styles = useTheme((t) => calcCss(t.styles, item, rowIndex));
 
   if (!column || !item) return null;
 
   const content = column.renderCell(column.value(item.value), item.value);
 
   return (
-    <div className={className} css={[defaultClasses.cell, css]} style={columnStyleOverride}>
+    <div className={className} css={[defaultClasses.cell, styles]} style={columnStyleOverride}>
       {wrapCell(content, column.value(item.value), item.value, rowIndex)}
     </div>
   );

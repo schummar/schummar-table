@@ -50,7 +50,7 @@ export interface TableTheme<T = unknown> {
     popover?: string;
     popoverBackdrop?: string;
   };
-  css?: {
+  styles?: {
     table?: CSSObject;
     headerCell?: CSSObject;
     footerCell?: CSSObject;
@@ -134,9 +134,9 @@ export type PartialTableTheme<T = unknown> = {
     : TableTheme<T>[K];
 };
 
-export type MemoizedTableTheme<T> = Omit<TableTheme, 'classes' | 'css' | 'text'> & {
+export type MemoizedTableTheme<T> = Omit<TableTheme, 'classes' | 'styles' | 'text'> & {
   classes: MemoizedFunctions<TableTheme<T>['classes']>;
-  css: MemoizedFunctions<TableTheme<T>['css']>;
+  styles: MemoizedFunctions<TableTheme<T>['styles']>;
   text: MemoizedFunctions<TableTheme<T>['text']>;
 };
 
@@ -355,7 +355,7 @@ export type Column<T, V> = {
   /** Provide css class names to override columns styles. */
   classes?: Omit<NonNullable<TableTheme<T>['classes']>, 'table'>;
   /** Provide css styles to override columns styles. */
-  css?: Omit<NonNullable<TableTheme<T>['css']>, 'table'>;
+  styles?: Omit<NonNullable<TableTheme<T>['styles']>, 'table'>;
 };
 
 export type InternalColumn<T, V> = MemoizedFunctions<
