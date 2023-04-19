@@ -45,7 +45,12 @@ export function calcProps<T>(props: TableProps<T>): InternalTableProps<T> {
         renderCell = defaults?.renderCell ?? asString,
         exportCell = defaults?.exportCell ?? asString,
         sortBy = defaults?.sortBy ?? [
-          (v) => (typeof v === 'number' || v instanceof Date ? v : String(v)),
+          (v) =>
+            typeof v === 'number' || v instanceof Date
+              ? v
+              : v === null || v === undefined
+              ? ''
+              : String(v),
         ],
         disableSort,
         hidden = defaults?.hidden,
