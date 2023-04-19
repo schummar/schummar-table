@@ -1,7 +1,7 @@
 import type { MemoizedTableTheme } from '../types';
 
 export function calcClassNames<T>(
-  classes: MemoizedTableTheme<any>['classes'] | undefined,
+  classes: MemoizedTableTheme<T>['classes'] | undefined,
   item: T,
   index: number,
 ) {
@@ -13,7 +13,7 @@ export function calcClassNames<T>(
 }
 
 export function calcCss<T>(
-  styles: MemoizedTableTheme<any>['styles'] | undefined,
+  styles: MemoizedTableTheme<T>['styles'] | undefined,
   item: T,
   index: number,
 ) {

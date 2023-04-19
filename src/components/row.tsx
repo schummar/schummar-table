@@ -35,8 +35,8 @@ export const Row = memo(function Row<T>({
     const item = state.activeItemsById.get(itemId);
 
     return {
-      className: cx(...calcClassNames(classes, item, rowIndex)),
-      css_: calcCss(styles, item, rowIndex),
+      className: cx(...calcClassNames(classes, item?.value, rowIndex)),
+      css_: calcCss(styles, item?.value, rowIndex),
       indent: item ? getAncestors(state.activeItemsById, item).size : 0,
       hasChildren: !!item?.children.length,
       hasDeferredChildren: item && state.props.hasDeferredChildren?.(item.value),
