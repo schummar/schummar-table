@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useFilter } from '../hooks/useFilter';
 import { useTheme } from '../hooks/useTheme';
 import { asString, castArray, flatMap, uniq } from '../misc/helpers';
@@ -7,6 +7,8 @@ import { useColumnContext, useTableContext } from '../misc/tableContext';
 import type { CommonFilterProps, InternalColumn, SerializableValue } from '../types';
 import { AutoFocusTextField } from './autoFocusTextField';
 import { FormControlLabel } from './formControlLabel';
+import type { VirtualListProps } from './virtualList';
+import { VirtualList } from './virtualList';
 
 function toggle<T>(set: Set<T>, value: T, singleSelect?: boolean) {
   const newSet = new Set(singleSelect ? [] : set);
@@ -40,6 +42,9 @@ export function SelectFilter<T, V, F extends SerializableValue>({
   hideSearchField?: boolean;
   /** If enabled, the reset button is hidden. */
   hideResetButton?: boolean;
+  /** Virtual list props.
+   * @default true */
+  virtual?: VirtualListProps<unknown>['virtual'];
 } & CommonFilterProps<T, V, F, Set<F>>): JSX.Element {
   const IconButton = useTheme((t) => t.components.IconButton);
   const Checkbox = useTheme((t) => t.components.Checkbox);
@@ -95,6 +100,10 @@ export function SelectFilter<T, V, F extends SerializableValue>({
 
   const Button = useTheme((t) => t.components.Button);
 
+  useEffect(() => {
+    setQuery('');
+  }, [isActive]);
+
   return (
     <div
       css={{
@@ -125,8 +134,14 @@ export function SelectFilter<T, V, F extends SerializableValue>({
         </Button>
       )}
 
-      <div css={{ maxHeight: '20em', overflowY: 'auto' }}>
-        {ordered.map((option, index) => (
+      <VirtualList
+        items={ordered}
+        css={{
+          width: '20em',
+          maxHeight: '20em',
+        }}
+      >
+        {(option, index) => (
           <FormControlLabel
             key={index}
             control={
@@ -137,8 +152,8 @@ export function SelectFilter<T, V, F extends SerializableValue>({
             }
             label={render(option)}
           ></FormControlLabel>
-        ))}
-      </div>
+        )}
+      </VirtualList>
 
       {ordered.length === 0 && <span css={{ textAlign: 'center' }}>{noResults}</span>}
     </div>

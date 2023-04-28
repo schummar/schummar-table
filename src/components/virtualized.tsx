@@ -31,7 +31,7 @@ export function Virtualized<T>({
   const table = useTableContext<T>();
   const virtual = table.useState((state) => state.props.virtual);
   const probeRef = useRef<HTMLDivElement>(null);
-  const [, setCounter] = useState(0);
+  const [, setId] = useState({});
 
   const {
     itemIds = [],
@@ -92,23 +92,20 @@ export function Virtualized<T>({
   );
 
   const throttleScroll = (typeof virtual === 'boolean' ? undefined : virtual)?.throttleScroll ?? 16;
-  const incCounter = useMemo(
-    () => throttle(() => setCounter((c) => c + 1), throttleScroll),
-    [throttleScroll],
-  );
+  const update = useMemo(() => throttle(() => setId({}), throttleScroll), [throttleScroll]);
 
   useEffect(() => {
     if (!virtual || !probeRef.current) return;
 
-    window.addEventListener('scroll', incCounter, true);
-    window.addEventListener('resize', incCounter, true);
+    window.addEventListener('scroll', update, true);
+    window.addEventListener('resize', update, true);
     return () => {
-      window.removeEventListener('scroll', incCounter, true);
-      window.removeEventListener('resize', incCounter, true);
+      window.removeEventListener('scroll', update, true);
+      window.removeEventListener('resize', update, true);
     };
-  }, [incCounter, virtual]);
+  }, [update, virtual]);
 
-  useEffect(() => incCounter.cancel, [incCounter]);
+  useEffect(() => update.cancel, [update]);
 
   useLayoutEffect(() =>
     table.getState().props.debugRender?.(`Virtualalized render ${from} to ${to}`),
