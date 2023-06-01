@@ -18,6 +18,7 @@ export const Popover: TableTheme['components']['Popover'] = ({
 }) => {
   const popper = useRef<HTMLDivElement>(null);
   const [position, setPosition] = useState<{ left: number; top: number }>();
+  const [maxHeight, setMaxHeight] = useState(document.documentElement.clientHeight - 2 * MARGIN);
   const [zIndex, setZIndex] = useState(1);
 
   useLayoutEffect(() => {
@@ -58,13 +59,12 @@ export const Popover: TableTheme['components']['Popover'] = ({
       if (next.top < MARGIN) {
         next.top = MARGIN;
       }
-      if (next.top + popperHeight > viewportHeight - MARGIN) {
-        next.top = viewportHeight - MARGIN - popperHeight;
-      }
 
       if (next.left !== last?.left || next.top !== last?.top) {
         setPosition(next);
       }
+
+      setMaxHeight(viewportHeight - MARGIN - next.top);
 
       last = next;
     }
@@ -129,7 +129,7 @@ export const Popover: TableTheme['components']['Popover'] = ({
               {
                 position: 'fixed',
                 maxWidth: document.documentElement.clientWidth - 2 * MARGIN,
-                maxHeight: document.documentElement.clientHeight - 2 * MARGIN,
+                maxHeight,
                 ...position,
                 zIndex: zIndex + 1,
                 overflowY: 'auto',
