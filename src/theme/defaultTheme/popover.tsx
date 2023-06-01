@@ -36,8 +36,7 @@ export const Popover: TableTheme['components']['Popover'] = ({
         bottom: anchorBottom,
         width: anchorWidth,
       } = anchorEl.getBoundingClientRect();
-      const { width: popperWidth = 0, height: popperHeight = 0 } =
-        popper.current?.getBoundingClientRect() ?? {};
+      const { width: popperWidth = 0 } = popper.current?.getBoundingClientRect() ?? {};
       const viewportWidth = document.documentElement.clientWidth;
       const viewportHeight = document.documentElement.clientHeight;
 
