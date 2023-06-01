@@ -2,6 +2,8 @@ import type { TableTheme } from '../../types';
 
 export const defaultTexts: TableTheme['text'] = {
   selectColumns: 'Select visible columns',
+  showAllColumns: 'Show all',
+  hideAllColumns: 'Hide all',
   noResults: 'No results',
   exportTitle: 'Export',
   exportCopy: 'To clipboard',

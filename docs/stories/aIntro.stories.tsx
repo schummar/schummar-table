@@ -15,7 +15,7 @@ export default {
       table: { disable: true },
     },
     fullWidth: {
-      defaultValue: true,
+      defaultValue: 'left',
       options: [true, false, 'left', 'right'],
       control: { type: 'inline-radio' },
     },
@@ -31,7 +31,7 @@ export const Primary = {
     virtual: true,
     enableExport: true,
     stickyHeader: true,
-    fullWidth: true,
+    fullWidth: 'left',
   },
 };
 

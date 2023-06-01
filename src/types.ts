@@ -21,6 +21,8 @@ export interface TableTheme<T = unknown> {
   /** Define display texts. */
   text: {
     selectColumns: ReactNode;
+    showAllColumns: ReactNode;
+    hideAllColumns: ReactNode;
     noResults: ReactNode;
     exportTitle: ReactNode;
     exportCopy: ReactNode;

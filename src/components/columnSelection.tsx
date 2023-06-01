@@ -13,6 +13,8 @@ export function ColumnSelection<T>(): JSX.Element {
   const Settings = useTheme((t) => t.icons.Settings);
   const selectColumns = useTheme((t) => t.text.selectColumns);
   const resetAll = useTheme((t) => t.text.resetAll);
+  const showAll = useTheme((t) => t.text.showAllColumns);
+  const hideAll = useTheme((t) => t.text.hideAllColumns);
   const classes = useTheme((t) => t.classes);
   const cssVariables = useCssVariables();
 
@@ -23,14 +25,20 @@ export function ColumnSelection<T>(): JSX.Element {
 
   const [anchorElement, setAnchorElement] = useState<Element | null>(null);
 
-  const toggle = (column: InternalColumn<T, unknown>) => {
+  const toggle = (column?: InternalColumn<T, unknown>, state?: boolean) => {
     const {
       props: { hiddenColumns: controlledHiddenColumns, onHiddenColumnsChange },
     } = table.getState();
 
     const newValue = new Set(hiddenColumns);
-    if (hiddenColumns.has(column.id)) newValue.delete(column.id);
-    else newValue.add(column.id);
+
+    for (const columnId of column ? [column.id] : columns.map((column) => column.id)) {
+      if (state ?? hiddenColumns.has(columnId)) {
+        newValue.delete(columnId);
+      } else {
+        newValue.add(columnId);
+      }
+    }
 
     if (!controlledHiddenColumns) {
       table.update((state) => {
@@ -40,6 +48,8 @@ export function ColumnSelection<T>(): JSX.Element {
 
     onHiddenColumnsChange?.(newValue);
   };
+
+  const allVisible = columns.every((column) => !hiddenColumns.has(column.id));
 
   return (
     <>
@@ -58,6 +68,16 @@ export function ColumnSelection<T>(): JSX.Element {
         <div css={{ padding: `calc(var(--spacing) * 2)`, display: 'grid' }}>
           <div css={{ marginBottom: 'var(--spacing)' }}>{selectColumns}</div>
 
+          <div css={{ margin: '0.5em 0', display: 'flex', gap: '0.5em' }}>
+            <Button variant="outlined" onClick={() => toggle(undefined, !allVisible)}>
+              {allVisible ? hideAll : showAll}
+            </Button>
+
+            <Button variant="outlined" onClick={reset}>
+              {resetAll}
+            </Button>
+          </div>
+
           {columns.map((column) => (
             <FormControlLabel
               key={column.id}
@@ -71,10 +91,6 @@ export function ColumnSelection<T>(): JSX.Element {
               label={column.header}
             ></FormControlLabel>
           ))}
-
-          <Button variant="outlined" onClick={reset}>
-            {resetAll}
-          </Button>
         </div>
       </Popover>
     </>
