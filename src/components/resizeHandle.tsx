@@ -1,5 +1,6 @@
-import type { HTMLProps } from 'react';
 import type React from 'react';
+import type { HTMLProps } from 'react';
+import { useTheme } from '../hooks/useTheme';
 import { useColumnContext, useTableContext } from '../misc/tableContext';
 
 export function ResizeHandle() {
@@ -60,23 +61,30 @@ export function ResizeHandleView({
   enabled,
   ...props
 }: HTMLProps<HTMLDivElement> & { enabled?: boolean }) {
+  const className = useTheme((theme) => theme.classes?.columnDivider);
+  const styles = useTheme((theme) => theme.styles?.columnDivider);
+
   return (
     <div
-      css={{
-        alignSelf: 'stretch',
-        padding: '0 5px',
-        cursor: enabled ? 'col-resize' : 'initial',
-        display: 'flex',
-        alignItems: 'center',
+      className={className}
+      css={[
+        {
+          alignSelf: 'stretch',
+          padding: '0 5px',
+          cursor: enabled ? 'col-resize' : 'initial',
+          display: 'flex',
+          alignItems: 'center',
 
-        '&:after': {
-          content: '""',
-          width: 1,
-          height: '1.5em',
-          background: '#c9cfda',
-          transition: 'transform 300ms',
+          '&:after': {
+            content: '""',
+            width: 1,
+            height: '1.5em',
+            background: '#c9cfda',
+            transition: 'transform 300ms',
+          },
         },
-      }}
+        styles,
+      ]}
       {...props}
     />
   );

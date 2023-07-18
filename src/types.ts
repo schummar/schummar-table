@@ -51,6 +51,7 @@ export interface TableTheme<T = unknown> {
     oddCell?: string;
     popover?: string;
     popoverBackdrop?: string;
+    columnDivider?: string;
   };
   styles?: {
     table?: CSSObject;
@@ -59,6 +60,7 @@ export interface TableTheme<T = unknown> {
     cell?: CSSObject | FunctionWithDeps<(item: T, index: number) => CSSObject>;
     evenCell?: CSSObject;
     oddCell?: CSSObject;
+    columnDivider?: CSSObject;
   };
   /** Define components to be used in the table. */
   components: {

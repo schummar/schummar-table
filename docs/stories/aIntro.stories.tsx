@@ -85,3 +85,19 @@ export const StyledCells = {
     },
   },
 };
+
+export const StyleColumnDivider = {
+  args: {
+    ...Primary.args,
+    enableSelection: false,
+    enableColumnSelection: false,
+    enableExport: false,
+    styles: {
+      columnDivider: {
+        '&:after': {
+          display: 'none',
+        },
+      },
+    },
+  },
+};
