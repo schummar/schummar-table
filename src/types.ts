@@ -1,4 +1,4 @@
-import type { CSSObject } from '@emotion/react';
+import type { Interpolation, Theme } from '@emotion/react';
 import type React from 'react';
 import type { CSSProperties, ComponentType, DependencyList, ReactNode, Ref } from 'react';
 import type { TableStateStorage } from './internalState/tableStateStorage';
@@ -54,13 +54,15 @@ export interface TableTheme<T = unknown> {
     columnDivider?: string;
   };
   styles?: {
-    table?: CSSObject;
-    headerCell?: CSSObject;
-    footerCell?: CSSObject;
-    cell?: CSSObject | FunctionWithDeps<(item: T, index: number) => CSSObject>;
-    evenCell?: CSSObject;
-    oddCell?: CSSObject;
-    columnDivider?: CSSObject;
+    table?: Interpolation<Theme>;
+    headerCell?: Interpolation<Theme>;
+    footerCell?: Interpolation<Theme>;
+    cell?:
+      | Exclude<Interpolation<Theme>, ((...args: any[]) => any) | Array<any>>
+      | FunctionWithDeps<(item: T, index: number) => Interpolation<Theme>>;
+    evenCell?: Interpolation<Theme>;
+    oddCell?: Interpolation<Theme>;
+    columnDivider?: Interpolation<Theme>;
   };
   /** Define components to be used in the table. */
   components: {

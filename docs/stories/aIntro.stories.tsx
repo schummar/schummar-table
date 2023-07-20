@@ -1,8 +1,10 @@
 import type { Meta } from '@storybook/react';
-import { Table } from '../../src';
+import { Table, type TableProps } from '../../src';
 import data from './_data';
 import { defaultColumns } from './_default';
 import css from './styles.module.css';
+
+type Item = typeof data extends Array<infer S> ? S : never;
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 export default {
@@ -32,14 +34,14 @@ export const Primary = {
     enableExport: true,
     stickyHeader: true,
     fullWidth: 'left',
-  },
+  } satisfies TableProps<Item>,
 };
 
 export const SortDisabledAll = {
   args: {
     ...Primary.args,
     disableSort: true,
-  },
+  } satisfies TableProps<Item>,
 };
 
 export const SortDisabledOne = {
@@ -49,14 +51,14 @@ export const SortDisabledOne = {
       ...col,
       disableSort: i === 0,
     })),
-  },
+  } satisfies TableProps<Item>,
 };
 
 export const Persitance = {
   args: {
     ...Primary.args,
     persist: { storage: localStorage, id: 'tablePersistance' },
-  },
+  } satisfies TableProps<Item>,
 };
 
 export const HiddenColumns = {
@@ -67,7 +69,7 @@ export const HiddenColumns = {
       ...col,
       hidden: i === 0 ? false : i === 1 ? true : undefined,
     })),
-  },
+  } satisfies TableProps<Item>,
 };
 
 export const StyledCells = {
@@ -83,7 +85,7 @@ export const StyledCells = {
         backgroundColor: 'rgba(0, 0, 0, 0.02)',
       },
     },
-  },
+  } satisfies TableProps<Item>,
 };
 
 export const StyleColumnDivider = {
@@ -99,5 +101,5 @@ export const StyleColumnDivider = {
         },
       },
     },
-  },
+  } satisfies TableProps<Item>,
 };
