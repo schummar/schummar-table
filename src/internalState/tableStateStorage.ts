@@ -99,6 +99,7 @@ export function useTableStateStorage(table: Store<InternalTableState<any>>) {
         const data = parse(json);
         table.getState().props.debug?.('load', json, data);
 
+        // eslint-disable-next-line no-inner-declarations
         function applyUpdate(state: Draft<InternalTableState<any>>, key: (typeof KEYS)[number]) {
           if (
             //

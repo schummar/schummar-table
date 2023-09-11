@@ -92,7 +92,6 @@ export function SelectFilter<T, V, F extends SerializableValue>({
   const filtered = options.filter(
     (option) => !query || stringValue(option).toLowerCase().includes(query.toLowerCase()),
   );
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   const delayedValue = useMemo(() => value, [isActive]);
   const ordered = filtered
     .filter((option) => delayedValue.has(option))
