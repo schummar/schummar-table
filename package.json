@@ -79,10 +79,10 @@
     }
   },
   "dependencies": {
-    "@emotion/react": "11.10.6",
-    "dayzed": "3.2.3",
-    "immer": "10.0.0",
-    "nanoid": "4.0.2",
+    "@emotion/react": ">=11.11.1",
+    "dayzed": ">=3.2.3",
+    "immer": ">=10.0.0",
+    "nanoid": ">=4.0.2",
     "schummar-state": "0.2.1-experimental-13"
   },
   "devDependencies": {
