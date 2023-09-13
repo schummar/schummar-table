@@ -30,7 +30,7 @@ const _defaultColumns: TableProps<Person>['columns'] = (col) => [
   col((x) => x.birthday, {
     header: 'Birthday',
     renderCell: (birthday) => dateFormat.format(new Date(birthday)),
-    filter: <DateFilter />,
+    filter: <DateFilter maxDate={new Date()} />,
   }),
 ];
 

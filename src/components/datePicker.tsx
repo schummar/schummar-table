@@ -36,6 +36,8 @@ export type DatePickerProps = {
   defaultDateInView?: Date;
   /** Show buttons to quickly select suggested dates or date ranges */
   quickOptions?: DatePickerQuickOption[];
+  minDate?: Date;
+  maxDate?: Date;
 };
 
 const weekDays = [0, 1, 2, 3, 4, 5, 6] as const;
@@ -138,16 +140,42 @@ export function dateIntersect(a: Date | null | DateRange, b: Date | null | DateR
   return !(endOfDay(a.max) < startOfDay(b.min) || startOfDay(a.min) > endOfDay(b.max));
 }
 
+export function dateClamp(date: Date, min?: Date, max?: Date) {
+  if (min && date < min) {
+    return min;
+  }
+
+  if (max && date > max) {
+    return max;
+  }
+
+  return date;
+}
+
 export function DatePicker(props: DatePickerProps) {
   const {
     value,
-    onChange,
     rangeSelect,
     locale,
     firstDayOfWeek = 1,
     defaultDateInView,
     quickOptions = ['today', 'thisWeek'],
+    minDate,
+    maxDate,
   } = props;
+
+  function onChange(value: Date | DateRange | null) {
+    if (value instanceof Date) {
+      value = dateClamp(value, minDate, maxDate);
+    } else if (value) {
+      value = {
+        min: dateClamp(value.min, minDate, maxDate),
+        max: dateClamp(value.max, minDate, maxDate),
+      };
+    }
+
+    props.onChange(value);
+  }
 
   const Button = useTheme((t) => t.components.Button);
   const IconButton = useTheme((t) => t.components.IconButton);
@@ -201,6 +229,8 @@ export function DatePicker(props: DatePickerProps) {
     onOffsetChanged: (offset) =>
       setDateInView(new Date(dateInView.getFullYear(), dateInView.getMonth() + offset)),
     offset: 0,
+    minDate,
+    maxDate,
   });
   const now = useMemo(() => startOfDay(new Date()), []);
 
@@ -333,12 +363,14 @@ export function DatePicker(props: DatePickerProps) {
 
                 const { prevMonth, nextMonth, date } = dateObject;
                 const today = startOfDay(date).getTime() === now.getTime();
+                const disabled = (minDate && date < minDate) || (maxDate && date > maxDate);
 
                 const selected =
                   date.getTime() === min?.getTime() ||
                   (min && max && dateIntersect(date, { min, max }));
                 const preSelected =
                   !selected &&
+                  !disabled &&
                   (date.getTime() === hovered?.getTime() ||
                     (min &&
                       !max &&
@@ -384,6 +416,7 @@ export function DatePicker(props: DatePickerProps) {
                     }}
                     onPointerOver={() => setHovered(date)}
                     onPointerOut={() => setHovered(undefined)}
+                    disabled={disabled}
                   >
                     {date.getDate()}
                   </button>
