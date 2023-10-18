@@ -28,6 +28,8 @@ export function calcProps<T>(props: TableProps<T>): InternalTableProps<T> {
       parentId = noopParentId;
     }
 
+    const columnProps = props.columnProps && cache('columnProps', props.columnProps);
+
     let inputColumns;
     if (props.columns instanceof Function) {
       inputColumns = props.columns((value, column) => ({ ...column, value }));
@@ -35,49 +37,56 @@ export function calcProps<T>(props: TableProps<T>): InternalTableProps<T> {
       inputColumns = props.columns.map((column) => ({ ...column, dependecies: undefined }));
     }
 
-    const defaults = props.defaultColumnProps;
+    const globalDefaults = props.defaultColumnProps;
     const mapColumn = <V>(
       {
         id: _id,
-        header = defaults?.header ?? null,
-        footer = defaults?.footer ?? null,
-        value,
-        renderCell = defaults?.renderCell ?? asString,
-        exportCell = defaults?.exportCell ?? asString,
-        sortBy = defaults?.sortBy ?? [
-          (v) =>
-            typeof v === 'number' || v instanceof Date
-              ? v
-              : v === null || v === undefined
-              ? ''
-              : String(v),
-        ],
-        disableSort,
-        hidden = defaults?.hidden,
-        classes = defaults?.classes,
-        styles = defaults?.styles,
-        filter = defaults?.filter,
-        width = defaults?.width,
-      }: Column<T, V>,
-      index: number,
-    ): InternalColumn<T, V> => {
-      const id = _id ?? index;
-      const cacheKey = typeof id === 'string' ? `s${id}` : `n${id}`;
-
-      return {
-        id,
         header,
         footer,
-        value: cache(`columns.${cacheKey}.value`, value),
-        renderCell: cache(`columns.${cacheKey}.renderCell`, renderCell),
+        value,
+        renderCell,
         exportCell,
-        sortBy: sortBy.map((function_, i) => cache(`columns.${cacheKey}.sortBy.${i}`, function_)),
+        sortBy,
         disableSort,
         hidden,
         classes,
         styles,
         filter,
         width,
+      }: Column<T, V>,
+      index: number,
+    ): InternalColumn<T, V> => {
+      const id = _id ?? index;
+      const cacheKey = typeof id === 'string' ? `s${id}` : `n${id}`;
+      const defaults = { ...globalDefaults, ...columnProps?.(id) };
+
+      return {
+        id,
+        header: header ?? defaults?.header ?? null,
+        footer: footer ?? defaults?.footer ?? null,
+        value: cache(`columns.${cacheKey}.value`, value),
+        renderCell: cache(
+          `columns.${cacheKey}.renderCell`,
+          renderCell ?? defaults?.renderCell ?? asString,
+        ),
+        exportCell: exportCell ?? defaults?.exportCell ?? asString,
+        sortBy: (
+          sortBy ??
+          defaults?.sortBy ?? [
+            (v) =>
+              typeof v === 'number' || v instanceof Date
+                ? v
+                : v === null || v === undefined
+                ? ''
+                : String(v),
+          ]
+        ).map((function_, i) => cache(`columns.${cacheKey}.sortBy.${i}`, function_)),
+        disableSort,
+        hidden: hidden ?? defaults?.hidden,
+        classes: classes ?? defaults?.classes,
+        styles: styles ?? defaults?.styles,
+        filter: filter ?? defaults?.filter,
+        width: width ?? defaults?.width,
       };
     };
 
@@ -117,6 +126,7 @@ export function calcProps<T>(props: TableProps<T>): InternalTableProps<T> {
       id,
       parentId,
       columns,
+      columnProps,
       wrapCell,
       rowAction,
       enableSelection: props.enableSelection ?? true,

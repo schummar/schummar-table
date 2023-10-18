@@ -1,5 +1,5 @@
 import type { Meta } from '@storybook/react';
-import { Table, type TableProps } from '../../src';
+import { Id, Table, type TableProps } from '../../src';
 import data from './_data';
 import { defaultColumns } from './_default';
 import css from './styles.module.css';
@@ -102,4 +102,12 @@ export const StyleColumnDivider = {
       },
     },
   } satisfies TableProps<Item>,
+};
+
+export const ColumnProps = {
+  args: {
+    ...Primary.args,
+    columnProps: (id: Id) =>
+      typeof id === 'string' && id.endsWith('_name') ? { styles: { cell: { color: 'red' } } } : {},
+  },
 };

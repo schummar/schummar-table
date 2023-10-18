@@ -13,11 +13,13 @@ const _defaultColumns: TableProps<Person>['columns'] = (col) => [
   }),
 
   col((x) => x.first_name, {
+    id: 'first_name',
     header: 'First Name',
     filter: <TextFilter />,
   }),
 
   col((x) => x.last_name, {
+    id: 'last_name',
     header: 'Last Name',
     filter: <TextFilter />,
   }),

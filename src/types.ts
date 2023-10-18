@@ -171,6 +171,8 @@ export interface TableProps<T> extends PartialTableTheme<T> {
       ) => Column<T, any>[]);
   /** Default props for all column. Will take effect if not overriden in column definition. */
   defaultColumnProps?: Omit<Column<T, unknown>, 'id' | 'value'>;
+  /** Set props for multiple columns at once. Will take effect if not overriden in column definition. */
+  columnProps?: FunctionWithDeps<(id: Id) => Omit<Column<T, unknown>, 'id'>>;
   /** Wrap each cell */
   wrapCell?: FunctionWithDeps<
     (content: ReactNode, value: unknown, item: T, index: number) => ReactNode
