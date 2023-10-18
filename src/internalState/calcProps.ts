@@ -99,6 +99,11 @@ export function calcProps<T>(props: TableProps<T>): InternalTableProps<T> {
         ? cache('rowAction', props.rowAction)
         : props.rowAction;
 
+    const rowDetails =
+      props.rowDetails instanceof Function || Array.isArray(props.rowDetails)
+        ? cache('rowDetails', props.rowDetails)
+        : props.rowDetails;
+
     let copy;
     if (
       props.enableExport === true ||
@@ -129,6 +134,7 @@ export function calcProps<T>(props: TableProps<T>): InternalTableProps<T> {
       columnProps,
       wrapCell,
       rowAction,
+      rowDetails,
       enableSelection: props.enableSelection ?? true,
       selectSyncChildren: props.selectSyncChildren ?? true,
       stickyHeader: props.stickyHeader ?? true,

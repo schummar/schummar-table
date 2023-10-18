@@ -6,6 +6,7 @@ import { ColumnContext, useTableContext } from '../misc/tableContext';
 import { defaultClasses } from '../theme/defaultTheme/defaultClasses';
 import type { Id } from '../types';
 import { Cell } from './cell';
+import { Details } from './details';
 import { ExpandControl } from './expandControl';
 import { SelectComponent } from './selectComponent';
 
@@ -18,6 +19,7 @@ export const Row = memo(function Row<T>({
 }): JSX.Element | null {
   const table = useTableContext<T>();
   const divRef = useRef<HTMLDivElement>(null);
+  const detailsDivRef = useRef<HTMLDivElement>(null);
 
   const classes = useTheme((t) => t.classes);
   const styles = useTheme((t) => t.styles);
@@ -31,6 +33,7 @@ export const Row = memo(function Row<T>({
     columnIds,
     enableSelection,
     rowAction,
+    hasDetails,
   } = table.useState((state) => {
     const item = state.activeItemsById.get(itemId);
 
@@ -48,23 +51,41 @@ export const Row = memo(function Row<T>({
             ? state.props.rowAction(item.value, rowIndex)
             : null
           : state.props.rowAction,
+      hasDetails:
+        state.props.rowDetails instanceof Function
+          ? item
+            ? !!state.props.rowDetails(item.value, rowIndex)
+            : null
+          : !!state.props.rowDetails,
     };
   });
 
   useEffect(() => {
-    const div = divRef.current;
-    if (!div) return;
-
-    const o = new ResizeObserver(() => {
-      if (!document.contains(div)) return;
+    function update() {
       table.update((state) => {
-        state.rowHeights.set(itemId, div.offsetHeight);
-      });
-    });
-    o.observe(div);
+        const h1 = document.contains(divRef.current) ? divRef.current?.offsetHeight ?? 0 : 0;
+        const h2 = document.contains(detailsDivRef.current)
+          ? detailsDivRef.current?.offsetHeight ?? 0
+          : 0;
 
-    return () => o.disconnect();
-  }, [table, itemId]);
+        state.rowHeights.set(itemId, h1 + h2);
+      });
+    }
+
+    update();
+
+    const handles = [divRef.current, detailsDivRef.current]
+      .filter((x): x is HTMLDivElement => !!x)
+      .map((div) => {
+        const o = new ResizeObserver(update);
+        o.observe(div);
+        return () => o.disconnect();
+      });
+
+    return () => {
+      handles.forEach((h) => h());
+    };
+  }, [table, itemId, divRef.current, detailsDivRef.current]);
 
   useLayoutEffect(() => table.getState().props.debugRender?.('render row', itemId));
 
@@ -77,7 +98,7 @@ export const Row = memo(function Row<T>({
 
         {enableSelection && <SelectComponent itemId={itemId} />}
 
-        {(hasChildren || hasDeferredChildren) && (
+        {(hasChildren || hasDeferredChildren || hasDetails) && (
           <ExpandControl itemId={itemId} hasDeferredChildren={hasDeferredChildren} />
         )}
 
@@ -91,6 +112,8 @@ export const Row = memo(function Row<T>({
       ))}
 
       <div className={className} css={[defaultClasses.cellFill, css_]} />
+
+      <Details ref={detailsDivRef} itemId={itemId} rowIndex={rowIndex} />
     </div>
   );
 });

@@ -18,6 +18,8 @@ export function useTheme<T, S>(selector: (theme: MemoizedTableTheme<T>) => S): S
   const process = (t: TableTheme<T>): MemoizedTableTheme<T> => {
     const cellClass = t.classes?.cell;
     const cellStyles = t.styles?.cell;
+    const detailsClass = t.classes?.details;
+    const detailsStyles = t.styles?.details;
 
     return {
       ...t,
@@ -27,6 +29,10 @@ export function useTheme<T, S>(selector: (theme: MemoizedTableTheme<T>) => S): S
           cellClass instanceof Function || Array.isArray(cellClass)
             ? memo('theme.classes.cell', cellClass)
             : cellClass,
+        details:
+          detailsClass instanceof Function || Array.isArray(detailsClass)
+            ? memo('theme.classes.details', detailsClass)
+            : detailsClass,
       },
       styles: {
         ...t.styles,
@@ -34,6 +40,10 @@ export function useTheme<T, S>(selector: (theme: MemoizedTableTheme<T>) => S): S
           cellStyles instanceof Function || Array.isArray(cellStyles)
             ? memo('theme.styles.cell', cellStyles)
             : cellStyles,
+        details:
+          detailsStyles instanceof Function || Array.isArray(detailsStyles)
+            ? memo('theme.styles.details', detailsStyles)
+            : detailsStyles,
       },
       text: {
         ...t.text,

@@ -111,3 +111,26 @@ export const ColumnProps = {
       typeof id === 'string' && id.endsWith('_name') ? { styles: { cell: { color: 'red' } } } : {},
   },
 };
+
+export const WithDetails = {
+  args: {
+    ...Primary.args,
+    rowDetails: (item: Item) => (
+      <div
+        css={{
+          padding: '3em',
+        }}
+      >
+        Some nice details about {item.first_name} {item.last_name}
+      </div>
+    ),
+    styles: {
+      details: {
+        color: 'red',
+      },
+    },
+    classes: {
+      details: 'foo',
+    },
+  },
+};

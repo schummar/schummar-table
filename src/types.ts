@@ -52,6 +52,7 @@ export interface TableTheme<T = unknown> {
     popover?: string;
     popoverBackdrop?: string;
     columnDivider?: string;
+    details?: string | FunctionWithDeps<(item: T, index: number) => string | undefined>;
   };
   styles?: {
     table?: Interpolation<Theme>;
@@ -63,6 +64,9 @@ export interface TableTheme<T = unknown> {
     evenCell?: Interpolation<Theme>;
     oddCell?: Interpolation<Theme>;
     columnDivider?: Interpolation<Theme>;
+    details?:
+      | Exclude<Interpolation<Theme>, ((...args: any[]) => any) | Array<any>>
+      | FunctionWithDeps<(item: T, index: number) => Interpolation<Theme>>;
   };
   /** Define components to be used in the table. */
   components: {
@@ -180,6 +184,8 @@ export interface TableProps<T> extends PartialTableTheme<T> {
 
   /** Display a cell at the start of each row. Useful for "go to details" button for example. */
   rowAction?: ReactNode | FunctionWithDeps<(item: T, index: number) => ReactNode>;
+  /** Expand row to show details. */
+  rowDetails?: ReactNode | FunctionWithDeps<(item: T, index: number) => ReactNode>;
 
   /// ///////////////////////////////////////////////
   // Sorting
@@ -361,9 +367,9 @@ export type Column<T, V> = {
    */
   width?: string;
   /** Provide css class names to override columns styles. */
-  classes?: Omit<NonNullable<TableTheme<T>['classes']>, 'table'>;
+  classes?: Omit<NonNullable<TableTheme<T>['classes']>, 'table' | 'details'>;
   /** Provide css styles to override columns styles. */
-  styles?: Omit<NonNullable<TableTheme<T>['styles']>, 'table'>;
+  styles?: Omit<NonNullable<TableTheme<T>['styles']>, 'table' | 'details'>;
 };
 
 export type InternalColumn<T, V> = MemoizedFunctions<

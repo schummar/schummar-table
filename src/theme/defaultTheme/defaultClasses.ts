@@ -90,4 +90,9 @@ export const defaultClasses = {
       margin: 'var(--spacing)',
     },
   }),
+
+  details: css(cell, {
+    gridColumn: '1 / -1',
+    whiteSpace: 'normal',
+  }),
 };
