@@ -132,5 +132,5 @@ export const WithDetails = {
     classes: {
       details: 'foo',
     },
-  },
+  } satisfies TableProps<Item>,
 };

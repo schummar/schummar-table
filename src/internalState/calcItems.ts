@@ -68,7 +68,10 @@ export function calcItems<T>(state: Store<InternalTableState<T>>): void {
           }
 
           for (const item of sorted) {
-            const parent = item.parentId !== undefined ? lookup.get(item.parentId) : undefined;
+            const parent =
+              item.parentId !== undefined && item.parentId !== null
+                ? lookup.get(item.parentId)
+                : undefined;
             parent?.children.push(item);
           }
 
@@ -82,7 +85,7 @@ export function calcItems<T>(state: Store<InternalTableState<T>>): void {
               traverse(item.children);
             }
           };
-          traverse(sorted.filter((item) => item.parentId === undefined));
+          traverse(sorted.filter((item) => item.parentId === undefined || item.parentId === null));
 
           let expandedChanged = false;
           const activeItemsById = new Map<Id, TableItem<T>>();
@@ -104,7 +107,7 @@ export function calcItems<T>(state: Store<InternalTableState<T>>): void {
                 return castArray(value).some((value) => filter.test(filterValue, value));
               });
 
-              if (isActive && item.parentId !== undefined) {
+              if (isActive && item.parentId !== undefined && item.parentId !== null) {
                 if (
                   revealFiltered &&
                   Array.from(filters.entries()).some(([id, filter]) => {
@@ -119,7 +122,7 @@ export function calcItems<T>(state: Store<InternalTableState<T>>): void {
                 }
               }
 
-              if (isActive && item.parentId !== undefined) {
+              if (isActive && item.parentId !== undefined && item.parentId !== null) {
                 activeSet.add(item.parentId);
               }
               if (isActive) {

@@ -1,5 +1,5 @@
 import { useTheme } from '../hooks/useTheme';
-import { getAncestors } from '../misc/helpers';
+import { getAncestors, getDescendants } from '../misc/helpers';
 import { useTableContext } from '../misc/tableContext';
 import type { Id } from '../types';
 
@@ -40,6 +40,11 @@ export function ExpandControl<T>({
 
     if (isExpanded) {
       newExpanded.delete(itemId);
+
+      const item = activeItemsById.get(itemId);
+      for (const descendant of item ? getDescendants(item) : []) {
+        newExpanded.delete(descendant);
+      }
     } else {
       newExpanded.add(itemId);
     }

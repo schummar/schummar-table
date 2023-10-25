@@ -156,11 +156,11 @@ export interface TableProps<T> extends PartialTableTheme<T> {
   /// ///////////////////////////////////////////////
 
   /** The data to be rendered. One item per row. */
-  items?: T[];
+  items?: readonly T[];
   /** Unique id for each item/row. */
   id: FunctionWithDeps<(item: T) => Id> | KeyOfType<T, Id>;
   /** Create a nested structure by assigning parents to items. Child items are hidden until the parent is expanded. */
-  parentId?: FunctionWithDeps<(item: T) => Id | undefined> | KeyOfType<T, Id | undefined>;
+  parentId?: FunctionWithDeps<(item: T) => Id | undefined> | KeyOfType<T, Id | undefined | null>;
   /** If true for an item, it means that children will be loaded asynchronously as soon as item is expanded. */
   hasDeferredChildren?: (item: T) => boolean;
 
@@ -337,7 +337,12 @@ export type InternalTableProps<T> = MemoizedFunctions<
   }
 >;
 
-export type TableItem<T = unknown> = { id: Id; parentId?: Id; children: TableItem<T>[]; value: T };
+export type TableItem<T = unknown> = {
+  id: Id;
+  parentId?: Id | null;
+  children: TableItem<T>[];
+  value: T;
+};
 
 export type Column<T, V> = {
   /** Column id. If not provided, the index in the column array will be used.

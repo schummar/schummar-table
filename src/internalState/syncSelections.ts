@@ -12,7 +12,11 @@ export function syncSelections<T>(table: Store<InternalTableState<T>>): void {
 
           const newSelection = new Set(selection);
           for (const item of activeItems) {
-            if (item.parentId !== undefined && newSelection.has(item.parentId)) {
+            if (
+              item.parentId !== undefined &&
+              item.parentId !== null &&
+              newSelection.has(item.parentId)
+            ) {
               newSelection.add(item.id);
             }
           }

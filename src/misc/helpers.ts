@@ -42,7 +42,8 @@ export const getAncestors = <T>(
   const result = new Set<Id>();
 
   const find = ({ parentId }: TableItem<T>): void => {
-    const parent = parentId ? activeItemsById.get(parentId) : undefined;
+    const parent =
+      parentId !== undefined && parentId !== null ? activeItemsById.get(parentId) : undefined;
     if (parent && !result.has(parent.id)) {
       result.add(parent.id);
       find(parent);
