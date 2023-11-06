@@ -34,7 +34,7 @@ export function useTableState<T>(
       props.onHiddenColumnsChange?.(props.defaultHiddenColumns ?? new Set());
     }
 
-    props.onReset?.();
+    props.onReset?.('table');
   }
 
   const state = useMemo(

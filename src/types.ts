@@ -325,7 +325,7 @@ export interface TableProps<T> extends PartialTableTheme<T> {
   };
   debug?: (...output: any) => void;
   debugRender?: (...output: any) => void;
-  onReset?: () => void;
+  onReset?: (scope?: 'table' | 'filters') => void;
 }
 
 export type InternalTableProps<T> = MemoizedFunctions<

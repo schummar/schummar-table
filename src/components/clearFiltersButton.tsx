@@ -16,6 +16,7 @@ export default function ClearFiltersButton<T>() {
             state.activeColumns.forEach((column) => {
               state.filterValues.delete(column.id);
             });
+            table.getState().props.onReset?.('filters');
           });
         }}
       >
