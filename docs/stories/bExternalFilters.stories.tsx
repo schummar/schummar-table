@@ -20,6 +20,24 @@ export const Primary = () => {
   const [jobTitle, setJobTitle] = useState(new Set<string>());
   const [birthday, setBirthday] = useState<Date | DateRange | null>(null);
 
+  const filteredData = data.filter((x) => {
+    if (firstName && !x.first_name.includes(firstName)) return false;
+    if (lastName && !x.last_name.includes(lastName)) return false;
+    if (jobTitle.size > 0 && !jobTitle.has(x.job_title)) return false;
+
+    const birthdayDate = new Date(x.birthday);
+    if (birthday instanceof Date) {
+      if (birthdayDate && birthdayDate !== birthday) return false;
+    } else if (
+      birthday?.min &&
+      birthday?.max &&
+      (birthdayDate < birthday.min || birthdayDate > birthday.max)
+    ) {
+      return false;
+    }
+    return true;
+  });
+
   return (
     <Box>
       <Box>
@@ -32,7 +50,7 @@ export const Primary = () => {
       </Box>
 
       <Table
-        items={data}
+        items={filteredData}
         id="id"
         virtual
         stickyHeader
