@@ -110,8 +110,8 @@
     "docs"
   ],
   "volta": {
-    "node": "18.16.0",
-    "npm": "9.6.4"
+    "node": "20.9.0",
+    "npm": "10.2.4"
   },
   "eslintConfig": {
     "extends": [
