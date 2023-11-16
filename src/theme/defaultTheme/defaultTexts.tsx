@@ -21,4 +21,5 @@ export const defaultTexts: TableTheme['text'] = {
   resetAll: 'Reset table state',
   rangeMin: 'Min',
   rangeMax: 'Max',
+  calendarWeek: 'Wk',
 };

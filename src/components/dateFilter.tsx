@@ -34,13 +34,20 @@ export function DateFilter<T, V>({
   filterBy = convertDateOrArray,
   minDate,
   maxDate,
+  showCalendarWeek,
   ...props
 }: {
   /** If enabled, only single days can be selected. Ranges otherwise. */
   singleSelect?: boolean;
 } & Pick<
   DatePickerProps,
-  'locale' | 'firstDayOfWeek' | 'defaultDateInView' | 'quickOptions' | 'minDate' | 'maxDate'
+  | 'locale'
+  | 'firstDayOfWeek'
+  | 'defaultDateInView'
+  | 'quickOptions'
+  | 'minDate'
+  | 'maxDate'
+  | 'showCalendarWeek'
 > &
   CommonFilterProps<T, V, Date | DateRange | null, Date | DateRange | null>): JSX.Element {
   const { value = null, onChange } = useFilter({
@@ -75,6 +82,7 @@ export function DateFilter<T, V>({
         quickOptions={quickOptions}
         minDate={minDate}
         maxDate={maxDate}
+        showCalendarWeek={showCalendarWeek}
       />
     </div>
   );

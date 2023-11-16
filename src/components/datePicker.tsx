@@ -1,8 +1,7 @@
-import { useDayzed } from 'dayzed';
-import type { ReactNode } from 'react';
-import { useEffect, useMemo, useState } from 'react';
+import { DateObj, useDayzed } from 'dayzed';
+import { Fragment, ReactNode, useEffect, useMemo, useState } from 'react';
 import { useTheme } from '../hooks/useTheme';
-import { gray } from '../theme/defaultTheme/defaultClasses';
+import { gray, lightGray } from '../theme/defaultTheme/defaultClasses';
 import { useCssVariables } from '../theme/useCssVariables';
 import { DateInput } from './dateInput';
 import { Text } from './text';
@@ -36,8 +35,12 @@ export type DatePickerProps = {
   defaultDateInView?: Date;
   /** Show buttons to quickly select suggested dates or date ranges */
   quickOptions?: DatePickerQuickOption[];
+  /** Minimum selectable date */
   minDate?: Date;
+  /** Maximum selectable date */
   maxDate?: Date;
+  /** Whether to show the calendar week in the first column */
+  showCalendarWeek?: boolean;
 };
 
 const weekDays = [0, 1, 2, 3, 4, 5, 6] as const;
@@ -112,6 +115,27 @@ export const thisYear = (delta = 0): DateRange => {
   };
 };
 
+const MS_PER_DAY = 1000 * 60 * 60 * 24;
+export const getCalendarWeek = (date: Date): number => {
+  // ISO 8601: Week 1 is the week with the first Thursday of the year.
+  // https://en.wikipedia.org/wiki/ISO_week_date
+
+  const y = date.getFullYear();
+  const fdoy = new Date(y, 0, 1);
+  const doy = Math.floor(
+    (date.getTime() - fdoy.getTime() + (date.getTimezoneOffset() - fdoy.getTimezoneOffset())) /
+      MS_PER_DAY,
+  );
+  const dow = fdoy.getDay();
+  const w = Math.floor((10 + doy - dow) / 7);
+
+  if (w === 0) {
+    return getCalendarWeek(new Date(y - 1, 11, 31));
+  }
+
+  return w;
+};
+
 export const commonQuickOptions = {
   today: { label: <Text id="today" />, value: today },
   thisWeek: { label: <Text id="thisWeek" />, value: (props) => thisWeek(0, props.firstDayOfWeek) },
@@ -162,6 +186,7 @@ export function DatePicker(props: DatePickerProps) {
     quickOptions = ['today', 'thisWeek'],
     minDate,
     maxDate,
+    showCalendarWeek,
   } = props;
 
   function onChange(value: Date | DateRange | null) {
@@ -345,84 +370,141 @@ export function DatePicker(props: DatePickerProps) {
             css={{
               justifySelf: 'center',
               display: 'grid',
-              gridTemplateColumns: 'repeat(7, max-content)',
-              fontWeight: 'bold',
+              gridTemplateColumns: 'repeat(8, max-content)',
             }}
           >
+            {showCalendarWeek ? (
+              <div
+                css={{
+                  justifySelf: 'center',
+                  padding: 10,
+                  borderRight: `1px solid ${gray}`,
+                }}
+              >
+                <Text id="calendarWeek" />
+              </div>
+            ) : (
+              <div />
+            )}
+
             {weekDays.map((_v, weekDay) => (
-              <div key={weekDay} css={{ justifySelf: 'center', marginBottom: 'var(--spacing)' }}>
+              <div
+                key={weekDay}
+                css={{
+                  justifySelf: 'center',
+                  padding: 10,
+                }}
+              >
                 {formatWeekday(weekDay)}
               </div>
             ))}
 
-            {weeks.map((week, index) =>
-              week.map((dateObject, dayIndex) => {
-                if (!dateObject) {
-                  return <div key={`${index}-${dayIndex}`} />;
-                }
+            {weeks.map((week, index) => {
+              const weekStart = week[0] as DateObj;
+              const weekEnd = week[6] as DateObj;
+              const weekDisabled =
+                !rangeSelect ||
+                (minDate && weekEnd.date < minDate) ||
+                (maxDate && weekStart.date > maxDate);
 
-                const { prevMonth, nextMonth, date } = dateObject;
-                const today = startOfDay(date).getTime() === now.getTime();
-                const disabled = (minDate && date < minDate) || (maxDate && date > maxDate);
-
-                const selected =
-                  date.getTime() === min?.getTime() ||
-                  (min && max && dateIntersect(date, { min, max }));
-                const preSelected =
-                  !selected &&
-                  !disabled &&
-                  (date.getTime() === hovered?.getTime() ||
-                    (min &&
-                      !max &&
-                      hovered &&
-                      dateIntersect(
-                        date,
-                        min <= hovered ? { min, max: hovered } : { min: hovered, max: min },
-                      )));
-
-                return (
-                  <button
-                    key={`${index}-${dayIndex}`}
-                    css={[
-                      {
+              return (
+                <Fragment key={index}>
+                  {showCalendarWeek ? (
+                    <button
+                      css={{
                         padding: 10,
-                        border: '1px solid transparent',
+                        border: 'none',
                         background: 'transparent',
-                        cursor: 'pointer',
-                      },
-                      (prevMonth || nextMonth) && {
-                        color: gray,
-                      },
-                      today && {
-                        border: '1px solid var(--secondaryMain)',
-                      },
-                      selected && {
-                        background: 'var(--primaryMain)',
-                        color: 'var(--primaryContrastText)',
-                      },
-                      preSelected && {
-                        background: 'var(--primaryLight)',
-                        color: 'var(--primaryContrastText)',
-                      },
-                    ]}
-                    {...getDateProps({ dateObj: dateObject })}
-                    onClick={() => {
-                      if (dirty) {
-                        if (min) set(min, date);
-                        else set(date, max);
-                      } else {
-                        set(date);
-                      }
-                    }}
-                    onPointerOver={() => setHovered(date)}
-                    onPointerOut={() => setHovered(undefined)}
-                    disabled={disabled}
-                  >
-                    {date.getDate()}
-                  </button>
-                );
-              }),
-            )}
+                        cursor: weekDisabled ? undefined : 'pointer',
+                        font: 'inherit',
+                        borderRight: `1px solid ${gray}`,
+                      }}
+                      onClick={() => {
+                        if (weekDisabled) {
+                          return;
+                        }
+
+                        const min = minDate && weekStart.date < minDate ? minDate : weekStart.date;
+                        const max = maxDate && weekEnd.date > maxDate ? maxDate : weekEnd.date;
+                        set(min, max);
+                      }}
+                    >
+                      {getCalendarWeek((week[0] as DateObj).date)}
+                    </button>
+                  ) : (
+                    <div />
+                  )}
+
+                  {week.map((dateObject, dayIndex) => {
+                    if (!dateObject) {
+                      return <div key={dayIndex} />;
+                    }
+
+                    const { prevMonth, nextMonth, date } = dateObject;
+                    const today = startOfDay(date).getTime() === now.getTime();
+                    const disabled = (minDate && date < minDate) || (maxDate && date > maxDate);
+
+                    const selected =
+                      date.getTime() === min?.getTime() ||
+                      (min && max && dateIntersect(date, { min, max }));
+                    const preSelected =
+                      !selected &&
+                      !disabled &&
+                      (date.getTime() === hovered?.getTime() ||
+                        (min &&
+                          !max &&
+                          hovered &&
+                          dateIntersect(
+                            date,
+                            min <= hovered ? { min, max: hovered } : { min: hovered, max: min },
+                          )));
+
+                    return (
+                      <button
+                        key={`${index}-${dayIndex}`}
+                        css={[
+                          {
+                            padding: 10,
+                            border: 'none',
+                            background: 'transparent',
+                            cursor: disabled ? undefined : 'pointer',
+                            font: 'inherit',
+                          },
+                          (prevMonth || nextMonth) && {
+                            color: gray,
+                          },
+                          today && {
+                            outline: '1px solid var(--secondaryMain)',
+                          },
+                          selected && {
+                            background: 'var(--primaryMain)',
+                            color: 'var(--primaryContrastText)',
+                          },
+                          preSelected && {
+                            background: 'var(--primaryLight)',
+                            color: 'var(--primaryContrastText)',
+                          },
+                        ]}
+                        {...getDateProps({ dateObj: dateObject })}
+                        onClick={() => {
+                          if (dirty) {
+                            if (min) set(min, date);
+                            else set(date, max);
+                          } else {
+                            set(date);
+                          }
+                        }}
+                        onPointerOver={() => setHovered(date)}
+                        onPointerOut={() => setHovered(undefined)}
+                        disabled={disabled}
+                      >
+                        {date.getDate()}
+                      </button>
+                    );
+                  })}
+                </Fragment>
+              );
+            })}
           </div>
         </div>
       ))}

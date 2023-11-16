@@ -40,6 +40,7 @@ export interface TableTheme<T = unknown> {
     resetAll: ReactNode;
     rangeMin: ReactNode;
     rangeMax: ReactNode;
+    calendarWeek: ReactNode;
   };
   /** Define styles. */
   classes?: {
