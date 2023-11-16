@@ -40,7 +40,9 @@ export default defineConfig({
         chunkFileNames: '[format]/[name].js',
       },
       external: (source) => {
-        return !(path.isAbsolute(source) || source.startsWith('.'));
+        return (
+          !source.includes('schummar-state') && !(path.isAbsolute(source) || source.startsWith('.'))
+        );
       },
     },
   },
