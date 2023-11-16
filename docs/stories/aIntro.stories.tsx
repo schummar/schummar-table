@@ -1,5 +1,6 @@
 import type { Meta } from '@storybook/react';
 import { Id, Table, type TableProps } from '../../src';
+import { DatePickerProvider } from '../../src/components/datePicker';
 import data from './_data';
 import { defaultColumns } from './_default';
 import css from './styles.module.css';
@@ -10,6 +11,11 @@ type Item = typeof data extends Array<infer S> ? S : never;
 export default {
   title: 'Intro',
   component: Table,
+  render: (args) => (
+    <DatePickerProvider showCalendarWeek>
+      <Table {...args} />
+    </DatePickerProvider>
+  ),
 
   // More on argTypes: https://storybook.js.org/docs/react/api/argtypes
   argTypes: {

@@ -1,7 +1,16 @@
 import { DateObj, useDayzed } from 'dayzed';
-import { Fragment, ReactNode, useEffect, useMemo, useState } from 'react';
+import {
+  Fragment,
+  ReactNode,
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import { useTheme } from '../hooks/useTheme';
-import { gray, lightGray } from '../theme/defaultTheme/defaultClasses';
+import { defaults } from '../misc/defaults';
+import { gray } from '../theme/defaultTheme/defaultClasses';
 import { useCssVariables } from '../theme/useCssVariables';
 import { DateInput } from './dateInput';
 import { Text } from './text';
@@ -42,6 +51,17 @@ export type DatePickerProps = {
   /** Whether to show the calendar week in the first column */
   showCalendarWeek?: boolean;
 };
+
+const DatePickerContext = createContext<Partial<Omit<DatePickerProps, 'value' | 'onChange'>>>({});
+
+export function DatePickerProvider({
+  children,
+  ...props
+}: Partial<Omit<DatePickerProps, 'value' | 'onChange'>> & { children?: ReactNode }) {
+  const value = useMemo(() => props, [JSON.stringify(props)]);
+
+  return <DatePickerContext.Provider value={value}>{children}</DatePickerContext.Provider>;
+}
 
 const weekDays = [0, 1, 2, 3, 4, 5, 6] as const;
 
@@ -177,6 +197,8 @@ export function dateClamp(date: Date, min?: Date, max?: Date) {
 }
 
 export function DatePicker(props: DatePickerProps) {
+  const context = useContext(DatePickerContext);
+
   const {
     value,
     rangeSelect,
@@ -187,7 +209,7 @@ export function DatePicker(props: DatePickerProps) {
     minDate,
     maxDate,
     showCalendarWeek,
-  } = props;
+  } = defaults<DatePickerProps>(props, context);
 
   function onChange(value: Date | DateRange | null) {
     if (value instanceof Date) {
