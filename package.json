@@ -18,16 +18,19 @@
   "types": "dist/types/index.d.ts",
   "exports": {
     ".": {
+      "types": "./dist/types/index.d.ts",
       "import": "./dist/es/index.js",
       "require": "./dist/cjs/index.js",
       "default": "./dist/es/index.js"
     },
     "./mui5Theme": {
+      "types": "./dist/types/theme/mui5Theme/index.d.ts",
       "import": "./dist/es/mui5Theme.js",
       "require": "./dist/cjs/mui5Theme.js",
       "default": "./dist/es/mui5Theme.js"
     },
     "./mui4Theme": {
+      "types": "./dist/types/theme/mui4Theme/index.d.ts",
       "import": "./dist/es/mui4Theme.js",
       "require": "./dist/cjs/mui4Theme.js",
       "default": "./dist/es/mui4Theme.js"
