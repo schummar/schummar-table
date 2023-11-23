@@ -45,6 +45,8 @@ export type DatePickerProps = {
   /** Show buttons to quickly select suggested dates or date ranges */
   quickOptions?: DatePickerQuickOption[];
   /** Minimum selectable date */
+  /** Ranges that can't be selected */
+  blockedRanges?: DateRange[];
   minDate?: Date;
   /** Maximum selectable date */
   maxDate?: Date;
@@ -252,6 +254,7 @@ export function DatePicker(props: DatePickerProps) {
         <Button
           key={index}
           variant="text"
+          type="button"
           onClick={() => {
             setDirty(undefined);
 

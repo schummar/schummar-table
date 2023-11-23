@@ -83,6 +83,7 @@ export interface TableTheme<T = unknown> {
       variant?: 'text' | 'outlined' | 'contained';
       disabled?: boolean;
       className?: string;
+      type?: React.ButtonHTMLAttributes<HTMLButtonElement>['type'];
     }>;
     Checkbox: ComponentType<{
       checked: boolean;
