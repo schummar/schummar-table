@@ -45,7 +45,7 @@ export type DatePickerProps = {
   /** Show buttons to quickly select suggested dates or date ranges */
   quickOptions?: DatePickerQuickOption[];
   /** Minimum selectable date */
-  /** Ranges that can't be selected */
+  /** Date ranges that are visually marked as blocked */
   blockedRanges?: DateRange[];
   minDate?: Date;
   /** Maximum selectable date */
@@ -211,10 +211,7 @@ export function DatePicker(props: DatePickerProps) {
     minDate,
     maxDate,
     showCalendarWeek,
-    blockedRanges = [
-      { min: new Date(2023, 11, 1), max: new Date(2023, 11, 27) },
-      { min: new Date(2023, 11, 29), max: new Date(2023, 11, 30) },
-    ],
+    blockedRanges = [],
   } = defaults<DatePickerProps>(props, context);
 
   function onChange(value: Date | DateRange | null) {
