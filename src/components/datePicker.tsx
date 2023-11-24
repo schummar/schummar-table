@@ -515,6 +515,20 @@ export function DatePicker(props: DatePickerProps) {
                             background: 'var(--primaryMain)',
                             color: 'var(--primaryContrastText)',
                           },
+                          blocked &&
+                            selected && {
+                              position: 'relative',
+                              '::before': {
+                                content: '""',
+                                position: 'absolute',
+                                top: 0,
+                                right: 0,
+                                bottom: 0,
+                                left: 0,
+                                background: 'var(--blockedMain)',
+                                clipPath: 'polygon(0 0, 0 50%, 50% 0)',
+                              },
+                            },
                           preSelected && {
                             background: 'var(--primaryLight)',
                             color: 'var(--primaryContrastText)',
