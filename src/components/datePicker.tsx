@@ -378,7 +378,7 @@ export function DatePicker(props: DatePickerProps) {
               alignItems: 'center',
             }}
           >
-            <IconButton {...getBackProps({ calendars })}>
+            <IconButton type="button" {...getBackProps({ calendars })}>
               <ChevronRight css={{ transform: 'rotate3d(0, 0, 1, 180deg)' }} />
             </IconButton>
 
@@ -386,7 +386,7 @@ export function DatePicker(props: DatePickerProps) {
               {formatMonth(month)} {formatYear(year)}
             </div>
 
-            <IconButton {...getForwardProps({ calendars })}>
+            <IconButton type="button" {...getForwardProps({ calendars })}>
               <ChevronRight />
             </IconButton>
           </div>
@@ -436,6 +436,7 @@ export function DatePicker(props: DatePickerProps) {
                 <Fragment key={index}>
                   {showCalendarWeek ? (
                     <button
+                      type="button"
                       css={{
                         padding: 10,
                         border: 'none',
@@ -486,6 +487,7 @@ export function DatePicker(props: DatePickerProps) {
 
                     return (
                       <button
+                        type="button"
                         key={`${index}-${dayIndex}`}
                         css={[
                           {

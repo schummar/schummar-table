@@ -66,7 +66,6 @@ export const Primary = () => {
           setBirthday(null);
         }}
         columns={(col) => [
-          //
           col((x) => x.avatar, {
             header: 'Avatar',
             renderCell: (avatar) => <img width={50} height={50} src={avatar} />,
