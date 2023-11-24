@@ -1,12 +1,19 @@
 import { useState } from 'react';
 import { DatePicker, DatePickerProps, DateRange } from '../../src';
 
+const today = new Date();
+const nextWeek = new Date();
+nextWeek.setDate(today.getDate() + 7);
+
 export default {
   title: 'Date Picker',
   component: DatePicker,
   argTypes: {
     value: { control: 'date' },
     onChange: { action: 'changed' },
+    blockedRanges: {
+      control: 'object',
+    },
   },
 };
 

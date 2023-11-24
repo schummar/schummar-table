@@ -211,6 +211,10 @@ export function DatePicker(props: DatePickerProps) {
     minDate,
     maxDate,
     showCalendarWeek,
+    blockedRanges = [
+      { min: new Date(2023, 11, 1), max: new Date(2023, 11, 27) },
+      { min: new Date(2023, 11, 29), max: new Date(2023, 11, 30) },
+    ],
   } = defaults<DatePickerProps>(props, context);
 
   function onChange(value: Date | DateRange | null) {
@@ -484,7 +488,7 @@ export function DatePicker(props: DatePickerProps) {
                             date,
                             min <= hovered ? { min, max: hovered } : { min: hovered, max: min },
                           )));
-
+                    const blocked = blockedRanges.some((range) => dateIntersect(date, range));
                     return (
                       <button
                         type="button"
@@ -502,6 +506,10 @@ export function DatePicker(props: DatePickerProps) {
                           },
                           today && {
                             outline: '1px solid var(--secondaryMain)',
+                          },
+                          blocked && {
+                            background: 'var(--blockedMain)',
+                            color: 'var(--blockedContrastText)',
                           },
                           selected && {
                             background: 'var(--primaryMain)',
