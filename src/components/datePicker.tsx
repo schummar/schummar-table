@@ -33,6 +33,10 @@ export type DatePickerProps = {
   value: Date | DateRange | null;
   /** Callback for when the day (range) changes. */
   onChange: (value: Date | DateRange | null) => void;
+  /** Currently visible date. */
+  dateInView?: Date;
+  /** Callback for when the currently visible date changes. */
+  onDateInViewChange?: (value: Date) => void;
   /** If enabled, ranges can be selected. */
   rangeSelect?: boolean;
   /** Which locale to use to render the calendar. */
@@ -293,9 +297,15 @@ export function DatePicker(props: DatePickerProps) {
   }
 
   const mountTime = useMemo(() => new Date(), []);
-  const [dateInView, setDateInView] = useState<Date>(defaultDateInView ?? mountTime);
   const [dirty, setDirty] = useState<Partial<DateRange>>();
   const [hovered, setHovered] = useState<Date>();
+  const [dateInViewLocal, setDateInViewLocal] = useState<Date>(defaultDateInView ?? mountTime);
+  const dateInView = props.dateInView ?? dateInViewLocal;
+
+  function setDateInView(date: Date) {
+    setDateInViewLocal(date);
+    props.onDateInViewChange?.(date);
+  }
 
   const min = dirty ? dirty.min : value instanceof Date ? value : value?.min;
   const max = dirty ? dirty.max : value instanceof Date ? value : value?.max;
