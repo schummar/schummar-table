@@ -14,6 +14,7 @@ import { gray } from '../theme/defaultTheme/defaultClasses';
 import { useCssVariables } from '../theme/useCssVariables';
 import { DateInput } from './dateInput';
 import { Text } from './text';
+import { Interpolation, Theme } from '@emotion/react';
 
 export type DateRange = { min: Date; max: Date };
 
@@ -45,6 +46,8 @@ export type DatePickerProps = {
   /** Show buttons to quickly select suggested dates or date ranges */
   quickOptions?: DatePickerQuickOption[];
   /** Minimum selectable date */
+  /** Date ranges that are visually marked as blocked */
+  blockedRanges?: DateRange[];
   minDate?: Date;
   /** Maximum selectable date */
   maxDate?: Date;
@@ -209,6 +212,7 @@ export function DatePicker(props: DatePickerProps) {
     minDate,
     maxDate,
     showCalendarWeek,
+    blockedRanges = [],
   } = defaults<DatePickerProps>(props, context);
 
   function onChange(value: Date | DateRange | null) {
@@ -228,6 +232,65 @@ export function DatePicker(props: DatePickerProps) {
   const IconButton = useTheme((t) => t.components.IconButton);
   const ChevronRight = useTheme((t) => t.icons.ChevronRight);
   const cssVariables = useCssVariables();
+  function getDayCssStyles({
+    disabled,
+    prevMonth,
+    nextMonth,
+    today,
+    blocked,
+    selected,
+    preSelected,
+  }: {
+    disabled?: boolean;
+    prevMonth?: boolean;
+    nextMonth?: boolean;
+    today?: boolean;
+    blocked?: boolean;
+    selected?: boolean;
+    preSelected?: boolean;
+  }): Interpolation<Theme> {
+    return [
+      {
+        padding: 10,
+        border: 'none',
+        background: 'transparent',
+        cursor: disabled ? undefined : 'pointer',
+        font: 'inherit',
+      },
+      (prevMonth || nextMonth) && {
+        color: gray,
+      },
+      today && {
+        outline: '1px solid var(--secondaryMain)',
+      },
+      blocked && {
+        background: 'var(--blockedMain)',
+        color: 'var(--blockedContrastText)',
+      },
+      selected && {
+        background: 'var(--primaryMain)',
+        color: 'var(--primaryContrastText)',
+      },
+      blocked &&
+        selected && {
+          position: 'relative',
+          '::before': {
+            content: '""',
+            position: 'absolute',
+            top: 0,
+            right: 0,
+            bottom: 0,
+            left: 0,
+            background: 'var(--blockedMain)',
+            clipPath: 'polygon(0 0, 0 50%, 50% 0)',
+          },
+        },
+      preSelected && {
+        background: 'var(--primaryLight)',
+        color: 'var(--primaryContrastText)',
+      },
+    ];
+  }
 
   const mountTime = useMemo(() => new Date(), []);
   const [dateInView, setDateInView] = useState<Date>(defaultDateInView ?? mountTime);
@@ -252,6 +315,7 @@ export function DatePicker(props: DatePickerProps) {
         <Button
           key={index}
           variant="text"
+          type="button"
           onClick={() => {
             setDirty(undefined);
 
@@ -375,7 +439,7 @@ export function DatePicker(props: DatePickerProps) {
               alignItems: 'center',
             }}
           >
-            <IconButton {...getBackProps({ calendars })}>
+            <IconButton type="button" {...getBackProps({ calendars })}>
               <ChevronRight css={{ transform: 'rotate3d(0, 0, 1, 180deg)' }} />
             </IconButton>
 
@@ -383,7 +447,7 @@ export function DatePicker(props: DatePickerProps) {
               {formatMonth(month)} {formatYear(year)}
             </div>
 
-            <IconButton {...getForwardProps({ calendars })}>
+            <IconButton type="button" {...getForwardProps({ calendars })}>
               <ChevronRight />
             </IconButton>
           </div>
@@ -433,6 +497,7 @@ export function DatePicker(props: DatePickerProps) {
                 <Fragment key={index}>
                   {showCalendarWeek ? (
                     <button
+                      type="button"
                       css={{
                         padding: 10,
                         border: 'none',
@@ -480,33 +545,21 @@ export function DatePicker(props: DatePickerProps) {
                             date,
                             min <= hovered ? { min, max: hovered } : { min: hovered, max: min },
                           )));
+                    const blocked = blockedRanges.some((range) => dateIntersect(date, range));
 
                     return (
                       <button
+                        type="button"
                         key={`${index}-${dayIndex}`}
-                        css={[
-                          {
-                            padding: 10,
-                            border: 'none',
-                            background: 'transparent',
-                            cursor: disabled ? undefined : 'pointer',
-                            font: 'inherit',
-                          },
-                          (prevMonth || nextMonth) && {
-                            color: gray,
-                          },
-                          today && {
-                            outline: '1px solid var(--secondaryMain)',
-                          },
-                          selected && {
-                            background: 'var(--primaryMain)',
-                            color: 'var(--primaryContrastText)',
-                          },
-                          preSelected && {
-                            background: 'var(--primaryLight)',
-                            color: 'var(--primaryContrastText)',
-                          },
-                        ]}
+                        css={getDayCssStyles({
+                          disabled,
+                          prevMonth,
+                          nextMonth,
+                          today,
+                          blocked,
+                          selected,
+                          preSelected,
+                        })}
                         {...getDateProps({ dateObj: dateObject })}
                         onClick={() => {
                           if (dirty) {

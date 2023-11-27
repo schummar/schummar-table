@@ -31,6 +31,7 @@ export function mergeThemes<T>(...themes: PartialTableTheme<T>[]): PartialTableT
     colors: {
       primary: Object.assign({}, ...themes.map((theme) => theme.colors?.primary)),
       secondary: Object.assign({}, ...themes.map((theme) => theme.colors?.secondary)),
+      blocked: Object.assign({}, ...themes.map((theme) => theme.colors?.blocked)),
     },
     spacing: themes
       .map((theme) => theme.spacing)

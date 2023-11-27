@@ -75,6 +75,7 @@ export interface TableTheme<T = unknown> {
       children: ReactNode;
       onClick?: (event: React.MouseEvent<Element>) => void;
       className?: string;
+      type?: React.ButtonHTMLAttributes<HTMLButtonElement>['type'];
     }>;
     Button: ComponentType<{
       children: ReactNode;
@@ -83,6 +84,7 @@ export interface TableTheme<T = unknown> {
       variant?: 'text' | 'outlined' | 'contained';
       disabled?: boolean;
       className?: string;
+      type?: React.ButtonHTMLAttributes<HTMLButtonElement>['type'];
     }>;
     Checkbox: ComponentType<{
       checked: boolean;
@@ -132,6 +134,7 @@ export interface TableTheme<T = unknown> {
   colors: {
     primary: { main: string; light: string; contrastText: string };
     secondary: { main: string; light: string; contrastText: string };
+    blocked: { main: string; light: string; contrastText: string };
   };
   /** Spacing. */
   spacing: string | number;
