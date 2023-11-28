@@ -371,15 +371,12 @@ export function DatePicker(props: DatePickerProps) {
       format(new Date(Date.UTC(2021, 7, ((weekDay + firstDayOfWeek) % 7) + 1)));
   }, [locale, firstDayOfWeek]);
 
-  const comparisonValue = getValueForComparison(value);
-  const comparisonDefaultDateInView = getValueForComparison(defaultDateInView);
-
   useEffect(
     () =>
       setDateInView(
         value === null ? defaultDateInView ?? mountTime : value instanceof Date ? value : value.max,
       ),
-    [comparisonValue, comparisonDefaultDateInView, mountTime],
+    [getValueForComparison(value), getValueForComparison(defaultDateInView), mountTime],
   );
 
   useEffect(() => {
