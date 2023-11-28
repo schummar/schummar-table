@@ -203,6 +203,16 @@ export function dateClamp(date: Date, min?: Date, max?: Date) {
   return date;
 }
 
+function getValueForComparison(value?: Date | DateRange | null) {
+  if (!value) {
+    return value;
+  }
+  if (value instanceof Date) {
+    return value.getTime();
+  }
+  return `${value.min?.getTime()}-${value.max?.getTime()}`;
+}
+
 export function DatePicker(props: DatePickerProps) {
   const context = useContext(DatePickerContext);
 
@@ -366,7 +376,7 @@ export function DatePicker(props: DatePickerProps) {
       setDateInView(
         value === null ? defaultDateInView ?? mountTime : value instanceof Date ? value : value.max,
       ),
-    [value, defaultDateInView, mountTime],
+    [getValueForComparison(value), getValueForComparison(defaultDateInView), mountTime],
   );
 
   useEffect(() => {
