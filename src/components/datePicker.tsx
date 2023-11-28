@@ -203,6 +203,16 @@ export function dateClamp(date: Date, min?: Date, max?: Date) {
   return date;
 }
 
+function getValueForComparison(value?: Date | DateRange | null) {
+  if (!value) {
+    return value;
+  }
+  if (value instanceof Date) {
+    return value.getTime();
+  }
+  return `${value.min?.getTime()}-${value.max?.getTime()}`;
+}
+
 export function DatePicker(props: DatePickerProps) {
   const context = useContext(DatePickerContext);
 
@@ -361,12 +371,15 @@ export function DatePicker(props: DatePickerProps) {
       format(new Date(Date.UTC(2021, 7, ((weekDay + firstDayOfWeek) % 7) + 1)));
   }, [locale, firstDayOfWeek]);
 
+  const comparisonValue = getValueForComparison(value);
+  const comparisonDefaultDateInView = getValueForComparison(defaultDateInView);
+
   useEffect(
     () =>
       setDateInView(
         value === null ? defaultDateInView ?? mountTime : value instanceof Date ? value : value.max,
       ),
-    [value, defaultDateInView, mountTime],
+    [comparisonValue, comparisonDefaultDateInView, mountTime],
   );
 
   useEffect(() => {
