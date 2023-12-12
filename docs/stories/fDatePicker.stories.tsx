@@ -1,6 +1,6 @@
+import type { Meta } from '@storybook/react';
 import { useState } from 'react';
-import { DatePicker, DatePickerProps, DateRange, thisWeek } from '../../src';
-import { Meta } from '@storybook/react';
+import { DatePicker, thisWeek, type DatePickerProps, type DateRange } from '../../src';
 
 const today = new Date();
 const nextWeek = new Date();
