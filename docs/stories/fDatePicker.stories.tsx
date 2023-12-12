@@ -1,13 +1,39 @@
 import { useState } from 'react';
-import { DatePicker, DatePickerProps, DateRange } from '../../src';
+import { DatePicker, DatePickerProps, DateRange, thisWeek } from '../../src';
+import { Meta } from '@storybook/react';
 
 const today = new Date();
 const nextWeek = new Date();
 nextWeek.setDate(today.getDate() + 7);
 
+function Wrapper(props: DatePickerProps) {
+  const [date, setDate] = useState<Date | DateRange | null>(props.value ?? null);
+
+  return (
+    <div
+      css={{
+        display: 'flex',
+        justifyContent: 'center',
+      }}
+    >
+      <DatePicker
+        {...props}
+        value={date}
+        onChange={(v) => {
+          setDate(v);
+          props.onChange(v);
+        }}
+      />
+    </div>
+  );
+}
+
 export default {
   title: 'Date Picker',
   component: DatePicker,
+  render(props) {
+    return <Wrapper {...props} />;
+  },
   argTypes: {
     value: { control: 'date' },
     onChange: { action: 'changed' },
@@ -15,27 +41,56 @@ export default {
       control: 'object',
     },
   },
+} satisfies Meta<typeof DatePicker>;
+
+export const Simple = {
+  args: {
+    value: new Date(),
+    onChange: () => undefined,
+  } satisfies DatePickerProps,
 };
 
-export const Primary = (args: DatePickerProps) => {
-  const [date, setDate] = useState<DateRange | null>(null);
+export const Range = {
+  args: {
+    value: thisWeek(),
+    onChange: () => undefined,
+    rangeSelect: true,
+  } satisfies DatePickerProps,
+};
 
+export const CalendarWeeks = () => {
   return (
-    <DatePicker
-      {...args}
-      value={date}
-      onChange={(v) => {
-        if (v instanceof Date) {
-          setDate({ min: v, max: v });
-        } else {
-          setDate(v);
-        }
-        args.onChange(v);
-      }}
-    />
-  );
-};
+    <div
+      css={{
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 50,
+        justifyContent: 'center',
 
-Primary.args = {
-  value: new Date(),
+        '& > div': {
+          display: 'flex',
+          gap: 50,
+        },
+      }}
+    >
+      {[2023, 2024, 2025, 2026].map((year) => (
+        <div key={year}>
+          <DatePicker
+            value={null}
+            onChange={() => undefined}
+            dateInView={new Date(`${year - 1}-12-31`)}
+            showCalendarWeek
+            rangeSelect
+          />
+          <DatePicker
+            value={null}
+            onChange={() => undefined}
+            dateInView={new Date(`${year}-01-01`)}
+            showCalendarWeek
+            rangeSelect
+          />
+        </div>
+      ))}
+    </div>
+  );
 };

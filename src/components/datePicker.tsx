@@ -147,20 +147,32 @@ export const getCalendarWeek = (date: Date): number => {
   // ISO 8601: Week 1 is the week with the first Thursday of the year.
   // https://en.wikipedia.org/wiki/ISO_week_date
 
-  const y = date.getFullYear();
-  const fdoy = new Date(y, 0, 1);
-  const doy = Math.floor(
-    (date.getTime() - fdoy.getTime() + (date.getTimezoneOffset() - fdoy.getTimezoneOffset())) /
-      MS_PER_DAY,
+  const endOfWeek = new Date(
+    date.getFullYear(),
+    date.getMonth(),
+    date.getDate() + (7 - (date.getDay() || 7)),
   );
-  const dow = fdoy.getDay();
-  const w = Math.floor((10 + doy - dow) / 7);
 
-  if (w === 0) {
-    return getCalendarWeek(new Date(y - 1, 11, 31));
+  const year = endOfWeek.getFullYear();
+  const firstDayOfYear = new Date(year, 0, 1);
+  const dayOfYear =
+    Math.floor(
+      (endOfWeek.getTime() -
+        firstDayOfYear.getTime() +
+        (endOfWeek.getTimezoneOffset() - firstDayOfYear.getTimezoneOffset())) /
+        MS_PER_DAY,
+    ) + 1;
+  const weekOfYear = Math.floor((3 + dayOfYear) / 7);
+
+  if (weekOfYear === 0) {
+    return (
+      getCalendarWeek(
+        new Date(endOfWeek.getFullYear(), endOfWeek.getMonth(), endOfWeek.getDate() - 7),
+      ) + 1
+    );
   }
 
-  return w;
+  return weekOfYear;
 };
 
 export const commonQuickOptions = {
@@ -176,7 +188,10 @@ export const commonQuickOptions = {
 >;
 
 /** Returns whether two dates and/or date ranges intersect. Intersection is considered per day. */
-export function dateIntersect(a: Date | null | DateRange, b: Date | null | DateRange) {
+export function dateIntersect(
+  a: Date | DateRange | null | undefined,
+  b: Date | DateRange | null | undefined,
+) {
   if (a instanceof Date) {
     a = { min: a, max: a };
   }
@@ -308,7 +323,7 @@ export function DatePicker(props: DatePickerProps) {
 
   const mountTime = useMemo(() => new Date(), []);
   const [dirty, setDirty] = useState<Partial<DateRange>>();
-  const [hovered, setHovered] = useState<Date>();
+  const [hovered, setHovered] = useState<DateRange>();
   const [dateInViewLocal, setDateInViewLocal] = useState<Date>(defaultDateInView ?? mountTime);
   const dateInView = props.dateInView ?? dateInViewLocal;
 
@@ -535,8 +550,12 @@ export function DatePicker(props: DatePickerProps) {
                         const max = maxDate && weekEnd.date > maxDate ? maxDate : weekEnd.date;
                         set(min, max);
                       }}
+                      onPointerOver={() =>
+                        !weekDisabled && setHovered({ min: weekStart.date, max: weekEnd.date })
+                      }
+                      onPointerOut={() => !weekDisabled && setHovered(undefined)}
                     >
-                      {getCalendarWeek((week[0] as DateObj).date)}
+                      {getCalendarWeek(weekEnd.date)}
                     </button>
                   ) : (
                     <div />
@@ -557,13 +576,15 @@ export function DatePicker(props: DatePickerProps) {
                     const preSelected =
                       !selected &&
                       !disabled &&
-                      (date.getTime() === hovered?.getTime() ||
+                      (dateIntersect(date, hovered) ||
                         (min &&
                           !max &&
                           hovered &&
                           dateIntersect(
                             date,
-                            min <= hovered ? { min, max: hovered } : { min: hovered, max: min },
+                            min <= hovered.min
+                              ? { min, max: hovered.min }
+                              : { min: hovered.max, max: min },
                           )));
                     const blocked = blockedRanges.some((range) => dateIntersect(date, range));
 
@@ -589,7 +610,7 @@ export function DatePicker(props: DatePickerProps) {
                             set(date);
                           }
                         }}
-                        onPointerOver={() => setHovered(date)}
+                        onPointerOver={() => setHovered({ min: date, max: date })}
                         onPointerOut={() => setHovered(undefined)}
                         disabled={disabled}
                       >
