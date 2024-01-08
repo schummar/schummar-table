@@ -198,15 +198,15 @@ export function ColumnHeader() {
       ref={ref}
       className={cx(classes, columnClasses)}
       css={[
+        defaultClasses.headerCell,
         {
           position: 'relative',
           userSelect: 'none',
         },
-        defaultClasses.headerCell,
-        styles,
-        columnStyles,
         stickyHeader && defaultClasses.sticky,
         stickyHeader instanceof Object && stickyHeader,
+        styles,
+        columnStyles,
       ]}
       style={columnStyleOverride}
       onPointerDown={enabled ? onPointerDown : undefined}
