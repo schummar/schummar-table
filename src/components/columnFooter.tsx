@@ -30,10 +30,10 @@ export function ColumnFooter() {
       className={cx(classes, columnClasses)}
       css={[
         defaultClasses.footerCell,
-        styles,
-        columnCss,
         stickyFooter && defaultClasses.stickyBottom,
         stickyFooter instanceof Object && stickyFooter,
+        styles,
+        columnCss,
       ]}
       style={columnStyleOverride}
     >

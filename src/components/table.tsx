@@ -119,9 +119,9 @@ const TableInner = memo(function TableInner<T>({ hidden }: { hidden: boolean }) 
             className={classes?.headerCell}
             css={[
               defaultClasses.headerFill,
-              styles?.headerCell,
               stickyHeader && defaultClasses.sticky,
               stickyHeader instanceof Object && stickyHeader,
+              styles?.headerCell,
             ]}
           />
 
@@ -129,9 +129,9 @@ const TableInner = memo(function TableInner<T>({ hidden }: { hidden: boolean }) 
             className={classes?.headerCell}
             css={[
               defaultClasses.headerCell,
-              styles?.headerCell,
               stickyHeader && defaultClasses.sticky,
               stickyHeader instanceof Object && stickyHeader,
+              styles?.headerCell,
             ]}
           >
             {enableSelection && <SelectComponent />}
@@ -156,9 +156,9 @@ const TableInner = memo(function TableInner<T>({ hidden }: { hidden: boolean }) 
             className={classes?.headerCell}
             css={[
               defaultClasses.headerFill,
-              styles?.headerCell,
               stickyHeader && defaultClasses.sticky,
               stickyHeader instanceof Object && stickyHeader,
+              styles?.headerCell,
             ]}
           />
         </>
@@ -172,18 +172,18 @@ const TableInner = memo(function TableInner<T>({ hidden }: { hidden: boolean }) 
                 className={classes?.footerCell}
                 css={[
                   defaultClasses.footerFill,
-                  styles?.footerCell,
                   stickyFooter && defaultClasses.stickyBottom,
                   stickyFooter instanceof Object && stickyFooter,
+                  styles?.footerCell,
                 ]}
               />
               <div
                 className={classes?.footerCell}
                 css={[
                   defaultClasses.footerFill,
-                  styles?.footerCell,
                   stickyFooter && defaultClasses.stickyBottom,
                   stickyFooter instanceof Object && stickyFooter,
+                  styles?.footerCell,
                 ]}
               />
 
@@ -197,9 +197,9 @@ const TableInner = memo(function TableInner<T>({ hidden }: { hidden: boolean }) 
                 className={classes?.footerCell}
                 css={[
                   defaultClasses.footerFill,
-                  styles?.footerCell,
                   stickyFooter && defaultClasses.stickyBottom,
                   stickyFooter instanceof Object && stickyFooter,
+                  styles?.footerCell,
                 ]}
               />
             </>
