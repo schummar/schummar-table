@@ -3,6 +3,7 @@ export type CsvExportOptions = {
   separator?: string;
   quote?: string;
   eol?: string;
+  all?: boolean;
 };
 
 export function csvExport(

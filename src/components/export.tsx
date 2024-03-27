@@ -21,11 +21,11 @@ export function Export<T>(): JSX.Element {
   const [anchor, setAnchor] = useState<Element | null>(null);
 
   const generate = (options?: CsvExportOptions) => {
-    const { activeColumns, activeItems } = table.getState();
+    const { activeColumns, activeItems, items } = table.getState();
 
     const data = [
       activeColumns.map((column) => String(column.id)),
-      ...activeItems.map((item) =>
+      ...(options?.all ? items : activeItems).map((item) =>
         activeColumns.map((column) => column.exportCell(column.value(item.value), item.value)),
       ),
     ];
