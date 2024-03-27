@@ -77,8 +77,8 @@ export function calcProps<T>(props: TableProps<T>): InternalTableProps<T> {
               typeof v === 'number' || v instanceof Date
                 ? v
                 : v === null || v === undefined
-                ? ''
-                : String(v),
+                  ? ''
+                  : String(v),
           ]
         ).map((function_, i) => cache(`columns.${cacheKey}.sortBy.${i}`, function_)),
         disableSort,
@@ -109,9 +109,12 @@ export function calcProps<T>(props: TableProps<T>): InternalTableProps<T> {
       props.enableExport === true ||
       (props.enableExport instanceof Object && props.enableExport.copy === true)
     ) {
-      copy = { separator: '\t' };
+      copy = {};
     } else if (props.enableExport && props.enableExport.copy instanceof Object) {
       copy = props.enableExport.copy;
+    }
+    if (copy) {
+      copy.separator ??= '\t';
     }
 
     let download;
@@ -119,9 +122,12 @@ export function calcProps<T>(props: TableProps<T>): InternalTableProps<T> {
       props.enableExport === true ||
       (props.enableExport instanceof Object && props.enableExport.download === true)
     ) {
-      download = { sepPrefix: true };
+      download = {};
     } else if (props.enableExport && props.enableExport.download instanceof Object) {
       download = props.enableExport.download;
+    }
+    if (download) {
+      download.sepPrefix ??= true;
     }
 
     const enableExport = { copy, download };
