@@ -39,7 +39,7 @@ export const Row = memo(function Row<T>({
 
     return {
       className: cx(...calcClassNames(classes, item?.value, rowIndex)),
-      css_: calcCss(styles, item?.value, rowIndex),
+      css_: calcCss<T>(styles, item?.value, rowIndex),
       indent: item ? getAncestors(state.activeItemsById, item).size : 0,
       hasChildren: !!item?.children.length,
       hasDeferredChildren: item && state.props.hasDeferredChildren?.(item.value),

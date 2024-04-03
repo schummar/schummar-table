@@ -14,11 +14,15 @@ export function calcClassNames<T>(
 
 export function calcCss<T>(
   styles: MemoizedTableTheme<T>['styles'] | undefined,
-  item: T,
+  item: T | undefined,
   index: number,
 ) {
   return [
-    styles?.cell instanceof Function ? styles.cell(item, index) : styles?.cell,
+    styles?.cell instanceof Function
+      ? item !== undefined
+        ? styles.cell(item, index)
+        : undefined
+      : styles?.cell,
     index % 2 === 0 && styles?.evenCell,
     index % 2 === 1 && styles?.oddCell,
   ];

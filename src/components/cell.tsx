@@ -39,7 +39,7 @@ export const Cell = memo(function Cell<T>({ itemId, rowIndex }: { itemId: Id; ro
 
   useLayoutEffect(() => table.getState().props.debugRender?.('render cell', itemId, columnId));
   const className = useTheme((t) => cx(...calcClassNames(t.classes, item?.value, rowIndex)));
-  const styles = useTheme((t) => calcCss(t.styles, item?.value, rowIndex));
+  const styles = useTheme((t) => calcCss<T>(t.styles, item?.value, rowIndex));
 
   if (!column || !item) return null;
 
