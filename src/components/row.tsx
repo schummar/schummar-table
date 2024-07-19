@@ -60,13 +60,18 @@ export const Row = memo(function Row<T>({
     };
   });
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     function update() {
       table.update((state) => {
-        const h1 = document.contains(divRef.current) ? divRef.current?.offsetHeight ?? 0 : 0;
-        const h2 = document.contains(detailsDivRef.current)
-          ? detailsDivRef.current?.offsetHeight ?? 0
-          : 0;
+        if (!divRef.current) {
+          return;
+        }
+
+        const h1 = divRef.current.offsetHeight;
+        const h2 =
+          detailsDivRef.current && document.contains(detailsDivRef.current)
+            ? detailsDivRef.current.offsetHeight
+            : 0;
 
         state.rowHeights.set(itemId, h1 + h2);
       });
