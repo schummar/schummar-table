@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 import { useEffect, useMemo, useState } from 'react';
 import { useFilter } from '../hooks/useFilter';
 import { useTheme } from '../hooks/useTheme';
-import { asString, castArray, flatMap, uniq } from '../misc/helpers';
+import { asString, castArray, flatMap, orderBy, uniq } from '../misc/helpers';
 import { useColumnContext, useTableContext } from '../misc/tableContext';
 import type { CommonFilterProps, InternalColumn, SerializableValue } from '../types';
 import { AutoFocusTextField } from './autoFocusTextField';
@@ -83,8 +83,10 @@ export function SelectFilter<T, V, F extends SerializableValue>({
       | undefined;
     if (!column) return [];
 
-    return uniq(
-      flatMap(state.items, (item) => castArray(filterBy(column.value(item.value), item.value))),
+    return orderBy(
+      uniq(
+        flatMap(state.items, (item) => castArray(filterBy(column.value(item.value), item.value))),
+      ),
     );
   });
 
