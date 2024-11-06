@@ -42,6 +42,7 @@ export function calcProps<T>(props: TableProps<T>): InternalTableProps<T> {
       {
         id: _id,
         header,
+        exportHeader,
         footer,
         value,
         renderCell,
@@ -63,13 +64,17 @@ export function calcProps<T>(props: TableProps<T>): InternalTableProps<T> {
       return {
         id,
         header: header ?? defaults?.header ?? null,
+        exportHeader: exportHeader ?? defaults?.exportHeader ?? id,
         footer: footer ?? defaults?.footer ?? null,
         value: cache(`columns.${cacheKey}.value`, value),
         renderCell: cache(
           `columns.${cacheKey}.renderCell`,
           renderCell ?? defaults?.renderCell ?? asString,
         ),
-        exportCell: exportCell ?? defaults?.exportCell ?? asString,
+        exportCell:
+          exportCell ??
+          defaults?.exportCell ??
+          ((x) => (x instanceof Date || typeof x === 'number' ? x : String(x))),
         sortBy: (
           sortBy ??
           defaults?.sortBy ?? [
@@ -104,34 +109,6 @@ export function calcProps<T>(props: TableProps<T>): InternalTableProps<T> {
         ? cache('rowDetails', props.rowDetails)
         : props.rowDetails;
 
-    let copy;
-    if (
-      props.enableExport === true ||
-      (props.enableExport instanceof Object && props.enableExport.copy === true)
-    ) {
-      copy = {};
-    } else if (props.enableExport && props.enableExport.copy instanceof Object) {
-      copy = props.enableExport.copy;
-    }
-    if (copy) {
-      copy.separator ??= '\t';
-    }
-
-    let download;
-    if (
-      props.enableExport === true ||
-      (props.enableExport instanceof Object && props.enableExport.download === true)
-    ) {
-      download = {};
-    } else if (props.enableExport && props.enableExport.download instanceof Object) {
-      download = props.enableExport.download;
-    }
-    if (download) {
-      download.sepPrefix ??= true;
-    }
-
-    const enableExport = { copy, download };
-
     return {
       ...props,
       id,
@@ -145,7 +122,7 @@ export function calcProps<T>(props: TableProps<T>): InternalTableProps<T> {
       selectSyncChildren: props.selectSyncChildren ?? true,
       stickyHeader: props.stickyHeader ?? true,
       stickyFooter: props.stickyFooter ?? true,
-      enableExport,
+      enableExport: props.enableExport ?? false,
       enableColumnSelection: props.enableColumnSelection ?? true,
       enableClearFiltersButton: props.enableClearFiltersButton ?? false,
       enableColumnResize: props.enableColumnResize ?? true,

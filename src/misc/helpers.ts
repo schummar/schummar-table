@@ -110,3 +110,8 @@ export const cx = (
         .map(([className]) => className);
     })
     .join(' ');
+
+type Falsy = false | 0 | '' | null | undefined;
+export function isTruthy<T>(x: T): x is Exclude<T, Falsy> {
+  return !!x;
+}

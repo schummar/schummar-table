@@ -1,8 +1,8 @@
 import type { Interpolation, Theme } from '@emotion/react';
 import type React from 'react';
 import type { CSSProperties, ComponentType, DependencyList, ReactNode, Ref } from 'react';
+import { ExportOptions } from './exporters/exporter';
 import type { TableStateStorage } from './internalState/tableStateStorage';
-import type { CsvExportOptions } from './misc/csvExport';
 
 export type Sort = { columnId: string | number; direction: SortDirection };
 export type SortDirection = 'asc' | 'desc';
@@ -289,9 +289,7 @@ export interface TableProps<T> extends PartialTableTheme<T> {
   /** Enable exporting to csv.
    * @default false
    */
-  enableExport?:
-    | boolean
-    | { copy?: boolean | CsvExportOptions; download?: boolean | CsvExportOptions };
+  enableExport?: boolean | ExportOptions;
   /** Shows a button to clear all filters while any are active
    * @default false
    */
@@ -337,7 +335,7 @@ export type InternalTableProps<T> = MemoizedFunctions<
     id: (item: T) => Id;
     parentId?: (item: T) => Id | undefined;
     columns: InternalColumn<T, unknown>[];
-    enableExport: { copy?: CsvExportOptions; download?: CsvExportOptions };
+    enableExport: boolean | ExportOptions;
   }
 >;
 
@@ -355,6 +353,7 @@ export type Column<T, V> = {
   id?: string;
   /** Render table header for this column. */
   header?: ReactNode;
+  exportHeader?: string | number | Date;
   /** Render table header for this column. */
   footer?: ReactNode;
   /** Extract value for this column */
@@ -362,7 +361,7 @@ export type Column<T, V> = {
   /** Render table cell. If not provided, a string representation of the value will be rendered. */
   renderCell?: FunctionWithDeps<(value: V, item: T) => ReactNode>;
   /** Serialize column value for exports. If not provided, a string representation of the value will be used. */
-  exportCell?: (value: V, item: T) => string | number;
+  exportCell?: (value: V, item: T) => string | number | Date;
   /** Customize sort criteria. By default it will be the value itself in case it's a number or Date, or a string representation of the value otherwise. */
   sortBy?: FunctionWithDeps<(value: V, item: T) => unknown>[];
   /** Disable sort for this column */
@@ -384,7 +383,7 @@ export type Column<T, V> = {
 export type InternalColumn<T, V> = MemoizedFunctions<
   Required<
     Omit<Column<T, V>, 'id' | 'sortBy'>,
-    'header' | 'renderCell' | 'exportCell' | 'sortBy'
+    'header' | 'exportHeader' | 'renderCell' | 'exportCell' | 'sortBy'
   > & {
     id: Id;
     sortBy: ((value: V, item: T) => unknown)[];

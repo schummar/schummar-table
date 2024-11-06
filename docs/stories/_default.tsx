@@ -8,6 +8,7 @@ const _defaultColumns: TableProps<Person>['columns'] = (col) => [
   //
   col((x) => x.avatar, {
     header: 'Avatar',
+    exportHeader: 'Avatar',
     renderCell: (avatar) => <img width={50} height={50} src={avatar} />,
     width: 'max-content',
   }),
@@ -29,9 +30,9 @@ const _defaultColumns: TableProps<Person>['columns'] = (col) => [
     filter: <SelectFilter />,
   }),
 
-  col((x) => x.birthday, {
+  col((x) => new Date(x.birthday), {
     header: 'Birthday',
-    renderCell: (birthday) => dateFormat.format(new Date(birthday)),
+    renderCell: (birthday) => dateFormat.format(birthday),
     filter: <DateFilter maxDate={new Date()} />,
   }),
 ];

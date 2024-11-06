@@ -9,9 +9,10 @@ import {
 } from '@mui/material';
 import type { ReactNode } from 'react';
 import { useMemo } from 'react';
+import { TableSettingsProvider } from '../../misc/tableSettings';
 import type { PartialTableTheme } from '../../types';
 import { Popover } from '../defaultTheme/popover';
-import { mergeThemes, TableThemeContext } from '../tableTheme';
+import { mergeThemes } from '../tableTheme';
 
 export const mui5Theme: PartialTableTheme = {
   components: {
@@ -63,5 +64,5 @@ export function Mui5TableThemeProvider({
     );
   }, [muiTheme, theme]);
 
-  return <TableThemeContext.Provider value={_theme}>{children}</TableThemeContext.Provider>;
+  return <TableSettingsProvider theme={_theme}>{children}</TableSettingsProvider>;
 }

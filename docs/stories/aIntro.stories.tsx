@@ -1,6 +1,7 @@
 import type { Meta } from '@storybook/react';
-import { Id, Table, type TableProps } from '../../src';
+import { Id, Table, TableSettingsProvider, type TableProps } from '../../src';
 import { DatePickerProvider } from '../../src/components/datePicker';
+import ExcelExporter from '../../src/exporters/excelExporter';
 import data from './_data';
 import { defaultColumns } from './_default';
 import css from './styles.module.css';
@@ -12,9 +13,13 @@ export default {
   title: 'Intro',
   component: Table,
   render: (args) => (
-    <DatePickerProvider showCalendarWeek>
-      <Table {...args} />
-    </DatePickerProvider>
+    <TableSettingsProvider
+      additionalExporters={[{ action: 'download', exporter: new ExcelExporter() }]}
+    >
+      <DatePickerProvider showCalendarWeek>
+        <Table {...args} />
+      </DatePickerProvider>
+    </TableSettingsProvider>
   ),
 
   // More on argTypes: https://storybook.js.org/docs/react/api/argtypes

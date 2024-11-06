@@ -15,35 +15,30 @@ export default {
   component: Table,
   // More on argTypes: https://storybook.js.org/docs/react/api/argtypes
   argTypes: {
-    classes: {
-      defaultValue: {
-        table: css.table,
-      },
-    },
     items: {
-      defaultValue: items,
       table: { disable: true },
     },
-    id: {
-      defaultValue: 'id',
-    },
-    columns: {
-      defaultValue: (col: any) => [
-        col((x: any) => x.name, {
-          header: 'Name',
-        }),
-        col((x: any) => x.age, {
-          header: 'Age',
-          filter: <RangeFilter min={-42} />,
-        }),
-      ],
-    },
     fullWidth: {
-      defaultValue: true,
       options: [true, false, 'left', 'right'],
       control: { type: 'inline-radio' },
     },
   },
 } as ComponentMeta<typeof Table>;
 
-export const Primary = {};
+export const Primary = {
+  args: {
+    classes: { table: css.table },
+    items: items,
+    id: 'id',
+    columns: (col: any) => [
+      col((x: any) => x.name, {
+        header: 'Name',
+      }),
+      col((x: any) => x.age, {
+        header: 'Age',
+        filter: <RangeFilter min={-42} />,
+      }),
+    ],
+    fullWidth: true,
+  },
+};

@@ -2,14 +2,15 @@ import { useContext } from 'react';
 import { Store } from 'schummar-state/react';
 import { ColumnContext, TableContext } from '../misc/tableContext';
 import { defaultTableTheme } from '../theme/defaultTheme';
-import { globalTableTheme, mergeThemes, TableThemeContext } from '../theme/tableTheme';
+import { globalTableTheme, mergeThemes } from '../theme/tableTheme';
 import type { MemoizedTableTheme, TableTheme } from '../types';
 import { useTableMemo } from './useTableMemo';
+import { TableSettingsContext } from '../misc/tableSettings';
 
 const emptyStore = new Store(undefined);
 
 export function useTheme<T, S>(selector: (theme: MemoizedTableTheme<T>) => S): S {
-  const contextTableTheme = useContext(TableThemeContext);
+  const { theme: contextTableTheme = {} } = useContext(TableSettingsContext);
   const table = useContext(TableContext);
   const columnId = useContext(ColumnContext);
   const memo = useTableMemo();

@@ -13,53 +13,65 @@
   "files": [
     "dist"
   ],
-  "main": "dist/cjs/index.js",
-  "module": "dist/es/index.js",
-  "types": "dist/types/index.d.ts",
   "exports": {
     ".": {
-      "types": "./dist/types/index.d.ts",
-      "import": "./dist/es/index.js",
-      "require": "./dist/cjs/index.js",
-      "default": "./dist/es/index.js"
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
     },
     "./mui5Theme": {
-      "types": "./dist/types/theme/mui5Theme/index.d.ts",
-      "import": "./dist/es/mui5Theme.js",
-      "require": "./dist/cjs/mui5Theme.js",
-      "default": "./dist/es/mui5Theme.js"
+      "import": {
+        "types": "./dist/mui5Theme.d.ts",
+        "default": "./dist/mui5Theme.js"
+      },
+      "require": {
+        "types": "./dist/mui5Theme.d.cts",
+        "default": "./dist/mui5Theme.cjs"
+      }
     },
     "./mui4Theme": {
-      "types": "./dist/types/theme/mui4Theme/index.d.ts",
-      "import": "./dist/es/mui4Theme.js",
-      "require": "./dist/cjs/mui4Theme.js",
-      "default": "./dist/es/mui4Theme.js"
-    }
-  },
-  "typesVersions": {
-    "*": {
-      "*": [
-        "dist/types/index.d.ts"
-      ],
-      "theme/mui5Theme": [
-        "dist/types/theme/mui5Theme/index.d.ts"
-      ],
-      "theme/mui4Theme": [
-        "dist/types/theme/mui4Theme/index.d.ts"
-      ]
+      "import": {
+        "types": "./dist/mui4Theme.d.ts",
+        "default": "./dist/mui4Theme.js"
+      },
+      "require": {
+        "types": "./dist/mui4Theme.d.cts",
+        "default": "./dist/mui4Theme.cjs"
+      }
+    },
+    "./csvExporter": {
+      "import": {
+        "types": "./dist/csvExporter.d.ts",
+        "default": "./dist/csvExporter.js"
+      },
+      "require": {
+        "types": "./dist/csvExporter.d.cts",
+        "default": "./dist/csvExporter.cjs"
+      }
+    },
+    "./excelExporter": {
+      "import": {
+        "types": "./dist/excelExporter.d.ts",
+        "default": "./dist/excelExporter.js"
+      },
+      "require": {
+        "types": "./dist/excelExporter.d.cts",
+        "default": "./dist/excelExporter.cjs"
+      }
     }
   },
   "scripts": {
     "start": "npm -w docs start",
-    "build": "runp -k build:clean :p build:compile:* :s build:cjsPackage",
-    "build:clean": "rimraf \"dist/**/*\"",
-    "build:compile:js": "vite build",
-    "build:compile:types": "tsc",
-    "build:cjsPackage": "echo '{\"type\":\"commonjs\"}' > dist/cjs/package.json",
+    "build": "tsup",
     "lint": "runp lint:*",
     "lint:eslint": "lint .",
     "lint:tsc": "tsc --emitDeclarationOnly false --noEmit",
-    "prepublishOnly": "runp lint build",
+    "prepublishOnly": "runp lint build :s publint",
     "docs:build": "npm -w docs run build"
   },
   "peerDependencies": {
@@ -68,7 +80,8 @@
     "@types/react": ">=17",
     "@types/react-dom": ">=17",
     "react": ">=17",
-    "react-dom": ">=17"
+    "react-dom": ">=17",
+    "xlsx": ">=0.18.5"
   },
   "peerDependenciesMeta": {
     "@emotion/styled": {
@@ -79,6 +92,9 @@
     },
     "@mui/material": {
       "optional": true
+    },
+    "xlsx": {
+      "optional": true
     }
   },
   "dependencies": {
@@ -88,26 +104,26 @@
     "nanoid": ">=4.0.2"
   },
   "devDependencies": {
-    "schummar-state": "0.2.1-experimental-13",
     "@emotion/styled": "11.11.0",
     "@material-ui/core": "4.12.4",
     "@mui/material": "5.14.18",
     "@schummar/eslint-config": "github:schummar/eslint-config",
     "@schummar/prettier-config": "github:schummar/prettier-config",
-    "@schummar/runp": "2.0.1",
+    "@schummar/runp": "2.0.5",
     "@types/react": "18.2.37",
     "@types/react-dom": "18.2.15",
     "@typescript-eslint/parser": "6.11.0",
-    "@vitejs/plugin-react": "4.1.1",
     "eslint": "8.53.0",
     "eslint-plugin-storybook": "0.6.15",
     "prettier": "3.1.0",
+    "publint": "^0.2.12",
     "react": "18.2.0",
     "react-dom": "18.2.0",
-    "rimraf": "5.0.5",
+    "schummar-state": "0.2.1-experimental-13",
     "semantic-release": "22.0.7",
-    "typescript": "5.2.2",
-    "vite": "4.5.0"
+    "tsup": "^8.3.5",
+    "typescript": "5.6.3",
+    "xlsx": "0.18.5"
   },
   "workspaces": [
     "docs"

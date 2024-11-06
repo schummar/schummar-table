@@ -23,18 +23,13 @@ export default defineConfig({
         index: 'src/index.ts',
         mui5Theme: 'src/theme/mui5Theme/index.tsx',
         mui4Theme: 'src/theme/mui4Theme/index.tsx',
+        csvExporter: 'src/exporters/csvExporter.ts',
+        excelExporter: 'src/exporters/excelExporter.ts',
       },
-      // entry: './src/index.ts',
       formats: ['es', 'cjs'],
-      // fileName:'[format]/[name].js',
     },
 
     rollupOptions: {
-      // input: {
-      //   index: './src/index.ts',
-      //   mui5Theme: './src/theme/mui5Theme/index.tsx',
-      //   mui4Theme: './src/theme/mui4Theme/index.tsx',
-      // },
       output: {
         entryFileNames: '[format]/[name].js',
         chunkFileNames: '[format]/[name].js',

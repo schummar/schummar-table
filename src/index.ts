@@ -31,13 +31,9 @@ export {
   useColumnContext,
   useTableContext,
 } from './misc/tableContext';
+export { TableSettingsContext, TableSettingsProvider } from './misc/tableSettings';
 export { termMatch, textMatch } from './misc/textMatch';
-export {
-  TableThemeContext,
-  TableThemeProvider,
-  configureTableTheme,
-  mergeThemes,
-} from './theme/tableTheme';
+export { configureTableTheme, mergeThemes } from './theme/tableTheme';
 export type {
   Column,
   CommonFilterProps,
@@ -50,3 +46,4 @@ export type {
   SortDirection,
   TableProps,
 } from './types';
+

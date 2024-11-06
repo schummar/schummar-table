@@ -89,9 +89,7 @@ const TableInner = memo(function TableInner<T>({ hidden }: { hidden: boolean }) 
 
   const enableSelection = table.useState((state) => state.props.enableSelection);
   const enableColumnSelection = table.useState((state) => state.props.enableColumnSelection);
-  const enableExport = table.useState(
-    (state) => !!state.props.enableExport.copy || !!state.props.enableExport.download,
-  );
+  const enableExport = table.useState((state) => !!state.props.enableExport);
   const cssVariables = useCssVariables();
 
   const enableClearFiltersButton = table.useState((state) => state.props.enableClearFiltersButton);
