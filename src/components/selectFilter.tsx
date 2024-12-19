@@ -129,7 +129,12 @@ export function SelectFilter<T, V, F extends SerializableValue>({
           disabled={value.size === 0}
           onClick={() => onChange(new Set())}
           variant="outlined"
-          css={{ justifyContent: 'center', width: '100%', marginBottom: 'var(--spacing)' }}
+          css={{
+            justifyContent: 'center',
+            width: '100%',
+            marginBottom: 'var(--spacing)',
+            color: 'inherit',
+          }}
         >
           {deselectAll}
         </Button>

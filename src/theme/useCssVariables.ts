@@ -13,6 +13,10 @@ export function useCssVariables() {
       '--blockedMain': colors.blocked.main,
       '--blockedLight': colors.blocked.light,
       '--blockedContrastText': colors.blocked.contrastText,
+      '--table-background-color': colors.background,
+      '--table-text-color': colors.text,
+      '--table-border-color': colors.border,
+      '--table-border-light-color': colors.borderLight,
     };
   });
 }

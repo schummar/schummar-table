@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import type { TableTheme } from '../../types';
-import { darkGray } from './defaultClasses';
 
 export const TextField: TableTheme['components']['TextField'] = ({
   startIcon,
@@ -20,7 +19,7 @@ export const TextField: TableTheme['components']['TextField'] = ({
           flex: 1,
           display: 'flex',
           alignItems: 'center',
-          border: `1px solid ${darkGray}`,
+          border: '1px solid var(--table-textfield-border, var(--table-border, #777777))',
           borderRadius: 4,
         },
         focus && { border: '2px solid var(--primaryMain)', margin: -1 },

@@ -135,6 +135,10 @@ export interface TableTheme<T = unknown> {
     primary: { main: string; light: string; contrastText: string };
     secondary: { main: string; light: string; contrastText: string };
     blocked: { main: string; light: string; contrastText: string };
+    background: string;
+    text: string;
+    border: string;
+    borderLight: string;
   };
   /** Spacing. */
   spacing: string | number;

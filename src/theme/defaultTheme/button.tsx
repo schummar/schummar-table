@@ -1,5 +1,4 @@
 import type { TableTheme } from '../../types';
-import { darkGray, lightGray } from './defaultClasses';
 
 export const Button: TableTheme['components']['Button'] = ({
   startIcon,
@@ -30,10 +29,10 @@ export const Button: TableTheme['components']['Button'] = ({
           },
         },
         variant === 'outlined' && {
-          border: `1px solid ${darkGray}`,
+          border: '1px solid var(--table-button-border, var(--table-border, #777777))',
 
           '&:disabled': {
-            borderColor: lightGray,
+            borderColor: 'var(--table-button-border-disabled, #eeeeee)',
           },
         },
         variant === 'contained' && {

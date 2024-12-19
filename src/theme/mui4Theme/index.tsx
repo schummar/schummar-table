@@ -56,6 +56,10 @@ export function Mui4TableThemeProvider({
         colors: {
           primary: muiTheme.palette.primary,
           secondary: muiTheme.palette.secondary,
+          background: muiTheme.palette.background.default,
+          text: muiTheme.palette.text.primary,
+          border: muiTheme.palette.divider,
+          borderLight: muiTheme.palette.divider,
         },
       },
       mui4Theme,

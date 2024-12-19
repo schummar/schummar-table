@@ -154,3 +154,15 @@ export const WithNoSpecialColumns = {
     enableExport: false,
   } satisfies TableProps<Item>,
 };
+
+export const DarkMode = {
+  args: {
+    ...Primary.args,
+    colors: {
+      background: '#333',
+      text: '#fff',
+      border: '#555',
+      borderLight: '#444',
+    },
+  } satisfies TableProps<Item>,
+};

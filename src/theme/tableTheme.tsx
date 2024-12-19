@@ -18,6 +18,22 @@ export function mergeThemes<T>(...themes: PartialTableTheme<T>[]): PartialTableT
       primary: Object.assign({}, ...themes.map((theme) => theme.colors?.primary)),
       secondary: Object.assign({}, ...themes.map((theme) => theme.colors?.secondary)),
       blocked: Object.assign({}, ...themes.map((theme) => theme.colors?.blocked)),
+      background: themes
+        .map((theme) => theme.colors?.background)
+        .reverse()
+        .find((x) => x !== undefined),
+      text: themes
+        .map((theme) => theme.colors?.text)
+        .reverse()
+        .find((x) => x !== undefined),
+      border: themes
+        .map((theme) => theme.colors?.border)
+        .reverse()
+        .find((x) => x !== undefined),
+      borderLight: themes
+        .map((theme) => theme.colors?.borderLight)
+        .reverse()
+        .find((x) => x !== undefined),
     },
     spacing: themes
       .map((theme) => theme.spacing)

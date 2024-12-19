@@ -52,6 +52,12 @@ export function NumberField({
         setValue(undefined);
       }}
       {...textFieldProps}
+      css={{
+        input: {
+          backgroundColor: 'inherit',
+          color: 'inherit',
+        },
+      }}
     />
   );
 }

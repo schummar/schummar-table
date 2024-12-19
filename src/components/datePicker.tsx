@@ -10,7 +10,6 @@ import {
 } from 'react';
 import { useTheme } from '../hooks/useTheme';
 import { defaults } from '../misc/defaults';
-import { gray } from '../theme/defaultTheme/defaultClasses';
 import { useCssVariables } from '../theme/useCssVariables';
 import { DateInput } from './dateInput';
 import { Text } from './text';
@@ -285,9 +284,10 @@ export function DatePicker(props: DatePickerProps) {
         background: 'transparent',
         cursor: disabled ? undefined : 'pointer',
         font: 'inherit',
+        color: 'inherit',
       },
       (prevMonth || nextMonth) && {
-        color: gray,
+        color: 'var(--date-picker-disemphasized, #bdbdbd)',
       },
       today && {
         outline: '1px solid var(--secondaryMain)',
@@ -351,6 +351,9 @@ export function DatePicker(props: DatePickerProps) {
           key={index}
           variant="text"
           type="button"
+          css={{
+            color: 'inherit',
+          }}
           onClick={() => {
             setDirty(undefined);
 
@@ -435,7 +438,14 @@ export function DatePicker(props: DatePickerProps) {
   }, [locale]);
 
   return (
-    <div css={cssVariables}>
+    <div
+      css={[
+        cssVariables,
+        {
+          color: 'var(--table-text-color)',
+        },
+      ]}
+    >
       <div
         css={{
           display: 'grid',
@@ -499,7 +509,8 @@ export function DatePicker(props: DatePickerProps) {
                 css={{
                   justifySelf: 'center',
                   padding: 10,
-                  borderRight: `1px solid ${gray}`,
+                  borderRight:
+                    '1px solid var(--date-picker-separator, var(--table-border, #bdbdbd))',
                 }}
               >
                 <Text id="calendarWeek" />
@@ -539,7 +550,9 @@ export function DatePicker(props: DatePickerProps) {
                         background: 'transparent',
                         cursor: weekDisabled ? undefined : 'pointer',
                         font: 'inherit',
-                        borderRight: `1px solid ${gray}`,
+                        borderRight:
+                          '1px solid var(--date-picker-separator, var(--table-border, #bdbdbd))',
+                        color: 'inherit',
                       }}
                       onClick={() => {
                         if (weekDisabled) {

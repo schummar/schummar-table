@@ -18,5 +18,16 @@ export function AutoFocusTextField(props: Omit<Props, 'inputRef'>) {
     }
   }, [isActive]);
 
-  return <TextField {...props} inputRef={ref} />;
+  return (
+    <TextField
+      {...props}
+      inputRef={ref}
+      css={{
+        input: {
+          backgroundColor: 'inherit',
+          color: 'inherit',
+        },
+      }}
+    />
+  );
 }

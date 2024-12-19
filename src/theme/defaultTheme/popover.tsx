@@ -132,6 +132,7 @@ export const Popover: TableTheme['components']['Popover'] = ({
                 ...position,
                 zIndex: zIndex + 1,
                 overflowY: 'auto',
+                color: 'var(--table-text-color)',
               },
               hidden && { display: 'none' },
               !position && { visibility: 'hidden' },

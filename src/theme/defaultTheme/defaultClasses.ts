@@ -1,17 +1,12 @@
 import { css } from '@emotion/react';
 
-export const white = '#ffffff';
-export const lightGray = '#eeeeee';
-export const gray = '#bdbdbd';
-export const darkGray = '#777';
-
 const cell = css({
   display: 'flex',
   alignItems: 'center',
-  borderBottom: `1px solid #dfe2e9`,
+  borderBottom: '1px solid var(--table-border-light-color)',
   whiteSpace: 'nowrap',
   overflow: 'hidden',
-  background: 'white',
+  background: 'var(--table-background-color)',
 
   '&:not(:empty)': {
     padding: `calc(var(--spacing) * 0.1) calc(2 * var(--spacing))`,
@@ -22,16 +17,18 @@ export const defaultClasses = {
   table: css({
     position: 'relative',
     display: 'grid',
+    color: 'var(--table-text-color)',
   }),
 
   cell,
 
   cellFill: css({
-    borderBottom: `1px solid ${lightGray}`,
+    borderBottom: '1px solid var(--table-border-light-color)',
+    background: 'var(--table-background-color)',
   }),
 
   headerCell: css(cell, {
-    borderBottom: `1px solid #c9cfda`,
+    borderBottom: '1px solid var(--table-border-color)',
 
     '&:not(:empty)': {
       padding: `var(--spacing) 0 var(--spacing) calc(2 * var(--spacing))`,
@@ -40,7 +37,7 @@ export const defaultClasses = {
 
   footerCell: css(cell, {
     padding: `var(--spacing) calc(2 * var(--spacing))`,
-    borderTop: `1px solid #c9cfda`,
+    borderTop: '1px solid var(--table-border-color)',
     borderBottom: 'none',
   }),
 
@@ -61,13 +58,13 @@ export const defaultClasses = {
   }),
 
   headerFill: css({
-    borderBottom: `1px solid #c9cfda`,
-    background: white,
+    borderBottom: '1px solid var(--table-border-color)',
+    background: 'var(--table-background-color)',
   }),
 
   footerFill: css({
-    borderTop: `1px solid #c9cfda`,
-    background: white,
+    borderTop: '1px solid var(--table-border-color)',
+    background: 'var(--table-background-color)',
   }),
 
   text: css({
@@ -79,7 +76,7 @@ export const defaultClasses = {
   card: css({
     borderRadius: 4,
     boxShadow: '0px 3px 14px 2px rgb(0 0 0 / 12%)',
-    background: 'white',
+    background: 'var(--table-background-color)',
   }),
 
   clearFiltersButton: css({

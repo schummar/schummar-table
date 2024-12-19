@@ -111,6 +111,13 @@ export function DateInput({
                 borderBottom: '2px solid transparent',
                 outline: 'none',
                 fontSize: 'inherit',
+                backgroundColor: 'inherit',
+                color: 'inherit',
+
+                '::placeholder': {
+                  color: 'inherit',
+                  opacity: 0.5,
+                },
 
                 '&:focus': {
                   borderBottom: '2px solid var(--primaryMain)',
