@@ -145,3 +145,12 @@ export const WithDetails = {
     },
   } satisfies TableProps<Item>,
 };
+
+export const WithNoSpecialColumns = {
+  args: {
+    ...Primary.args,
+    enableSelection: false,
+    enableColumnSelection: false,
+    enableExport: false,
+  } satisfies TableProps<Item>,
+};

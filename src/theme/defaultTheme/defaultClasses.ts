@@ -6,13 +6,16 @@ export const gray = '#bdbdbd';
 export const darkGray = '#777';
 
 const cell = css({
-  padding: `calc(var(--spacing) * 0.1) calc(2 * var(--spacing))`,
   display: 'flex',
   alignItems: 'center',
   borderBottom: `1px solid #dfe2e9`,
   whiteSpace: 'nowrap',
   overflow: 'hidden',
   background: 'white',
+
+  '&:not(:empty)': {
+    padding: `calc(var(--spacing) * 0.1) calc(2 * var(--spacing))`,
+  },
 });
 
 export const defaultClasses = {
@@ -28,8 +31,11 @@ export const defaultClasses = {
   }),
 
   headerCell: css(cell, {
-    padding: `var(--spacing) 0 var(--spacing) calc(2 * var(--spacing))`,
     borderBottom: `1px solid #c9cfda`,
+
+    '&:not(:empty)': {
+      padding: `var(--spacing) 0 var(--spacing) calc(2 * var(--spacing))`,
+    },
   }),
 
   footerCell: css(cell, {

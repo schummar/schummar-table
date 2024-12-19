@@ -99,7 +99,7 @@ export const Row = memo(function Row<T>({
       <div className={className} css={[defaultClasses.cellFill, css_]} ref={divRef} />
 
       <div className={className} css={[defaultClasses.cell, defaultClasses.firstCell, css_]}>
-        <div css={{ width: indent * 20 }} />
+        {indent > 0 && <div css={{ width: indent * 20 }} />}
 
         {enableSelection && <SelectComponent itemId={itemId} />}
 
