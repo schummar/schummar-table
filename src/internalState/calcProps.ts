@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { useTableMemo } from '../hooks/useTableMemo';
 import { asString } from '../misc/helpers';
 import type { Column, Id, InternalColumn, InternalTableProps, TableProps } from '../types';
+import { defaultSerializer } from '../exporters/serializer';
 
 const noopParentId = () => undefined;
 
@@ -71,10 +72,7 @@ export function calcProps<T>(props: TableProps<T>): InternalTableProps<T> {
           `columns.${cacheKey}.renderCell`,
           renderCell ?? defaults?.renderCell ?? asString,
         ),
-        exportCell:
-          exportCell ??
-          defaults?.exportCell ??
-          ((x) => (x instanceof Date || typeof x === 'number' ? x : String(x))),
+        exportCell: exportCell ?? defaults?.exportCell ?? defaultSerializer,
         sortBy: (
           sortBy ??
           defaults?.sortBy ?? [
