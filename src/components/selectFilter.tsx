@@ -4,7 +4,7 @@ import { useFilter } from '../hooks/useFilter';
 import { useTheme } from '../hooks/useTheme';
 import { asString, castArray, flatMap, orderBy, uniq } from '../misc/helpers';
 import { useColumnContext, useTableContext } from '../misc/tableContext';
-import type { CommonFilterProps, InternalColumn, SerializableValue } from '../types';
+import type { CommonFilterProps, InternalColumn } from '../types';
 import { AutoFocusTextField } from './autoFocusTextField';
 import { FormControlLabel } from './formControlLabel';
 import type { VirtualListProps } from './virtualList';
@@ -21,7 +21,7 @@ function toggle<T>(set: Set<T>, value: T, singleSelect?: boolean) {
   return newSet;
 }
 
-export function SelectFilter<T, V, F extends SerializableValue>({
+export function SelectFilter<TItem, TColumnValue, TFilterBy>({
   options: providedOptions,
   stringValue = asString,
   render = stringValue,
@@ -31,11 +31,11 @@ export function SelectFilter<T, V, F extends SerializableValue>({
   ...props
 }: {
   /** Which options are provided to select. By default all unique item values are used. */
-  options?: F[];
+  options?: TFilterBy[];
   /** String representation of a value. Used to filter options via the text field. */
-  stringValue?: (value: F) => string;
+  stringValue?: (value: TFilterBy) => string;
   /** Render values. By default a string representation of the value is used. */
-  render?: (value: F) => ReactNode;
+  render?: (value: TFilterBy) => ReactNode;
   /** If enabled, only one option can be selected at a time. */
   singleSelect?: boolean;
   /** If enabled, the search field is hidden. */
@@ -45,7 +45,7 @@ export function SelectFilter<T, V, F extends SerializableValue>({
   /** Virtual list props.
    * @default true */
   virtual?: VirtualListProps<unknown>['virtual'];
-} & CommonFilterProps<T, V, F, Set<F>>): JSX.Element {
+} & CommonFilterProps<TItem, TColumnValue, TFilterBy, Set<TFilterBy>>): JSX.Element {
   const IconButton = useTheme((t) => t.components.IconButton);
   const Checkbox = useTheme((t) => t.components.Checkbox);
   const Search = useTheme((t) => t.icons.Search);
@@ -53,11 +53,11 @@ export function SelectFilter<T, V, F extends SerializableValue>({
   const deselectAll = useTheme((t) => t.text.deselectAll);
   const noResults = useTheme((t) => t.text.noResults);
 
-  const table = useTableContext<T>();
+  const table = useTableContext<TItem>();
   const columnId = useColumnContext();
 
   const {
-    value = new Set<F>(),
+    value = new Set<TFilterBy>(),
     onChange,
     filterBy,
     isActive,
@@ -79,7 +79,7 @@ export function SelectFilter<T, V, F extends SerializableValue>({
     if (providedOptions) return uniq(providedOptions);
 
     const column = state.activeColumns.find((column) => column.id === columnId) as
-      | InternalColumn<T, V>
+      | InternalColumn<TItem, TColumnValue>
       | undefined;
     if (!column) return [];
 

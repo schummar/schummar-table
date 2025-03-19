@@ -5,7 +5,7 @@ import { textMatch } from '../misc/textMatch';
 import type { CommonFilterProps } from '../types';
 import { AutoFocusTextField } from './autoFocusTextField';
 
-export function TextFilter<T, V>({
+export function TextFilter<TItem, TColumnValue>({
   compare = textMatch,
   filterBy = asStringOrArray,
   placeholder,
@@ -16,7 +16,7 @@ export function TextFilter<T, V>({
    */
   compare?: (itemValue: string, filterValue: string) => boolean;
   placeholder?: string;
-} & CommonFilterProps<T, V, string, string>): JSX.Element {
+} & CommonFilterProps<TItem, TColumnValue, string, string>): JSX.Element {
   const IconButton = useTheme((t) => t.components.IconButton);
   const Search = useTheme((t) => t.icons.Search);
   const Clear = useTheme((t) => t.icons.Clear);

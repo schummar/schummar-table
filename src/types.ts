@@ -17,7 +17,7 @@ export type MemoizedFunctions<T> = {
   [K in keyof T]: Exclude<T[K], [function: (...args: any[]) => any, ...deps: DependencyList]>;
 };
 
-export interface TableTheme<T = unknown> {
+export interface TableTheme<TItem = unknown> {
   /** Define display texts. */
   text: {
     selectColumns: ReactNode;
@@ -47,13 +47,13 @@ export interface TableTheme<T = unknown> {
     table?: string;
     headerCell?: string;
     footerCell?: string;
-    cell?: string | FunctionWithDeps<(item: T, index: number) => string | undefined>;
+    cell?: string | FunctionWithDeps<(item: TItem, index: number) => string | undefined>;
     evenCell?: string;
     oddCell?: string;
     popover?: string;
     popoverBackdrop?: string;
     columnDivider?: string;
-    details?: string | FunctionWithDeps<(item: T, index: number) => string | undefined>;
+    details?: string | FunctionWithDeps<(item: TItem, index: number) => string | undefined>;
   };
   styles?: {
     table?: Interpolation<Theme>;
@@ -61,13 +61,13 @@ export interface TableTheme<T = unknown> {
     footerCell?: Interpolation<Theme>;
     cell?:
       | Exclude<Interpolation<Theme>, ((...args: any[]) => any) | Array<any>>
-      | FunctionWithDeps<(item: T, index: number) => Interpolation<Theme>>;
+      | FunctionWithDeps<(item: TItem, index: number) => Interpolation<Theme>>;
     evenCell?: Interpolation<Theme>;
     oddCell?: Interpolation<Theme>;
     columnDivider?: Interpolation<Theme>;
     details?:
       | Exclude<Interpolation<Theme>, ((...args: any[]) => any) | Array<any>>
-      | FunctionWithDeps<(item: T, index: number) => Interpolation<Theme>>;
+      | FunctionWithDeps<(item: TItem, index: number) => Interpolation<Theme>>;
   };
   /** Define components to be used in the table. */
   components: {
@@ -146,54 +146,59 @@ export interface TableTheme<T = unknown> {
   locale?: string;
 }
 
-export type PartialTableTheme<T = unknown> = {
-  [K in keyof TableTheme<T>]?: TableTheme<T>[K] extends Record<string, any>
-    ? Partial<TableTheme<T>[K]>
-    : TableTheme<T>[K];
+export type PartialTableTheme<TItem = unknown> = {
+  [K in keyof TableTheme<TItem>]?: TableTheme<TItem>[K] extends Record<string, any>
+    ? Partial<TableTheme<TItem>[K]>
+    : TableTheme<TItem>[K];
 };
 
-export type MemoizedTableTheme<T> = Omit<TableTheme, 'classes' | 'styles' | 'text'> & {
-  classes: MemoizedFunctions<TableTheme<T>['classes']>;
-  styles: MemoizedFunctions<TableTheme<T>['styles']>;
-  text: MemoizedFunctions<TableTheme<T>['text']>;
+export type MemoizedTableTheme<TItem> = Omit<TableTheme, 'classes' | 'styles' | 'text'> & {
+  classes: MemoizedFunctions<TableTheme<TItem>['classes']>;
+  styles: MemoizedFunctions<TableTheme<TItem>['styles']>;
+  text: MemoizedFunctions<TableTheme<TItem>['text']>;
 };
 
-export interface TableProps<T> extends PartialTableTheme<T> {
+export interface TableProps<TItem> extends PartialTableTheme<TItem> {
   /// ///////////////////////////////////////////////
   // Table data
   /// ///////////////////////////////////////////////
 
   /** The data to be rendered. One item per row. */
-  items?: readonly T[];
+  items?: readonly TItem[];
   /** Unique id for each item/row. */
-  id: FunctionWithDeps<(item: T) => Id> | KeyOfType<T, Id>;
+  id: FunctionWithDeps<(item: TItem) => Id> | KeyOfType<TItem, Id>;
   /** Create a nested structure by assigning parents to items. Child items are hidden until the parent is expanded. */
-  parentId?: FunctionWithDeps<(item: T) => Id | undefined> | KeyOfType<T, Id | undefined | null>;
+  parentId?:
+    | FunctionWithDeps<(item: TItem) => Id | undefined>
+    | KeyOfType<TItem, Id | undefined | null>;
   /** If true for an item, it means that children will be loaded asynchronously as soon as item is expanded. */
-  hasDeferredChildren?: (item: T) => boolean;
+  hasDeferredChildren?: (item: TItem) => boolean;
 
   /// ///////////////////////////////////////////////
   // Columns and rows
   /// ///////////////////////////////////////////////
   /** Column definitions. */
   columns:
-    | Column<T, any>[]
+    | Column<TItem, any>[]
     | ((
-        col: <V>(value: (item: T) => V, column: Omit<Column<T, V>, 'value'>) => Column<T, V>,
-      ) => Column<T, any>[]);
+        col: <TColumnValue>(
+          value: (item: TItem) => TColumnValue,
+          column: Omit<Column<TItem, TColumnValue>, 'value'>,
+        ) => Column<TItem, TColumnValue>,
+      ) => Column<TItem, any>[]);
   /** Default props for all column. Will take effect if not overriden in column definition. */
-  defaultColumnProps?: Omit<Column<T, unknown>, 'id' | 'value'>;
+  defaultColumnProps?: Omit<Column<TItem, unknown>, 'id' | 'value'>;
   /** Set props for multiple columns at once. Will take effect if not overriden in column definition. */
-  columnProps?: FunctionWithDeps<(id: Id) => Partial<Omit<Column<T, unknown>, 'id'>>>;
+  columnProps?: FunctionWithDeps<(id: Id) => Partial<Omit<Column<TItem, unknown>, 'id'>>>;
   /** Wrap each cell */
   wrapCell?: FunctionWithDeps<
-    (content: ReactNode, value: unknown, item: T, index: number) => ReactNode
+    (content: ReactNode, value: unknown, item: TItem, index: number) => ReactNode
   >;
 
   /** Display a cell at the start of each row. Useful for "go to details" button for example. */
-  rowAction?: ReactNode | FunctionWithDeps<(item: T, index: number) => ReactNode>;
+  rowAction?: ReactNode | FunctionWithDeps<(item: TItem, index: number) => ReactNode>;
   /** Expand row to show details. */
-  rowDetails?: ReactNode | FunctionWithDeps<(item: T, index: number) => ReactNode>;
+  rowDetails?: ReactNode | FunctionWithDeps<(item: TItem, index: number) => ReactNode>;
 
   /// ///////////////////////////////////////////////
   // Sorting
@@ -334,23 +339,23 @@ export interface TableProps<T> extends PartialTableTheme<T> {
   onReset?: (scope?: 'table' | 'filters') => void;
 }
 
-export type InternalTableProps<T> = MemoizedFunctions<
-  Omit<TableProps<T>, 'id' | 'parentId' | 'columns' | 'defaultColumnProps' | 'enableExport'> & {
-    id: (item: T) => Id;
-    parentId?: (item: T) => Id | undefined;
-    columns: InternalColumn<T, unknown>[];
+export type InternalTableProps<TItem> = MemoizedFunctions<
+  Omit<TableProps<TItem>, 'id' | 'parentId' | 'columns' | 'defaultColumnProps' | 'enableExport'> & {
+    id: (item: TItem) => Id;
+    parentId?: (item: TItem) => Id | undefined;
+    columns: InternalColumn<TItem, unknown>[];
     enableExport: boolean | ExportOptions;
   }
 >;
 
-export type TableItem<T = unknown> = {
+export type TableItem<TItem = unknown> = {
   id: Id;
   parentId?: Id | null;
-  children: TableItem<T>[];
-  value: T;
+  children: TableItem<TItem>[];
+  value: TItem;
 };
 
-export type Column<T, V> = {
+export type Column<TItem, TColumnValue> = {
   /** Column id. If not provided, the index in the column array will be used.
    * An explicit id is better however for controlling column related states, persitance etc.
    */
@@ -361,13 +366,13 @@ export type Column<T, V> = {
   /** Render table header for this column. */
   footer?: ReactNode;
   /** Extract value for this column */
-  value: FunctionWithDeps<(item: T) => V>;
+  value: FunctionWithDeps<(item: TItem) => TColumnValue>;
   /** Render table cell. If not provided, a string representation of the value will be rendered. */
-  renderCell?: FunctionWithDeps<(value: V, item: T) => ReactNode>;
+  renderCell?: FunctionWithDeps<(value: TColumnValue, item: TItem) => ReactNode>;
   /** Serialize column value for exports. If not provided, a string representation of the value will be used. */
-  exportCell?: (value: V, item: T) => string | number | Date;
+  exportCell?: (value: TColumnValue, item: TItem) => string | number | Date;
   /** Customize sort criteria. By default it will be the value itself in case it's a number or Date, or a string representation of the value otherwise. */
-  sortBy?: FunctionWithDeps<(value: V, item: T) => unknown>[];
+  sortBy?: FunctionWithDeps<(value: TColumnValue, item: TItem) => unknown>[];
   /** Disable sort for this column */
   disableSort?: boolean;
   /** Set filter component that will be displayed in the column header */
@@ -379,18 +384,18 @@ export type Column<T, V> = {
    */
   width?: string;
   /** Provide css class names to override columns styles. */
-  classes?: Omit<NonNullable<TableTheme<T>['classes']>, 'table' | 'details'>;
+  classes?: Omit<NonNullable<TableTheme<TItem>['classes']>, 'table' | 'details'>;
   /** Provide css styles to override columns styles. */
-  styles?: Omit<NonNullable<TableTheme<T>['styles']>, 'table' | 'details'>;
+  styles?: Omit<NonNullable<TableTheme<TItem>['styles']>, 'table' | 'details'>;
 };
 
-export type InternalColumn<T, V> = MemoizedFunctions<
+export type InternalColumn<TItem, TColumnValue> = MemoizedFunctions<
   Required<
-    Omit<Column<T, V>, 'id' | 'sortBy'>,
+    Omit<Column<TItem, TColumnValue>, 'id' | 'sortBy'>,
     'header' | 'exportHeader' | 'renderCell' | 'exportCell' | 'sortBy'
   > & {
     id: Id;
-    sortBy: ((value: V, item: T) => unknown)[];
+    sortBy: ((value: TColumnValue, item: TItem) => unknown)[];
   }
 >;
 
@@ -398,9 +403,9 @@ type Required<T, S> = T & {
   [P in keyof T as P extends S ? P : never]-?: T[P];
 };
 
-export type InternalTableState<T> = {
+export type InternalTableState<TItem> = {
   // Basically the passed in props, but normalized
-  props: InternalTableProps<T>;
+  props: InternalTableProps<TItem>;
 
   // Actual internal state
   key: any;
@@ -408,7 +413,7 @@ export type InternalTableState<T> = {
   selection: Set<Id>;
   expanded: Set<Id>;
   rowHeights: Map<Id, number>;
-  filters: Map<Id, MemoizedFunctions<FilterImplementation<T, any, any, any>>>;
+  filters: Map<Id, MemoizedFunctions<FilterImplementation<TItem, any, any, any>>>;
   filterValues: Map<Id, any>;
   hiddenColumns: Set<Id>;
   columnWidths: Map<Id, string>;
@@ -416,23 +421,23 @@ export type InternalTableState<T> = {
   columnStyleOverride: Map<Id, CSSProperties>;
 
   // Helper data structures for efficient lookup etc.
-  activeColumns: InternalColumn<T, unknown>[];
-  items: TableItem<T>[];
-  itemsById: Map<Id, TableItem<T>>;
-  activeItems: TableItem<T>[];
-  activeItemsById: Map<Id, TableItem<T>>;
+  activeColumns: InternalColumn<TItem, unknown>[];
+  items: TableItem<TItem>[];
+  itemsById: Map<Id, TableItem<TItem>>;
+  activeItems: TableItem<TItem>[];
+  activeItemsById: Map<Id, TableItem<TItem>>;
   lastSelectedId?: Id;
 };
 
-export type CommonFilterProps<T, V, F, S extends SerializableValue> = {
+export type CommonFilterProps<TItem, TColumnValue, TFilterBy, TFilterValue> = {
   /** Filter by? By default the column value will be used. If filterBy returns an array, an items will be active if at least one entry matches the active filter. */
-  filterBy?: FunctionWithDeps<(value: V, item: T) => F | F[]>;
+  filterBy?: FunctionWithDeps<(value: TColumnValue, item: TItem) => TFilterBy | TFilterBy[]>;
   /** Preselected filter value. */
-  defaultValue?: S;
+  defaultValue?: TFilterValue;
   /** Controlled filter value. */
-  value?: S;
+  value?: TFilterValue;
   /** Notifies on filter change. */
-  onChange?: (value?: S) => void;
+  onChange?: (value?: TFilterValue) => void;
   /** Table should not filter using this filter. It will be done externally, e.g. server side. */
   external?: boolean;
   /** Whether to persist filter value (given that filter persitance is enabled for the table).
@@ -445,31 +450,16 @@ export type CommonFilterProps<T, V, F, S extends SerializableValue> = {
   };
 };
 
-export type FilterImplementation<T, V, F, S extends SerializableValue> = CommonFilterProps<
-  T,
-  V,
-  F,
-  S
+export type FilterImplementation<TItem, TColumnValue, TFilterBy, TFilterValue> = CommonFilterProps<
+  TItem,
+  TColumnValue,
+  TFilterBy,
+  TFilterValue
 > & {
   /** Unique filter id. Used to persist filter values. */
   id: string;
   /** Whether the filter is active currently. */
-  isActive: (filterValue: S) => boolean;
+  isActive: (filterValue: TFilterValue) => boolean;
   /** When the filter is active, this function is used to filter the items to be displayed. */
-  test: (filterValue: S, value: F) => boolean;
+  test: (filterValue: TFilterValue, value: TFilterBy) => boolean;
 };
-
-export type SerializableValue =
-  | string
-  | number
-  | boolean
-  | null
-  | Date
-  | SerializableArray
-  | SerializableObject
-  | SerializableSet
-  | SerializableMap;
-export type SerializableObject = { [key: string]: SerializableValue };
-export type SerializableArray = SerializableValue[];
-export type SerializableSet = Set<SerializableValue>;
-export type SerializableMap = Map<SerializableValue, SerializableValue>;

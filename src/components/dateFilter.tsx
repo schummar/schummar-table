@@ -25,7 +25,7 @@ function convertDateOrArray(x: unknown): Date | DateRange | (Date | DateRange)[]
   return convertDateOrRange(x);
 }
 
-export function DateFilter<T, V>({
+export function DateFilter<TItem, TColumnValue>({
   locale,
   firstDayOfWeek,
   defaultDateInView,
@@ -49,7 +49,12 @@ export function DateFilter<T, V>({
   | 'maxDate'
   | 'showCalendarWeek'
 > &
-  CommonFilterProps<T, V, Date | DateRange | null, Date | DateRange | null>): JSX.Element {
+  CommonFilterProps<
+    TItem,
+    TColumnValue,
+    Date | DateRange | null,
+    Date | DateRange | null
+  >): JSX.Element {
   const { value = null, onChange } = useFilter({
     ...props,
     filterBy,

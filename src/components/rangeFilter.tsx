@@ -11,16 +11,16 @@ export interface RangeFilterProps<T, V>
   max?: number;
 }
 
-export function RangeFilter<T, V>({
+export function RangeFilter<TItem, TColumnValue>({
   min,
   max,
   filterBy = asNumberOrArray,
   ...props
-}: RangeFilterProps<T, V>): JSX.Element {
+}: RangeFilterProps<TItem, TColumnValue>): JSX.Element {
   const rangeMinText = useTheme((t) => t.text.rangeMin);
   const rangeMaxText = useTheme((t) => t.text.rangeMax);
 
-  const table = useTableContext<T>();
+  const table = useTableContext<TItem>();
   const columnId = useColumnContext();
   const filterByFunction = filterBy instanceof Function ? filterBy : filterBy[0];
 
@@ -39,7 +39,7 @@ export function RangeFilter<T, V>({
     let maxValue;
 
     for (const item of state.items) {
-      const columnValue = column.value(item.value) as V;
+      const columnValue = column.value(item.value) as TColumnValue;
       const numberValues = castArray(filterByFunction(columnValue, item.value)).filter(
         (value): value is number => value !== null,
       );

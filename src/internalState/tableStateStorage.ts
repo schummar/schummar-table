@@ -1,8 +1,8 @@
+import type { Draft } from 'immer';
 import { useEffect, useState } from 'react';
 import type { Store } from 'schummar-state/react';
-import type { Draft } from 'immer';
 import { Queue } from '../misc/queue';
-import type { InternalTableState, SerializableValue } from '../types';
+import type { InternalTableState } from '../types';
 
 const KEYS = [
   'sort',
@@ -30,8 +30,8 @@ export type TableStateStorage = {
     }
 );
 
-function stringify(value: SerializableValue) {
-  function prepare(value: SerializableValue): any {
+function stringify(value: unknown) {
+  function prepare(value: unknown): any {
     if (value instanceof Date) {
       return { __date: value.toJSON() };
     }

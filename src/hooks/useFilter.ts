@@ -1,16 +1,16 @@
 import { castDraft } from 'immer';
-import { useContext, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { nanoid } from 'nanoid';
+import { useContext, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { FilterControlContext } from '../components/filterControl';
 import { debounce } from '../misc/debounce';
-import type { FilterImplementation, SerializableValue } from '../types';
 import { useColumnContext, useTableContext } from '../misc/tableContext';
+import type { FilterImplementation } from '../types';
 import { useTableMemo } from './useTableMemo';
 
-export function useFilter<T, V, F, S extends SerializableValue>(
-  impl: FilterImplementation<T, V, F, S>,
+export function useFilter<TItem, TColumnValue, TFilterBy, TFilterValue>(
+  impl: FilterImplementation<TItem, TColumnValue, TFilterBy, TFilterValue>,
 ) {
-  const table = useTableContext<T>();
+  const table = useTableContext<TItem>();
   const columnId = useColumnContext();
   const cache = useTableMemo();
   const cacheId = useMemo(() => nanoid(), []);
@@ -49,8 +49,10 @@ export function useFilter<T, V, F, S extends SerializableValue>(
   }, [table, columnId, impl]);
 
   // Track local value and update it globally after delay
-  const value = table.useState((state) => state.filterValues.get(columnId) as S | undefined);
-  const [dirtyValue, setDirtyValue] = useState<S>();
+  const value = table.useState(
+    (state) => state.filterValues.get(columnId) as TFilterValue | undefined,
+  );
+  const [dirtyValue, setDirtyValue] = useState<TFilterValue>();
   const implRef = useRef(impl);
 
   useLayoutEffect(() => {
@@ -59,7 +61,7 @@ export function useFilter<T, V, F, S extends SerializableValue>(
 
   const delayedUpdate = useMemo(
     () =>
-      debounce((value?: S) => {
+      debounce((value?: TFilterValue) => {
         const { value: controlledValue, onChange } = implRef.current;
 
         if (controlledValue === undefined) {
@@ -74,7 +76,7 @@ export function useFilter<T, V, F, S extends SerializableValue>(
     [table],
   );
 
-  function onChange(value?: S) {
+  function onChange(value?: TFilterValue) {
     setDirtyValue(value);
     delayedUpdate(value);
   }
@@ -86,7 +88,7 @@ export function useFilter<T, V, F, S extends SerializableValue>(
   return {
     value: dirtyValue ?? value,
     onChange,
-    filterBy: filterBy ?? ((x) => x as unknown as F | F[]),
+    filterBy: filterBy ?? ((x) => x as unknown as TFilterBy | TFilterBy[]),
     ...context,
   };
 }
