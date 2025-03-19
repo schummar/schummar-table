@@ -3,5 +3,5 @@ export function defaultSerializer(x: unknown): string | number | Date {
     return x;
   }
 
-  return JSON.stringify(x);
+  return JSON.stringify(x) ?? '';
 }
