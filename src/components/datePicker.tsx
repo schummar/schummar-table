@@ -50,6 +50,7 @@ export type DatePickerProps = {
   defaultDateInView?: Date;
   /** Show buttons to quickly select suggested dates or date ranges */
   quickOptions?: DatePickerQuickOption[];
+  noReset?: boolean;
   /** Minimum selectable date */
   /** Date ranges that are visually marked as blocked */
   blockedRanges?: DateRange[];
@@ -239,6 +240,7 @@ export function DatePicker(props: DatePickerProps) {
     firstDayOfWeek = 1,
     defaultDateInView,
     quickOptions = ['today', 'thisWeek'],
+    noReset,
     minDate,
     maxDate,
     showCalendarWeek,
@@ -337,40 +339,41 @@ export function DatePicker(props: DatePickerProps) {
   const min = dirty ? dirty.min : value instanceof Date ? value : value?.min;
   const max = dirty ? dirty.max : value instanceof Date ? value : value?.max;
 
-  const resolvedQuickOptions = [...quickOptions, { label: <Text id="reset" />, value: null }].map(
-    (option, index) => {
-      if (option instanceof Function) {
-        return option((value) => {
+  const resolvedQuickOptions = [
+    ...quickOptions,
+    ...(noReset ? [] : [{ label: <Text id="reset" />, value: null }]),
+  ].map((option, index) => {
+    if (option instanceof Function) {
+      return option((value) => {
+        setDirty(undefined);
+        onChange(value, 'quickOption');
+      });
+    }
+
+    const { label, value } = typeof option === 'string' ? commonQuickOptions[option] : option;
+
+    return (
+      <Button
+        key={index}
+        variant="text"
+        type="button"
+        css={{
+          color: 'inherit',
+        }}
+        onClick={() => {
           setDirty(undefined);
-          onChange(value, 'quickOption');
-        });
-      }
 
-      const { label, value } = typeof option === 'string' ? commonQuickOptions[option] : option;
-
-      return (
-        <Button
-          key={index}
-          variant="text"
-          type="button"
-          css={{
-            color: 'inherit',
-          }}
-          onClick={() => {
-            setDirty(undefined);
-
-            if (value instanceof Function) {
-              onChange(value(props), 'quickOption');
-            } else {
-              onChange(value, 'quickOption');
-            }
-          }}
-        >
-          {label}
-        </Button>
-      );
-    },
-  );
+          if (value instanceof Function) {
+            onChange(value(props), 'quickOption');
+          } else {
+            onChange(value, 'quickOption');
+          }
+        }}
+      >
+        {label}
+      </Button>
+    );
+  });
 
   const { calendars, getBackProps, getForwardProps, getDateProps } = useDayzed({
     onDateSelected: () => undefined,
