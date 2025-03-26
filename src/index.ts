@@ -15,7 +15,12 @@ export {
   thisYear,
   today,
 } from './components/datePicker';
-export type { DatePickerProps, DatePickerQuickOption, DateRange } from './components/datePicker';
+export type {
+  DatePickerProps,
+  DatePickerQuickOption,
+  DateRange,
+  DatePickerChangeSource,
+} from './components/datePicker';
 export { RangeFilter } from './components/rangeFilter';
 export { SelectFilter } from './components/selectFilter';
 export { Table } from './components/table';
@@ -46,4 +51,3 @@ export type {
   SortDirection,
   TableProps,
 } from './types';
-

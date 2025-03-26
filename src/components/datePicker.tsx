@@ -27,11 +27,13 @@ export type DatePickerQuickOption =
   | { label: ReactNode; value: Date | DateRange | (() => Date | DateRange) }
   | ((onChange: (value: Date | DateRange | null) => void) => ReactNode);
 
+export type DatePickerChangeSource = 'input' | 'calendarWeek' | 'calendar' | 'quickOption';
+
 export type DatePickerProps = {
   /** Currently selected day or range of days. */
   value: Date | DateRange | null;
   /** Callback for when the day (range) changes. */
-  onChange: (value: Date | DateRange | null) => void;
+  onChange: (value: Date | DateRange | null, source: DatePickerChangeSource) => void;
   /** Currently visible date. */
   dateInView?: Date;
   /** Callback for when the currently visible date changes. */
@@ -243,7 +245,7 @@ export function DatePicker(props: DatePickerProps) {
     blockedRanges = [],
   } = defaults<DatePickerProps>(props, context);
 
-  function onChange(value: Date | DateRange | null) {
+  function onChange(value: Date | DateRange | null, source: DatePickerChangeSource) {
     if (value instanceof Date) {
       value = dateClamp(value, minDate, maxDate);
     } else if (value) {
@@ -253,7 +255,7 @@ export function DatePicker(props: DatePickerProps) {
       };
     }
 
-    props.onChange(value);
+    props.onChange(value, source);
   }
 
   const Button = useTheme((t) => t.components.Button);
@@ -340,7 +342,7 @@ export function DatePicker(props: DatePickerProps) {
       if (option instanceof Function) {
         return option((value) => {
           setDirty(undefined);
-          onChange(value);
+          onChange(value, 'quickOption');
         });
       }
 
@@ -358,9 +360,9 @@ export function DatePicker(props: DatePickerProps) {
             setDirty(undefined);
 
             if (value instanceof Function) {
-              onChange(value(props));
+              onChange(value(props), 'quickOption');
             } else {
-              onChange(value);
+              onChange(value, 'quickOption');
             }
           }}
         >
@@ -403,9 +405,9 @@ export function DatePicker(props: DatePickerProps) {
     }
   }, [rangeSelect]);
 
-  function set(min?: Date, max?: Date, edit?: 'min' | 'max') {
+  function set(source: DatePickerChangeSource, min?: Date, max?: Date, edit?: 'min' | 'max') {
     if (!rangeSelect) {
-      onChange(min ?? null);
+      onChange(min ?? null, source);
       return;
     }
 
@@ -421,7 +423,7 @@ export function DatePicker(props: DatePickerProps) {
 
     if (!min === !max) {
       setDirty(undefined);
-      onChange(min && max ? { min, max: endOfDay(max) } : null);
+      onChange(min && max ? { min, max: endOfDay(max) } : null, source);
     } else {
       setDirty({ min, max });
     }
@@ -457,7 +459,7 @@ export function DatePicker(props: DatePickerProps) {
       >
         <DateInput
           value={min ?? null}
-          onChange={(date) => set(date ?? undefined, max, 'min')}
+          onChange={(date) => set('input', date ?? undefined, max, 'min')}
           locale={locale}
         />
 
@@ -466,7 +468,7 @@ export function DatePicker(props: DatePickerProps) {
             {' - '}
             <DateInput
               value={max ?? null}
-              onChange={(date) => set(min, date ?? undefined, 'max')}
+              onChange={(date) => set('input', min, date ?? undefined, 'max')}
               locale={locale}
             />
           </>
@@ -561,7 +563,7 @@ export function DatePicker(props: DatePickerProps) {
 
                         const min = minDate && weekStart.date < minDate ? minDate : weekStart.date;
                         const max = maxDate && weekEnd.date > maxDate ? maxDate : weekEnd.date;
-                        set(min, max);
+                        set('calendarWeek', min, max);
                       }}
                       onPointerOver={() =>
                         !weekDisabled && setHovered({ min: weekStart.date, max: weekEnd.date })
@@ -617,10 +619,10 @@ export function DatePicker(props: DatePickerProps) {
                         {...getDateProps({ dateObj: dateObject })}
                         onClick={() => {
                           if (dirty) {
-                            if (min) set(min, date);
-                            else set(date, max);
+                            if (min) set('calendar', min, date);
+                            else set('calendar', date, max);
                           } else {
-                            set(date);
+                            set('calendar', date);
                           }
                         }}
                         onPointerOver={() => setHovered({ min: date, max: date })}
