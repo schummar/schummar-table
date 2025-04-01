@@ -95,6 +95,7 @@ export function calcProps<T>(props: TableProps<T>): InternalTableProps<T> {
 
     const columns = inputColumns.map(mapColumn);
 
+    const wrapRow = props.wrapRow && cache('wrapRow', props.wrapRow);
     const wrapCell = props.wrapCell && cache('wrapCell', props.wrapCell);
 
     const rowAction =
@@ -113,6 +114,7 @@ export function calcProps<T>(props: TableProps<T>): InternalTableProps<T> {
       parentId,
       columns,
       columnProps,
+      wrapRow,
       wrapCell,
       rowAction,
       rowDetails,

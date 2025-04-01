@@ -45,6 +45,7 @@ export interface TableTheme<TItem = unknown> {
   /** Define styles. */
   classes?: {
     table?: string;
+    row?: string | FunctionWithDeps<(item: TItem, index: number) => string | undefined>;
     headerCell?: string;
     footerCell?: string;
     cell?: string | FunctionWithDeps<(item: TItem, index: number) => string | undefined>;
@@ -57,6 +58,9 @@ export interface TableTheme<TItem = unknown> {
   };
   styles?: {
     table?: Interpolation<Theme>;
+    row?:
+      | Exclude<Interpolation<Theme>, ((...args: any[]) => any) | Array<any>>
+      | FunctionWithDeps<(item: TItem, index: number) => Interpolation<Theme>>;
     headerCell?: Interpolation<Theme>;
     footerCell?: Interpolation<Theme>;
     cell?:
@@ -190,6 +194,8 @@ export interface TableProps<TItem> extends PartialTableTheme<TItem> {
   defaultColumnProps?: Omit<Column<TItem, unknown>, 'id' | 'value'>;
   /** Set props for multiple columns at once. Will take effect if not overriden in column definition. */
   columnProps?: FunctionWithDeps<(id: Id) => Partial<Omit<Column<TItem, unknown>, 'id'>>>;
+  /** Wrap each row */
+  wrapRow?: FunctionWithDeps<(content: ReactNode, item: TItem, index: number) => ReactNode>;
   /** Wrap each cell */
   wrapCell?: FunctionWithDeps<
     (content: ReactNode, value: unknown, item: TItem, index: number) => ReactNode
@@ -287,6 +293,8 @@ export interface TableProps<TItem> extends PartialTableTheme<TItem> {
         overscanBottom?: number;
         overscanTop?: number;
       };
+  /** Whether to use a subgrid layout */
+  subgrid?: boolean;
 
   /// ///////////////////////////////////////////////
   // Misc

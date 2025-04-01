@@ -6,7 +6,6 @@ const cell = css({
   borderBottom: '1px solid var(--table-border-light-color)',
   whiteSpace: 'nowrap',
   overflow: 'hidden',
-  background: 'var(--table-background-color)',
 
   '&:not(:empty)': {
     padding: `calc(var(--spacing) * 0.1) calc(2 * var(--spacing))`,
@@ -24,11 +23,11 @@ export const defaultClasses = {
 
   cellFill: css({
     borderBottom: '1px solid var(--table-border-light-color)',
-    background: 'var(--table-background-color)',
   }),
 
   headerCell: css(cell, {
     borderBottom: '1px solid var(--table-border-color)',
+    background: 'var(--table-background-color)',
 
     '&:not(:empty)': {
       padding: `var(--spacing) 0 var(--spacing) calc(2 * var(--spacing))`,
@@ -39,6 +38,7 @@ export const defaultClasses = {
     padding: `var(--spacing) calc(2 * var(--spacing))`,
     borderTop: '1px solid var(--table-border-color)',
     borderBottom: 'none',
+    background: 'var(--table-background-color)',
   }),
 
   firstCell: css({

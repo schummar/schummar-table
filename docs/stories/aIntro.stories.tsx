@@ -166,3 +166,18 @@ export const DarkMode = {
     },
   } satisfies TableProps<Item>,
 };
+
+export const Subgrid = {
+  args: {
+    ...Primary.args,
+    items: data.slice(0, 10),
+    subgrid: true,
+    styles: {
+      row: {
+        '&:hover': {
+          background: 'red',
+        },
+      },
+    },
+  },
+};

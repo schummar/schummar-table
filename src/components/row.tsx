@@ -1,4 +1,4 @@
-import { memo, useEffect, useLayoutEffect, useRef } from 'react';
+import { memo, useLayoutEffect, useRef, type ReactNode } from 'react';
 import { useTheme } from '../hooks/useTheme';
 import { calcClassNames, calcCss } from '../misc/calcClassNames';
 import { cx, getAncestors } from '../misc/helpers';
@@ -9,6 +9,10 @@ import { Cell } from './cell';
 import { Details } from './details';
 import { ExpandControl } from './expandControl';
 import { SelectComponent } from './selectComponent';
+
+const defaultWrapRow = (content: ReactNode) => {
+  return content;
+};
 
 export const Row = memo(function Row<T>({
   itemId,
@@ -24,8 +28,16 @@ export const Row = memo(function Row<T>({
   const classes = useTheme((t) => t.classes);
   const styles = useTheme((t) => t.styles);
 
+  const item = table.useState((state) => state.activeItemsById.get(itemId));
+  const wrapRow = table.useState((state) => state.props.wrapRow) ?? defaultWrapRow;
+  const rowClassName =
+    classes?.row instanceof Function ? classes.row(item?.value, rowIndex) : classes?.row;
+  const rowStyles =
+    styles?.row instanceof Function ? styles.row(item?.value, rowIndex) : styles?.row;
+  const subgrid = table.useState((state) => state.props.subgrid);
+
   const {
-    className,
+    cellClassName,
     css_,
     indent,
     hasChildren,
@@ -38,7 +50,7 @@ export const Row = memo(function Row<T>({
     const item = state.activeItemsById.get(itemId);
 
     return {
-      className: cx(...calcClassNames(classes, item?.value, rowIndex)),
+      cellClassName: cx(...calcClassNames(classes, item?.value, rowIndex)),
       css_: calcCss<T>(styles, item?.value, rowIndex),
       indent: item ? getAncestors(state.activeItemsById, item).size : 0,
       hasChildren: !!item?.children.length,
@@ -94,31 +106,57 @@ export const Row = memo(function Row<T>({
 
   useLayoutEffect(() => table.getState().props.debugRender?.('render row', itemId));
 
+  if (!item) {
+    return null;
+  }
+
   return (
-    <div css={{ display: 'contents' }}>
-      <div className={className} css={[defaultClasses.cellFill, css_]} ref={divRef} />
+    <div
+      css={[
+        {
+          display: 'contents',
+        },
+        subgrid && {
+          gridColumn: '1 / -1',
+          display: 'grid',
+          gridTemplateColumns: 'subgrid',
+        },
+        rowStyles,
+      ]}
+      className={rowClassName}
+    >
+      {wrapRow(
+        <>
+          <div className={cellClassName} css={[defaultClasses.cellFill, css_]} ref={divRef} />
 
-      <div className={className} css={[defaultClasses.cell, defaultClasses.firstCell, css_]}>
-        {indent > 0 && <div css={{ width: indent * 20 }} />}
+          <div
+            className={cellClassName}
+            css={[defaultClasses.cell, defaultClasses.firstCell, css_]}
+          >
+            {indent > 0 && <div css={{ width: indent * 20 }} />}
 
-        {enableSelection && <SelectComponent itemId={itemId} />}
+            {enableSelection && <SelectComponent itemId={itemId} />}
 
-        {(hasChildren || hasDeferredChildren || hasDetails) && (
-          <ExpandControl itemId={itemId} hasDeferredChildren={hasDeferredChildren} />
-        )}
+            {(hasChildren || hasDeferredChildren || hasDetails) && (
+              <ExpandControl itemId={itemId} hasDeferredChildren={hasDeferredChildren} />
+            )}
 
-        {rowAction}
-      </div>
+            {rowAction}
+          </div>
 
-      {columnIds.map((columnId) => (
-        <ColumnContext.Provider key={columnId} value={columnId}>
-          <Cell itemId={itemId} rowIndex={rowIndex} />
-        </ColumnContext.Provider>
-      ))}
+          {columnIds.map((columnId) => (
+            <ColumnContext.Provider key={columnId} value={columnId}>
+              <Cell itemId={itemId} rowIndex={rowIndex} />
+            </ColumnContext.Provider>
+          ))}
 
-      <div className={className} css={[defaultClasses.cellFill, css_]} />
+          <div className={cellClassName} css={[defaultClasses.cellFill, css_]} />
 
-      <Details ref={detailsDivRef} itemId={itemId} rowIndex={rowIndex} />
+          <Details ref={detailsDivRef} itemId={itemId} rowIndex={rowIndex} />
+        </>,
+        item.value,
+        rowIndex,
+      )}
     </div>
   );
 });

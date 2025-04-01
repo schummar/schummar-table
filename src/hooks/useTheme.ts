@@ -17,6 +17,8 @@ export function useTheme<T, S>(selector: (theme: MemoizedTableTheme<T>) => S): S
   const _globalTableTheme = globalTableTheme.useState();
 
   const process = (t: TableTheme<T>): MemoizedTableTheme<T> => {
+    const rowClass = t.classes?.row;
+    const rowStyles = t.styles?.row;
     const cellClass = t.classes?.cell;
     const cellStyles = t.styles?.cell;
     const detailsClass = t.classes?.details;
@@ -26,6 +28,10 @@ export function useTheme<T, S>(selector: (theme: MemoizedTableTheme<T>) => S): S
       ...t,
       classes: {
         ...t.classes,
+        row:
+          rowClass instanceof Function || Array.isArray(rowClass)
+            ? memo('theme.classes.row', rowClass)
+            : rowClass,
         cell:
           cellClass instanceof Function || Array.isArray(cellClass)
             ? memo('theme.classes.cell', cellClass)
@@ -37,6 +43,10 @@ export function useTheme<T, S>(selector: (theme: MemoizedTableTheme<T>) => S): S
       },
       styles: {
         ...t.styles,
+        row:
+          rowStyles instanceof Function || Array.isArray(rowStyles)
+            ? memo('theme.styles.row', rowStyles)
+            : rowStyles,
         cell:
           cellStyles instanceof Function || Array.isArray(cellStyles)
             ? memo('theme.styles.cell', cellStyles)
