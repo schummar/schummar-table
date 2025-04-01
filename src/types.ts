@@ -17,6 +17,8 @@ export type MemoizedFunctions<T> = {
   [K in keyof T]: Exclude<T[K], [function: (...args: any[]) => any, ...deps: DependencyList]>;
 };
 
+type CSSInterpolation = Exclude<Interpolation<Theme>, ((...args: any[]) => any) | Array<any>>;
+
 export interface TableTheme<TItem = unknown> {
   /** Define display texts. */
   text: {
@@ -59,12 +61,12 @@ export interface TableTheme<TItem = unknown> {
   styles?: {
     table?: Interpolation<Theme>;
     row?:
-      | Exclude<Interpolation<Theme>, ((...args: any[]) => any) | Array<any>>
-      | FunctionWithDeps<(item: TItem, index: number) => Interpolation<Theme>>;
+      | CSSInterpolation
+      | FunctionWithDeps<(item: TItem, index: number) => CSSInterpolation | CSSInterpolation[]>;
     headerCell?: Interpolation<Theme>;
     footerCell?: Interpolation<Theme>;
     cell?:
-      | Exclude<Interpolation<Theme>, ((...args: any[]) => any) | Array<any>>
+      | CSSInterpolation
       | FunctionWithDeps<(item: TItem, index: number) => Interpolation<Theme>>;
     evenCell?: Interpolation<Theme>;
     oddCell?: Interpolation<Theme>;
@@ -195,7 +197,13 @@ export interface TableProps<TItem> extends PartialTableTheme<TItem> {
   /** Set props for multiple columns at once. Will take effect if not overriden in column definition. */
   columnProps?: FunctionWithDeps<(id: Id) => Partial<Omit<Column<TItem, unknown>, 'id'>>>;
   /** Wrap each row */
-  wrapRow?: FunctionWithDeps<(content: ReactNode, item: TItem, index: number) => ReactNode>;
+  wrapRow?: FunctionWithDeps<
+    (
+      props: { className?: string; style?: CSSProperties; children?: ReactNode },
+      item: TItem,
+      index: number,
+    ) => ReactNode
+  >;
   /** Wrap each cell */
   wrapCell?: FunctionWithDeps<
     (content: ReactNode, value: unknown, item: TItem, index: number) => ReactNode
