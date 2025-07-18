@@ -1,11 +1,12 @@
 export { AutoFocusTextField } from './components/autoFocusTextField';
+export { default as CombinedFilter, type CombinedFilterProps } from './components/combinedFilter';
 export { DateFilter } from './components/dateFilter';
 export {
-  DatePicker,
-  DatePickerProvider,
   commonQuickOptions,
   dateClamp,
   dateIntersect,
+  DatePicker,
+  DatePickerProvider,
   endOfDay,
   getCalendarWeek,
   lastDays,
@@ -16,10 +17,10 @@ export {
   today,
 } from './components/datePicker';
 export type {
+  DatePickerChangeSource,
   DatePickerProps,
   DatePickerQuickOption,
   DateRange,
-  DatePickerChangeSource,
 } from './components/datePicker';
 export { RangeFilter } from './components/rangeFilter';
 export { SelectFilter } from './components/selectFilter';
@@ -51,3 +52,4 @@ export type {
   SortDirection,
   TableProps,
 } from './types';
+
