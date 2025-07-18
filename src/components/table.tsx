@@ -17,6 +17,7 @@ import { ColumnFooter } from './columnFooter';
 import { ColumnHeader, ColumnHeaderContext } from './columnHeader';
 import { ColumnSelection } from './columnSelection';
 import { Export } from './export';
+import CombinedFilter from './combinedFilter';
 import { ResizeHandleView } from './resizeHandle';
 import { Row } from './row';
 import { SelectComponent } from './selectComponent';
@@ -64,14 +65,17 @@ function TableLoadingState({ isHydrated }: { isHydrated: boolean }) {
 const TableInner = memo(function TableInner<T>({ hidden }: { hidden: boolean }) {
   const table = useTableContext<T>();
   const fullWidth = table.useState((state) => state.props.fullWidth);
-  const activeColumns = table.useState((state) =>
-    state.activeColumns.map((column) => ({
+
+  const visibleColumns = table.useState((state) =>
+    state.visibleColumns.map((column) => ({
       id: column.id,
       width: column.width,
       classes: column.classes,
       styles: column.styles,
+      footer: column.footer,
     })),
   );
+
   const hasActiveFilters = table.useState((state) => {
     return state.activeColumns.some((column) => {
       const filter = state.filters.get(column.id);
@@ -88,8 +92,16 @@ const TableInner = memo(function TableInner<T>({ hidden }: { hidden: boolean }) 
   const stickyFooter = table.useState((state) => state.props.stickyFooter);
 
   const enableSelection = table.useState((state) => state.props.enableSelection);
-  const enableColumnSelection = table.useState((state) => state.props.enableColumnSelection);
-  const enableExport = table.useState((state) => !!state.props.enableExport);
+  const enableColumnSelection = table.useState((state) =>
+    Array.isArray(state.props.enableColumnSelection)
+      ? !state.displaySize || state.props.enableColumnSelection.includes(state.displaySize)
+      : state.props.enableColumnSelection,
+  );
+  const enableExport = table.useState((state) =>
+    typeof state.props.enableExport === 'object' && !('exporters' in state.props.enableExport)
+      ? !state.displaySize || !!state.props.enableExport[state.displaySize]
+      : !!state.props.enableExport,
+  );
   const cssVariables = useCssVariables();
 
   const enableClearFiltersButton = table.useState((state) => state.props.enableClearFiltersButton);
@@ -105,7 +117,7 @@ const TableInner = memo(function TableInner<T>({ hidden }: { hidden: boolean }) 
           //
           fullWidth === 'right' || fullWidth === true ? 'auto' : '0',
           'max-content',
-          ...activeColumns.map(
+          ...visibleColumns.map(
             (column) => columnWidths.get(column.id) ?? column.width ?? 'max-content',
           ),
           fullWidth === 'left' || fullWidth === true ? 'auto' : '0',
@@ -116,6 +128,7 @@ const TableInner = memo(function TableInner<T>({ hidden }: { hidden: boolean }) 
           <div
             className={classes?.headerCell}
             css={[
+              { gridColumn: 1 },
               defaultClasses.headerFill,
               stickyHeader && defaultClasses.sticky,
               stickyHeader instanceof Object && stickyHeader,
@@ -126,6 +139,7 @@ const TableInner = memo(function TableInner<T>({ hidden }: { hidden: boolean }) 
           <div
             className={classes?.headerCell}
             css={[
+              { gridColumn: 2 },
               defaultClasses.headerCell,
               stickyHeader && defaultClasses.sticky,
               stickyHeader instanceof Object && stickyHeader,
@@ -147,7 +161,7 @@ const TableInner = memo(function TableInner<T>({ hidden }: { hidden: boolean }) 
           </div>
 
           <ColumnHeaderContext.Provider>
-            {activeColumns.map((column) => (
+            {visibleColumns.map((column) => (
               <ColumnContext.Provider key={column.id} value={column.id}>
                 <ColumnHeader />
               </ColumnContext.Provider>
@@ -173,6 +187,7 @@ const TableInner = memo(function TableInner<T>({ hidden }: { hidden: boolean }) 
               <div
                 className={classes?.footerCell}
                 css={[
+                  { gridColumn: 1 },
                   defaultClasses.footerFill,
                   stickyFooter && defaultClasses.stickyBottom,
                   stickyFooter instanceof Object && stickyFooter,
@@ -189,7 +204,7 @@ const TableInner = memo(function TableInner<T>({ hidden }: { hidden: boolean }) 
                 ]}
               />
 
-              {activeColumns.map((column) => (
+              {visibleColumns.map((column) => (
                 <ColumnContext.Provider key={column.id} value={column.id}>
                   <ColumnFooter />
                 </ColumnContext.Provider>

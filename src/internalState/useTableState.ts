@@ -8,6 +8,7 @@ import { cleanupState } from './cleanupState';
 import { filterColumns } from './filterColumns';
 import { normalizeExpanded } from './normalizeExpanded';
 import { syncSelections } from './syncSelections';
+import { watchDisplaySize } from './watchDisplaySize';
 
 export function useTableState<T>(
   _props: TableProps<T>,
@@ -40,6 +41,7 @@ export function useTableState<T>(
   const state = useMemo(
     () =>
       new Store<InternalTableState<T>>({
+        normalizedProps: props,
         props,
 
         key,
@@ -55,11 +57,14 @@ export function useTableState<T>(
         columnStyleOverride: new Map(),
 
         activeColumns: [],
+        visibleColumns: [],
         items: [],
         itemsById: new Map(),
         activeItems: [],
         activeItemsById: new Map(),
         lastSelectedId: undefined,
+        displaySizePx: undefined,
+        displaySize: undefined,
       }),
     [key],
   );
@@ -69,10 +74,12 @@ export function useTableState<T>(
   normalizeExpanded(state);
   syncSelections(state);
   cleanupState(state);
+  watchDisplaySize(state);
 
   useEffect(() => {
     state.update((state) => {
-      state.props = castDraft(props);
+      state.normalizedProps = castDraft(props);
+
       if (props.sort) state.sort = props.sort;
       if (props.selection) state.selection = props.selection;
       if (props.expanded) state.expanded = props.expanded;

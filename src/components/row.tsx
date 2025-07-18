@@ -52,7 +52,7 @@ export const Row = memo(function Row<T>({
       indent: item ? getAncestors(state.activeItemsById, item).size : 0,
       hasChildren: !!item?.children.length,
       hasDeferredChildren: item && state.props.hasDeferredChildren?.(item.value),
-      columnIds: state.activeColumns.map((column) => column.id),
+      columnIds: state.visibleColumns.map((column) => column.id),
       enableSelection: state.props.enableSelection,
       rowAction:
         state.props.rowAction instanceof Function

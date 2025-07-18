@@ -1,14 +1,15 @@
 import { css } from '@emotion/react';
 
 const cell = css({
+  padding: `calc(var(--spacing) * 0.1) calc(2 * var(--spacing))`,
   display: 'flex',
   alignItems: 'center',
   borderBottom: '1px solid var(--table-border-light-color)',
   whiteSpace: 'nowrap',
   overflow: 'hidden',
 
-  '&:not(:empty)': {
-    padding: `calc(var(--spacing) * 0.1) calc(2 * var(--spacing))`,
+  '&:empty': {
+    padding: 0,
   },
 });
 

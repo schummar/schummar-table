@@ -1,5 +1,6 @@
-import type { TableProps } from '../../src';
+import type { Column, TableProps } from '../../src';
 import { DateFilter, SelectFilter, TextFilter } from '../../src';
+import CombinedFilter from '../../src/components/combinedFilter';
 import type { Person } from './_data';
 
 const dateFormat = new Intl.DateTimeFormat(undefined, { dateStyle: 'medium' });
@@ -38,3 +39,52 @@ const _defaultColumns: TableProps<Person>['columns'] = (col) => [
 ];
 
 export const defaultColumns = _defaultColumns((value, column) => ({ value, ...column }));
+
+export const mobileColumn: Column<Person, Person> = {
+  value: (person) => person,
+  id: 'mobile',
+  header: 'Mobile View',
+  displaySize: 'mobile',
+  renderCell(person) {
+    return (
+      <div css={{ display: 'flex', gap: '1em' }}>
+        <img width={50} height={50} src={person.avatar} />
+        <div
+          css={{
+            '& .key': {
+              fontSize: '0.7em',
+              fontWeight: 'bold',
+
+              '&:not(:first-of-type)': {
+                marginTop: '0.5em',
+              },
+            },
+            '.value': {
+              whiteSpace: 'nowrap',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+            },
+          }}
+        >
+          <div className="key">Name</div>
+          <div className="value">
+            {person.first_name} {person.last_name}
+          </div>
+
+          <div className="key">Job</div>
+          <div className="value">{person.job_title}</div>
+
+          <div className="key">Birthday</div>
+          <div className="value">{dateFormat.format(new Date(person.birthday))}</div>
+        </div>
+      </div>
+    );
+  },
+  filter: <CombinedFilter />,
+  width: '1fr',
+  styles: {
+    cell: {
+      padding: '0.5em 0',
+    },
+  },
+};

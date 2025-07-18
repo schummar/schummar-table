@@ -110,6 +110,7 @@ export function SelectFilter<TItem, TColumnValue, TFilterBy>({
       css={{
         padding: 'calc(var(--spacing) * 2)',
         display: 'grid',
+        gridTemplateColumns: 'minmax(0, 1fr)',
         gap: 'var(--spacing)',
       }}
     >
@@ -144,7 +145,11 @@ export function SelectFilter<TItem, TColumnValue, TFilterBy>({
         items={ordered}
         css={{
           width: '20em',
-          maxHeight: '20em',
+          maxWidth: '100%',
+          maxHeight: 'min(20em, 50vh)',
+          overflow: 'hidden auto',
+          display: 'grid',
+          gridTemplateColumns: 'minmax(0, 1fr)',
         }}
       >
         {(option, index) => (
@@ -157,7 +162,7 @@ export function SelectFilter<TItem, TColumnValue, TFilterBy>({
               />
             }
             label={render(option)}
-          ></FormControlLabel>
+          />
         )}
       </VirtualList>
 

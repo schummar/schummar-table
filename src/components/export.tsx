@@ -20,7 +20,7 @@ export function Export<T>(): JSX.Element {
   const cssVariables = useCssVariables();
 
   const { all, exporters } = table.useState((state): ExportOptions => {
-    if (typeof state.props.enableExport === 'boolean') {
+    if (typeof state.props.enableExport === 'boolean' || state.props.enableExport === undefined) {
       return {
         all: false,
         exporters: contextExporters,

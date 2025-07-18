@@ -4,18 +4,29 @@ import { cx } from '../misc/helpers';
 import { useColumnContext, useTableContext } from '../misc/tableContext';
 import { useCssVariables } from '../theme/useCssVariables';
 
+export interface FilterControlButtonProps {
+  onClick?: (event: React.MouseEvent<Element>) => void;
+  onContextMenu?: (event: React.MouseEvent<Element>) => void;
+  isActive?: boolean;
+}
+
+export interface FilterControlProps {
+  component?: React.ElementType<FilterControlButtonProps>;
+  onClose?: () => void;
+}
+
 export const FilterControlContext = createContext({
   isActive: false,
   close: (): void => undefined,
 });
 
-export function FilterControl<T>(): JSX.Element | null {
+export function FilterControl<T>({
+  component: Component = DefaultButton,
+  onClose,
+}: FilterControlProps): JSX.Element | null {
   const table = useTableContext<T>();
   const columnId = useColumnContext();
-  const IconButton = useTheme((t) => t.components.IconButton);
   const Popover = useTheme((t) => t.components.Popover);
-  const FilterList = useTheme((t) => t.icons.FilterList);
-  const ArrowDropDown = useTheme((t) => t.icons.ArrowDropDown);
   const classes = useTheme((t) => t.classes);
   const cssVariables = useCssVariables();
 
@@ -34,15 +45,15 @@ export function FilterControl<T>(): JSX.Element | null {
   );
 
   function reset() {
-    table.update((state) => {
-      const impl = state.filters.get(columnId);
+    const impl = table.getState().filters.get(columnId);
 
-      impl?.onChange?.(undefined);
+    impl?.onChange?.(undefined);
 
-      if (impl?.value === undefined) {
+    if (impl?.value === undefined) {
+      table.update((state) => {
         state.filterValues.delete(columnId);
-      }
-    });
+      });
+    }
   }
 
   const context = useMemo(
@@ -57,25 +68,15 @@ export function FilterControl<T>(): JSX.Element | null {
 
   return (
     <FilterControlContext.Provider value={context}>
-      <div
+      <Component
         onClick={(event) => setAnchor(event.currentTarget)}
         onContextMenu={(event) => {
           reset();
           event.preventDefault();
           return false;
         }}
-      >
-        <IconButton
-          css={[
-            { color: '#b0bac9' },
-            isActive && {
-              color: 'var(--primaryMain) !important',
-            },
-          ]}
-        >
-          {isActive ? <FilterList /> : <ArrowDropDown />}
-        </IconButton>
-      </div>
+        isActive={isActive}
+      />
 
       <div
         onPointerDown={(event) => {
@@ -88,7 +89,10 @@ export function FilterControl<T>(): JSX.Element | null {
         <Popover
           open
           hidden={!anchor}
-          onClose={() => setAnchor(null)}
+          onClose={() => {
+            setAnchor(null);
+            onClose?.();
+          }}
           anchorEl={anchor ?? document.body}
           css={cssVariables}
           className={cx(classes?.popover, filterClassNames?.popover)}
@@ -98,5 +102,25 @@ export function FilterControl<T>(): JSX.Element | null {
         </Popover>
       </div>
     </FilterControlContext.Provider>
+  );
+}
+
+function DefaultButton({ isActive, ...props }: FilterControlButtonProps) {
+  const IconButton = useTheme((t) => t.components.IconButton);
+  const FilterList = useTheme((t) => t.icons.FilterList);
+  const ArrowDropDown = useTheme((t) => t.icons.ArrowDropDown);
+
+  return (
+    <IconButton
+      {...props}
+      css={[
+        { color: '#b0bac9' },
+        isActive && {
+          color: 'var(--primaryMain) !important',
+        },
+      ]}
+    >
+      {isActive ? <FilterList /> : <ArrowDropDown />}
+    </IconButton>
   );
 }

@@ -1,15 +1,16 @@
-import type { Meta } from '@storybook/react';
-import { Id, Table, TableSettingsProvider, type TableProps } from '../../src';
+import type { Meta, StoryObj } from '@storybook/react';
+import { Id, Table, TableSettingsProvider, type Column, type TableProps } from '../../src';
 import { DatePickerProvider } from '../../src/components/datePicker';
 import ExcelExporter from '../../src/exporters/excelExporter';
-import data from './_data';
-import { defaultColumns } from './_default';
+import data, { type Person } from './_data';
+import { defaultColumns, mobileColumn } from './_default';
 import css from './styles.module.css';
 
 type Item = typeof data extends Array<infer S> ? S : never;
+type Story = StoryObj<typeof meta>;
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
-export default {
+const meta: Meta<typeof Table<Person>> = {
   title: 'Intro',
   component: Table,
   render: (args) => (
@@ -33,7 +34,8 @@ export default {
       control: { type: 'inline-radio' },
     },
   },
-} as Meta<typeof Table>;
+};
+export default meta;
 
 export const Primary = {
   args: {
@@ -179,5 +181,23 @@ export const Subgrid = {
         },
       },
     },
+  },
+};
+
+export const Mobile: Story = {
+  parameters: {
+    viewport: {
+      defaultViewport: 'mobile1',
+    },
+  },
+  args: {
+    ...Primary.args,
+    items: data.slice(0, 50),
+    columns: defaultColumns
+      .map<Column<Person, any>>((col) => ({
+        ...col,
+        displaySize: 'desktop',
+      }))
+      .concat(mobileColumn),
   },
 };

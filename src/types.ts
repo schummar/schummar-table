@@ -19,6 +19,9 @@ export type MemoizedFunctions<T> = {
 
 type CSSInterpolation = Exclude<Interpolation<Theme>, ((...args: any[]) => any) | Array<any>>;
 
+export type DisplaySize = 'desktop' | 'mobile' | (string & {});
+export type DisplaySizes = Record<DisplaySize, number>;
+
 export interface TableTheme<TItem = unknown> {
   /** Define display texts. */
   text: {
@@ -80,12 +83,14 @@ export interface TableTheme<TItem = unknown> {
     IconButton: ComponentType<{
       children: ReactNode;
       onClick?: (event: React.MouseEvent<Element>) => void;
+      onContextMenu?: (event: React.MouseEvent<Element>) => void;
       className?: string;
       type?: React.ButtonHTMLAttributes<HTMLButtonElement>['type'];
     }>;
     Button: ComponentType<{
       children: ReactNode;
       onClick?: (event: React.MouseEvent<Element>) => void;
+      onContextMenu?: (event: React.MouseEvent<Element>) => void;
       startIcon?: ReactNode;
       variant?: 'text' | 'outlined' | 'contained';
       disabled?: boolean;
@@ -322,7 +327,7 @@ export interface TableProps<TItem> extends PartialTableTheme<TItem> {
   /** Allow to drag and drop column separators to resize the column left of it.
    * @default true
    */
-  enableColumnResize?: boolean;
+  enableColumnResize?: boolean | 'visualOnly';
   /** Allow to drag and drop column header to reorder columns.
    * @default true
    */
@@ -350,17 +355,38 @@ export interface TableProps<TItem> extends PartialTableTheme<TItem> {
       | 'columnOrder'
     )[];
   };
+  /** The current screen size. Used to determine which columns to display.
+   * Either assert the size manually - e.g. "mobile" or "desktop".
+   * Or provide a map of screen sizes to maximum pixel widths of the screen.
+   * If not provided, <= 400 px will be "mobile", else "desktop".
+   *
+   * @example
+   * displaySize: 'mobile' // assert the size manually
+   * displaySize: { mobile: 450, desktop: Infinity } // provide a map of screen sizes
+   * */
+  displaySize?: DisplaySize | DisplaySizes;
+  displaySizeOverrides?: Partial<
+    Record<DisplaySize, Partial<Omit<TableProps<TItem>, 'displaySize' | 'displaySizeOverrides'>>>
+  >;
   debug?: (...output: any) => void;
   debugRender?: (...output: any) => void;
   onReset?: (scope?: 'table' | 'filters') => void;
 }
 
 export type InternalTableProps<TItem> = MemoizedFunctions<
-  Omit<TableProps<TItem>, 'id' | 'parentId' | 'columns' | 'defaultColumnProps' | 'enableExport'> & {
+  Omit<
+    TableProps<TItem>,
+    'id' | 'parentId' | 'columns' | 'defaultColumnProps' | 'displaySizeOverrides'
+  > & {
     id: (item: TItem) => Id;
     parentId?: (item: TItem) => Id | undefined;
     columns: InternalColumn<TItem, unknown>[];
-    enableExport: boolean | ExportOptions;
+    displaySizeOverrides?: Partial<
+      Record<
+        DisplaySize,
+        Partial<Omit<InternalTableProps<TItem>, 'displaySize' | 'displaySizeOverrides'>>
+      >
+    >;
   }
 >;
 
@@ -403,15 +429,18 @@ export type Column<TItem, TColumnValue> = {
   classes?: Omit<NonNullable<TableTheme<TItem>['classes']>, 'table' | 'details'>;
   /** Provide css styles to override columns styles. */
   styles?: Omit<NonNullable<TableTheme<TItem>['styles']>, 'table' | 'details'>;
+  /** Specify the screen size(s) for which this column should be displayed. */
+  displaySize?: DisplaySize | DisplaySize[];
 };
 
 export type InternalColumn<TItem, TColumnValue> = MemoizedFunctions<
   Required<
-    Omit<Column<TItem, TColumnValue>, 'id' | 'sortBy'>,
+    Omit<Column<TItem, TColumnValue>, 'id' | 'sortBy' | 'displaySize'>,
     'header' | 'exportHeader' | 'renderCell' | 'exportCell' | 'sortBy'
   > & {
     id: Id;
     sortBy: ((value: TColumnValue, item: TItem) => unknown)[];
+    displaySize: DisplaySize[] | undefined;
   }
 >;
 
@@ -421,6 +450,7 @@ type Required<T, S> = T & {
 
 export type InternalTableState<TItem> = {
   // Basically the passed in props, but normalized
+  normalizedProps: InternalTableProps<TItem>;
   props: InternalTableProps<TItem>;
 
   // Actual internal state
@@ -438,11 +468,14 @@ export type InternalTableState<TItem> = {
 
   // Helper data structures for efficient lookup etc.
   activeColumns: InternalColumn<TItem, unknown>[];
+  visibleColumns: InternalColumn<TItem, unknown>[];
   items: TableItem<TItem>[];
   itemsById: Map<Id, TableItem<TItem>>;
   activeItems: TableItem<TItem>[];
   activeItemsById: Map<Id, TableItem<TItem>>;
   lastSelectedId?: Id;
+  displaySizePx: number | undefined;
+  displaySize: DisplaySize | undefined;
 };
 
 export type CommonFilterProps<TItem, TColumnValue, TFilterBy, TFilterValue> = {

@@ -46,6 +46,10 @@ export function ResizeHandle() {
     });
   }
 
+  if (!enabled) {
+    return null;
+  }
+
   return (
     <ResizeHandleView
       enabled={enabled}
@@ -60,7 +64,7 @@ export function ResizeHandle() {
 export function ResizeHandleView({
   enabled,
   ...props
-}: HTMLProps<HTMLDivElement> & { enabled?: boolean }) {
+}: HTMLProps<HTMLDivElement> & { enabled?: boolean | 'visualOnly' }) {
   const className = useTheme((theme) => theme.classes?.columnDivider);
   const styles = useTheme((theme) => theme.styles?.columnDivider);
 
@@ -71,7 +75,7 @@ export function ResizeHandleView({
         {
           alignSelf: 'stretch',
           padding: '0 5px',
-          cursor: enabled ? 'col-resize' : 'initial',
+          cursor: enabled === true ? 'col-resize' : 'initial',
           display: 'flex',
           alignItems: 'center',
 
@@ -81,6 +85,10 @@ export function ResizeHandleView({
             height: '1.5em',
             background: '#c9cfda',
             transition: 'transform 300ms',
+          },
+
+          '@media (pointer: coarse)': {
+            pointerEvents: 'none',
           },
         },
         styles,
