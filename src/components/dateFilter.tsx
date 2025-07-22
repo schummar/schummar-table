@@ -35,6 +35,7 @@ export function DateFilter<TItem, TColumnValue>({
   minDate,
   maxDate,
   showCalendarWeek,
+  showTime,
   ...props
 }: {
   /** If enabled, only single days can be selected. Ranges otherwise. */
@@ -48,6 +49,7 @@ export function DateFilter<TItem, TColumnValue>({
   | 'minDate'
   | 'maxDate'
   | 'showCalendarWeek'
+  | 'showTime'
 > &
   CommonFilterProps<
     TItem,
@@ -88,6 +90,7 @@ export function DateFilter<TItem, TColumnValue>({
         minDate={minDate}
         maxDate={maxDate}
         showCalendarWeek={showCalendarWeek}
+        showTime={showTime}
       />
     </div>
   );
