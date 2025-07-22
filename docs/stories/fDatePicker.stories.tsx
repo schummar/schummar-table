@@ -1,6 +1,8 @@
-import type { Meta } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react';
 import { useState } from 'react';
 import { DatePicker, thisWeek, type DatePickerProps, type DateRange } from '../../src';
+
+type Story = StoryObj<typeof meta>;
 
 const today = new Date();
 const nextWeek = new Date();
@@ -19,16 +21,16 @@ function Wrapper(props: DatePickerProps) {
       <DatePicker
         {...props}
         value={date}
-        onChange={(v) => {
+        onChange={(v, s) => {
           setDate(v);
-          props.onChange(v);
+          props.onChange(v, s);
         }}
       />
     </div>
   );
 }
 
-export default {
+const meta = {
   title: 'Date Picker',
   component: DatePicker,
   render(props) {
@@ -42,6 +44,8 @@ export default {
     },
   },
 } satisfies Meta<typeof DatePicker>;
+
+export default meta;
 
 export const Simple = {
   args: {
@@ -94,3 +98,21 @@ export const CalendarWeeks = () => {
     </div>
   );
 };
+
+export const WithTime = {
+  args: {
+    value: thisWeek(),
+    onChange: () => undefined,
+    rangeSelect: true,
+    showTime: true,
+  },
+} satisfies Story;
+
+export const WithTimeWithoutSeconds = {
+  args: {
+    value: thisWeek(),
+    onChange: () => undefined,
+    rangeSelect: true,
+    showTime: { showSeconds: false },
+  },
+} satisfies Story;

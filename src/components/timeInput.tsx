@@ -1,23 +1,23 @@
 import { Fragment, useMemo, useState } from 'react';
 
-type Part = 'day' | 'month' | 'year';
+type Part = 'hour' | 'minute' | 'second';
 
-const className = 'schummar-table-date-input';
+const className = 'schummar-table-time-input';
 const defaultDate = new Date(1970, 0, 1);
 
 const isIncludedType = (type: Intl.DateTimeFormatPartTypes): type is Part =>
-  type === 'day' || type === 'month' || type === 'year';
+  type === 'hour' || type === 'minute' || type === 'second';
 
 const defaultLengths = {
-  day: 2,
-  month: 2,
-  year: 4,
+  hour: 2,
+  minute: 2,
+  second: 2,
 };
 
 const maxLengths = {
-  day: 2,
-  month: 2,
-  year: Number.POSITIVE_INFINITY,
+  hour: 2,
+  minute: 2,
+  second: 2,
 };
 
 const length = (type: Part, value: string) => Math.max(value.length, defaultLengths[type]);
@@ -32,14 +32,15 @@ const tabNext = (event: Element) => {
   }
 };
 
-export interface DateInputProps {
+export interface TimeInputProps {
   value: Date | null;
   onChange: (date: Date | null) => void;
   locale?: string;
+  showSeconds?: boolean;
 }
 
-export function DateInput({ value, onChange, locale }: DateInputProps) {
-  const [override, setOverride] = useState<{ type: Part; value: string }>();
+export function TimeInput({ value, onChange, locale, showSeconds = true }: TimeInputProps) {
+  const [override, setOverride] = useState<{ type: string; value: string }>();
 
   const commit = () => {
     if (!override) {
@@ -55,18 +56,18 @@ export function DateInput({ value, onChange, locale }: DateInputProps) {
 
     const newValue = value ? new Date(value) : new Date();
     switch (override.type) {
-      case 'day': {
-        newValue.setDate(Number(override.value));
+      case 'hour': {
+        newValue.setHours(Number(override.value));
         break;
       }
 
-      case 'month': {
-        newValue.setMonth(Number(override.value) - 1);
+      case 'minute': {
+        newValue.setMinutes(Number(override.value));
         break;
       }
 
-      case 'year': {
-        newValue.setFullYear(Number(override.value));
+      case 'second': {
+        newValue.setSeconds(Number(override.value));
         break;
       }
 
@@ -81,9 +82,9 @@ export function DateInput({ value, onChange, locale }: DateInputProps) {
   const format = useMemo(
     () =>
       new Intl.DateTimeFormat(locale, {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: showSeconds ? '2-digit' : undefined,
       }),
     [locale],
   );

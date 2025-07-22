@@ -14,6 +14,7 @@ import { useCssVariables } from '../theme/useCssVariables';
 import { DateInput } from './dateInput';
 import { Text } from './text';
 import { Interpolation, Theme } from '@emotion/react';
+import { TimeInput, type TimeInputProps } from './timeInput';
 
 export type DateRange = { min: Date; max: Date };
 
@@ -59,6 +60,8 @@ export type DatePickerProps = {
   maxDate?: Date;
   /** Whether to show the calendar week in the first column */
   showCalendarWeek?: boolean;
+  /** Whether to show and allow editing of time */
+  showTime?: boolean | { showSeconds?: boolean };
 };
 
 const DatePickerContext = createContext<Partial<Omit<DatePickerProps, 'value' | 'onChange'>>>({});
@@ -245,6 +248,7 @@ export function DatePicker(props: DatePickerProps) {
     maxDate,
     showCalendarWeek,
     blockedRanges = [],
+    showTime,
   } = defaults<DatePickerProps>(props, context);
 
   function onChange(value: Date | DateRange | null, source: DatePickerChangeSource) {
@@ -456,24 +460,53 @@ export function DatePicker(props: DatePickerProps) {
           display: 'grid',
           gridAutoFlow: 'column',
           justifyContent: 'center',
-          alignItems: 'baseline',
-          gap: 'var(--spacing)',
+          alignItems: 'center',
+          gap: 'calc(var(--spacing) * 4)',
+
+          '& > div': {
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+          },
         }}
       >
-        <DateInput
-          value={min ?? null}
-          onChange={(date) => set('input', date ?? undefined, max, 'min')}
-          locale={locale}
-        />
+        <div>
+          <DateInput
+            value={min ?? null}
+            onChange={(date) => set('input', date ?? undefined, max, 'min')}
+            locale={locale}
+          />
+
+          {showTime && (
+            <TimeInput
+              value={min ?? null}
+              onChange={(date) => set('input', date ?? undefined, max, 'min')}
+              locale={locale}
+              showSeconds={typeof showTime === 'boolean' ? true : showTime.showSeconds}
+            />
+          )}
+        </div>
 
         {rangeSelect && (
           <>
             {' - '}
-            <DateInput
-              value={max ?? null}
-              onChange={(date) => set('input', min, date ?? undefined, 'max')}
-              locale={locale}
-            />
+
+            <div>
+              <DateInput
+                value={max ?? null}
+                onChange={(date) => set('input', min, date ?? undefined, 'max')}
+                locale={locale}
+              />
+
+              {showTime && (
+                <TimeInput
+                  value={max ?? null}
+                  onChange={(date) => set('input', min, date ?? undefined, 'max')}
+                  locale={locale}
+                  showSeconds={typeof showTime === 'boolean' ? true : showTime.showSeconds}
+                />
+              )}
+            </div>
           </>
         )}
       </div>
