@@ -43,6 +43,7 @@ export function Virtualized<T>({
     (state) => {
       const itemIds = state.activeItems.map((item) => item.id);
       const root = probeRef.current && findScrollRoot(probeRef.current);
+      if (!state.props.virtual) return { itemIds };
       if (
         !probeRef.current ||
         !root ||
@@ -50,7 +51,6 @@ export function Virtualized<T>({
         state.displaySizePx === undefined
       )
         return {};
-      if (!state.props.virtual) return { itemIds };
 
       const {
         rowHeight,
