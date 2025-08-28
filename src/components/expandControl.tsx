@@ -1,3 +1,4 @@
+import type { MouseEvent } from 'react';
 import { useTheme } from '../hooks/useTheme';
 import { getAncestors, getDescendants } from '../misc/helpers';
 import { useTableContext } from '../misc/tableContext';
@@ -20,7 +21,10 @@ export function ExpandControl<T>({
     (state) => !!state.activeItemsById.get(itemId)?.children.length,
   );
 
-  function toggle() {
+  function toggle(e: MouseEvent) {
+    e.preventDefault();
+    e.stopPropagation();
+
     const {
       props: { expanded: controlledExpanded, expandOnlyOne, onExpandedChange },
       expanded,
