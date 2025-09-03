@@ -373,6 +373,13 @@ export interface TableProps<TItem> extends PartialTableTheme<TItem> {
   onReset?: (scope?: 'table' | 'filters') => void;
 }
 
+export interface TableRef {
+  setSort: (sort: Sort[]) => void;
+  setSelection: (selection: Set<Id>) => void;
+  setExpanded: (expanded: Set<Id>) => void;
+  setHiddenColumns: (hidden: Set<Id>) => void;
+}
+
 export type InternalTableProps<TItem> = MemoizedFunctions<
   Omit<
     TableProps<TItem>,

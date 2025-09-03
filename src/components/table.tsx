@@ -1,4 +1,12 @@
-import { memo, useEffect, useLayoutEffect, useState } from 'react';
+import {
+  forwardRef,
+  memo,
+  useEffect,
+  useImperativeHandle,
+  useLayoutEffect,
+  useState,
+  type ForwardedRef,
+} from 'react';
 import { TableMemoContextProvider } from '../hooks/useTableMemo';
 import { useTheme } from '../hooks/useTheme';
 import { useTableStateStorage } from '../internalState/tableStateStorage';
@@ -11,21 +19,52 @@ import {
 } from '../misc/tableContext';
 import { defaultClasses } from '../theme/defaultTheme/defaultClasses';
 import { useCssVariables } from '../theme/useCssVariables';
-import type { TableProps } from '../types';
+import type { TableProps, TableRef } from '../types';
 import ClearFiltersButton from './clearFiltersButton';
 import { ColumnFooter } from './columnFooter';
 import { ColumnHeader, ColumnHeaderContext } from './columnHeader';
 import { ColumnSelection } from './columnSelection';
 import { Export } from './export';
-import CombinedFilter from './combinedFilter';
 import { ResizeHandleView } from './resizeHandle';
 import { Row } from './row';
 import { SelectComponent } from './selectComponent';
 import { Virtualized } from './virtualized';
 
-export function Table<T>(props: TableProps<T>): JSX.Element {
+export const Table = forwardRef(_Table);
+
+function _Table<T>(props: TableProps<T>, ref: ForwardedRef<TableRef>): JSX.Element {
   const [table, resetState] = useTableState(props);
   const [isHydrated, clearStorage] = useTableStateStorage(table);
+
+  useImperativeHandle(
+    ref,
+    () => ({
+      setSort(sort) {
+        table.update((state) => {
+          state.sort = sort;
+        });
+      },
+
+      setSelection(selection) {
+        table.update((state) => {
+          state.selection = selection;
+        });
+      },
+
+      setExpanded(expanded) {
+        table.update((state) => {
+          state.expanded = expanded;
+        });
+      },
+
+      setHiddenColumns(hidden) {
+        table.update((state) => {
+          state.hiddenColumns = hidden;
+        });
+      },
+    }),
+    [table],
+  );
 
   async function reset() {
     await clearStorage();
