@@ -23,7 +23,9 @@ import { Row } from './row';
 import { SelectComponent } from './selectComponent';
 import { Virtualized } from './virtualized';
 
-export const Table = forwardRef(_Table);
+export const Table = forwardRef(_Table) as <T>(
+  props: TableProps<T> & { ref?: ForwardedRef<TableRef> },
+) => ReturnType<typeof _Table>;
 
 function _Table<T>(props: TableProps<T>, ref: ForwardedRef<TableRef>): JSX.Element {
   const [table, resetState] = useTableState(props);
