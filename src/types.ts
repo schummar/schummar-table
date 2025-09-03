@@ -374,9 +374,13 @@ export interface TableProps<TItem> extends PartialTableTheme<TItem> {
 }
 
 export interface TableRef {
+  getSort: () => Sort[];
   setSort: (sort: Sort[]) => void;
+  getSelection: () => Set<Id>;
   setSelection: (selection: Set<Id>) => void;
+  getExpanded: () => Set<Id>;
   setExpanded: (expanded: Set<Id>) => void;
+  getHiddenColumns: () => Set<Id>;
   setHiddenColumns: (hidden: Set<Id>) => void;
 }
 

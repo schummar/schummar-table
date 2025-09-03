@@ -1,13 +1,6 @@
-import {
-  forwardRef,
-  memo,
-  useEffect,
-  useImperativeHandle,
-  useLayoutEffect,
-  useState,
-  type ForwardedRef,
-} from 'react';
+import { forwardRef, memo, useEffect, useLayoutEffect, useState, type ForwardedRef } from 'react';
 import { TableMemoContextProvider } from '../hooks/useTableMemo';
+import useTableRef from '../hooks/useTableRef';
 import { useTheme } from '../hooks/useTheme';
 import { useTableStateStorage } from '../internalState/tableStateStorage';
 import { useTableState } from '../internalState/useTableState';
@@ -35,36 +28,7 @@ export const Table = forwardRef(_Table);
 function _Table<T>(props: TableProps<T>, ref: ForwardedRef<TableRef>): JSX.Element {
   const [table, resetState] = useTableState(props);
   const [isHydrated, clearStorage] = useTableStateStorage(table);
-
-  useImperativeHandle(
-    ref,
-    () => ({
-      setSort(sort) {
-        table.update((state) => {
-          state.sort = sort;
-        });
-      },
-
-      setSelection(selection) {
-        table.update((state) => {
-          state.selection = selection;
-        });
-      },
-
-      setExpanded(expanded) {
-        table.update((state) => {
-          state.expanded = expanded;
-        });
-      },
-
-      setHiddenColumns(hidden) {
-        table.update((state) => {
-          state.hiddenColumns = hidden;
-        });
-      },
-    }),
-    [table],
-  );
+  useTableRef(table, ref);
 
   async function reset() {
     await clearStorage();
