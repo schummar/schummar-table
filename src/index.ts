@@ -51,5 +51,5 @@ export type {
   Sort,
   SortDirection,
   TableProps,
+  TableRef,
 } from './types';
-
