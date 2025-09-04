@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { defaultSerializer } from '../exporters/serializer';
 import { useTableMemo } from '../hooks/useTableMemo';
-import { asString } from '../misc/helpers';
+import { asString, castArray, isTruthy } from '../misc/helpers';
 import { overrides } from '../misc/overrides';
 import type { Column, Id, InternalColumn, InternalTableProps, TableProps } from '../types';
 
@@ -112,16 +112,15 @@ function calc<T>(
                 : String(v),
         ]
       ).map((function_, i) => cache(`columns.${cacheKey}.sortBy.${i}`, function_)),
-      disableSort,
+      disableSort: disableSort ?? defaults?.disableSort ?? false,
       hidden: hidden ?? defaults?.hidden,
       classes: classes ?? defaults?.classes,
       styles: styles ?? defaults?.styles,
       filter: filter ?? defaults?.filter,
       width: width ?? defaults?.width,
-      displaySize: Array.isArray(displaySize)
-        ? displaySize
-        : displaySize
-          ? [displaySize]
+      displaySize:
+        (displaySize ?? defaults.displaySize) !== undefined
+          ? castArray((displaySize ?? defaults.displaySize)!)
           : undefined,
     };
   };
