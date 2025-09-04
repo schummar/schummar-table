@@ -126,7 +126,7 @@ function calc<T>(
     };
   };
 
-  const columns = inputColumns?.map(mapColumn);
+  const columns = inputColumns?.filter((x): x is Column<T, any> => !!x).map(mapColumn);
 
   const wrapRow = props.wrapRow && cache('wrapRow', props.wrapRow);
   const wrapCell = props.wrapCell && cache('wrapCell', props.wrapCell);

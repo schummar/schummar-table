@@ -19,6 +19,8 @@ export type MemoizedFunctions<T> = {
 
 type CSSInterpolation = Exclude<Interpolation<Theme>, ((...args: any[]) => any) | Array<any>>;
 
+type Falsy = false | 0 | '' | null | undefined;
+
 export type DisplaySize = 'desktop' | 'mobile' | (string & {});
 export type DisplaySizes = Record<DisplaySize, number>;
 
@@ -190,13 +192,13 @@ export interface TableProps<TItem> extends PartialTableTheme<TItem> {
   /// ///////////////////////////////////////////////
   /** Column definitions. */
   columns:
-    | Column<TItem, any>[]
+    | (Column<TItem, any> | Falsy)[]
     | ((
         col: <TColumnValue>(
           value: (item: TItem) => TColumnValue,
           column: Omit<Column<TItem, TColumnValue>, 'value'>,
         ) => Column<TItem, TColumnValue>,
-      ) => Column<TItem, any>[]);
+      ) => (Column<TItem, any> | Falsy)[]);
   /** Default props for all column. Will take effect if not overriden in column definition. */
   defaultColumnProps?: Omit<Column<TItem, unknown>, 'id' | 'value'>;
   /** Set props for multiple columns at once. Will take effect if not overriden in column definition. */
