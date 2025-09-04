@@ -20,7 +20,14 @@ export function ColumnSelection<T>(): JSX.Element {
 
   const table = useTableContext<T>();
   const reset = useContext(TableResetContext);
-  const columns = table.useState((state) => state.props.columns);
+  const columns = table.useState((state) =>
+    state.props.columns.filter(
+      (column) =>
+        state.displaySize === undefined ||
+        column.displaySize === undefined ||
+        column.displaySize.includes(state.displaySize),
+    ),
+  );
   const hiddenColumns = table.useState((state) => state.hiddenColumns);
 
   const [anchorElement, setAnchorElement] = useState<Element | null>(null);
