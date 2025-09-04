@@ -133,7 +133,7 @@ const TableInner = memo(function TableInner<T>({ hidden }: { hidden: boolean }) 
           <div
             className={classes?.headerCell}
             css={[
-              { gridColumn: 1 },
+              { gridRow: 1, gridColumn: 1 },
               defaultClasses.headerFill,
               stickyHeader && defaultClasses.sticky,
               stickyHeader instanceof Object && stickyHeader,
@@ -144,7 +144,7 @@ const TableInner = memo(function TableInner<T>({ hidden }: { hidden: boolean }) 
           <div
             className={classes?.headerCell}
             css={[
-              { gridColumn: 2 },
+              { gridRow: 1, gridColumn: 2 },
               defaultClasses.headerCell,
               stickyHeader && defaultClasses.sticky,
               stickyHeader instanceof Object && stickyHeader,
@@ -166,9 +166,9 @@ const TableInner = memo(function TableInner<T>({ hidden }: { hidden: boolean }) 
           </div>
 
           <ColumnHeaderContext.Provider>
-            {visibleColumns.map((column) => (
+            {visibleColumns.map((column, index) => (
               <ColumnContext.Provider key={column.id} value={column.id}>
-                <ColumnHeader />
+                <ColumnHeader index={index} />
               </ColumnContext.Provider>
             ))}
           </ColumnHeaderContext.Provider>
@@ -176,6 +176,7 @@ const TableInner = memo(function TableInner<T>({ hidden }: { hidden: boolean }) 
           <div
             className={classes?.headerCell}
             css={[
+              { gridRow: 1, gridColumn: visibleColumns.length + 3 },
               defaultClasses.headerFill,
               stickyHeader && defaultClasses.sticky,
               stickyHeader instanceof Object && stickyHeader,

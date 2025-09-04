@@ -11,11 +11,15 @@ import { FilterControl } from './filterControl';
 import { ResizeHandle } from './resizeHandle';
 import { SortComponent } from './sortComponent';
 
+export interface ColumnHeaderProps {
+  index: number;
+}
+
 export const ColumnHeaderContext = new StoreScope({
   items: new Map<Id, HTMLDivElement>(),
 });
 
-export function ColumnHeader() {
+export function ColumnHeader({ index }: ColumnHeaderProps): JSX.Element {
   const ref = useRef<HTMLDivElement>(null);
   const columnId = useColumnContext();
   const table = useTableContext();
@@ -200,6 +204,8 @@ export function ColumnHeader() {
       css={[
         defaultClasses.headerCell,
         {
+          gridRow: 1,
+          gridColumn: index + 2,
           position: 'relative',
           userSelect: 'none',
         },
