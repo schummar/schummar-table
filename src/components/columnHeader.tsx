@@ -205,7 +205,7 @@ export function ColumnHeader({ index }: ColumnHeaderProps): JSX.Element {
         defaultClasses.headerCell,
         {
           gridRow: 1,
-          gridColumn: index + 2,
+          gridColumn: index + 3,
           position: 'relative',
           userSelect: 'none',
         },
