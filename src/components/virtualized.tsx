@@ -44,13 +44,7 @@ export function Virtualized<T>({
       const itemIds = state.activeItems.map((item) => item.id);
       const root = probeRef.current && findScrollRoot(probeRef.current);
       if (!state.props.virtual) return { itemIds };
-      if (
-        !probeRef.current ||
-        !root ||
-        !document.contains(root) ||
-        state.displaySizePx === undefined
-      )
-        return {};
+      if (!probeRef.current || !root || !document.contains(root)) return {};
 
       const {
         rowHeight,
@@ -99,27 +93,6 @@ export function Virtualized<T>({
 
   const throttleScroll = (typeof virtual === 'boolean' ? undefined : virtual)?.throttleScroll ?? 16;
   const update = useMemo(() => throttle(() => setId({}), throttleScroll), [throttleScroll]);
-
-  useEffect(() => {
-    const tableElem = probeRef.current?.parentElement;
-    if (!tableElem) return;
-
-    const update = () => {
-      table.update((state) => {
-        state.displaySizePx = tableElem.clientWidth;
-      });
-    };
-
-    const ro = new ResizeObserver(update);
-    ro.observe(tableElem);
-
-    window.addEventListener('resize', update, true);
-
-    return () => {
-      ro.disconnect();
-      window.removeEventListener('resize', update, true);
-    };
-  }, [table, probeRef.current]);
 
   useEffect(() => {
     if (!virtual || !probeRef.current) return;

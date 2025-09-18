@@ -1,30 +1,45 @@
-import type { ComponentMeta } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react';
 import { Table } from '../../src';
-import data from './_data';
+import data, { type Person } from './_data';
 
-// More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
-export default {
+type Story = StoryObj<typeof meta>;
+
+const meta: Meta<typeof Table<Person>> = {
   title: 'Edge Cases',
   component: Table,
-} as ComponentMeta<typeof Table>;
-
-export const ManyColumns = () => {
-  return (
-    <Table
-      items={data}
-      id="id"
-      virtual
-      stickyHeader
-      fullWidth
-      columns={(col) =>
-        Array.from({ length: 30 })
-          .fill(0)
-          .map((_x, i) =>
-            col(() => 'x', {
-              header: String(i),
-            }),
-          )
-      }
-    />
-  );
 };
+export default meta;
+
+export const ManyColumns = {
+  args: {
+    items: data,
+    id: 'id',
+    virtual: true,
+    stickyHeader: true,
+    fullWidth: true,
+    columns: (col) =>
+      Array.from({ length: 30 })
+        .fill(0)
+        .map((_x, i) =>
+          col(() => 'x', {
+            header: String(i),
+          }),
+        ),
+  },
+} satisfies Story;
+
+export const NoColumns = {
+  args: {
+    items: data.slice(0, 3),
+    id: 'id',
+    enableSelection: false,
+    virtual: true,
+    columns: (col) => [col(() => 'x', { header: 'X' })],
+    displaySize: { mobile: 400, desktop: Infinity },
+    displaySizeOverrides: {
+      mobile: {
+        enableExport: false,
+      },
+    },
+  },
+} satisfies Story;

@@ -6,7 +6,6 @@ import data, { type Person } from './_data';
 import { defaultColumns, mobileColumn } from './_default';
 import css from './styles.module.css';
 
-type Item = typeof data extends Array<infer S> ? S : never;
 type Story = StoryObj<typeof meta>;
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
@@ -47,14 +46,14 @@ export const Primary = {
     enableExport: true,
     stickyHeader: true,
     fullWidth: 'left',
-  } satisfies TableProps<Item>,
+  } satisfies TableProps<Person>,
 };
 
 export const SortDisabledAll = {
   args: {
     ...Primary.args,
     disableSort: true,
-  } satisfies TableProps<Item>,
+  } satisfies TableProps<Person>,
 };
 
 export const SortDisabledOne = {
@@ -64,14 +63,14 @@ export const SortDisabledOne = {
       ...col,
       disableSort: i === 0,
     })),
-  } satisfies TableProps<Item>,
+  } satisfies TableProps<Person>,
 };
 
 export const Persitance = {
   args: {
     ...Primary.args,
     persist: { storage: localStorage, id: 'tablePersistance' },
-  } satisfies TableProps<Item>,
+  } satisfies TableProps<Person>,
 };
 
 export const HiddenColumns = {
@@ -82,7 +81,7 @@ export const HiddenColumns = {
       ...col,
       hidden: i === 0 ? false : i === 1 ? true : undefined,
     })),
-  } satisfies TableProps<Item>,
+  } satisfies TableProps<Person>,
 };
 
 export const StyledCells = {
@@ -98,7 +97,7 @@ export const StyledCells = {
         backgroundColor: 'rgba(0, 0, 0, 0.02)',
       },
     },
-  } satisfies TableProps<Item>,
+  } satisfies TableProps<Person>,
 };
 
 export const StyleColumnDivider = {
@@ -114,7 +113,7 @@ export const StyleColumnDivider = {
         },
       },
     },
-  } satisfies TableProps<Item>,
+  } satisfies TableProps<Person>,
 };
 
 export const ColumnProps = {
@@ -128,7 +127,7 @@ export const ColumnProps = {
 export const WithDetails = {
   args: {
     ...Primary.args,
-    rowDetails: (item: Item) => (
+    rowDetails: (item: Person) => (
       <div
         css={{
           padding: '3em',
@@ -145,7 +144,7 @@ export const WithDetails = {
     classes: {
       details: 'foo',
     },
-  } satisfies TableProps<Item>,
+  } satisfies TableProps<Person>,
 };
 
 export const WithNoSpecialColumns = {
@@ -154,7 +153,7 @@ export const WithNoSpecialColumns = {
     enableSelection: false,
     enableColumnSelection: false,
     enableExport: false,
-  } satisfies TableProps<Item>,
+  } satisfies TableProps<Person>,
 };
 
 export const DarkMode = {
@@ -166,7 +165,7 @@ export const DarkMode = {
       border: '#555',
       borderLight: '#444',
     },
-  } satisfies TableProps<Item>,
+  } satisfies TableProps<Person>,
 };
 
 export const Subgrid = {
@@ -193,6 +192,7 @@ export const Mobile: Story = {
   args: {
     ...Primary.args,
     items: data.slice(0, 50),
+    displaySize: { mobile: 400, desktop: Infinity },
     columns: defaultColumns
       .map<Column<Person, any>>((col) => ({
         ...col,

@@ -4,12 +4,19 @@ import type { Store } from 'schummar-state/react';
 import { overrides } from '../misc/overrides';
 import type { InternalTableState } from '../types';
 
-const DEFAULT_DISPLAY_SIZES = {
-  mobile: 400,
-  desktop: Infinity,
-};
-
 export function watchDisplaySize<T>(state: Store<InternalTableState<T>>): void {
+  useEffect(() => {
+    function onResize() {
+      state.update((draft) => {
+        draft.displaySizePx = window.innerWidth;
+      });
+    }
+
+    onResize();
+    document.defaultView?.addEventListener('resize', onResize);
+    return () => document.defaultView?.removeEventListener('resize', onResize);
+  }, [state]);
+
   useEffect(
     () =>
       state.addReaction(
@@ -17,14 +24,14 @@ export function watchDisplaySize<T>(state: Store<InternalTableState<T>>): void {
           displaySizePx: state.displaySizePx,
           displaySize: state.props.displaySize,
         }),
-        ({ displaySizePx, displaySize = DEFAULT_DISPLAY_SIZES }, draft) => {
+        ({ displaySizePx, displaySize }, draft) => {
           if (displaySizePx === undefined) {
             return;
           }
 
           if (typeof displaySize === 'object') {
             const entry = Object.entries(displaySize).find(
-              ([, maxWidth]) => maxWidth >= displaySizePx,
+              ([, maxWidth]) => maxWidth !== undefined && maxWidth >= displaySizePx,
             );
             draft.displaySize = entry?.[0];
           } else {

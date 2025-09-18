@@ -1,11 +1,12 @@
-import type { Column, TableProps } from '../../src';
+import type { Column } from '../../src';
 import { DateFilter, SelectFilter, TextFilter } from '../../src';
 import CombinedFilter from '../../src/components/combinedFilter';
+import type { ColumnFactory } from '../../src/types';
 import type { Person } from './_data';
 
 const dateFormat = new Intl.DateTimeFormat(undefined, { dateStyle: 'medium' });
 
-const _defaultColumns: TableProps<Person>['columns'] = (col) => [
+const _defaultColumns = (col: ColumnFactory<Person>) => [
   //
   col((x) => x.avatar, {
     header: 'Avatar',

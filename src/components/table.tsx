@@ -97,16 +97,8 @@ const TableInner = memo(function TableInner<T>({ hidden }: { hidden: boolean }) 
   const stickyFooter = table.useState((state) => state.props.stickyFooter);
 
   const enableSelection = table.useState((state) => state.props.enableSelection);
-  const enableColumnSelection = table.useState((state) =>
-    Array.isArray(state.props.enableColumnSelection)
-      ? !state.displaySize || state.props.enableColumnSelection.includes(state.displaySize)
-      : state.props.enableColumnSelection,
-  );
-  const enableExport = table.useState((state) =>
-    typeof state.props.enableExport === 'object' && !('exporters' in state.props.enableExport)
-      ? !state.displaySize || !!state.props.enableExport[state.displaySize]
-      : !!state.props.enableExport,
-  );
+  const enableColumnSelection = table.useState((state) => state.props.enableColumnSelection);
+  const enableExport = table.useState((state) => state.props.enableExport);
   const cssVariables = useCssVariables();
 
   const enableClearFiltersButton = table.useState((state) => state.props.enableClearFiltersButton);

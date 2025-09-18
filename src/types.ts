@@ -22,7 +22,7 @@ type CSSInterpolation = Exclude<Interpolation<Theme>, ((...args: any[]) => any) 
 type Falsy = false | 0 | '' | null | undefined;
 
 export type DisplaySize = 'desktop' | 'mobile' | (string & {});
-export type DisplaySizes = Record<DisplaySize, number>;
+export type DisplaySizes = Partial<Record<DisplaySize, number>>;
 
 export interface TableTheme<TItem = unknown> {
   /** Define display texts. */
@@ -171,6 +171,13 @@ export type MemoizedTableTheme<TItem> = Omit<TableTheme, 'classes' | 'styles' | 
   text: MemoizedFunctions<TableTheme<TItem>['text']>;
 };
 
+export type ColumnGenerator<TItem> = (col: ColumnFactory<TItem>) => (Column<TItem, any> | Falsy)[];
+
+export type ColumnFactory<TItem> = <TColumnValue>(
+  value: (item: TItem) => TColumnValue,
+  column: Omit<Column<TItem, TColumnValue>, 'value'>,
+) => Column<TItem, TColumnValue>;
+
 export interface TableProps<TItem> extends PartialTableTheme<TItem> {
   /// ///////////////////////////////////////////////
   // Table data
@@ -191,14 +198,7 @@ export interface TableProps<TItem> extends PartialTableTheme<TItem> {
   // Columns and rows
   /// ///////////////////////////////////////////////
   /** Column definitions. */
-  columns:
-    | (Column<TItem, any> | Falsy)[]
-    | ((
-        col: <TColumnValue>(
-          value: (item: TItem) => TColumnValue,
-          column: Omit<Column<TItem, TColumnValue>, 'value'>,
-        ) => Column<TItem, TColumnValue>,
-      ) => (Column<TItem, any> | Falsy)[]);
+  columns: (Column<TItem, any> | Falsy)[] | ColumnGenerator<TItem>;
   /** Default props for all column. Will take effect if not overriden in column definition. */
   defaultColumnProps?: Omit<Column<TItem, unknown>, 'id' | 'value'>;
   /** Set props for multiple columns at once. Will take effect if not overriden in column definition. */
