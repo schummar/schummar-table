@@ -15,70 +15,39 @@
   ],
   "exports": {
     ".": {
-      "import": {
-        "types": "./dist/index.d.ts",
-        "default": "./dist/index.js"
-      },
-      "require": {
-        "types": "./dist/index.d.cts",
-        "default": "./dist/index.cjs"
-      }
-    },
-    "./mui5Theme": {
-      "import": {
-        "types": "./dist/mui5Theme.d.ts",
-        "default": "./dist/mui5Theme.js"
-      },
-      "require": {
-        "types": "./dist/mui5Theme.d.cts",
-        "default": "./dist/mui5Theme.cjs"
-      }
-    },
-    "./mui4Theme": {
-      "import": {
-        "types": "./dist/mui4Theme.d.ts",
-        "default": "./dist/mui4Theme.js"
-      },
-      "require": {
-        "types": "./dist/mui4Theme.d.cts",
-        "default": "./dist/mui4Theme.cjs"
-      }
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
     },
     "./csvExporter": {
-      "import": {
-        "types": "./dist/csvExporter.d.ts",
-        "default": "./dist/csvExporter.js"
-      },
-      "require": {
-        "types": "./dist/csvExporter.d.cts",
-        "default": "./dist/csvExporter.cjs"
-      }
+      "import": "./dist/csvExporter.js",
+      "require": "./dist/csvExporter.cjs"
     },
     "./excelExporter": {
-      "import": {
-        "types": "./dist/excelExporter.d.ts",
-        "default": "./dist/excelExporter.js"
-      },
-      "require": {
-        "types": "./dist/excelExporter.d.cts",
-        "default": "./dist/excelExporter.cjs"
-      }
-    }
+      "import": "./dist/excelExporter.js",
+      "require": "./dist/excelExporter.cjs"
+    },
+    "./mui4Theme": {
+      "import": "./dist/mui4Theme.js",
+      "require": "./dist/mui4Theme.cjs"
+    },
+    "./mui5Theme": {
+      "import": "./dist/mui5Theme.js",
+      "require": "./dist/mui5Theme.cjs"
+    },
+    "./package.json": "./package.json"
   },
   "scripts": {
     "start": "npm -w docs start",
-    "build": "tsup",
+    "build": "tsdown",
     "lint": "runp lint:*",
-    "lint:eslint": "lint .",
+    "lint:oxlint": "oxlint",
     "lint:tsc": "tsc --emitDeclarationOnly false --noEmit",
-    "prepublishOnly": "runp lint build :s publint",
+    "prepublishOnly": "runp lint build",
     "docs:build": "npm -w docs run build"
   },
   "peerDependencies": {
     "@material-ui/core": ">=4.0.0",
     "@mui/material": ">=5.0.0",
-    "@types/react": ">=17.0.0",
-    "@types/react-dom": ">=17.0.0",
     "react": ">=17.0.0",
     "react-dom": ">=17.0.0",
     "xlsx": ">=0.18.5"
@@ -107,41 +76,32 @@
     "@emotion/styled": "11.11.0",
     "@material-ui/core": "4.12.4",
     "@mui/material": "5.14.18",
-    "@schummar/eslint-config": "github:schummar/eslint-config",
     "@schummar/prettier-config": "github:schummar/prettier-config",
     "@schummar/runp": "2.0.5",
     "@types/react": "18.2.37",
     "@types/react-dom": "18.2.15",
-    "@typescript-eslint/parser": "6.11.0",
     "esbuild": "0.24.0",
-    "eslint": "8.53.0",
-    "eslint-plugin-storybook": "0.6.15",
+    "oxlint": "^1.20.0",
     "prettier": "3.1.0",
-    "publint": "0.2.12",
+    "publint": "^0.3.14",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "schummar-state": "0.2.1-experimental-13",
     "semantic-release": "22.0.7",
-    "tsup": "8.3.5",
-    "typescript": "5.6.3",
+    "tsdown": "^0.15.6",
+    "typescript": "^5.9.3",
+    "unplugin-unused": "^0.5.3",
     "xlsx": "0.18.5"
   },
   "workspaces": [
     "docs"
   ],
   "volta": {
-    "node": "20.9.0",
-    "npm": "10.2.4"
+    "node": "22.20.0",
+    "npm": "11.6.1"
   },
-  "eslintConfig": {
-    "extends": [
-      "@schummar/eslint-config",
-      "plugin:storybook/recommended"
-    ],
-    "rules": {
-      "node/no-unpublished-import": "off",
-      "@typescript-eslint/consistent-type-imports": "off"
-    }
-  },
-  "prettier": "@schummar/prettier-config"
+  "prettier": "@schummar/prettier-config",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.cts"
 }

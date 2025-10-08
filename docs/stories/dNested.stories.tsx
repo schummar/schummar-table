@@ -1,8 +1,7 @@
 import type { Meta } from '@storybook/react';
-import { Id, Table, type TableProps } from '../../src';
+import { Table, type TableProps } from '../../src';
 
 import { defaultColumns } from './_default';
-import css from './styles.module.css';
 
 type Item = typeof data extends readonly (infer S)[] ? S : never;
 

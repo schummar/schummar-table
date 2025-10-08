@@ -1,4 +1,4 @@
-import { defineConfig } from 'tsup';
+import { defineConfig } from 'tsdown';
 
 export default defineConfig({
   clean: true,
@@ -10,6 +10,10 @@ export default defineConfig({
     excelExporter: 'src/exporters/excelExporter.ts',
   },
   format: ['esm', 'cjs'],
+  platform: 'neutral',
+  publint: true,
+  unused: true,
   dts: true,
   sourcemap: true,
+  exports: true,
 });

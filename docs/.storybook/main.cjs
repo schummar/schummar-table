@@ -1,5 +1,5 @@
-const path = require('path');
 const react = require('@vitejs/plugin-react');
+
 module.exports = {
   stories: ['../stories/**/*.stories.mdx', '../stories/**/*.stories.@(js|jsx|ts|tsx)'],
   addons: [

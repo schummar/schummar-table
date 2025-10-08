@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { defaultSerializer } from '../exporters/serializer';
 import { useTableMemo } from '../hooks/useTableMemo';
-import { asString, castArray, isTruthy } from '../misc/helpers';
+import { asString, castArray } from '../misc/helpers';
 import { overrides } from '../misc/overrides';
 import type { Column, Id, InternalColumn, InternalTableProps, TableProps } from '../types';
 

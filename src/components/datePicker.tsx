@@ -1,3 +1,4 @@
+import { Interpolation, Theme } from '@emotion/react';
 import { DateObj, useDayzed } from 'dayzed';
 import {
   Fragment,
@@ -13,8 +14,7 @@ import { defaults } from '../misc/defaults';
 import { useCssVariables } from '../theme/useCssVariables';
 import { DateInput } from './dateInput';
 import { Text } from './text';
-import { Interpolation, Theme } from '@emotion/react';
-import { TimeInput, type TimeInputProps } from './timeInput';
+import { TimeInput } from './timeInput';
 
 export type DateRange = { min: Date; max: Date };
 
