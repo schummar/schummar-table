@@ -1,8 +1,7 @@
 import { useFilter } from '../hooks/useFilter';
-import { useTheme } from '../hooks/useTheme';
-import { ColumnContext, useColumnContext, useTableContext } from '../misc/tableContext';
+import { ColumnContext, useTableContext } from '../misc/tableContext';
 import type { CommonFilterProps } from '../types';
-import { FilterControl, type FilterControlButtonProps } from './filterControl';
+import { NestedFilterControl } from './nestedFilterControl';
 
 export interface CombinedFilterProps
   extends Pick<CommonFilterProps<any, any, any, any>, 'classNames'> {
@@ -71,38 +70,9 @@ export default function CombinedFilter({
     <div>
       {columnIds.map((columnId) => (
         <ColumnContext.Provider key={columnId} value={columnId}>
-          <FilterControl component={Filter} />
+          <NestedFilterControl />
         </ColumnContext.Provider>
       ))}
     </div>
-  );
-}
-
-function Filter({ isActive, ...props }: FilterControlButtonProps) {
-  const table = useTableContext();
-  const columnId = useColumnContext();
-  const FilterList = useTheme((t) => t.icons.FilterList);
-  const label = table.useState((state) => {
-    return state.activeColumns.find((column) => column.id === columnId)?.header ?? null;
-  });
-  const Button = useTheme((t) => t.components.Button);
-
-  return (
-    <Button
-      {...props}
-      startIcon={
-        <FilterList
-          css={{
-            color: isActive ? 'var(--primaryMain)' : '#b0bac9',
-          }}
-        />
-      }
-      css={{
-        width: '100%',
-        color: isActive ? 'var(--primaryMain)' : 'var(--color-text)',
-      }}
-    >
-      {label}
-    </Button>
   );
 }

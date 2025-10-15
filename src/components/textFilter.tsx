@@ -21,7 +21,11 @@ export function TextFilter<TItem, TColumnValue>({
   const Search = useTheme((t) => t.icons.Search);
   const Clear = useTheme((t) => t.icons.Clear);
 
-  const { value = '', onChange } = useFilter({
+  const {
+    value = '',
+    onChange,
+    close,
+  } = useFilter({
     ...props,
     filterBy,
 
@@ -46,6 +50,11 @@ export function TextFilter<TItem, TColumnValue>({
       <AutoFocusTextField
         value={value}
         onChange={(event) => onChange(event.target.value)}
+        onKeyUp={(event) => {
+          if (event.key === 'Enter') {
+            close();
+          }
+        }}
         endIcon={
           <IconButton onClick={() => onChange('')}>{!value ? <Search /> : <Clear />}</IconButton>
         }

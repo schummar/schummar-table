@@ -1,7 +1,7 @@
 export function debounce<Args extends any[]>(
   function_: (...args: Args) => void,
   ms: number,
-): { (...args: Args): void; flush(): void } {
+): { (...args: Args): void; flush(): void; cancel(): void } {
   let lastArgs: Args | undefined;
   let timeout: ReturnType<typeof setTimeout> | undefined;
 
@@ -29,6 +29,14 @@ export function debounce<Args extends any[]>(
         if (timeout) {
           clearTimeout(timeout);
           run();
+        }
+      },
+
+      cancel() {
+        if (timeout) {
+          clearTimeout(timeout);
+          timeout = undefined;
+          lastArgs = undefined;
         }
       },
     },

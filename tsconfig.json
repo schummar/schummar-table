@@ -1,8 +1,8 @@
 {
   "compilerOptions": {
     "declarationDir": "dist/types",
-    "module": "ES2020",
-    "moduleResolution": "node",
+    "module": "preserve",
+    "moduleResolution": "bundler",
     "esModuleInterop": true,
     "declaration": true,
     "emitDeclarationOnly": true,
@@ -22,7 +22,11 @@
     "skipLibCheck": true,
     "sourceMap": true,
     "incremental": true,
-    "tsBuildInfoFile": "node_modules/.cache/tsconfig.tsbuildinfo"
+    "tsBuildInfoFile": "node_modules/.cache/tsconfig.tsbuildinfo",
+
+    "paths": {
+      "schummar-state/react": ["./node_modules/schummar-state/dist/types/react"]
+    }
   },
   "include": ["src"]
 }

@@ -60,6 +60,7 @@ export interface TableTheme<TItem = unknown> {
     oddCell?: string;
     popover?: string;
     popoverBackdrop?: string;
+    dialog?: string;
     columnDivider?: string;
     details?: string | FunctionWithDeps<(item: TItem, index: number) => string | undefined>;
   };
@@ -77,6 +78,7 @@ export interface TableTheme<TItem = unknown> {
     oddCell?: Interpolation<Theme>;
     popover?: Interpolation<Theme>;
     popoverBackdrop?: CSSInterpolation;
+    dialog?: Interpolation<Theme>;
     columnDivider?: Interpolation<Theme>;
     details?:
       | Exclude<Interpolation<Theme>, ((...args: any[]) => any) | Array<any>>
@@ -121,6 +123,7 @@ export interface TableTheme<TItem = unknown> {
     TextField: ComponentType<{
       value?: string | null;
       onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
+      onKeyUp?: (event: React.KeyboardEvent<HTMLInputElement>) => void;
       onBlur?: (event: React.FocusEvent<HTMLInputElement>) => void;
       startIcon?: ReactNode;
       endIcon?: ReactNode;

@@ -21,39 +21,51 @@ export const Popover: TableTheme['components']['Popover'] = ({
   const popper = useRef<HTMLDivElement>(null);
 
   useLayoutEffect(() => {
-    if (!anchorEl || !open) {
-      popper.current?.style.setProperty('visibility', 'hidden');
+    if (!open) {
       return;
     }
 
     function check() {
-      if (!anchorEl) return;
-      const {
-        left: anchorLeft,
-        bottom: anchorBottom,
-        width: anchorWidth,
-      } = anchorEl.getBoundingClientRect();
-
-      const viewportWidth = document.documentElement.clientWidth;
-      const viewportHeight = document.documentElement.clientHeight;
-
-      const { width: popperWidth = 0, height: popperHeight = 0 } =
-        popper.current?.getBoundingClientRect() ?? {};
       const marginLeft = parseFloat(getComputedStyle(popper.current ?? document.body).marginLeft);
       const marginRight = parseFloat(getComputedStyle(popper.current ?? document.body).marginRight);
       const marginTop = parseFloat(getComputedStyle(popper.current ?? document.body).marginTop);
       const marginBottom = parseFloat(
         getComputedStyle(popper.current ?? document.body).marginBottom,
       );
+      popper.current?.style.setProperty('--margin-x', `${marginLeft + marginRight}px`);
+      popper.current?.style.setProperty('--margin-y', `${marginTop + marginBottom}px`);
+
+      if (hidden) {
+        popper.current?.style.setProperty('visibility', 'hidden');
+        return;
+      }
+
+      const viewportWidth = document.documentElement.offsetWidth;
+      const viewportHeight = document.documentElement.offsetHeight;
+      const { width: popperWidth = 0, height: popperHeight = 0 } =
+        popper.current?.getBoundingClientRect() ?? {};
 
       const next = {
-        left:
-          align === 'center'
-            ? anchorLeft + anchorWidth / 2 - popperWidth / 2
-            : anchorLeft -
-              Math.min(popperWidth ? popperWidth / 2 : Number.POSITIVE_INFINITY, MAX_OFFSET),
-        top: anchorBottom,
+        left: 0,
+        top: 0,
       };
+
+      if (anchorEl) {
+        const bb = anchorEl.getBoundingClientRect();
+
+        if (align === 'center') {
+          next.left = bb.left + bb.width / 2 - popperWidth / 2;
+        } else {
+          next.left =
+            bb.left -
+            Math.min(popperWidth ? popperWidth / 2 : Number.POSITIVE_INFINITY, MAX_OFFSET);
+        }
+
+        next.top = bb.bottom;
+      } else {
+        next.left = (viewportWidth - popperWidth) / 2;
+        next.top = (viewportHeight - popperHeight) / 2;
+      }
 
       if (next.left < marginLeft) {
         next.left = marginLeft;
@@ -68,11 +80,9 @@ export const Popover: TableTheme['components']['Popover'] = ({
         next.top = viewportHeight - popperHeight - marginTop - marginBottom;
       }
 
-      popper.current?.style.setProperty('visibility', 'visible');
       popper.current?.style.setProperty('left', `${next.left}px`);
       popper.current?.style.setProperty('top', `${next.top}px`);
-      popper.current?.style.setProperty('--margin-x', `${marginLeft + marginRight}px`);
-      popper.current?.style.setProperty('--margin-y', `${marginTop + marginBottom}px`);
+      popper.current?.style.setProperty('visibility', 'visible');
     }
     const checkThrottled = throttle(check, 16);
     check();
@@ -86,7 +96,7 @@ export const Popover: TableTheme['components']['Popover'] = ({
       window.removeEventListener('resize', checkThrottled);
       window.removeEventListener('scroll', checkThrottled, true);
     };
-  }, [anchorEl, open, align]);
+  }, [anchorEl, open, hidden, align]);
 
   useLayoutEffect(() => {
     if (!open) return;
@@ -165,6 +175,7 @@ export const Popover: TableTheme['components']['Popover'] = ({
               defaultClasses.card,
               {
                 position: 'fixed',
+                width: 'max-content',
                 maxWidth: [
                   `calc(100vw - (100vw - 100%) - var(--margin-x))`,
                   `calc(100dvw - (100dvw - 100%) - var(--margin-x))`,

@@ -57,7 +57,11 @@ export function DateFilter<TItem, TColumnValue>({
     Date | DateRange | null,
     Date | DateRange | null
   >): JSX.Element {
-  const { value = null, onChange } = useFilter({
+  const {
+    value = null,
+    onChange,
+    close,
+  } = useFilter({
     ...props,
     filterBy,
 
@@ -82,7 +86,12 @@ export function DateFilter<TItem, TColumnValue>({
       <DatePicker
         rangeSelect={!singleSelect}
         value={value}
-        onChange={onChange}
+        onChange={(value, source) => {
+          onChange(value);
+          if (source !== 'input') {
+            close();
+          }
+        }}
         locale={locale}
         firstDayOfWeek={firstDayOfWeek}
         defaultDateInView={defaultDateInView}

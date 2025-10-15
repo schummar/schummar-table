@@ -1,34 +1,24 @@
 import { ClassNames } from '@emotion/react';
-import { createContext, useMemo, useState } from 'react';
+import { createContext, useState } from 'react';
 import { useTheme } from '../hooks/useTheme';
 import { useColumnContext, useTableContext } from '../misc/tableContext';
 import { useCssVariables } from '../theme/useCssVariables';
-
-export interface FilterControlButtonProps {
-  onClick?: (event: React.MouseEvent<Element>) => void;
-  onContextMenu?: (event: React.MouseEvent<Element>) => void;
-  isActive?: boolean;
-}
-
-export interface FilterControlProps {
-  component?: React.ElementType<FilterControlButtonProps>;
-  onClose?: () => void;
-}
 
 export const FilterControlContext = createContext({
   isActive: false,
   close: (): void => undefined,
 });
 
-export function FilterControl<T>({
-  component: Component = DefaultButton,
-  onClose,
-}: FilterControlProps): JSX.Element | null {
+export function FilterControl<T>(): JSX.Element | null {
   const table = useTableContext<T>();
   const columnId = useColumnContext();
+
   const Popover = useTheme((t) => t.components.Popover);
   const classes = useTheme((t) => t.classes);
   const styles = useTheme((t) => t.styles);
+  const IconButton = useTheme((t) => t.components.IconButton);
+  const FilterList = useTheme((t) => t.icons.FilterList);
+  const ArrowDropDown = useTheme((t) => t.icons.ArrowDropDown);
   const cssVariables = useCssVariables();
 
   const [anchor, setAnchor] = useState<Element | null>(null);
@@ -57,27 +47,30 @@ export function FilterControl<T>({
     }
   }
 
-  const context = useMemo(
-    () => ({
-      isActive: !!anchor,
-      close: () => setAnchor(null),
-    }),
-    [anchor],
-  );
-
   if (!filter) return null;
 
+  function close() {
+    setAnchor(null);
+  }
+
   return (
-    <FilterControlContext.Provider value={context}>
-      <Component
+    <FilterControlContext.Provider value={{ isActive: !!anchor, close }}>
+      <IconButton
         onClick={(event) => setAnchor(event.currentTarget)}
         onContextMenu={(event) => {
           reset();
           event.preventDefault();
           return false;
         }}
-        isActive={isActive}
-      />
+        css={[
+          { color: '#b0bac9' },
+          isActive && {
+            color: 'var(--primaryMain) !important',
+          },
+        ]}
+      >
+        {isActive ? <FilterList /> : <ArrowDropDown />}
+      </IconButton>
 
       <div
         onPointerDown={(event) => {
@@ -92,10 +85,7 @@ export function FilterControl<T>({
             <Popover
               open
               hidden={!anchor}
-              onClose={() => {
-                setAnchor(null);
-                onClose?.();
-              }}
+              onClose={close}
               anchorEl={anchor ?? document.body}
               css={[cssVariables, styles?.popover]}
               className={cx(classes?.popover, filterClassNames?.popover)}
@@ -111,25 +101,5 @@ export function FilterControl<T>({
         </ClassNames>
       </div>
     </FilterControlContext.Provider>
-  );
-}
-
-function DefaultButton({ isActive, ...props }: FilterControlButtonProps) {
-  const IconButton = useTheme((t) => t.components.IconButton);
-  const FilterList = useTheme((t) => t.icons.FilterList);
-  const ArrowDropDown = useTheme((t) => t.icons.ArrowDropDown);
-
-  return (
-    <IconButton
-      {...props}
-      css={[
-        { color: '#b0bac9' },
-        isActive && {
-          color: 'var(--primaryMain) !important',
-        },
-      ]}
-    >
-      {isActive ? <FilterList /> : <ArrowDropDown />}
-    </IconButton>
   );
 }

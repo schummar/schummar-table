@@ -3,7 +3,12 @@
 </script>
 
 <style>
-  body{
+  body {
     font-family: Arial, Helvetica, sans-serif;
+  }
+
+  :root:has(dialog[open]) {
+    overflow-y: clip;
+    scrollbar-gutter: stable;
   }
 </style>

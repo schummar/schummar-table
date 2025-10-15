@@ -473,14 +473,14 @@ export function DatePicker(props: DatePickerProps) {
         <div>
           <DateInput
             value={min ?? null}
-            onChange={(date) => set('input', date ?? undefined, max, 'min')}
+            onChange={(newMin) => set('input', newMin ?? undefined, max, 'min')}
             locale={locale}
           />
 
           {showTime && (
             <TimeInput
               value={min ?? null}
-              onChange={(date) => set('input', date ?? undefined, max, 'min')}
+              onChange={(newMin) => set('input', newMin ?? undefined, max, 'min')}
               locale={locale}
               showSeconds={typeof showTime === 'boolean' ? true : showTime.showSeconds}
             />
@@ -494,14 +494,14 @@ export function DatePicker(props: DatePickerProps) {
             <div>
               <DateInput
                 value={max ?? null}
-                onChange={(date) => set('input', min, date ?? undefined, 'max')}
+                onChange={(newMax) => set('input', min, newMax ?? undefined, 'max')}
                 locale={locale}
               />
 
               {showTime && (
                 <TimeInput
                   value={max ?? null}
-                  onChange={(date) => set('input', min, date ?? undefined, 'max')}
+                  onChange={(newMax) => set('input', min, newMax ?? undefined, 'max')}
                   locale={locale}
                   showSeconds={typeof showTime === 'boolean' ? true : showTime.showSeconds}
                 />

@@ -40,6 +40,7 @@
     "start": "npm -w docs start",
     "build": "tsdown",
     "lint": "runp lint:*",
+    "lint:format": "prettier --check src",
     "lint:oxlint": "oxlint",
     "lint:tsc": "tsc --emitDeclarationOnly false --noEmit",
     "prepublishOnly": "runp lint build",
