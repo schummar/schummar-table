@@ -100,8 +100,30 @@ export const Popover: TableTheme['components']['Popover'] = ({
       const value = document.defaultView?.getComputedStyle(node).getPropertyValue('z-index');
 
       if (value && !Number.isNaN(Number(value))) {
-        backdrop.current?.style.setProperty('z-index', String(Number(value) + 1));
-        popper.current?.style.setProperty('z-index', String(Number(value) + 2));
+        const newZIndex = Number(value) + 1;
+
+        if (
+          backdrop.current &&
+          !(
+            Number(
+              document.defaultView?.getComputedStyle(backdrop.current).getPropertyValue('z-index'),
+            ) > newZIndex
+          )
+        ) {
+          backdrop.current?.style.setProperty('z-index', newZIndex.toString());
+        }
+
+        if (
+          popper.current &&
+          !(
+            Number(
+              document.defaultView?.getComputedStyle(popper.current).getPropertyValue('z-index'),
+            ) >
+            newZIndex + 1
+          )
+        ) {
+          popper.current?.style.setProperty('z-index', (newZIndex + 1).toString());
+        }
         return;
       }
     }

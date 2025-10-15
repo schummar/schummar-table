@@ -202,6 +202,7 @@ export const Mobile: Story = {
     styles: {
       popover: {
         marginBottom: '20px',
+        zIndex: 100,
       },
     },
   },
