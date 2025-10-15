@@ -192,12 +192,17 @@ export const Mobile: Story = {
   args: {
     ...Primary.args,
     items: data.slice(0, 50),
-    displaySize: { mobile: 400, desktop: Infinity },
+    displaySize: { mobile: 500, desktop: Infinity },
     columns: defaultColumns
       .map<Column<Person, any>>((col) => ({
         ...col,
         displaySize: 'desktop',
       }))
       .concat(mobileColumn),
+    styles: {
+      popover: {
+        marginBottom: '20px',
+      },
+    },
   },
 };

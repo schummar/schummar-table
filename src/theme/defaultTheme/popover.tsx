@@ -1,9 +1,9 @@
-import { useLayoutEffect, useRef, useState } from 'react';
+import { useLayoutEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
+import { throttle } from '../../misc/throttle';
 import type { TableTheme } from '../../types';
 import { defaultClasses } from './defaultClasses';
 
-const MARGIN = 10;
 const MAX_OFFSET = 20;
 
 export const Popover: TableTheme['components']['Popover'] = ({
@@ -16,18 +16,15 @@ export const Popover: TableTheme['components']['Popover'] = ({
   backdropClassName,
   align,
 }) => {
+  const probe = useRef<HTMLDivElement>(null);
+  const backdrop = useRef<HTMLDivElement>(null);
   const popper = useRef<HTMLDivElement>(null);
-  const [position, setPosition] = useState<{ left: number; top: number }>();
-  const [maxHeight, setMaxHeight] = useState(document.documentElement.clientHeight - 2 * MARGIN);
-  const [zIndex, setZIndex] = useState(1);
 
   useLayoutEffect(() => {
     if (!anchorEl || !open) {
-      setPosition(undefined);
+      popper.current?.style.setProperty('visibility', 'hidden');
       return;
     }
-
-    let last: { left: number; top: number } | undefined;
 
     function check() {
       if (!anchorEl) return;
@@ -36,9 +33,18 @@ export const Popover: TableTheme['components']['Popover'] = ({
         bottom: anchorBottom,
         width: anchorWidth,
       } = anchorEl.getBoundingClientRect();
-      const { width: popperWidth = 0 } = popper.current?.getBoundingClientRect() ?? {};
+
       const viewportWidth = document.documentElement.clientWidth;
       const viewportHeight = document.documentElement.clientHeight;
+
+      const { width: popperWidth = 0, height: popperHeight = 0 } =
+        popper.current?.getBoundingClientRect() ?? {};
+      const marginLeft = parseFloat(getComputedStyle(popper.current ?? document.body).marginLeft);
+      const marginRight = parseFloat(getComputedStyle(popper.current ?? document.body).marginRight);
+      const marginTop = parseFloat(getComputedStyle(popper.current ?? document.body).marginTop);
+      const marginBottom = parseFloat(
+        getComputedStyle(popper.current ?? document.body).marginBottom,
+      );
 
       const next = {
         left:
@@ -49,35 +55,44 @@ export const Popover: TableTheme['components']['Popover'] = ({
         top: anchorBottom,
       };
 
-      if (next.left < MARGIN) {
-        next.left = MARGIN;
+      if (next.left < marginLeft) {
+        next.left = marginLeft;
       }
-      if (next.left + popperWidth > viewportWidth - MARGIN) {
-        next.left = viewportWidth - MARGIN - popperWidth;
+      if (next.left > viewportWidth - popperWidth - marginLeft - marginRight) {
+        next.left = viewportWidth - popperWidth - marginLeft - marginRight;
       }
-      if (next.top < MARGIN) {
-        next.top = MARGIN;
+      if (next.top < marginTop) {
+        next.top = marginTop;
+      }
+      if (next.top > viewportHeight - popperHeight - marginTop - marginBottom) {
+        next.top = viewportHeight - popperHeight - marginTop - marginBottom;
       }
 
-      if (next.left !== last?.left || next.top !== last?.top) {
-        setPosition(next);
-      }
-
-      setMaxHeight(viewportHeight - MARGIN - next.top);
-
-      last = next;
+      popper.current?.style.setProperty('visibility', 'visible');
+      popper.current?.style.setProperty('left', `${next.left}px`);
+      popper.current?.style.setProperty('top', `${next.top}px`);
+      popper.current?.style.setProperty('--margin-x', `${marginLeft + marginRight}px`);
+      popper.current?.style.setProperty('--margin-y', `${marginTop + marginBottom}px`);
     }
+    const checkThrottled = throttle(check, 16);
     check();
 
-    const handle = setInterval(check, 16);
+    const handle = setInterval(checkThrottled, 1000);
+    window.addEventListener('resize', checkThrottled);
+    window.addEventListener('scroll', checkThrottled, true);
+
     return () => {
       clearInterval(handle);
+      window.removeEventListener('resize', checkThrottled);
+      window.removeEventListener('scroll', checkThrottled, true);
     };
   }, [anchorEl, open, align]);
 
-  function updateZIndex(div: HTMLDivElement | null) {
+  useLayoutEffect(() => {
+    if (!open) return;
+
     const ancestors = [];
-    for (let node = div?.parentElement; node; node = node.parentElement) {
+    for (let node = probe.current?.parentElement; node; node = node.parentElement) {
       ancestors.push(node);
     }
 
@@ -85,18 +100,19 @@ export const Popover: TableTheme['components']['Popover'] = ({
       const value = document.defaultView?.getComputedStyle(node).getPropertyValue('z-index');
 
       if (value && !Number.isNaN(Number(value))) {
-        setZIndex(Number(value) + 1);
+        backdrop.current?.style.setProperty('z-index', String(Number(value) + 1));
+        popper.current?.style.setProperty('z-index', String(Number(value) + 2));
         return;
       }
     }
-  }
+  }, [anchorEl, open]);
 
   if (!open) return null;
 
   return (
     <>
       <div
-        ref={updateZIndex}
+        ref={probe}
         css={{
           display: 'none',
         }}
@@ -105,6 +121,7 @@ export const Popover: TableTheme['components']['Popover'] = ({
       {createPortal(
         <>
           <div
+            ref={backdrop}
             className={backdropClassName}
             css={[
               {
@@ -113,7 +130,6 @@ export const Popover: TableTheme['components']['Popover'] = ({
                 right: 0,
                 top: 0,
                 bottom: 0,
-                zIndex,
               },
               hidden && { display: 'none' },
             ]}
@@ -127,15 +143,21 @@ export const Popover: TableTheme['components']['Popover'] = ({
               defaultClasses.card,
               {
                 position: 'fixed',
-                maxWidth: document.documentElement.clientWidth - 2 * MARGIN,
-                maxHeight,
-                ...position,
-                zIndex: zIndex + 1,
+                maxWidth: [
+                  `calc(100vw - (100vw - 100%) - var(--margin-x))`,
+                  `calc(100dvw - (100dvw - 100%) - var(--margin-x))`,
+                ],
+                maxHeight: [
+                  `calc(100vh - (100vh - 100%) - var(--margin-x))`,
+                  `calc(100dvh - (100dvh - 100%) - var(--margin-x))`,
+                ],
+                margin: 10,
+                zIndex: 1,
                 overflowY: 'auto',
                 color: 'var(--table-text-color)',
+                visibility: 'hidden',
               },
               hidden && { display: 'none' },
-              !position && { visibility: 'hidden' },
             ]}
           >
             {children}

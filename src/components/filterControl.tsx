@@ -1,6 +1,6 @@
+import { ClassNames } from '@emotion/react';
 import { createContext, useMemo, useState } from 'react';
 import { useTheme } from '../hooks/useTheme';
-import { cx } from '../misc/helpers';
 import { useColumnContext, useTableContext } from '../misc/tableContext';
 import { useCssVariables } from '../theme/useCssVariables';
 
@@ -28,6 +28,7 @@ export function FilterControl<T>({
   const columnId = useColumnContext();
   const Popover = useTheme((t) => t.components.Popover);
   const classes = useTheme((t) => t.classes);
+  const styles = useTheme((t) => t.styles);
   const cssVariables = useCssVariables();
 
   const [anchor, setAnchor] = useState<Element | null>(null);
@@ -86,20 +87,28 @@ export function FilterControl<T>({
           event.stopPropagation();
         }}
       >
-        <Popover
-          open
-          hidden={!anchor}
-          onClose={() => {
-            setAnchor(null);
-            onClose?.();
-          }}
-          anchorEl={anchor ?? document.body}
-          css={cssVariables}
-          className={cx(classes?.popover, filterClassNames?.popover)}
-          backdropClassName={cx(classes?.popoverBackdrop, filterClassNames?.popoverBackdrop)}
-        >
-          {filter}
-        </Popover>
+        <ClassNames>
+          {({ css, cx }) => (
+            <Popover
+              open
+              hidden={!anchor}
+              onClose={() => {
+                setAnchor(null);
+                onClose?.();
+              }}
+              anchorEl={anchor ?? document.body}
+              css={[cssVariables, styles?.popover]}
+              className={cx(classes?.popover, filterClassNames?.popover)}
+              backdropClassName={cx(
+                classes?.popoverBackdrop,
+                filterClassNames?.popoverBackdrop,
+                css(styles?.popoverBackdrop),
+              )}
+            >
+              {filter}
+            </Popover>
+          )}
+        </ClassNames>
       </div>
     </FilterControlContext.Provider>
   );

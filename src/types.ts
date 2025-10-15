@@ -75,6 +75,8 @@ export interface TableTheme<TItem = unknown> {
       | FunctionWithDeps<(item: TItem, index: number) => Interpolation<Theme>>;
     evenCell?: Interpolation<Theme>;
     oddCell?: Interpolation<Theme>;
+    popover?: Interpolation<Theme>;
+    popoverBackdrop?: CSSInterpolation;
     columnDivider?: Interpolation<Theme>;
     details?:
       | Exclude<Interpolation<Theme>, ((...args: any[]) => any) | Array<any>>
