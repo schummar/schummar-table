@@ -1,5 +1,5 @@
 import { Interpolation, Theme } from '@emotion/react';
-import { DateObj, useDayzed } from 'dayzed';
+import { useDayzed, type DayzedDateObject } from '../vendor/dayzed/dayzed';
 import {
   Fragment,
   ReactNode,
@@ -570,8 +570,8 @@ export function DatePicker(props: DatePickerProps) {
             ))}
 
             {weeks.map((week, index) => {
-              const weekStart = week[0] as DateObj;
-              const weekEnd = week[6] as DateObj;
+              const weekStart = week[0] as DayzedDateObject;
+              const weekEnd = week[6] as DayzedDateObject;
               const weekDisabled =
                 !rangeSelect ||
                 (minDate && weekEnd.date < minDate) ||
