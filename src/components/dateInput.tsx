@@ -1,5 +1,6 @@
 import { nanoid } from 'nanoid';
 import { Fragment, useMemo, useState } from 'react';
+import useLatestRef from '../hooks/useLatestRef';
 import { debounce } from '../misc/debounce';
 
 export interface DateInputProps {
@@ -53,6 +54,7 @@ function buildDate(value: Partial<Record<Part, string>>, baseDate = new Date()):
 export function DateInput({ value, onChange, locale }: DateInputProps) {
   const id = useMemo(() => nanoid(), []);
   const [localValue, setLocalValue] = useState<Partial<Record<Part, string>>>();
+  const latestValue = useLatestRef(value);
 
   const commit = useMemo(
     () =>
@@ -62,6 +64,11 @@ export function DateInput({ value, onChange, locale }: DateInputProps) {
           value: Date | null,
           onChange: (date: Date | null) => void,
         ) => {
+          if (value !== latestValue.current) {
+            // Value has been changed from outside, don't override it.
+            return;
+          }
+
           const date = buildDate(localValue, value ?? undefined);
           setLocalValue(undefined);
           onChange(isNaN(date.getTime()) ? null : date);
