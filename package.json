@@ -69,7 +69,7 @@
   },
   "dependencies": {
     "@emotion/react": ">=11.11.1",
-    "dayzed": ">=3.2.3",
+    "date-fns": "^4.1.0",
     "immer": ">=9.0.21",
     "nanoid": ">=4.0.2"
   },
