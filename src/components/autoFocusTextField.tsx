@@ -14,7 +14,9 @@ export function AutoFocusTextField(props: Omit<Props, 'inputRef'>) {
 
   useLayoutEffect(() => {
     if (isActive && ref.current) {
-      ref.current.focus();
+      setTimeout(() => {
+        ref.current?.focus();
+      });
     }
   }, [isActive]);
 

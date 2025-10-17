@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import type { TableTheme } from '../../types';
 
 export const TextField: TableTheme['components']['TextField'] = ({
@@ -9,8 +8,6 @@ export const TextField: TableTheme['components']['TextField'] = ({
   onBlur,
   ...props
 }) => {
-  const [focus, setFocus] = useState(false);
-
   return (
     <div
       className={className}
@@ -21,8 +18,12 @@ export const TextField: TableTheme['components']['TextField'] = ({
           alignItems: 'center',
           border: '1px solid var(--table-textfield-border, var(--table-border, #777777))',
           borderRadius: 4,
+
+          '&:focus-within': {
+            border: '2px solid var(--primaryMain)',
+            margin: -1,
+          },
         },
-        focus && { border: '2px solid var(--primaryMain)', margin: -1 },
       ]}
     >
       {startIcon}
@@ -31,11 +32,7 @@ export const TextField: TableTheme['components']['TextField'] = ({
         ref={inputRef}
         {...props}
         value={props.value ?? ''}
-        onFocus={() => setFocus(true)}
-        onBlur={(event) => {
-          setFocus(false);
-          onBlur?.(event);
-        }}
+        onBlur={onBlur}
         css={{
           minWidth: 0,
           width: '100%',
