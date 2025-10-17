@@ -108,6 +108,8 @@ export function calcItems<T>(state: Store<InternalTableState<T>>): void {
               });
 
               if (isActive && item.parentId !== undefined && item.parentId !== null) {
+                activeSet.add(item.parentId);
+
                 if (
                   revealFiltered &&
                   Array.from(filters.entries()).some(([id, filter]) => {
@@ -122,9 +124,6 @@ export function calcItems<T>(state: Store<InternalTableState<T>>): void {
                 }
               }
 
-              if (isActive && item.parentId !== undefined && item.parentId !== null) {
-                activeSet.add(item.parentId);
-              }
               if (isActive) {
                 activeItemsById.set(item.id, item);
               }
