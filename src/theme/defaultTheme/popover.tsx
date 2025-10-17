@@ -40,8 +40,8 @@ export const Popover: TableTheme['components']['Popover'] = ({
         return;
       }
 
-      const viewportWidth = document.documentElement.offsetWidth;
-      const viewportHeight = document.documentElement.offsetHeight;
+      const viewportWidth = window.visualViewport?.width ?? window.innerWidth;
+      const viewportHeight = window.visualViewport?.height ?? window.innerHeight;
       const { width: popperWidth = 0, height: popperHeight = 0 } =
         popper.current?.getBoundingClientRect() ?? {};
 
@@ -67,17 +67,17 @@ export const Popover: TableTheme['components']['Popover'] = ({
         next.top = (viewportHeight - popperHeight) / 2;
       }
 
-      if (next.left < marginLeft) {
-        next.left = marginLeft;
-      }
       if (next.left > viewportWidth - popperWidth - marginLeft - marginRight) {
         next.left = viewportWidth - popperWidth - marginLeft - marginRight;
       }
-      if (next.top < marginTop) {
-        next.top = marginTop;
+      if (next.left < marginLeft) {
+        next.left = marginLeft;
       }
       if (next.top > viewportHeight - popperHeight - marginTop - marginBottom) {
         next.top = viewportHeight - popperHeight - marginTop - marginBottom;
+      }
+      if (next.top < marginTop) {
+        next.top = marginTop;
       }
 
       popper.current?.style.setProperty('left', `${next.left}px`);
