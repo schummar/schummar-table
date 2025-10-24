@@ -179,7 +179,7 @@ export type MemoizedTableTheme<TItem> = Omit<TableTheme, 'classes' | 'styles' | 
 export type ColumnGenerator<TItem> = (col: ColumnFactory<TItem>) => (Column<TItem, any> | Falsy)[];
 
 export type ColumnFactory<TItem> = <TColumnValue>(
-  value: (item: TItem) => TColumnValue,
+  value: FunctionWithDeps<(item: TItem) => TColumnValue>,
   column: Omit<Column<TItem, TColumnValue>, 'value'>,
 ) => Column<TItem, TColumnValue>;
 
