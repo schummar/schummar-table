@@ -4,7 +4,12 @@ import type { CSSProperties, ComponentType, DependencyList, ReactNode, Ref } fro
 import { ExportOptions } from './exporters/exporter';
 import type { TableStateStorage } from './internalState/tableStateStorage';
 
-export type Sort = { columnId: string | number; direction: SortDirection };
+export type Sort = {
+  columnId: string | number;
+  direction: SortDirection;
+  locale?: string;
+  options?: Intl.CollatorOptions;
+};
 export type SortDirection = 'asc' | 'desc';
 
 export type Id = string | number;

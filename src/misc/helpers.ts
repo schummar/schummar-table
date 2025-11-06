@@ -8,6 +8,8 @@ export const orderBy = <T>(
   array: T[],
   selectors: ((t: T) => any)[] = [],
   direction: ('desc' | 'asc')[] = [],
+  locale?: (string | undefined)[],
+  options?: (Intl.CollatorOptions | undefined)[],
 ): T[] => {
   if (selectors.length === 0) selectors = [(t) => t];
 
@@ -16,6 +18,13 @@ export const orderBy = <T>(
       const _a = selectors[i]?.(a);
       const _b = selectors[i]?.(b);
       const _direction = direction[i] === 'desc' ? -1 : 1;
+      const _locale = locale?.[i];
+      const _options = options?.[i];
+
+      if (typeof _a === 'string' && typeof _b === 'string') {
+        return _a.localeCompare(_b, _locale, _options) * _direction;
+      }
+
       if (_a > _b) return _direction;
       if (_a < _b) return -_direction;
     }

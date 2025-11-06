@@ -15,6 +15,7 @@ export function calcItems<T>(state: Store<InternalTableState<T>>): void {
             state.props.parentId,
             state.props.revealFiltered,
             state.props.externalSort,
+            state.props.locale,
             state.sort,
             state.filters,
             state.filterValues,
@@ -28,6 +29,7 @@ export function calcItems<T>(state: Store<InternalTableState<T>>): void {
             parentId,
             revealFiltered,
             externalSort,
+            locale,
             sort,
             filters,
             filterValues,
@@ -52,6 +54,8 @@ export function calcItems<T>(state: Store<InternalTableState<T>>): void {
               return column.sortBy.map((sortBy) => ({
                 selector: (item: T) => sortBy(column.value(item), item),
                 direction: sort.direction,
+                locale: sort.locale ?? locale,
+                options: sort.options,
               }));
             }).filter(Boolean);
 
@@ -59,6 +63,8 @@ export function calcItems<T>(state: Store<InternalTableState<T>>): void {
               tableItems,
               selectors.map((x) => (item) => x.selector(item.value)),
               selectors.map((x) => x.direction),
+              selectors.map((x) => x.locale),
+              selectors.map((x) => x.options),
             );
           }
 
