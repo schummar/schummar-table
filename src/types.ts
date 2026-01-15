@@ -1,6 +1,13 @@
-import type { Interpolation, Theme } from '@emotion/react';
+import type {
+  ComponentSelector,
+  CSSObject,
+  Interpolation,
+  Keyframes,
+  SerializedStyles,
+  Theme,
+} from '@emotion/react';
 import type React from 'react';
-import type { CSSProperties, ComponentType, DependencyList, ReactNode, Ref } from 'react';
+import type { ComponentType, CSSProperties, DependencyList, ReactNode, Ref } from 'react';
 import { ExportOptions } from './exporters/exporter';
 import type { TableStateStorage } from './internalState/tableStateStorage';
 
@@ -22,7 +29,20 @@ export type MemoizedFunctions<T> = {
   [K in keyof T]: Exclude<T[K], [function: (...args: any[]) => any, ...deps: DependencyList]>;
 };
 
-type CSSInterpolation = Exclude<Interpolation<Theme>, ((...args: any[]) => any) | Array<any>>;
+type InterpolationPrimitive =
+  | null
+  | undefined
+  | boolean
+  | number
+  | string
+  | ComponentSelector
+  | Keyframes
+  | SerializedStyles
+  | CSSObject;
+
+interface ArrayCSSInterpolation extends ReadonlyArray<CSSInterpolation> {}
+
+export type CSSInterpolation = InterpolationPrimitive | ArrayCSSInterpolation;
 
 type Falsy = false | 0 | '' | null | undefined;
 
