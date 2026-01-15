@@ -101,8 +101,8 @@
     "docs"
   ],
   "volta": {
-    "node": "22.20.0",
-    "npm": "11.6.1"
+    "node": "24.13.0",
+    "npm": "11.7.0"
   },
   "prettier": "@schummar/prettier-config",
   "main": "./dist/index.cjs",
