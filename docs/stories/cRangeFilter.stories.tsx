@@ -1,4 +1,4 @@
-import type { ComponentMeta } from '@storybook/react';
+import type { ComponentMeta } from '@storybook/react-vite';
 import { RangeFilter, Table } from '../../src';
 import css from './styles.module.css';
 

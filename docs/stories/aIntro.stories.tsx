@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Id, Table, TableSettingsProvider, type Column, type TableProps } from '../../src';
 import { DatePickerProvider } from '../../src/components/datePicker';
 import ExcelExporter from '../../src/exporters/excelExporter';
@@ -184,9 +184,9 @@ export const Subgrid = {
 };
 
 export const Mobile: Story = {
-  parameters: {
+  globals: {
     viewport: {
-      defaultViewport: 'mobile1',
+      value: 'mobile1',
     },
   },
   args: {

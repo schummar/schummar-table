@@ -1,5 +1,5 @@
 import { Box, Typography } from '@mui/material';
-import type { ComponentMeta } from '@storybook/react';
+import type { ComponentMeta } from '@storybook/react-vite';
 import { useState } from 'react';
 import type { DateRange, Sort } from '../../src';
 import { DateFilter, SelectFilter, Table, TextFilter } from '../../src';

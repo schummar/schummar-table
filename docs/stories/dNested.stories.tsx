@@ -1,4 +1,4 @@
-import type { Meta } from '@storybook/react';
+import type { Meta } from '@storybook/react-vite';
 import { Table, type TableProps } from '../../src';
 
 import { defaultColumns } from './_default';

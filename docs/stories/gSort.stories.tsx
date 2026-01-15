@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Table, TableSettingsProvider } from '../../src';
 import { DatePickerProvider } from '../../src/components/datePicker';
 import ExcelExporter from '../../src/exporters/excelExporter';
