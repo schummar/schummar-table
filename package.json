@@ -1,6 +1,6 @@
 {
   "name": "schummar-table",
-  "version": "0.10.3",
+  "version": "0.0.0",
   "description": "",
   "license": "ISC",
   "repository": "schummar/schummar-table",
@@ -77,24 +77,28 @@
     "@emotion/styled": "11.11.0",
     "@material-ui/core": "4.12.4",
     "@mui/material": "5.14.18",
+    "@nx/js": "^22.3.3",
     "@schummar/prettier-config": "github:schummar/prettier-config",
     "@schummar/runp": "2.0.5",
+    "@swc-node/register": "^1.11.1",
+    "@swc/core": "^1.15.8",
     "@types/react": "18.2.37",
     "@types/react-dom": "18.2.15",
     "esbuild": "0.24.0",
+    "nx": "^22.3.3",
     "oxlint": "^1.39.0",
     "prettier": "3.1.0",
     "publint": "^0.3.14",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "schummar-state": "0.2.1-experimental-13",
-    "semantic-release": "22.0.7",
     "tsdown": "^0.15.6",
     "typescript": "^5.9.3",
     "unplugin-unused": "^0.5.3",
     "xlsx": "0.18.5"
   },
   "workspaces": [
+    ".",
     "docs"
   ],
   "volta": {
