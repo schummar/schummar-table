@@ -43,7 +43,6 @@
     "lint:format": "prettier --check src",
     "lint:oxlint": "oxlint",
     "lint:tsc": "tsc --emitDeclarationOnly false --noEmit",
-    "prepublishOnly": "runp lint build",
     "docs:build": "npm -w docs run build"
   },
   "peerDependencies": {
