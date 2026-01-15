@@ -7,6 +7,7 @@ export function ResizeHandle() {
   const table = useTableContext();
   const columnId = useColumnContext();
   const enabled = table.useState((state) => state.props.enableColumnResize);
+  const hasFilter = table.useState((state) => state.filters.get(columnId) !== undefined);
 
   function onPointerDown(event: React.PointerEvent) {
     event.stopPropagation();
@@ -22,7 +23,8 @@ export function ResizeHandle() {
     if (!div.hasPointerCapture(event.pointerId)) return;
 
     const parent = div.parentElement as HTMLDivElement;
-    const width = Math.max(event.clientX - parent.getBoundingClientRect().left + 5, 50);
+    const minWidth = hasFilter ? 80 : 50;
+    const width = Math.max(event.clientX - parent.getBoundingClientRect().left + 5, minWidth);
 
     table.update((state) => {
       state.columnWidths.set(columnId, `${width}px`);
