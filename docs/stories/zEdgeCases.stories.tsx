@@ -43,3 +43,35 @@ export const NoColumns = {
     },
   },
 } satisfies Story;
+
+export const FalsyColumnsInFunction = {
+  args: {
+    items: data.slice(0, 3),
+    id: 'id',
+    enableSelection: false,
+    virtual: true,
+    columns: (col) => [col(() => 'x', { header: 'X' }), null, undefined, false, '', 0],
+    displaySize: { mobile: 400, desktop: Infinity },
+    displaySizeOverrides: {
+      mobile: {
+        enableExport: false,
+      },
+    },
+  },
+} satisfies Story;
+
+export const FalsyColumnsInArray = {
+  args: {
+    items: data.slice(0, 3),
+    id: 'id',
+    enableSelection: false,
+    virtual: true,
+    columns: [{ value: () => 'x', header: 'X' }, null, undefined, false, '', 0],
+    displaySize: { mobile: 400, desktop: Infinity },
+    displaySizeOverrides: {
+      mobile: {
+        enableExport: false,
+      },
+    },
+  },
+} satisfies Story;

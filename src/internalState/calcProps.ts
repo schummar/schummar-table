@@ -62,7 +62,7 @@ function calc<T>(
   if (props.columns instanceof Function) {
     inputColumns = props.columns((value, column) => ({ ...column, value }));
   } else if (props.columns !== undefined) {
-    inputColumns = props.columns.map((column) => ({ ...column, dependecies: undefined }));
+    inputColumns = props.columns.map((column) => column && { ...column, dependecies: undefined });
   }
 
   const globalDefaults = props.defaultColumnProps;
