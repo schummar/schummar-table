@@ -109,23 +109,25 @@ export const Row = memo(function Row<T>({
 
   return (
     <ClassNames>
-      {({ css }) => (
+      {({ css, cx }) => (
         <>
           {wrapRow(
             {
-              className: css([
-                subgrid
-                  ? {
-                      gridColumn: `1 / -1`,
-                      display: 'grid',
-                      gridTemplateColumns: 'subgrid',
-                    }
-                  : {
-                      display: 'contents',
-                    },
+              className: cx(
+                css([
+                  subgrid
+                    ? {
+                        gridColumn: `1 / -1`,
+                        display: 'grid',
+                        gridTemplateColumns: 'subgrid',
+                      }
+                    : {
+                        display: 'contents',
+                      },
+                  rowStyles,
+                ]),
                 rowClassName,
-                rowStyles,
-              ]),
+              ),
 
               children: (
                 <>

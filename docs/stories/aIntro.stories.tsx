@@ -207,3 +207,16 @@ export const Mobile: Story = {
     },
   },
 };
+
+export const RowClass: Story = {
+  args: {
+    ...Primary.args,
+    classes: {
+      row(item, index) {
+        if (index % 2 === 0) {
+          return css.evenRow;
+        }
+      },
+    },
+  },
+};

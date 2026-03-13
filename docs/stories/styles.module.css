@@ -1,3 +1,7 @@
 .table {
   z-index: 42;
 }
+
+.evenRow > * {
+  background-color: #f0f0f0;
+}
