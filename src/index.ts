@@ -42,6 +42,8 @@ export { termMatch, textMatch } from './misc/textMatch';
 export { configureTableTheme, mergeThemes } from './theme/tableTheme';
 export type {
   Column,
+  ColumnFactory,
+  ColumnGenerator,
   CommonFilterProps,
   FilterImplementation,
   FunctionWithDeps,
