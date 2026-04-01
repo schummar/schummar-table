@@ -25,7 +25,7 @@ export type {
 export { RangeFilter } from './components/rangeFilter';
 export { SelectFilter } from './components/selectFilter';
 export { Table } from './components/table';
-export { TextFilter } from './components/textFilter';
+export { TextFilter, exactCompare, prefixCompare, substringCompare } from './components/textFilter';
 export { useFilter } from './hooks/useFilter';
 export { useTheme } from './hooks/useTheme';
 export type { TableStateStorage } from './internalState/tableStateStorage';

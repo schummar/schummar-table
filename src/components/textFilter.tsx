@@ -1,12 +1,23 @@
 import { useFilter } from '../hooks/useFilter';
 import { useTheme } from '../hooks/useTheme';
 import { asStringOrArray } from '../misc/helpers';
-import { textMatch } from '../misc/textMatch';
 import type { CommonFilterProps } from '../types';
 import { AutoFocusTextField } from './autoFocusTextField';
 
+export function substringCompare(itemValue: string, filterValue: string): boolean {
+  return itemValue.toLowerCase().includes(filterValue.toLowerCase());
+}
+
+export function prefixCompare(itemValue: string, filterValue: string): boolean {
+  return itemValue.toLowerCase().includes(filterValue.toLowerCase());
+}
+
+export function exactCompare(itemValue: string, filterValue: string): boolean {
+  return itemValue.toLowerCase() === filterValue.toLowerCase();
+}
+
 export function TextFilter<TItem, TColumnValue>({
-  compare = textMatch,
+  compare = substringCompare,
   filterBy = asStringOrArray,
   placeholder,
   ...props
