@@ -1,5 +1,4 @@
 import { Interpolation, Theme } from '@emotion/react';
-import { useDayzed, type DayzedDateObject } from '../vendor/dayzed/dayzed';
 import {
   Fragment,
   ReactNode,
@@ -9,9 +8,11 @@ import {
   useMemo,
   useState,
 } from 'react';
+import { Temporal } from 'temporal-polyfill';
 import { useTheme } from '../hooks/useTheme';
 import { defaults } from '../misc/defaults';
 import { useCssVariables } from '../theme/useCssVariables';
+import { useDayzed, type DayzedDateObject } from '../vendor/dayzed/dayzed';
 import { DateInput } from './dateInput';
 import { Text } from './text';
 import { TimeInput } from './timeInput';
@@ -147,37 +148,14 @@ export const thisYear = (delta = 0): DateRange => {
   };
 };
 
-const MS_PER_DAY = 1000 * 60 * 60 * 24;
 export const getCalendarWeek = (date: Date): number => {
   // ISO 8601: Week 1 is the week with the first Thursday of the year.
   // https://en.wikipedia.org/wiki/ISO_week_date
 
-  const endOfWeek = new Date(
-    date.getFullYear(),
-    date.getMonth(),
-    date.getDate() + (7 - (date.getDay() || 7)),
+  const tz = Temporal.Now.timeZoneId();
+  return (
+    Temporal.Instant.fromEpochMilliseconds(date.getTime()).toZonedDateTimeISO(tz).weekOfYear ?? 0
   );
-
-  const year = endOfWeek.getFullYear();
-  const firstDayOfYear = new Date(year, 0, 1);
-  const dayOfYear =
-    Math.floor(
-      (endOfWeek.getTime() -
-        firstDayOfYear.getTime() +
-        (endOfWeek.getTimezoneOffset() - firstDayOfYear.getTimezoneOffset())) /
-        MS_PER_DAY,
-    ) + 1;
-  const weekOfYear = Math.floor((3 + dayOfYear) / 7);
-
-  if (weekOfYear === 0) {
-    return (
-      getCalendarWeek(
-        new Date(endOfWeek.getFullYear(), endOfWeek.getMonth(), endOfWeek.getDate() - 7),
-      ) + 1
-    );
-  }
-
-  return weekOfYear;
 };
 
 export const commonQuickOptions = {

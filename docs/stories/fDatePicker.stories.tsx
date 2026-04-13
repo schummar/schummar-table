@@ -79,20 +79,15 @@ export const CalendarWeeks = () => {
     >
       {[2023, 2024, 2025, 2026].map((year) => (
         <div key={year}>
-          <DatePicker
-            value={null}
-            onChange={() => undefined}
-            dateInView={new Date(`${year - 1}-12-31`)}
-            showCalendarWeek
-            rangeSelect
-          />
-          <DatePicker
-            value={null}
-            onChange={() => undefined}
-            dateInView={new Date(`${year}-01-01`)}
-            showCalendarWeek
-            rangeSelect
-          />
+          {Array.from({ length: 12 }, (_, month) => (
+            <DatePicker
+              value={null}
+              onChange={() => undefined}
+              dateInView={new Date(year, month, 1)}
+              showCalendarWeek
+              rangeSelect
+            />
+          ))}
         </div>
       ))}
     </div>
