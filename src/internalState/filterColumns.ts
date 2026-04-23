@@ -22,6 +22,8 @@ export function filterColumns<T>(state: Store<InternalTableState<T>>): void {
               column.displaySize === undefined ||
               column.displaySize.includes(displaySize),
           );
+
+          draft.rowHeights.clear();
         },
         { runNow: true },
       ),

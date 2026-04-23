@@ -30,7 +30,7 @@ export const ManyColumns = {
 
 export const NoColumns = {
   args: {
-    items: data.slice(0, 3),
+    items: data.slice(0, 1000),
     id: 'id',
     enableSelection: false,
     virtual: true,
@@ -51,6 +51,8 @@ export const NoColumns = {
         border: '1px solid blue',
       },
     },
+    debugRender: (msg) =>
+      typeof msg === 'string' && msg.startsWith('Virtualized') && console.log(msg),
   },
 } satisfies Story;
 

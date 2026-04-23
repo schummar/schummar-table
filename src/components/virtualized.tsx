@@ -107,9 +107,9 @@ export function Virtualized<T>({
 
   useEffect(() => update.cancel, [update]);
 
-  useLayoutEffect(
-    () => table.getState().props.debugRender?.(`Virtualalized render ${from} to ${to}`),
-  );
+  useLayoutEffect(() => {
+    table.getState().props.debugRender?.(`Virtualized render ${from} to ${to}`);
+  });
 
   return (
     <div {...props}>

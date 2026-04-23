@@ -37,7 +37,9 @@ function _Table<T>(props: TableProps<T>, ref: ForwardedRef<TableRef>): JSX.Eleme
     resetState();
   }
 
-  useLayoutEffect(() => table.getState().props.debugRender?.('render table'));
+  useLayoutEffect(() => {
+    table.getState().props.debugRender?.('render table');
+  });
 
   return (
     <TableContext.Provider value={table}>
@@ -103,7 +105,9 @@ const TableInner = memo(function TableInner<T>({ hidden }: { hidden: boolean }) 
 
   const enableClearFiltersButton = table.useState((state) => state.props.enableClearFiltersButton);
 
-  useLayoutEffect(() => table.getState().props.debugRender?.('render table inner'));
+  useLayoutEffect(() => {
+    table.getState().props.debugRender?.('render table inner');
+  });
 
   return (
     <Virtualized

@@ -101,7 +101,9 @@ export const Row = memo(function Row<T>({
     };
   }, [table, itemId, divRef.current, detailsDivRef.current]);
 
-  useLayoutEffect(() => table.getState().props.debugRender?.('render row', itemId));
+  useLayoutEffect(() => {
+    table.getState().props.debugRender?.('render row', itemId);
+  });
 
   if (!item) {
     return null;

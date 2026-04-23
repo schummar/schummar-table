@@ -37,7 +37,9 @@ export const Cell = memo(function Cell<T>({ itemId, rowIndex }: { itemId: Id; ro
     throttle: 16,
   });
 
-  useLayoutEffect(() => table.getState().props.debugRender?.('render cell', itemId, columnId));
+  useLayoutEffect(() => {
+    table.getState().props.debugRender?.('render cell', itemId, columnId);
+  });
   const className = useTheme((t) => cx(...calcClassNames(t.classes, item?.value, rowIndex)));
   const styles = useTheme((t) => calcCss<T>(t.styles, item?.value, rowIndex));
 
