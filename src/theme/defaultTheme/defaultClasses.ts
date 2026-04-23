@@ -7,6 +7,7 @@ const cell = css({
   borderBottom: '1px solid var(--table-border-light-color)',
   whiteSpace: 'nowrap',
   overflow: 'hidden',
+  minHeight: 5,
 
   '&:empty': {
     padding: 0,

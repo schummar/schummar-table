@@ -34,11 +34,21 @@ export const NoColumns = {
     id: 'id',
     enableSelection: false,
     virtual: true,
-    columns: (col) => [col(() => 'x', { header: 'X' })],
+    columns: (col) => [col(() => 'x', { id: 'x', header: 'X' })],
+    defaultHiddenColumns: new Set(['x']),
     displaySize: { mobile: 400, desktop: Infinity },
     displaySizeOverrides: {
       mobile: {
         enableExport: false,
+      },
+    },
+    subgrid: true,
+    styles: {
+      table: {
+        border: '1px solid red',
+      },
+      row: {
+        border: '1px solid blue',
       },
     },
   },
