@@ -102,6 +102,7 @@ const TableInner = memo(function TableInner<T>({ hidden }: { hidden: boolean }) 
   const enableColumnSelection = table.useState((state) => state.props.enableColumnSelection);
   const enableExport = table.useState((state) => state.props.enableExport);
   const cssVariables = useCssVariables();
+  const rowHeightsKey = table.useState((state) => state.rowHeightsKey);
 
   const enableClearFiltersButton = table.useState((state) => state.props.enableClearFiltersButton);
 
@@ -228,7 +229,12 @@ const TableInner = memo(function TableInner<T>({ hidden }: { hidden: boolean }) 
     >
       {(itemIds, startIndex) =>
         itemIds.map((itemId, index) => (
-          <Row key={itemId} itemId={itemId} rowIndex={startIndex + index} />
+          <Row
+            key={itemId}
+            itemId={itemId}
+            rowIndex={startIndex + index}
+            rowHeightsKey={rowHeightsKey}
+          />
         ))
       }
     </Virtualized>

@@ -24,6 +24,7 @@ export function filterColumns<T>(state: Store<InternalTableState<T>>): void {
           );
 
           draft.rowHeights.clear();
+          draft.rowHeightsKey = Math.random();
         },
         { runNow: true },
       ),

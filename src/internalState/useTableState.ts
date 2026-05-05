@@ -49,6 +49,7 @@ export function useTableState<T>(
         selection: props.defaultSelection ?? new Set(),
         expanded: props.defaultExpanded ?? new Set(),
         rowHeights: new Map(),
+        rowHeightsKey: Math.random(),
         filters: new Map(),
         filterValues: new Map(),
         hiddenColumns: props.defaultHiddenColumns ?? new Set(),

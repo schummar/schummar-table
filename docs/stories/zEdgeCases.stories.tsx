@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { Table } from '../../src';
+import { Table, TextFilter } from '../../src';
 import data, { type Person } from './_data';
+import { useEffect, useState } from 'react';
 
 type Story = StoryObj<typeof meta>;
 
@@ -86,4 +87,40 @@ export const FalsyColumnsInArray = {
       },
     },
   },
+} satisfies Story;
+
+export const PeriodicRerenders = {
+  args: {
+    items: data.slice(0, 20),
+    id: 'id',
+    enableSelection: false,
+    virtual: true,
+    columns: (col) => [
+      col(() => 'x', {
+        header: 'X',
+        filter: <TextFilter filterBy={(x: Person) => x.first_name} />,
+      }),
+    ],
+    debugRender: console.log,
+  },
+  decorators: [
+    (Story) => {
+      const [count, setCount] = useState(0);
+
+      useEffect(() => {
+        const interval = setInterval(() => {
+          setCount((c) => c + 1);
+        }, 10_000);
+
+        return () => clearInterval(interval);
+      }, []);
+
+      return (
+        <div>
+          <p>Rerenders: {count}</p>
+          <Story />
+        </div>
+      );
+    },
+  ],
 } satisfies Story;

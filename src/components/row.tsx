@@ -14,9 +14,11 @@ import { SelectComponent } from './selectComponent';
 export const Row = memo(function Row<T>({
   itemId,
   rowIndex,
+  rowHeightsKey,
 }: {
   itemId: Id;
   rowIndex: number;
+  rowHeightsKey: {};
 }): JSX.Element | null {
   const table = useTableContext<T>();
   const divRef = useRef<HTMLDivElement>(null);
@@ -99,7 +101,7 @@ export const Row = memo(function Row<T>({
     return () => {
       handles.forEach((h) => h());
     };
-  }, [table, itemId, divRef.current, detailsDivRef.current]);
+  }, [table, itemId, divRef.current, detailsDivRef.current, rowHeightsKey]);
 
   useLayoutEffect(() => {
     table.getState().props.debugRender?.('render row', itemId);

@@ -502,6 +502,7 @@ export type InternalTableState<TItem> = {
   selection: Set<Id>;
   expanded: Set<Id>;
   rowHeights: Map<Id, number>;
+  rowHeightsKey: number;
   filters: Map<Id, MemoizedFunctions<FilterImplementation<TItem, any, any, any>>>;
   filterValues: Map<Id, any>;
   hiddenColumns: Set<Id>;
