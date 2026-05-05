@@ -101,7 +101,6 @@ export const PeriodicRerenders = {
         filter: <TextFilter filterBy={(x: Person) => x.first_name} />,
       }),
     ],
-    debugRender: console.log,
   },
   decorators: [
     (Story) => {

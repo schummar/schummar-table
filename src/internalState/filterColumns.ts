@@ -22,11 +22,21 @@ export function filterColumns<T>(state: Store<InternalTableState<T>>): void {
               column.displaySize === undefined ||
               column.displaySize.includes(displaySize),
           );
+        },
+        { runNow: true },
+      ),
+    [state],
+  );
 
+  useEffect(
+    () =>
+      state.addReaction(
+        (state) => new Set(state.visibleColumns.map((column) => column.id)),
+        (_, draft) => {
           draft.rowHeights.clear();
           draft.rowHeightsKey = Math.random();
         },
-        { runNow: true },
+        { runNow: false },
       ),
     [state],
   );
