@@ -33,9 +33,19 @@ export function Export<T>(): JSX.Element {
   const [anchor, setAnchor] = useState<Element | null>(null);
 
   function execute({ action, exporter }: ExporterEntry) {
-    const { activeColumns, activeItems, items } = table.getState();
+    const { activeColumns, activeItems, selection, items } = table.getState();
     const columns = activeColumns.map((column) => column.exportHeader);
-    const rows = (all ? items : activeItems).map((item) =>
+
+    let exportedItems = items;
+    if (!all) {
+      exportedItems = activeItems;
+
+      if (selection.size > 0) {
+        exportedItems = exportedItems.filter((item) => selection.has(item.id));
+      }
+    }
+
+    const rows = exportedItems.map((item) =>
       activeColumns.map((column) => column.exportCell(column.value(item.value), item.value)),
     );
 
