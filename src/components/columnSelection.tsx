@@ -1,5 +1,6 @@
 import { useContext, useState } from 'react';
 import { useTheme } from '../hooks/useTheme';
+import { orderBy } from '../misc/helpers';
 import { TableResetContext, useTableContext } from '../misc/tableContext';
 import { useCssVariables } from '../theme/useCssVariables';
 import type { InternalColumn } from '../types';
@@ -21,11 +22,14 @@ export function ColumnSelection<T>(): JSX.Element {
   const table = useTableContext<T>();
   const reset = useContext(TableResetContext);
   const columns = table.useState((state) =>
-    state.props.columns.filter(
-      (column) =>
-        state.displaySize === undefined ||
-        column.displaySize === undefined ||
-        column.displaySize.includes(state.displaySize),
+    orderBy(
+      state.props.columns.filter(
+        (column) =>
+          state.displaySize === undefined ||
+          column.displaySize === undefined ||
+          column.displaySize.includes(state.displaySize),
+      ),
+      [(column) => state.columnOrder.indexOf(column.id)],
     ),
   );
   const hiddenColumns = table.useState((state) => state.hiddenColumns);
