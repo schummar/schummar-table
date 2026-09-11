@@ -1,8 +1,12 @@
 import type { DependencyList, ReactNode } from 'react';
-import { createContext, useContext, useMemo } from 'react';
+import { createContext, useContext, useMemo, useRef } from 'react';
 import type { FunctionWithDeps } from '../types';
 
-const TableMemoContext = createContext(new Map<string, [value: any, deps: DependencyList]>());
+type MemoCache = Map<string, [value: any, deps: DependencyList]>;
+
+// No default cache: a shared default would leak memoized values (and their closures)
+// between unrelated tables. Without a provider, each consumer gets its own local cache.
+const TableMemoContext = createContext<MemoCache | undefined>(undefined);
 
 export function TableMemoContextProvider({ children }: { children: ReactNode }) {
   return (
@@ -13,7 +17,9 @@ export function TableMemoContextProvider({ children }: { children: ReactNode }) 
 }
 
 export function useTableMemo() {
-  const memoCache = useContext(TableMemoContext);
+  const contextCache = useContext(TableMemoContext);
+  const localCache = useRef<MemoCache>();
+  const memoCache = contextCache ?? (localCache.current ??= new Map() as MemoCache);
 
   return <Function_ extends (...args: any[]) => any>(
     key: string,

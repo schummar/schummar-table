@@ -28,9 +28,25 @@ export const Table = forwardRef(_Table) as <T>(
 ) => ReturnType<typeof _Table>;
 
 function _Table<T>(props: TableProps<T>, ref: ForwardedRef<TableRef>): JSX.Element {
+  // The memo cache must be provided above useTableState, so that calcProps memoizes
+  // per table instance instead of falling back to a cache shared between tables.
+  return (
+    <TableMemoContextProvider>
+      <TableWithState props={props} tableRef={ref} />
+    </TableMemoContextProvider>
+  );
+}
+
+function TableWithState<T>({
+  props,
+  tableRef,
+}: {
+  props: TableProps<T>;
+  tableRef: ForwardedRef<TableRef>;
+}): JSX.Element {
   const [table, resetState] = useTableState(props);
   const [isHydrated, clearStorage] = useTableStateStorage(table);
-  useTableRef(table, ref);
+  useTableRef(table, tableRef);
 
   async function reset() {
     await clearStorage();
@@ -44,9 +60,7 @@ function _Table<T>(props: TableProps<T>, ref: ForwardedRef<TableRef>): JSX.Eleme
   return (
     <TableContext.Provider value={table}>
       <TableResetContext.Provider value={reset}>
-        <TableMemoContextProvider>
-          <TableLoadingState isHydrated={isHydrated} />
-        </TableMemoContextProvider>
+        <TableLoadingState isHydrated={isHydrated} />
       </TableResetContext.Provider>
     </TableContext.Provider>
   );
