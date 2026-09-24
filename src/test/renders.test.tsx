@@ -1,4 +1,4 @@
-import { describe, expect, test } from 'vite-plus/test';
+import { describe, expect, test, vi } from 'vite-plus/test';
 import { page, userEvent } from 'vite-plus/test/browser/context';
 import { render } from 'vitest-browser-react';
 import { Table } from '..';
@@ -53,6 +53,47 @@ describe('render counts', () => {
     expect(count('render table')).toBeGreaterThan(0);
     expect(count('render row')).toBe(0);
     expect(count('render cell')).toBe(0);
+  });
+
+  test('re-rendering with equal but new props, columns and items renders no rows', async () => {
+    const { tableProps, count, reset } = setup();
+    const first = (x: Person) => x.first_name;
+    const last = (x: Person) => x.last_name;
+    const make = () => (
+      <Table
+        {...tableProps}
+        items={[...tableProps.items!]}
+        classes={{ row: 'row' }}
+        defaultSelection={new Set([1])}
+        columns={[
+          { id: 'first', header: <b>First</b>, value: first },
+          { id: 'last', header: 'Last', value: last },
+        ]}
+      />
+    );
+    const screen = await render(make());
+    await expect.element(screen.getByText('Kassia')).toBeVisible();
+
+    reset();
+    await screen.rerender(make());
+    expect(count('render row')).toBe(0);
+    expect(count('render cell')).toBe(0);
+  });
+
+  test('a controlled Set that normalization changes is not re-reported on every render', async () => {
+    const onSelectionChange = vi.fn();
+    const { tableProps } = setup();
+    // 99 does not exist, so normalization drops it and reports the result.
+    const make = () => (
+      <Table {...tableProps} selection={new Set([1, 99])} onSelectionChange={onSelectionChange} />
+    );
+    const screen = await render(make());
+    await expect.element(screen.getByText('Kassia')).toBeVisible();
+    await expect.poll(() => onSelectionChange.mock.calls.length).toBe(1);
+
+    await screen.rerender(make());
+    await screen.rerender(make());
+    expect(onSelectionChange).toHaveBeenCalledTimes(1);
   });
 
   test('dragging a column divider renders no rows until the drop', async () => {

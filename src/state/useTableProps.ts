@@ -1,5 +1,6 @@
-import { useMemo, useSyncExternalStore } from 'react';
+import { useMemo, useRef, useSyncExternalStore } from 'react';
 import { defaultSerializer } from '../exporters/serializer';
+import { deepEqual, shallowArrayEqual } from '../misc/equal';
 import { asString, castArray } from '../misc/helpers';
 import type {
   Column,
@@ -105,17 +106,64 @@ function definedOnly<T extends object>(object: T): Partial<T> {
 }
 
 /**
+ * Returns the previous props object while every prop is equal to the previous one: structurally,
+ * with functions by reference, and `items` element by element. Parents creating equal objects,
+ * Sets or arrays on each render then don't cause any recomputation.
+ */
+function useStableProps<T>(raw: TableProps<T>): TableProps<T> {
+  const previous = useRef<TableProps<T>>(undefined);
+  const last = previous.current;
+
+  if (last) {
+    const keys = Object.keys(raw) as (keyof TableProps<T>)[];
+    const isEqual =
+      keys.length === Object.keys(last).length &&
+      keys.every((key) =>
+        key === 'items' ? shallowArrayEqual(raw[key], last[key]) : deepEqual(raw[key], last[key]),
+      );
+    if (isEqual) return last;
+  }
+
+  previous.current = raw;
+  return raw;
+}
+
+/** Keeps the previous column objects (and array) for columns that are structurally unchanged. */
+function useStableColumns<T>(columns: InternalColumn<T, unknown>[]) {
+  const previous = useRef<InternalColumn<T, unknown>[]>(undefined);
+  const last = previous.current;
+  if (!last || last === columns) {
+    previous.current = columns;
+    return columns;
+  }
+
+  const lastById = new Map(last.map((column) => [column.id, column]));
+  const result = columns.map((column) => {
+    const lastColumn = lastById.get(column.id);
+    return lastColumn && deepEqual(column, lastColumn) ? lastColumn : column;
+  });
+
+  const isUnchanged =
+    result.length === last.length && result.every((column, index) => column === last[index]);
+  previous.current = isUnchanged ? last : result;
+  return previous.current;
+}
+
+/**
  * Normalizes the props. Every derived value keeps its identity as long as its inputs do, so memos
  * downstream only recompute when the relevant props change.
  */
-export function useTableProps<T>(raw: TableProps<T>) {
+export function useTableProps<T>(input: TableProps<T>) {
+  const raw = useStableProps(input);
   const displaySize = useDisplaySize(raw.displaySize);
 
   const id = useMemo(() => normalizeId(raw.id), [raw.id]);
   const parentId = useMemo(() => normalizeParentId(raw.parentId), [raw.parentId]);
-  const columns = useMemo(
-    () => normalizeColumns(raw.columns, raw.defaultColumnProps, raw.columnProps, raw.disableSort),
-    [raw.columns, raw.defaultColumnProps, raw.columnProps, raw.disableSort],
+  const columns = useStableColumns(
+    useMemo(
+      () => normalizeColumns(raw.columns, raw.defaultColumnProps, raw.columnProps, raw.disableSort),
+      [raw.columns, raw.defaultColumnProps, raw.columnProps, raw.disableSort],
+    ),
   );
 
   const displaySizeOverrides: TableProps<T>['displaySizeOverrides'] =
@@ -151,8 +199,6 @@ export function useTableProps<T>(raw: TableProps<T>) {
     ],
   );
 
-  // `raw` keeps its identity across the table's own state changes, so this only changes when the
-  // parent renders.
   const props = useMemo(
     () =>
       ({
