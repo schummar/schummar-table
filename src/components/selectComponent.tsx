@@ -1,10 +1,11 @@
+import type { ReactElement } from 'react';
 import type React from 'react';
 import { useTheme } from '../hooks/useTheme';
 import { getAncestors, getDescendants } from '../misc/helpers';
 import { useTableContext } from '../misc/tableContext';
 import type { Id } from '../types';
 
-export function SelectComponent<T>({ itemId }: { itemId?: Id }): JSX.Element {
+export function SelectComponent<T>({ itemId }: { itemId?: Id }): ReactElement {
   const table = useTableContext<T>();
   const Checkbox = useTheme((t) => t.components.Checkbox);
 

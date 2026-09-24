@@ -1,6 +1,6 @@
 import { castDraft } from 'immer';
 import type React from 'react';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, type ReactElement } from 'react';
 import { StoreScope } from 'schummar-state/react';
 import { useColumnContext, useTableContext } from '../misc/tableContext';
 import { useTheme } from '../hooks/useTheme';
@@ -19,7 +19,7 @@ export const ColumnHeaderContext = new StoreScope({
   items: new Map<Id, HTMLDivElement>(),
 });
 
-export function ColumnHeader({ index }: ColumnHeaderProps): JSX.Element {
+export function ColumnHeader({ index }: ColumnHeaderProps): ReactElement {
   const ref = useRef<HTMLDivElement>(null);
   const columnId = useColumnContext();
   const table = useTableContext();
@@ -41,8 +41,8 @@ export function ColumnHeader({ index }: ColumnHeaderProps): JSX.Element {
   });
 
   const store = ColumnHeaderContext.useStore();
-  const draggingStart = useRef<{ mouseX: number; bounds: DOMRect }>();
-  const clone = useRef<HTMLDivElement>();
+  const draggingStart = useRef<{ mouseX: number; bounds: DOMRect } | undefined>(undefined);
+  const clone = useRef<HTMLDivElement | undefined>(undefined);
 
   // Track each headers div in a store
   useEffect(() => {

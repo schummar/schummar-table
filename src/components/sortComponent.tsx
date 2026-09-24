@@ -1,9 +1,9 @@
-import type { ReactNode } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 import type React from 'react';
 import { useTheme } from '../hooks/useTheme';
 import { useColumnContext, useTableContext } from '../misc/tableContext';
 
-export function SortComponent<T>({ children }: { children: ReactNode }): JSX.Element {
+export function SortComponent<T>({ children }: { children: ReactNode }): ReactElement {
   const table = useTableContext<T>();
   const columnId = useColumnContext();
   const Badge = useTheme((t) => t.components.Badge);

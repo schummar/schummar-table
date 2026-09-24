@@ -1,11 +1,11 @@
-import { useContext, useState } from 'react';
+import { useContext, useState, type ReactElement } from 'react';
 import { ExportOptions, ExporterEntry } from '../exporters/exporter';
 import { useTheme } from '../hooks/useTheme';
 import { useTableContext } from '../misc/tableContext';
 import { TableSettingsContext } from '../misc/tableSettings';
 import { useCssVariables } from '../theme/useCssVariables';
 
-export function Export<T>(): JSX.Element {
+export function Export<T>(): ReactElement {
   const { exporters: contextExporters } = useContext(TableSettingsContext);
   const table = useTableContext<T>();
   const Button = useTheme((t) => t.components.Button);

@@ -1,5 +1,5 @@
 import { ClassNames } from '@emotion/react';
-import { memo, useLayoutEffect, useRef } from 'react';
+import { memo, useLayoutEffect, useRef, type ReactElement } from 'react';
 import { useTheme } from '../hooks/useTheme';
 import { calcClassNames, calcCss } from '../misc/calcClassNames';
 import { cx, getAncestors } from '../misc/helpers';
@@ -19,7 +19,7 @@ export const Row = memo(function Row<T>({
   itemId: Id;
   rowIndex: number;
   rowHeightsKey: {};
-}): JSX.Element | null {
+}): ReactElement | null {
   const table = useTableContext<T>();
   const divRef = useRef<HTMLDivElement>(null);
   const detailsDivRef = useRef<HTMLDivElement>(null);

@@ -1,3 +1,4 @@
+import type { ReactElement } from 'react';
 import { useFilter } from '../hooks/useFilter';
 import { useTheme } from '../hooks/useTheme';
 import { asNumberOrArray, castArray } from '../misc/helpers';
@@ -20,7 +21,7 @@ export function RangeFilter<TItem, TColumnValue>({
   max,
   filterBy = asNumberOrArray,
   ...props
-}: RangeFilterProps<TItem, TColumnValue>): JSX.Element {
+}: RangeFilterProps<TItem, TColumnValue>): ReactElement {
   const rangeMinText = useTheme((t) => t.text.rangeMin);
   const rangeMaxText = useTheme((t) => t.text.rangeMax);
 

@@ -1,4 +1,4 @@
-import type { HTMLProps, ReactNode } from 'react';
+import type { HTMLProps, ReactElement, ReactNode } from 'react';
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useTableContext } from '../misc/tableContext';
 import { throttle } from '../misc/throttle';
@@ -27,7 +27,7 @@ export function Virtualized<T>({
   header: ReactNode;
   footer: ReactNode;
   children: (itemIds: Id[], startIndex: number) => ReactNode;
-} & Omit<HTMLProps<HTMLDivElement>, 'children'>): JSX.Element {
+} & Omit<HTMLProps<HTMLDivElement>, 'children'>): ReactElement {
   const table = useTableContext<T>();
   const virtual = table.useState((state) => state.props.virtual);
   const probeRef = useRef<HTMLDivElement>(null);

@@ -1,4 +1,4 @@
-import { useContext, useState } from 'react';
+import { useContext, useState, type ReactElement } from 'react';
 import { useTheme } from '../hooks/useTheme';
 import { orderBy } from '../misc/helpers';
 import { TableResetContext, useTableContext } from '../misc/tableContext';
@@ -6,7 +6,7 @@ import { useCssVariables } from '../theme/useCssVariables';
 import type { InternalColumn } from '../types';
 import { FormControlLabel } from './formControlLabel';
 
-export function ColumnSelection<T>(): JSX.Element {
+export function ColumnSelection<T>(): ReactElement {
   const IconButton = useTheme((t) => t.components.IconButton);
   const Popover = useTheme((t) => t.components.Popover);
   const Checkbox = useTheme((t) => t.components.Checkbox);

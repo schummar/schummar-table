@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 import { useEffect, useMemo, useState } from 'react';
 import { useFilter } from '../hooks/useFilter';
 import { useTheme } from '../hooks/useTheme';
@@ -46,7 +46,7 @@ export function SelectFilter<TItem, TColumnValue, TFilterBy>({
   /** Virtual list props.
    * @default true */
   virtual?: VirtualListProps<unknown>['virtual'];
-} & CommonFilterProps<TItem, TColumnValue, TFilterBy, Set<TFilterBy>>): JSX.Element {
+} & CommonFilterProps<TItem, TColumnValue, TFilterBy, Set<TFilterBy>>): ReactElement {
   const IconButton = useTheme((t) => t.components.IconButton);
   const Checkbox = useTheme((t) => t.components.Checkbox);
   const Search = useTheme((t) => t.icons.Search);

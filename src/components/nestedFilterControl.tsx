@@ -1,10 +1,10 @@
-import { useContext, useEffect, useRef } from 'react';
+import { useContext, useEffect, useRef, type ReactElement } from 'react';
 import { useTheme } from '../hooks/useTheme';
 import { useColumnContext, useTableContext } from '../misc/tableContext';
 import { FilterControlContext } from './filterControl';
 import FilterDialog from './filterDialog';
 
-export function NestedFilterControl<T>(): JSX.Element | null {
+export function NestedFilterControl<T>(): ReactElement | null {
   const table = useTableContext<T>();
   const columnId = useColumnContext();
   const Button = useTheme((t) => t.components.Button);

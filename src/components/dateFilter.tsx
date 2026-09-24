@@ -1,3 +1,4 @@
+import type { ReactElement } from 'react';
 import { useFilter } from '../hooks/useFilter';
 import type { CommonFilterProps } from '../types';
 import type { DatePickerProps, DateRange } from './datePicker';
@@ -56,7 +57,7 @@ export function DateFilter<TItem, TColumnValue>({
     TColumnValue,
     Date | DateRange | null,
     Date | DateRange | null
-  >): JSX.Element {
+  >): ReactElement {
   const {
     value = null,
     onChange,

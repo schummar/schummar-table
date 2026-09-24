@@ -1,3 +1,4 @@
+import type { ReactElement } from 'react';
 import { useFilter } from '../hooks/useFilter';
 import { useTheme } from '../hooks/useTheme';
 import { asStringOrArray } from '../misc/helpers';
@@ -27,7 +28,7 @@ export function TextFilter<TItem, TColumnValue>({
    */
   compare?: (itemValue: string, filterValue: string) => boolean;
   placeholder?: string;
-} & CommonFilterProps<TItem, TColumnValue, string, string>): JSX.Element {
+} & CommonFilterProps<TItem, TColumnValue, string, string>): ReactElement {
   const IconButton = useTheme((t) => t.components.IconButton);
   const Search = useTheme((t) => t.icons.Search);
   const Clear = useTheme((t) => t.icons.Clear);

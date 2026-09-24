@@ -18,7 +18,7 @@ export function TableMemoContextProvider({ children }: { children: ReactNode }) 
 
 export function useTableMemo() {
   const contextCache = useContext(TableMemoContext);
-  const localCache = useRef<MemoCache>();
+  const localCache = useRef<MemoCache | undefined>(undefined);
   const memoCache = contextCache ?? (localCache.current ??= new Map() as MemoCache);
 
   return <Function_ extends (...args: any[]) => any>(

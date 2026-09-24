@@ -1,11 +1,11 @@
-import { forwardRef, useContext } from 'react';
+import { forwardRef, useContext, type ReactElement } from 'react';
 import { useTheme } from '../hooks/useTheme';
 import { useColumnContext, useTableContext } from '../misc/tableContext';
 import { FilterControlContext } from './filterControl';
 
 export default forwardRef(FilterDialog);
 
-function FilterDialog(_props: {}, ref: React.Ref<HTMLDialogElement>): JSX.Element | null {
+function FilterDialog(_props: {}, ref: React.Ref<HTMLDialogElement>): ReactElement | null {
   const table = useTableContext();
   const columnId = useColumnContext();
 

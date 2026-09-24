@@ -1,4 +1,12 @@
-import { forwardRef, memo, useEffect, useLayoutEffect, useState, type ForwardedRef } from 'react';
+import {
+  forwardRef,
+  memo,
+  useEffect,
+  useLayoutEffect,
+  useState,
+  type ForwardedRef,
+  type ReactElement,
+} from 'react';
 import { TableMemoContextProvider } from '../hooks/useTableMemo';
 import useTableRef from '../hooks/useTableRef';
 import { useTheme } from '../hooks/useTheme';
@@ -27,7 +35,7 @@ export const Table = forwardRef(_Table) as <T>(
   props: TableProps<T> & { ref?: ForwardedRef<TableRef> },
 ) => ReturnType<typeof _Table>;
 
-function _Table<T>(props: TableProps<T>, ref: ForwardedRef<TableRef>): JSX.Element {
+function _Table<T>(props: TableProps<T>, ref: ForwardedRef<TableRef>): ReactElement {
   // The memo cache must be provided above useTableState, so that calcProps memoizes
   // per table instance instead of falling back to a cache shared between tables.
   return (
@@ -43,7 +51,7 @@ function TableWithState<T>({
 }: {
   props: TableProps<T>;
   tableRef: ForwardedRef<TableRef>;
-}): JSX.Element {
+}): ReactElement {
   const [table, resetState] = useTableState(props);
   const [isHydrated, clearStorage] = useTableStateStorage(table);
   useTableRef(table, tableRef);

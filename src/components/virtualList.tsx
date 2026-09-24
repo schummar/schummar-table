@@ -1,4 +1,4 @@
-import type { HTMLProps, ReactNode } from 'react';
+import type { HTMLProps, ReactElement, ReactNode } from 'react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { throttle } from '../misc/throttle';
 
@@ -22,7 +22,7 @@ export function VirtualList<T>({
   items,
   children,
   ...props
-}: VirtualListProps<T>): JSX.Element {
+}: VirtualListProps<T>): ReactElement {
   const container = useRef<HTMLDivElement>(null);
   const [, setId] = useState({});
 

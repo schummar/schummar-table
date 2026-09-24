@@ -1,5 +1,5 @@
 import { ClassNames } from '@emotion/react';
-import { createContext, useState } from 'react';
+import { createContext, useState, type ReactElement } from 'react';
 import { useTheme } from '../hooks/useTheme';
 import { useColumnContext, useTableContext } from '../misc/tableContext';
 import { useCssVariables } from '../theme/useCssVariables';
@@ -9,7 +9,7 @@ export const FilterControlContext = createContext({
   close: (): void => undefined,
 });
 
-export function FilterControl<T>(): JSX.Element | null {
+export function FilterControl<T>(): ReactElement | null {
   const table = useTableContext<T>();
   const columnId = useColumnContext();
 

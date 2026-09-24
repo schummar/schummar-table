@@ -1,4 +1,4 @@
-import type { MouseEvent } from 'react';
+import type { MouseEvent, ReactElement } from 'react';
 import { useTheme } from '../hooks/useTheme';
 import { getAncestors, getDescendants } from '../misc/helpers';
 import { useTableContext } from '../misc/tableContext';
@@ -10,7 +10,7 @@ export function ExpandControl<T>({
 }: {
   itemId: Id;
   hasDeferredChildren?: boolean;
-}): JSX.Element {
+}): ReactElement {
   const IconButton = useTheme((t) => t.components.IconButton);
   const Spinner = useTheme((t) => t.components.Spinner);
   const ChevronRight = useTheme((t) => t.icons.ChevronRight);

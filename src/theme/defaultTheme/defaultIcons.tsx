@@ -1,5 +1,5 @@
 import { ClassNames, css } from '@emotion/react';
-import type { HTMLProps } from 'react';
+import type { HTMLProps, ReactElement } from 'react';
 import { cloneElement } from 'react';
 import type { TableTheme } from '../../types';
 
@@ -9,7 +9,7 @@ const IconDefaultStyle = css({
   color: 'inherit',
 });
 
-function Icon(svg: JSX.Element) {
+function Icon(svg: ReactElement<HTMLProps<Element>>) {
   return function IconComponent(props: HTMLProps<Element>) {
     return (
       <ClassNames>

@@ -7,7 +7,14 @@ import type {
   Theme,
 } from '@emotion/react';
 import type React from 'react';
-import type { ComponentType, CSSProperties, DependencyList, ReactNode, Ref } from 'react';
+import type {
+  ComponentType,
+  CSSProperties,
+  DependencyList,
+  ReactElement,
+  ReactNode,
+  Ref,
+} from 'react';
 import { ExportOptions } from './exporters/exporter';
 import type { TableStateStorage } from './internalState/tableStateStorage';
 
@@ -156,7 +163,7 @@ export interface TableTheme<TItem = unknown> {
       inputRef?: Ref<HTMLInputElement>;
       placeholder?: string;
     }>;
-    Spinner: (props: { className?: string }) => JSX.Element;
+    Spinner: (props: { className?: string }) => ReactElement;
   };
   /** Define icons for the table. */
   icons: {
