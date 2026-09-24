@@ -2,6 +2,7 @@ import { memo, useLayoutEffect, type ReactElement, type ReactNode, type Ref } fr
 import { ColumnContext } from '../state/context';
 import type { Id, InternalColumn, TableProps, WrapRowProps } from '../types';
 import { Cell } from './cell';
+import { useReveal } from './cellScheduler';
 import { Details } from './details';
 import { ExpandControl } from './expandControl';
 import type { RowStyles } from './rowStyles';
@@ -10,6 +11,9 @@ import { SelectComponent } from './selectComponent';
 /** Everything rows need from the table props. Changing it renders every row. */
 export interface RowConfig<T> {
   styles: RowStyles<T>;
+  /** Columns whose cells render progressively. */
+  deferredColumns: Set<Id>;
+  placeholderHeight: number;
   columns: InternalColumn<T, unknown>[];
   enableSelection: boolean | undefined;
   rowAction: TableProps<T>['rowAction'];
@@ -51,6 +55,7 @@ export const Row = memo(function Row<T>({
   });
 
   const fillClassName = styles.fillCell(value, rowIndex);
+  const revealed = useReveal(config.deferredColumns.size > 0, rowIndex);
   const deferred = hasDeferredChildren?.(value) ?? false;
   const action = rowAction instanceof Function ? rowAction(value, rowIndex) : rowAction;
   const hasDetails = rowDetails instanceof Function ? !!rowDetails(value, rowIndex) : !!rowDetails;
@@ -78,7 +83,13 @@ export const Row = memo(function Row<T>({
 
       {columns.map((column) => (
         <ColumnContext.Provider key={column.id} value={column.id}>
-          <Cell column={column} value={value} rowIndex={rowIndex} config={config} />
+          <Cell
+            column={column}
+            placeholder={!revealed && config.deferredColumns.has(column.id)}
+            value={value}
+            rowIndex={rowIndex}
+            config={config}
+          />
         </ColumnContext.Provider>
       ))}
 

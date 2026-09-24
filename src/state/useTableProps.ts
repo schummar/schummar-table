@@ -69,6 +69,7 @@ function normalizeColumns<T>(
         exportCell: column.exportCell ?? defaults.exportCell ?? defaultSerializer,
         sortBy: column.sortBy ?? defaults.sortBy ?? [defaultSortBy],
         disableSort: column.disableSort ?? defaults.disableSort ?? disableSort ?? false,
+        deferred: column.deferred ?? defaults.deferred,
         hidden: column.hidden ?? defaults.hidden,
         classes: column.classes ?? defaults.classes,
         styles: column.styles ?? defaults.styles,

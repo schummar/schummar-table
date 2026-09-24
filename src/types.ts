@@ -324,6 +324,15 @@ export interface TableProps<TItem> extends PartialTableTheme<TItem> {
          * @default 5
          */
         overscan?: number;
+        /** Render cells progressively: rows render normally until about 8 ms of the current frame
+         * are used; the deferred cells of the rest show a placeholder and are revealed a row at a time
+         * over the following frames, visible rows first. Meant for expensive
+         * cells. A single row always renders at once, so a very expensive row can exceed the budget.
+         * Columns without a fixed `width` may widen while rows are revealed. Can be overridden per
+         * column with `deferred`.
+         * @default false
+         */
+        deferCells?: boolean;
       };
 
   /// ///////////////////////////////////////////////
@@ -440,6 +449,9 @@ export type Column<TItem, TColumnValue> = {
   sortBy?: ((value: TColumnValue, item: TItem) => unknown)[];
   /** Disable sort for this column */
   disableSort?: boolean;
+  /** Render this column's cells progressively, see `virtual.deferCells`. Overrides the table setting.
+   * Give the column a fixed `width` to keep it from widening while its cells are revealed. */
+  deferred?: boolean;
   /** Set filter component that will be displayed in the column header */
   filter?: ReactNode;
   /** Override whether the column is hidden. If set, prevents toggling the column via menu. */

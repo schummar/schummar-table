@@ -143,7 +143,15 @@ export const ExpensiveCells = {
           header: `Column ${i}`,
           filter: <TextFilter />,
           renderCell: (value) => <ExpensiveCell value={value} ms={10} />,
+          width: '1fr',
         }),
       ),
+  },
+} satisfies Story;
+
+export const ExpensiveCellsDeferred = {
+  args: {
+    ...ExpensiveCells.args,
+    virtual: { deferCells: true },
   },
 } satisfies Story;

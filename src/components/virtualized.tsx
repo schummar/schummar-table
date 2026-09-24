@@ -1,5 +1,13 @@
 import { useVirtualizer, useWindowVirtualizer, type Virtualizer } from '@tanstack/react-virtual';
-import { useLayoutEffect, useState, type ReactNode, type Ref, type RefObject } from 'react';
+import {
+  useContext,
+  useLayoutEffect,
+  useState,
+  type ReactNode,
+  type Ref,
+  type RefObject,
+} from 'react';
+import { CellSchedulerContext } from './cellScheduler';
 import type { Id, TableProps } from '../types';
 
 type VirtualOptions = Exclude<TableProps<unknown>['virtual'], boolean | undefined>;
@@ -85,6 +93,14 @@ function VirtualWindow({
   measure: boolean;
 }) {
   const items = virtualizer.getVirtualItems();
+  const scheduler = useContext(CellSchedulerContext);
+
+  // Deferred cells of rows in the viewport are revealed before those in the overscan.
+  useLayoutEffect(() => {
+    const { range } = virtualizer;
+    if (range) scheduler?.setVisibleRange(range.startIndex, range.endIndex);
+  });
+
   const margin = virtualizer.options.scrollMargin;
   const before = items.length ? items[0]!.start - margin : 0;
   const after = items.length
