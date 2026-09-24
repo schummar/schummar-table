@@ -28,6 +28,7 @@ export function SelectFilter<TItem, TColumnValue, TFilterBy>({
   singleSelect,
   hideSearchField,
   hideResetButton,
+  virtual,
   ...props
 }: {
   /** Which options are provided to select. By default all unique item values are used. */
@@ -143,6 +144,7 @@ export function SelectFilter<TItem, TColumnValue, TFilterBy>({
 
       <VirtualList
         items={ordered}
+        virtual={virtual}
         css={{
           width: '20em',
           maxWidth: '100%',

@@ -220,8 +220,7 @@ describe('SelectFilter', () => {
     await expect.element(page.getByRole('checkbox', { name: 'Paralegal' })).toBeInTheDocument();
   });
 
-  // The `virtual` prop is swallowed into useFilter and never reaches VirtualList (selectFilter.tsx:144).
-  test.fails('virtual={false} renders all options', async () => {
+  test('virtual={false} renders all options', async () => {
     await renderPersons({ jobTitle: <SelectFilter virtual={false} /> });
     await openFilter('Job Title');
 
