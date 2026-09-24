@@ -15,6 +15,8 @@ the table or controlled from outside.
 - **Unopinionated styling.** Plain class names or emotion styles for every part, with built-in
   styles that your overrides always win against. Themes for MUI 4 and 5 are included.
 
+**[Live examples](https://schummar.github.io/schummar-table/)**
+
 ## Installation
 
 ```bash

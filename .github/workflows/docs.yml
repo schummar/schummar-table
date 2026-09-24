@@ -1,0 +1,46 @@
+name: Docs
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build Storybook
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - uses: voidzero-dev/setup-vp@v1.21.1
+        with:
+          cache: true
+          run-install: false
+
+      - run: vp install --frozen-lockfile
+      - run: vp env exec pnpm docs:build
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs/storybook-static
+
+  deploy:
+    name: Deploy
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
