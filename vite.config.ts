@@ -28,6 +28,8 @@ export default defineConfig({
     ignorePatterns: ['dist', 'docs/storybook-static', '.claude', 'CHANGELOG.md', 'pnpm-lock.yaml'],
   },
   optimizeDeps: {
+    // Discovering these mid-run reloads the browser and fails the first test file on a cold cache.
+    include: ['vite-plus/test/browser/context', 'vitest-browser-react'],
     rolldownOptions: {
       // Without it the prebundle inlines jsxDEV from React's production build, where it is `void 0`.
       transform: { define: { 'process.env.NODE_ENV': '"development"' } },
