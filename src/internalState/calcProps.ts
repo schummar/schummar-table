@@ -112,7 +112,7 @@ function calc<T>(
                 : String(v),
         ]
       ).map((function_, i) => cache(`columns.${cacheKey}.sortBy.${i}`, function_)),
-      disableSort: disableSort ?? defaults?.disableSort ?? false,
+      disableSort: disableSort ?? defaults?.disableSort ?? props.disableSort ?? false,
       hidden: hidden ?? defaults?.hidden,
       classes: classes ?? defaults?.classes,
       styles: styles ?? defaults?.styles,

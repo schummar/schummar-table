@@ -191,9 +191,7 @@ describe('sort', () => {
     ]);
   });
 
-  // Table-level disableSort never applies: calcProps.ts:115 defaults each column's disableSort to
-  // false, so `column.disableSort ?? props.disableSort` (sortComponent.tsx:19) never reaches it.
-  test.fails('disableSort on the table: clicking a header does nothing', async () => {
+  test('disableSort on the table: clicking a header does nothing', async () => {
     const onSortChange = vi.fn();
     const screen = await fruitTable({ disableSort: true, onSortChange });
 
@@ -202,6 +200,29 @@ describe('sort', () => {
       .poll(() => columnValues(screen, 'name'), { timeout: 200 })
       .toEqual(['grape', 'Apple', 'pear', 'apple', 'Orange', 'Banana']);
     expect(onSortChange).not.toHaveBeenCalled();
+  });
+
+  test('disableSort: false on a column overrides the table setting', async () => {
+    const onSortChange = vi.fn();
+    const screen = await personTable({
+      disableSort: true,
+      columns: (col) => [
+        col((x) => x.first_name, { id: 'first', header: 'First', renderCell: cell('first') }),
+        col((x) => x.job_title, {
+          id: 'job',
+          header: 'Job',
+          renderCell: cell('job'),
+          disableSort: false,
+        }),
+      ],
+      onSortChange,
+    });
+
+    await screen.getByText('First').click();
+    expect(onSortChange).not.toHaveBeenCalled();
+
+    await screen.getByText('Job').click();
+    expect(onSortChange).toHaveBeenCalledWith([{ columnId: 'job', direction: 'asc' }]);
   });
 
   test('disableSort on a column: only that column ignores clicks', async () => {
