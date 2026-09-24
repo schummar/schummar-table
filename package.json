@@ -37,13 +37,13 @@
     "./package.json": "./package.json"
   },
   "scripts": {
-    "start": "npm -w docs start",
+    "start": "pnpm -C docs start",
     "build": "tsdown",
     "lint": "runp lint:*",
     "lint:format": "prettier --check src",
     "lint:oxlint": "oxlint",
     "lint:tsc": "tsc --emitDeclarationOnly false --noEmit",
-    "docs:build": "npm -w docs run build"
+    "docs:build": "pnpm -C docs build"
   },
   "peerDependencies": {
     "@material-ui/core": ">=4.0.0",
@@ -97,16 +97,20 @@
     "unplugin-unused": "^0.5.3",
     "xlsx": "0.18.5"
   },
-  "workspaces": [
-    ".",
-    "docs"
-  ],
-  "volta": {
-    "node": "24.13.0",
-    "npm": "11.7.0"
-  },
   "prettier": "@schummar/prettier-config",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
-  "types": "./dist/index.d.cts"
+  "types": "./dist/index.d.cts",
+  "devEngines": {
+    "runtime": {
+      "name": "node",
+      "version": "24.13.0",
+      "onFail": "download"
+    },
+    "packageManager": {
+      "name": "pnpm",
+      "version": "12.6.0",
+      "onFail": "download"
+    }
+  }
 }
