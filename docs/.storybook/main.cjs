@@ -18,16 +18,8 @@ module.exports = {
       react({
         exclude: [/\.stories\.(t|j)sx?$/, /node_modules/],
         jsxImportSource: '@emotion/react',
-        babel: {
-          plugins: ['@emotion/babel-plugin'],
-        },
       }),
     );
-    config.esbuild = {
-      logOverride: {
-        'this-is-undefined-in-esm': 'silent',
-      },
-    };
     return config;
   },
   docs: {
