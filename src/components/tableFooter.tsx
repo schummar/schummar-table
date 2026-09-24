@@ -1,22 +1,21 @@
 import { memo } from 'react';
 import { useTheme } from '../hooks/useTheme';
 import { ColumnContext, useTableStructure } from '../state/context';
+import { filteredColumns, isActiveFilter } from '../state/useFilters';
 import { defaultClasses } from '../theme/defaultTheme/defaultClasses';
 import ClearFiltersButton from './clearFiltersButton';
 import { ColumnFooter } from './columnFooter';
 
 // Memoized so that rendering the rows (e.g. on selection) leaves it alone.
 export const TableFooter = memo(function TableFooter() {
-  const { props, visibleColumns, activeColumns, filters, filterValues } = useTableStructure();
+  const { props, visibleColumns, activeColumns, filterValues } = useTableStructure();
   const classes = useTheme((t) => t.classes?.footerCell);
   const styles = useTheme((t) => t.styles?.footerCell);
   const { stickyFooter, enableClearFiltersButton } = props;
 
-  const hasActiveFilters = activeColumns.some((column) => {
-    const filter = filters.get(column.id);
-    const value = filterValues.get(column.id);
-    return filter !== undefined && value !== undefined && filter.isActive(value);
-  });
+  const hasActiveFilters = filteredColumns(props, visibleColumns).some((column) =>
+    isActiveFilter(column.filter, filterValues.get(column.id)),
+  );
   const hasFooter = activeColumns.some((column) => column.footer);
 
   return (

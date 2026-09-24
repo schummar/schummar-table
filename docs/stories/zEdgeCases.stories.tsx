@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { Table, TextFilter } from '../../src';
+import { Table, textFilter } from '../../src';
 import data, { type Person } from './_data';
 import { useEffect, useState } from 'react';
 
@@ -97,7 +97,7 @@ export const PeriodicRerenders = {
     columns: (col) => [
       col(() => 'x', {
         header: 'X',
-        filter: <TextFilter filterBy={(x: Person) => x.first_name} />,
+        filter: textFilter({ filterBy: (_x, person) => person.first_name }),
       }),
     ],
   },
@@ -141,7 +141,7 @@ export const ExpensiveCells = {
         col((x) => `${x.first_name} ${x.last_name}`, {
           id: `col${i}`,
           header: `Column ${i}`,
-          filter: <TextFilter />,
+          filter: textFilter(),
           renderCell: (value) => <ExpensiveCell value={value} ms={10} />,
           width: '1fr',
         }),

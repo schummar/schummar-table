@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'vite-plus/test';
 import { page, userEvent } from 'vite-plus/test/browser/context';
 import { render } from 'vitest-browser-react';
-import { Table, TextFilter } from '..';
+import { Table, textFilter } from '..';
 import CsvExporter from '../exporters/csvExporter';
 import type { TableProps } from '../types';
 import { persons, type Person } from './fixtures';
@@ -20,7 +20,7 @@ function PersonTable(props: Partial<TableProps<NestedPerson>>) {
         col((x) => x.first_name, {
           id: 'first_name',
           header: 'First name',
-          filter: <TextFilter />,
+          filter: textFilter(),
         }),
         col((x) => x.last_name, { id: 'last_name', header: 'Last name' }),
       ]}

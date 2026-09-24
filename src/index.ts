@@ -1,6 +1,4 @@
 export { AutoFocusTextField } from './components/autoFocusTextField';
-export { default as CombinedFilter, type CombinedFilterProps } from './components/combinedFilter';
-export { DateFilter } from './components/dateFilter';
 export {
   commonQuickOptions,
   dateClamp,
@@ -22,11 +20,12 @@ export type {
   DatePickerQuickOption,
   DateRange,
 } from './components/datePicker';
-export { RangeFilter } from './components/rangeFilter';
-export { SelectFilter } from './components/selectFilter';
 export { Table } from './components/table';
-export { TextFilter, exactCompare, prefixCompare, substringCompare } from './components/textFilter';
-export { useFilter } from './hooks/useFilter';
+export { dateFilter, type DateFilterOptions } from './filters/dateFilter';
+export { defineFilter, type FilterDefinition } from './filters/defineFilter';
+export { rangeFilter, type RangeFilterOptions } from './filters/rangeFilter';
+export { selectFilter, type SelectFilterOptions } from './filters/selectFilter';
+export { textFilter, type TextFilterOptions } from './filters/textFilter';
 export { useTheme } from './hooks/useTheme';
 export type { TableStateStorage } from './state/persistence';
 export * as helpers from './misc/helpers';
@@ -47,8 +46,9 @@ export type {
   Column,
   ColumnFactory,
   ColumnGenerator,
-  CommonFilterProps,
-  FilterImplementation,
+  Filter,
+  FilterComponentProps,
+  FilterOptions,
   Id,
   InternalColumn,
   PartialTableTheme,

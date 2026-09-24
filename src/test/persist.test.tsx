@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, test } from 'vite-plus/test';
 import { page, userEvent } from 'vite-plus/test/browser/context';
 import { createRoot } from 'react-dom/client';
 import { render } from 'vitest-browser-react';
-import { Table, TextFilter } from '..';
+import { Table, textFilter } from '..';
 import type { TableProps } from '../types';
 import { persons, type Person } from './fixtures';
 
@@ -26,7 +26,7 @@ function PersonTable(props: Partial<TableProps<Person>>) {
         col((x) => x.first_name, {
           id: 'first_name',
           header: 'First name',
-          filter: <TextFilter />,
+          filter: textFilter(),
         }),
         col((x) => x.last_name, { id: 'last_name', header: 'Last name' }),
       ]}
@@ -133,8 +133,7 @@ describe('persist', () => {
     await expect.poll(shownNames).toEqual(['Chelsey']);
   });
 
-  // render() wraps the mount in act(), which renders filter registration before the stored
-  // state loads. A real mount doesn't.
+  // render() wraps the mount in act(), which settles everything before the stored state loads.
   test('filter values are restored on a mount outside act', async () => {
     localStorage.setItem(
       storageKey(persistId),
@@ -157,6 +156,46 @@ describe('persist', () => {
       container.remove();
       actEnvironment.IS_REACT_ACT_ENVIRONMENT = previous;
     }
+  });
+
+  test('a restored cleared filter does not fall back to its default value', async () => {
+    localStorage.setItem(
+      storageKey(persistId),
+      JSON.stringify({ filterValues: { __map: [['first_name', null]] } }),
+    );
+    await renderPersons({
+      columns: (col) => [
+        col((x) => x.first_name, {
+          id: 'first_name',
+          header: 'First name',
+          filter: textFilter({ defaultValue: 'el' }),
+        }),
+      ],
+    });
+    await expect.poll(shownNames).toEqual(unsorted);
+  });
+
+  test('filters with persist: false are neither saved nor restored', async () => {
+    localStorage.setItem(
+      storageKey(persistId),
+      JSON.stringify({ filterValues: { __map: [['first_name', 'el']] } }),
+    );
+    await renderPersons({
+      columns: (col) => [
+        col((x) => x.first_name, {
+          id: 'first_name',
+          header: 'First name',
+          filter: textFilter({ persist: false }),
+        }),
+        col((x) => x.last_name, { id: 'last_name', header: 'Last name', filter: textFilter() }),
+      ],
+    });
+    await expect.poll(shownNames).toEqual(unsorted);
+
+    await filterFirstName('a');
+    await expect.poll(shownNames).toEqual(['Kassia', 'Dulcia', 'Thoma', 'Maurene']);
+    await new Promise((resolve) => setTimeout(resolve, 1500));
+    expect(stored()?.filterValues?.__map ?? []).not.toContainEqual(['first_name', 'a']);
   });
 
   test('a different persist id does not restore the state', async () => {

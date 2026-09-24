@@ -1,32 +1,22 @@
-import { useState, type ReactNode } from 'react';
+import { createRef, useState } from 'react';
 import { describe, expect, test, vi } from 'vite-plus/test';
 import { page, userEvent } from 'vite-plus/test/browser/context';
 import { render } from 'vitest-browser-react';
-import {
-  DateFilter,
-  exactCompare,
-  prefixCompare,
-  RangeFilter,
-  SelectFilter,
-  substringCompare,
-  Table,
-  TextFilter,
-} from '..';
-import CombinedFilter from '../components/combinedFilter';
-import type { TableProps } from '../types';
+import { dateFilter, defineFilter, rangeFilter, selectFilter, Table, textFilter } from '..';
+import type { Filter, Id, TableProps, TableRef } from '../types';
 import { persons, type Person } from './fixtures';
 
 const INACTIVE_COLOR = 'rgb(176, 186, 201)';
 const ALL_FIRST_NAMES = persons.map((p) => p.first_name);
 
 type Filters = {
-  firstName?: ReactNode;
-  lastName?: ReactNode;
-  jobTitle?: ReactNode;
-  birthday?: ReactNode;
+  firstName?: Filter<Person, string>;
+  lastName?: Filter<Person, string>;
+  jobTitle?: Filter<Person, string>;
+  birthday?: Filter<Person, Date>;
 };
 
-type ExtraProps = Pick<TableProps<Person>, 'enableClearFiltersButton' | 'onReset'>;
+type ExtraProps = Omit<Partial<TableProps<Person>>, 'columns'> & { ref?: React.Ref<TableRef> };
 
 function PersonTable({ filters, ...props }: { filters: Filters } & ExtraProps) {
   return (
@@ -74,7 +64,7 @@ function firstNames() {
     .map((e) => e.textContent);
 }
 
-// Filters are debounced by 500ms, so give polls some headroom.
+// Text filters are debounced by 300ms, so give polls some headroom.
 function expectFirstNames() {
   return expect.poll(firstNames, { timeout: 3000 });
 }
@@ -119,7 +109,7 @@ async function clickOption(name: string) {
 
 describe('TextFilter', () => {
   test('opens from the header and narrows rows by case-insensitive substring', async () => {
-    await renderPersons({ firstName: <TextFilter /> });
+    await renderPersons({ firstName: textFilter() });
     await expectFirstNames().toEqual(ALL_FIRST_NAMES);
 
     await openFilter('First Name');
@@ -131,7 +121,7 @@ describe('TextFilter', () => {
   });
 
   test('clearing the text restores all rows', async () => {
-    await renderPersons({ firstName: <TextFilter /> });
+    await renderPersons({ firstName: textFilter() });
     await openFilter('First Name');
     const input = page.getByRole('textbox');
     await input.fill('ar');
@@ -142,7 +132,7 @@ describe('TextFilter', () => {
   });
 
   test('the clear icon button resets the text', async () => {
-    await renderPersons({ firstName: <TextFilter /> });
+    await renderPersons({ firstName: textFilter() });
     await openFilter('First Name');
     const input = page.getByRole('textbox');
     await input.fill('ar');
@@ -154,12 +144,12 @@ describe('TextFilter', () => {
   });
 
   test('substringCompare matches anywhere', async () => {
-    await renderPersons({ firstName: <TextFilter compare={substringCompare} defaultValue="el" /> });
+    await renderPersons({ firstName: textFilter({ compare: 'contains', defaultValue: 'el' }) });
     await expectFirstNames().toEqual(namesOf((p) => p.first_name.toLowerCase().includes('el')));
   });
 
   test('exactCompare matches the whole value only, ignoring case', async () => {
-    await renderPersons({ firstName: <TextFilter compare={exactCompare} /> });
+    await renderPersons({ firstName: textFilter({ compare: 'exact' }) });
     await openFilter('First Name');
     const input = page.getByRole('textbox');
 
@@ -171,13 +161,13 @@ describe('TextFilter', () => {
   });
 
   test('prefixCompare matches the start of the value only', async () => {
-    await renderPersons({ firstName: <TextFilter compare={prefixCompare} defaultValue="ar" /> });
+    await renderPersons({ firstName: textFilter({ compare: 'prefix', defaultValue: 'ar' }) });
     await expectFirstNames().toEqual(['Arne']);
   });
 
   test('filterBy filters on a derived value', async () => {
     await renderPersons({
-      firstName: <TextFilter filterBy={(_name: string, person: Person) => person.last_name} />,
+      firstName: textFilter({ filterBy: (_name, person) => person.last_name }),
     });
     await openFilter('First Name');
     await page.getByRole('textbox').fill('cooke');
@@ -186,12 +176,10 @@ describe('TextFilter', () => {
 
   test('filterBy returning an array matches if any entry matches', async () => {
     await renderPersons({
-      firstName: (
-        <TextFilter
-          filterBy={(name: string, person: Person) => [name, person.last_name]}
-          defaultValue="co"
-        />
-      ),
+      firstName: textFilter({
+        filterBy: (name, person) => [name, person.last_name],
+        defaultValue: 'co',
+      }),
     });
     await expectFirstNames().toEqual(
       namesOf((p) => /co/i.test(p.first_name) || /co/i.test(p.last_name)),
@@ -199,7 +187,7 @@ describe('TextFilter', () => {
   });
 
   test('Enter closes the popover and keeps the filter', async () => {
-    await renderPersons({ firstName: <TextFilter /> });
+    await renderPersons({ firstName: textFilter() });
     await openFilter('First Name');
     const input = page.getByRole('textbox');
     await input.fill('ar');
@@ -212,7 +200,7 @@ describe('TextFilter', () => {
 
 describe('SelectFilter', () => {
   test('lists each distinct column value once', async () => {
-    await renderPersons({ jobTitle: <SelectFilter /> });
+    await renderPersons({ jobTitle: selectFilter() });
     await openFilter('Job Title');
 
     await page.getByRole('textbox').fill('paralegal');
@@ -221,7 +209,7 @@ describe('SelectFilter', () => {
   });
 
   test('virtual={false} renders all options', async () => {
-    await renderPersons({ jobTitle: <SelectFilter virtual={false} /> });
+    await renderPersons({ jobTitle: selectFilter({ virtual: false }) });
     await openFilter('Job Title');
 
     const distinct = new Set(persons.map((p) => p.job_title));
@@ -229,7 +217,7 @@ describe('SelectFilter', () => {
   });
 
   test('checking options limits rows to those values', async () => {
-    await renderPersons({ jobTitle: <SelectFilter /> });
+    await renderPersons({ jobTitle: selectFilter() });
     await openFilter('Job Title');
 
     await clickOption('Paralegal');
@@ -243,7 +231,7 @@ describe('SelectFilter', () => {
   });
 
   test('singleSelect replaces the previous selection', async () => {
-    await renderPersons({ jobTitle: <SelectFilter singleSelect /> });
+    await renderPersons({ jobTitle: selectFilter({ singleSelect: true }) });
     await openFilter('Job Title');
 
     await clickOption('Paralegal');
@@ -262,7 +250,7 @@ describe('RangeFilter', () => {
     { id: '4', name: 'Jill', age: 23 },
   ];
 
-  function renderAges(filter: ReactNode) {
+  function renderAges(filter: Filter<(typeof items)[number], number>) {
     return render(
       <Table
         items={items}
@@ -280,7 +268,7 @@ describe('RangeFilter', () => {
   }
 
   test('min and max inputs limit rows, placeholders show the data range', async () => {
-    await renderAges(<RangeFilter />);
+    await renderAges(rangeFilter());
     await openFilter('Age');
 
     const min = page.getByPlaceholder('20');
@@ -301,7 +289,7 @@ describe('RangeFilter', () => {
   });
 
   test('values are clamped to the min/max props', async () => {
-    await renderAges(<RangeFilter min={21} max={22} />);
+    await renderAges(rangeFilter({ min: 21, max: 22 }));
     await openFilter('Age');
 
     const min = page.getByPlaceholder('21');
@@ -318,23 +306,24 @@ describe('DateFilter', () => {
   const bornInNineties = namesOf((p) => p.birthday >= '1990' && p.birthday < '2000');
 
   test('defaultValue limits rows to the range', async () => {
-    await renderPersons({ birthday: <DateFilter defaultValue={nineties} /> });
+    await renderPersons({ birthday: dateFilter({ defaultValue: nineties }) });
     await expectFirstNames().toEqual(bornInNineties);
   });
 
   test('controlled value limits rows to the range', async () => {
-    await renderPersons({ birthday: <DateFilter value={nineties} /> });
+    await renderPersons(
+      { birthday: dateFilter() },
+      { filterValues: new Map([['birthday', nineties]]) },
+    );
     await expectFirstNames().toEqual(bornInNineties);
   });
 
   test('a quick option applies its range and closes the popover, reset clears it', async () => {
     await renderPersons({
-      birthday: (
-        <DateFilter
-          quickOptions={[{ label: 'Nineties', value: nineties }]}
-          defaultDateInView={nineties.min}
-        />
-      ),
+      birthday: dateFilter({
+        quickOptions: [{ label: 'Nineties', value: nineties }],
+        defaultDateInView: nineties.min,
+      }),
     });
     await openFilter('Birthday');
 
@@ -351,7 +340,7 @@ describe('DateFilter', () => {
 
 describe('combining filters', () => {
   test('multiple active filters are ANDed', async () => {
-    await renderPersons({ firstName: <TextFilter />, jobTitle: <SelectFilter /> });
+    await renderPersons({ firstName: textFilter(), jobTitle: selectFilter() });
 
     await openFilter('First Name');
     await page.getByRole('textbox').fill('ar');
@@ -366,7 +355,7 @@ describe('combining filters', () => {
 
 describe('active filter indicator', () => {
   test('header filter button is highlighted while its filter is active', async () => {
-    await renderPersons({ firstName: <TextFilter />, lastName: <TextFilter /> });
+    await renderPersons({ firstName: textFilter(), lastName: textFilter() });
     await expect.element(filterButton('First Name')).toHaveStyle({ color: INACTIVE_COLOR });
 
     await openFilter('First Name');
@@ -378,7 +367,7 @@ describe('active filter indicator', () => {
   });
 
   test('right-clicking the filter button resets the filter', async () => {
-    await renderPersons({ firstName: <TextFilter defaultValue="ar" /> });
+    await renderPersons({ firstName: textFilter({ defaultValue: 'ar' }) });
     await expectFirstNames().toHaveLength(3);
 
     await filterButton('First Name').click({ button: 'right' });
@@ -391,7 +380,7 @@ describe('clear filters button', () => {
   test('appears when a filter is active and clears all filters', async () => {
     const onReset = vi.fn();
     await renderPersons(
-      { firstName: <TextFilter defaultValue="a" />, jobTitle: <SelectFilter /> },
+      { firstName: textFilter({ defaultValue: 'a' }), jobTitle: selectFilter() },
       { enableClearFiltersButton: true, onReset },
     );
     const clear = page.getByRole('button', { name: 'Clear all filters' });
@@ -414,47 +403,40 @@ describe('external filters', () => {
     onChange,
     onReset,
   }: {
-    onChange: (value?: string) => void;
+    onChange: (values: Map<Id, unknown>) => void;
     onReset: (target: unknown) => void;
   }) {
-    const [value, setValue] = useState('');
+    const [filterValues, setFilterValues] = useState(new Map<Id, unknown>());
 
     return (
       <PersonTable
         enableClearFiltersButton
-        onReset={(target) => {
-          onReset(target);
-          setValue('');
+        onReset={onReset}
+        filterValues={filterValues}
+        onFilterValuesChange={(values) => {
+          onChange(values);
+          setFilterValues(values);
         }}
-        filters={{
-          firstName: (
-            <TextFilter
-              external
-              value={value}
-              onChange={(v) => {
-                onChange(v);
-                setValue(v ?? '');
-              }}
-            />
-          ),
-        }}
+        filters={{ firstName: textFilter({ external: true }) }}
       />
     );
   }
 
-  test('typing calls onChange but does not filter the items', async () => {
+  test('typing reports the value but does not filter the items', async () => {
     const onChange = vi.fn();
     await render(<ExternalTable onChange={onChange} onReset={() => undefined} />);
 
     await openFilter('First Name');
     await page.getByRole('textbox').fill('ar');
 
-    await expect.poll(() => onChange.mock.lastCall, { timeout: 3000 }).toEqual(['ar']);
+    await expect
+      .poll(() => onChange.mock.lastCall?.[0].get('first_name'), { timeout: 3000 })
+      .toBe('ar');
     await expect.element(filterButton('First Name')).not.toHaveStyle({ color: INACTIVE_COLOR });
     expect(firstNames()).toEqual(ALL_FIRST_NAMES);
   });
 
-  test('the clear filters button calls onReset', async () => {
+  test('the clear filters button clears the value and calls onReset', async () => {
     const onReset = vi.fn();
     await render(<ExternalTable onChange={() => undefined} onReset={onReset} />);
 
@@ -471,41 +453,206 @@ describe('external filters', () => {
   });
 });
 
-describe('CombinedFilter', () => {
-  test('exposes filters of columns hidden by display size', async () => {
-    await render(
-      <Table
-        items={persons}
-        id="id"
-        enableSelection={false}
-        displaySize="mobile"
-        columns={(col) => [
-          col((x) => x.first_name, {
-            id: 'first_name',
-            header: 'First Name',
-            displaySize: 'desktop',
-            filter: <TextFilter />,
-          }),
-          col((x) => x.last_name, {
-            id: 'last_name',
-            header: 'Last Name',
-            renderCell: (v) => <span data-testid="last-name">{v}</span>,
-            filter: <CombinedFilter />,
-          }),
-        ]}
-      />,
-    );
-    const lastNames = () =>
-      page
-        .getByTestId('last-name')
-        .elements()
-        .map((e) => e.textContent);
+describe('hidden columns', () => {
+  const hideFirstName = new Set<Id>(['first_name']);
 
-    await openFilter('Last Name');
+  test('keep their filter value but stop applying it', async () => {
+    function Toggle() {
+      const [hidden, setHidden] = useState(new Set<Id>());
+      return (
+        <>
+          <button onClick={() => setHidden(hidden.size ? new Set() : hideFirstName)}>toggle</button>
+          <PersonTable
+            filters={{ firstName: textFilter({ defaultValue: 'ar' }) }}
+            hiddenColumns={hidden}
+          />
+        </>
+      );
+    }
+    await render(<Toggle />);
+    // Kassia Nears doesn't match "ar".
+    const text = () => document.body.textContent ?? '';
+    await expect.poll(text).not.toContain('Nears');
+
+    await page.getByRole('button', { name: 'toggle' }).click();
+    await expect.poll(text).toContain('Nears');
+
+    await page.getByRole('button', { name: 'toggle' }).click();
+    await expect.poll(text).not.toContain('Nears');
+  });
+
+  test('with enableHiddenColumnFilters, their filters apply and are editable from the header', async () => {
+    await renderPersons(
+      { firstName: textFilter(), jobTitle: selectFilter() },
+      {
+        enableHiddenColumnFilters: true,
+        enableColumnSelection: false,
+        defaultHiddenColumns: hideFirstName,
+      },
+    );
+    const lastNames = () => document.body.textContent ?? '';
+    await expect.poll(lastNames).toContain('Nears');
+
+    await page.elementLocator(document.querySelector('[data-schummar-table] button')!).click();
+    await expect.element(page.getByText('Filters of hidden columns')).toBeVisible();
     await page.getByRole('button', { name: 'First Name' }).click();
     await page.getByRole('textbox').fill('ar');
 
-    await expect.poll(lastNames, { timeout: 3000 }).toEqual(['Petow', 'Leamon', 'Cyster']);
-    await expect.element(filterButton('Last Name')).not.toHaveStyle({ color: INACTIVE_COLOR });
+    await expect.poll(lastNames, { timeout: 3000 }).not.toContain('Nears');
+    expect(lastNames()).toContain('Cyster');
+  });
+});
+
+describe('controlled filter values', () => {
+  test('follow the parent and report changes without applying them', async () => {
+    const onChange = vi.fn();
+    function Parent() {
+      const [values, setValues] = useState(new Map<Id, unknown>([['first_name', 'ar']]));
+      return (
+        <>
+          <button onClick={() => setValues(new Map([['first_name', 'arne']]))}>arne</button>
+          <PersonTable
+            filters={{ firstName: textFilter(), jobTitle: selectFilter() }}
+            filterValues={values}
+            onFilterValuesChange={onChange}
+          />
+        </>
+      );
+    }
+    await render(<Parent />);
+    await expectFirstNames().toEqual(['Arne', 'Jarib', 'Eduard']);
+
+    await page.getByRole('button', { name: 'arne' }).click();
+    await expectFirstNames().toEqual(['Arne']);
+
+    await openFilter('Job Title');
+    await clickOption('Paralegal');
+    await expect
+      .poll(() => onChange.mock.lastCall?.[0].get('job_title'))
+      .toEqual(new Set(['Paralegal']));
+    expect(firstNames()).toEqual(['Arne']);
+  });
+
+  test('the table ref reads and sets filter values', async () => {
+    const ref = createRef<TableRef>();
+    await render(
+      <PersonTable ref={ref} filters={{ firstName: textFilter({ defaultValue: 'ar' }) }} />,
+    );
+    await expectFirstNames().toEqual(['Arne', 'Jarib', 'Eduard']);
+    expect(ref.current!.getFilterValues().get('first_name')).toBe('ar');
+
+    ref.current!.setFilterValues(new Map([['first_name', 'arne']]));
+    await expectFirstNames().toEqual(['Arne']);
+  });
+
+  test('clearing filters clears hidden columns too', async () => {
+    const onChange = vi.fn();
+    await renderPersons(
+      { firstName: textFilter({ defaultValue: 'a' }), lastName: textFilter({ defaultValue: 'o' }) },
+      {
+        enableClearFiltersButton: true,
+        defaultHiddenColumns: new Set(['last_name']),
+        onFilterValuesChange: onChange,
+      },
+    );
+    await page.getByRole('button', { name: 'Clear all filters' }).click();
+    await expect
+      .poll(() => onChange.mock.lastCall?.[0])
+      .toEqual(
+        new Map<Id, unknown>([
+          ['first_name', undefined],
+          ['last_name', undefined],
+        ]),
+      );
+  });
+});
+
+describe('filter descriptors', () => {
+  function countingFilter() {
+    const calls = { render: 0, test: 0 };
+    const filter = defineFilter<string, string>({
+      isActive: (value) => !!value,
+      test: (value, x) => {
+        calls.test++;
+        return x.includes(value);
+      },
+      Component: ({ value, onChange }) => {
+        calls.render++;
+        return (
+          <input
+            aria-label="counting"
+            value={value ?? ''}
+            onChange={(e) => onChange(e.target.value)}
+          />
+        );
+      },
+    });
+    return { calls, filter };
+  }
+
+  test('the filter UI only renders while open', async () => {
+    const { calls, filter } = countingFilter();
+    await renderPersons({ firstName: filter() });
+    await expectFirstNames().toEqual(ALL_FIRST_NAMES);
+    expect(calls.render).toBe(0);
+
+    await openFilter('First Name');
+    await page.getByRole('textbox', { name: 'counting' }).fill('Ar');
+    await expectFirstNames().toEqual(['Arne']);
+    expect(calls.render).toBeGreaterThan(0);
+
+    closePopovers();
+    await expect.element(page.getByRole('textbox', { name: 'counting' })).not.toBeInTheDocument();
+  });
+
+  test('default values filter the first render', async () => {
+    await renderPersons({ firstName: textFilter({ compare: 'prefix', defaultValue: 'ar' }) });
+    expect(firstNames()).toEqual(['Arne']);
+  });
+
+  test('filters created inline on each render do not refilter', async () => {
+    const { calls, filter } = countingFilter();
+    const firstName = (person: Person) => person.first_name;
+    function Parent() {
+      const [count, setCount] = useState(0);
+      return (
+        <>
+          <button onClick={() => setCount(count + 1)}>rerender {count}</button>
+          <Table
+            items={persons}
+            id="id"
+            columns={[
+              { id: 'first_name', value: firstName, filter: filter({ defaultValue: 'a' }) },
+            ]}
+          />
+        </>
+      );
+    }
+    await render(<Parent />);
+    await expect.poll(() => calls.test).toBeGreaterThan(0);
+    const testCalls = calls.test;
+
+    await page.getByRole('button', { name: 'rerender 0' }).click();
+    await expect.element(page.getByRole('button', { name: 'rerender 1' })).toBeInTheDocument();
+    expect(calls.test).toBe(testCalls);
+  });
+
+  test('onFilterValuesChange reports values, defaults included', async () => {
+    const onChange = vi.fn();
+    await renderPersons(
+      { firstName: textFilter({ defaultValue: 'a' }), jobTitle: selectFilter() },
+      { onFilterValuesChange: onChange },
+    );
+    await openFilter('Job Title');
+    await clickOption('Paralegal');
+
+    await expect
+      .poll(() => onChange.mock.lastCall?.[0])
+      .toEqual(
+        new Map<Id, unknown>([
+          ['first_name', 'a'],
+          ['job_title', new Set(['Paralegal'])],
+        ]),
+      );
   });
 });

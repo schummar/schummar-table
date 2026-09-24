@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { describe, expect, test, vi } from 'vite-plus/test';
 import { type Locator, page, userEvent } from 'vite-plus/test/browser/context';
 import { render, type RenderResult } from 'vitest-browser-react';
-import { Table, TextFilter, useTableActions } from '..';
+import { Table, textFilter, useTableActions } from '..';
 import type { Id, TableProps } from '../types';
 import { persons, renderTable, type Person } from './fixtures';
 
@@ -93,7 +93,7 @@ describe('selection', () => {
           col((x) => x.job_title, {
             id: 'job',
             header: 'Job',
-            filter: <TextFilter defaultValue="Paralegal" />,
+            filter: textFilter({ defaultValue: 'Paralegal' }),
           }),
         ],
         onSelectionChange,

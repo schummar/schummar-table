@@ -1,6 +1,5 @@
 import type { Column } from '../../src';
-import { DateFilter, SelectFilter, TextFilter } from '../../src';
-import CombinedFilter from '../../src/components/combinedFilter';
+import { dateFilter, selectFilter, textFilter } from '../../src';
 import type { ColumnFactory } from '../../src/types';
 import type { Person } from './_data';
 
@@ -18,27 +17,27 @@ const _defaultColumns = (col: ColumnFactory<Person>) => [
   col((x) => x.first_name, {
     id: 'first_name',
     header: 'First Name',
-    filter: <TextFilter />,
+    filter: textFilter(),
     width: '30ch',
   }),
 
   col((x) => x.last_name, {
     id: 'last_name',
     header: 'Last Name',
-    filter: <TextFilter />,
+    filter: textFilter(),
     width: '30ch',
   }),
 
   col((x) => x.job_title, {
     header: 'Job Title',
-    filter: <SelectFilter />,
+    filter: selectFilter(),
     width: '30ch',
   }),
 
   col((x) => new Date(x.birthday), {
     header: 'Birthday',
     renderCell: (birthday) => dateFormat.format(birthday),
-    filter: <DateFilter maxDate={new Date()} />,
+    filter: dateFilter({ maxDate: new Date() }),
   }),
 ];
 
@@ -84,7 +83,6 @@ export const mobileColumn: Column<Person, Person> = {
       </div>
     );
   },
-  filter: <CombinedFilter />,
   width: '1fr',
   styles: {
     cell: {

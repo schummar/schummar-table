@@ -1,4 +1,4 @@
-import { useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useTableTheme } from '../hooks/useTheme';
 import { getAncestors, getDescendants } from '../misc/helpers';
 import type {
@@ -25,13 +25,14 @@ function withEntry<K, V>(map: Map<K, V>, key: K, value: V | undefined) {
   return result;
 }
 
-export function useTable<T>(raw: TableProps<T>, onReset: () => void) {
+/** `isReset`: whether this state replaces one that got reset. */
+export function useTable<T>(raw: TableProps<T>, onReset: () => void, isReset = false) {
   const { props, displaySize } = useTableProps(raw);
   const theme = useTableTheme(props);
   const columns = useColumns(props, displaySize);
   const sort = useSort(props, columns.activeColumns);
   const { items, itemsById } = useItems(props, sort.criteria);
-  const filters = useFilters(columns.activeColumns, items);
+  const filters = useFilters(props, columns.visibleColumns, items);
   const expanded = useExpanded(props, itemsById, filters.matching);
   const { activeItems, activeItemsById } = useActiveItems(
     items,
@@ -48,7 +49,6 @@ export function useTable<T>(raw: TableProps<T>, onReset: () => void) {
     expanded: expanded.expanded,
     hiddenColumns: columns.hiddenColumns,
     columnWidths: columns.columnWidths,
-    filters: filters.filters,
     filterValues: filters.filterValues,
     columns: columns.columns,
     activeColumns: columns.activeColumns,
@@ -60,6 +60,8 @@ export function useTable<T>(raw: TableProps<T>, onReset: () => void) {
   };
 
   const { persist } = props;
+  const isFilterPersisted = (columnId: Id) =>
+    props.columns.find((column) => column.id === columnId)?.filter?.persist !== false;
   const persistData = useMemo(() => {
     const data: PersistedData = {};
     if (!persist) return data;
@@ -75,13 +77,8 @@ export function useTable<T>(raw: TableProps<T>, onReset: () => void) {
     add('columnWidths', columns.columnWidths);
     add(
       'filterValues',
-      new Map([
-        ...filters.pendingValues.current,
-        ...[...filters.filterValues].filter(([columnId]) => {
-          const filter = filters.filters.get(columnId);
-          return filter?.persist ?? filter?.value === undefined;
-        }),
-      ]),
+      new Map([...filters.stored].filter(([columnId]) => isFilterPersisted(columnId))),
+      props.filterValues !== undefined,
     );
 
     return data;
@@ -95,12 +92,13 @@ export function useTable<T>(raw: TableProps<T>, onReset: () => void) {
     expanded.expanded,
     columns.hiddenColumns,
     columns.columnWidths,
-    filters.filterValues,
-    filters.filters,
+    filters.stored,
+    props.columns,
     props.sort !== undefined,
     props.selection !== undefined,
     props.expanded !== undefined,
     props.hiddenColumns !== undefined,
+    props.filterValues !== undefined,
   ]);
 
   const latest = useRef({ state, sort, selection, expanded, columns, filters, onReset });
@@ -111,6 +109,8 @@ export function useTable<T>(raw: TableProps<T>, onReset: () => void) {
   function restore(data: PersistedData) {
     const { state, sort, selection, expanded, columns, filters } = latest.current;
     const { props } = state;
+    const isFilterPersisted = (columnId: Id) =>
+      props.columns.find((column) => column.id === columnId)?.filter?.persist !== false;
 
     if (data.sort && props.sort === undefined) sort.setSort(data.sort);
     if (data.selection && props.selection === undefined) selection.setSelection(data.selection);
@@ -120,16 +120,21 @@ export function useTable<T>(raw: TableProps<T>, onReset: () => void) {
     }
     if (data.columnWidths) columns.setColumnWidths(data.columnWidths);
 
-    for (const [columnId, value] of (data.filterValues as Map<Id, unknown> | undefined) ?? []) {
-      const filter = filters.registry.current.get(columnId);
-      if (!filter) {
-        filters.pendingValues.current.set(columnId, value);
-      } else if (filter.persist ?? filter.value === undefined) {
-        filters.setInternalValues((values) => withEntry(values, columnId, value));
-        filter.onChange?.(value);
+    const filterValues = data.filterValues as Map<Id, unknown> | undefined;
+    if (filterValues && props.filterValues === undefined) {
+      const next = new Map(state.filterValues);
+      for (const [columnId, value] of filterValues) {
+        if (isFilterPersisted(columnId)) next.set(columnId, value);
       }
+      filters.setFilterValues(next);
     }
   }
+
+  useEffect(() => {
+    if (isReset && props.filterValues === undefined) {
+      props.onFilterValuesChange?.(filters.filterValues);
+    }
+  }, []);
 
   const [isHydrated, clearStorage] = usePersistence(persist, persistData, restore, props.debug);
   const clearStorageRef = useRef(clearStorage);
@@ -221,59 +226,27 @@ export function useTable<T>(raw: TableProps<T>, onReset: () => void) {
         get().columns.setColumnWidths((widths) => withEntry(widths, columnId, width));
       },
 
-      registerFilter(columnId, filter) {
-        const { filters } = get();
-        filters.registry.current.set(columnId, filter);
-        filters.setFilters(new Map(filters.registry.current));
-
-        const pending = filters.pendingValues.current.get(columnId);
-        if (pending !== undefined) {
-          filters.pendingValues.current.delete(columnId);
-        }
-
-        if (pending !== undefined && (filter.persist ?? filter.value === undefined)) {
-          filters.setInternalValues((values) => withEntry(values, columnId, pending));
-          filter.onChange?.(pending);
-        } else if (filter.defaultValue !== undefined && filter.value === undefined) {
-          filters.setInternalValues((values) =>
-            values.has(columnId) ? values : withEntry(values, columnId, filter.defaultValue),
-          );
-        }
-
-        return () => {
-          if (filters.registry.current.get(columnId) !== filter) return;
-          filters.registry.current.delete(columnId);
-          filters.setFilters(new Map(filters.registry.current));
-          // A filter that is no longer rendered (its column got hidden) stops filtering for good.
-          filters.setInternalValues((values) => withEntry(values, columnId, undefined));
-          filters.setControlledValues((values) => withEntry(values, columnId, undefined));
-        };
+      setFilterValues(filterValues) {
+        get().filters.setFilterValues(filterValues);
+        patchState({ filterValues });
       },
 
       setFilterValue(columnId, value) {
-        const { filters } = get();
-        const filter = filters.registry.current.get(columnId);
-        if (!filter) return;
-
-        filter.onChange?.(value);
-        if (filter.value === undefined) {
-          filters.setInternalValues((values) => withEntry(values, columnId, value));
-        }
-      },
-
-      syncControlledFilterValue(columnId, value) {
-        get().filters.setControlledValues((values) =>
-          values.get(columnId) === value ? values : withEntry(values, columnId, value),
-        );
+        const { state, filters } = get();
+        const next = new Map(state.filterValues);
+        next.set(columnId, value);
+        filters.setFilterValues(next);
+        patchState({ filterValues: next });
       },
 
       clearFilters() {
         const { state, filters } = get();
-        filters.setInternalValues((values) => {
-          const next = new Map(values);
-          for (const column of state.activeColumns) next.delete(column.id);
-          return next;
-        });
+        const next = new Map(state.filterValues);
+        for (const column of state.props.columns) {
+          if (column.filter) next.set(column.id, undefined);
+        }
+        filters.setFilterValues(next);
+        patchState({ filterValues: next });
         state.props.onReset?.('filters');
       },
 
@@ -292,7 +265,6 @@ export function useTable<T>(raw: TableProps<T>, onReset: () => void) {
       sort: sortValue,
       hiddenColumns,
       columnWidths,
-      filters: state.filters,
       filterValues,
       columns: allColumns,
       activeColumns,
@@ -307,7 +279,6 @@ export function useTable<T>(raw: TableProps<T>, onReset: () => void) {
       sortValue,
       hiddenColumns,
       columnWidths,
-      state.filters,
       filterValues,
       allColumns,
       activeColumns,
@@ -339,5 +310,6 @@ export function useTable<T>(raw: TableProps<T>, onReset: () => void) {
     setSelectionInternal: selection.setSelectionInternal,
     setExpandedInternal: expanded.setExpandedInternal,
     setHiddenColumnsInternal: columns.setHiddenColumnsInternal,
+    setFilterValuesInternal: filters.setFilterValuesInternal,
   };
 }

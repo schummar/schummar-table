@@ -1,5 +1,5 @@
 import type { Meta } from '@storybook/react-vite';
-import { RangeFilter, Table } from '../../src';
+import { rangeFilter, Table } from '../../src';
 import css from './styles.module.css';
 
 const items = [
@@ -36,7 +36,7 @@ export const Primary = {
       }),
       col((x: any) => x.age, {
         header: 'Age',
-        filter: <RangeFilter min={-42} />,
+        filter: rangeFilter({ min: -42 }),
       }),
     ],
     fullWidth: true,

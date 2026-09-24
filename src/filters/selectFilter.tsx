@@ -1,36 +1,15 @@
 import type { ReactElement, ReactNode } from 'react';
-import { useEffect, useMemo, useState } from 'react';
-import { useFilter } from '../hooks/useFilter';
+import { useMemo, useState } from 'react';
+import { AutoFocusTextField } from '../components/autoFocusTextField';
+import { FormControlLabel } from '../components/formControlLabel';
+import type { VirtualListProps } from '../components/virtualList';
+import { VirtualList } from '../components/virtualList';
 import { useTheme } from '../hooks/useTheme';
-import { asString, castArray, flatMap, orderBy, uniq } from '../misc/helpers';
-import { useColumnContext, useTableStructure } from '../state/context';
-import type { CommonFilterProps, InternalColumn } from '../types';
-import { AutoFocusTextField } from './autoFocusTextField';
-import { FormControlLabel } from './formControlLabel';
-import type { VirtualListProps } from './virtualList';
-import { VirtualList } from './virtualList';
+import { asString, orderBy, uniq } from '../misc/helpers';
+import type { Filter, FilterComponentProps, FilterOptions } from '../types';
+import { createFilter, type FilterDefinition } from './defineFilter';
 
-function toggle<T>(set: Set<T>, value: T, singleSelect?: boolean) {
-  const newSet = new Set(singleSelect ? [] : set);
-  if (set.has(value)) {
-    newSet.delete(value);
-  } else {
-    newSet.add(value);
-  }
-
-  return newSet;
-}
-
-export function SelectFilter<TItem, TColumnValue, TFilterBy>({
-  options: providedOptions,
-  stringValue = asString,
-  render = stringValue,
-  singleSelect,
-  hideSearchField,
-  hideResetButton,
-  virtual,
-  ...props
-}: {
+export interface SelectFilterOptions<TFilterBy> {
   /** Which options are provided to select. By default all unique item values are used. */
   options?: TFilterBy[];
   /** String representation of a value. Used to filter options via the text field. */
@@ -46,63 +25,57 @@ export function SelectFilter<TItem, TColumnValue, TFilterBy>({
   /** Virtual list props.
    * @default true */
   virtual?: VirtualListProps<unknown>['virtual'];
-} & CommonFilterProps<TItem, TColumnValue, TFilterBy, Set<TFilterBy>>): ReactElement {
+}
+
+function toggle<T>(set: Set<T>, value: T, singleSelect?: boolean) {
+  const newSet = new Set(singleSelect ? [] : set);
+  if (set.has(value)) {
+    newSet.delete(value);
+  } else {
+    newSet.add(value);
+  }
+
+  return newSet;
+}
+
+function SelectFilterComponent({
+  value: currentValue,
+  onChange,
+  options: {
+    options: providedOptions,
+    stringValue = asString,
+    render = stringValue,
+    singleSelect,
+    hideSearchField,
+    hideResetButton,
+    virtual,
+  },
+  getValues,
+}: FilterComponentProps<unknown, Set<unknown>, SelectFilterOptions<unknown>>): ReactElement {
   const IconButton = useTheme((t) => t.components.IconButton);
   const Checkbox = useTheme((t) => t.components.Checkbox);
+  const Button = useTheme((t) => t.components.Button);
   const Search = useTheme((t) => t.icons.Search);
   const Clear = useTheme((t) => t.icons.Clear);
   const deselectAll = useTheme((t) => t.text.deselectAll);
   const noResults = useTheme((t) => t.text.noResults);
 
-  const { items, activeColumns } = useTableStructure<TItem>();
-  const columnId = useColumnContext();
+  const value = currentValue ?? new Set<unknown>();
 
-  const {
-    value = new Set<TFilterBy>(),
-    onChange,
-    filterBy,
-    isActive,
-  } = useFilter({
-    ...props,
-
-    id: 'selectFilter',
-
-    isActive(filterValue) {
-      return filterValue.size > 0;
-    },
-
-    test(filterValue, value) {
-      return filterValue.has(value);
-    },
-  });
-
-  const column = activeColumns.find((column) => column.id === columnId) as
-    | InternalColumn<TItem, TColumnValue>
-    | undefined;
-
-  const options = useMemo(() => {
-    if (providedOptions) return uniq(providedOptions);
-    if (!column) return [];
-
-    return orderBy(
-      uniq(flatMap(items, (item) => castArray(filterBy(column.value(item.value), item.value)))),
-    );
-  }, [providedOptions, column, items, filterBy]);
+  const options = useMemo(
+    () => (providedOptions ? uniq(providedOptions) : orderBy(getValues())),
+    [providedOptions, getValues],
+  );
 
   const [query, setQuery] = useState('');
+  // Selected options come first, as they were when the filter opened.
+  const [initialValue] = useState(value);
   const filtered = options.filter(
     (option) => !query || stringValue(option).toLowerCase().includes(query.toLowerCase()),
   );
-  const delayedValue = useMemo(() => value, [isActive]);
   const ordered = filtered
-    .filter((option) => delayedValue.has(option))
-    .concat(filtered.filter((option) => !delayedValue.has(option)));
-
-  const Button = useTheme((t) => t.components.Button);
-
-  useEffect(() => {
-    setQuery('');
-  }, [isActive]);
+    .filter((option) => initialValue.has(option))
+    .concat(filtered.filter((option) => !initialValue.has(option)));
 
   return (
     <div
@@ -169,4 +142,19 @@ export function SelectFilter<TItem, TColumnValue, TFilterBy>({
       {ordered.length === 0 && <span css={{ textAlign: 'center' }}>{noResults}</span>}
     </div>
   );
+}
+
+const definition: FilterDefinition<unknown, Set<unknown>, SelectFilterOptions<unknown>> = {
+  isActive: (value) => value.size > 0,
+  test: (value, x) => value.has(x),
+  Component: SelectFilterComponent,
+};
+
+type ElementOf<T> = T extends readonly (infer U)[] ? U : T;
+
+export function selectFilter<TItem, TColumnValue, TFilterBy = ElementOf<TColumnValue>>(
+  options?: FilterOptions<TItem, TColumnValue, TFilterBy, Set<TFilterBy>> &
+    SelectFilterOptions<TFilterBy>,
+): Filter<TItem, TColumnValue, TFilterBy, Set<TFilterBy>, SelectFilterOptions<TFilterBy>> {
+  return createFilter(definition as any, options ?? {});
 }

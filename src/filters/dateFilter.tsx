@@ -1,8 +1,8 @@
 import type { ReactElement } from 'react';
-import { useFilter } from '../hooks/useFilter';
-import type { CommonFilterProps } from '../types';
-import type { DatePickerProps, DateRange } from './datePicker';
-import { dateIntersect, DatePicker } from './datePicker';
+import type { DatePickerProps, DateRange } from '../components/datePicker';
+import { dateIntersect, DatePicker } from '../components/datePicker';
+import type { FilterComponentProps } from '../types';
+import { defineFilter } from './defineFilter';
 
 function convertDate(x: unknown): Date | null {
   if (x instanceof Date) return x;
@@ -26,19 +26,9 @@ function convertDateOrArray(x: unknown): Date | DateRange | (Date | DateRange)[]
   return convertDateOrRange(x);
 }
 
-export function DateFilter<TItem, TColumnValue>({
-  locale,
-  firstDayOfWeek,
-  defaultDateInView,
-  quickOptions,
-  singleSelect,
-  filterBy = convertDateOrArray,
-  minDate,
-  maxDate,
-  showCalendarWeek,
-  showTime,
-  ...props
-}: {
+type DateValue = Date | DateRange | null;
+
+export type DateFilterOptions = {
   /** If enabled, only single days can be selected. Ranges otherwise. */
   singleSelect?: boolean;
 } & Pick<
@@ -51,32 +41,24 @@ export function DateFilter<TItem, TColumnValue>({
   | 'maxDate'
   | 'showCalendarWeek'
   | 'showTime'
-> &
-  CommonFilterProps<
-    TItem,
-    TColumnValue,
-    Date | DateRange | null,
-    Date | DateRange | null
-  >): ReactElement {
-  const {
-    value = null,
-    onChange,
-    close,
-  } = useFilter({
-    ...props,
-    filterBy,
+>;
 
-    id: 'dateFilter',
-
-    isActive(filterValue) {
-      return !!filterValue;
-    },
-
-    test(filterValue, value) {
-      return dateIntersect(filterValue, value);
-    },
-  });
-
+function DateFilterComponent({
+  value = null,
+  onChange,
+  close,
+  options: {
+    locale,
+    firstDayOfWeek,
+    defaultDateInView,
+    quickOptions,
+    singleSelect,
+    minDate,
+    maxDate,
+    showCalendarWeek,
+    showTime,
+  },
+}: FilterComponentProps<DateValue, DateValue, DateFilterOptions>): ReactElement {
   return (
     <div
       css={{
@@ -86,7 +68,7 @@ export function DateFilter<TItem, TColumnValue>({
     >
       <DatePicker
         rangeSelect={!singleSelect}
-        value={value}
+        value={value ?? null}
         onChange={(value, source) => {
           onChange(value);
           if (source !== 'input') {
@@ -105,3 +87,10 @@ export function DateFilter<TItem, TColumnValue>({
     </div>
   );
 }
+
+export const dateFilter = defineFilter<DateValue, DateValue, DateFilterOptions>({
+  isActive: (value) => !!value,
+  test: (value, x) => dateIntersect(value, x),
+  filterBy: convertDateOrArray,
+  Component: DateFilterComponent,
+});

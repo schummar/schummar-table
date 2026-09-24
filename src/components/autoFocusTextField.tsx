@@ -1,8 +1,7 @@
 import type { ComponentType } from 'react';
-import { useContext, useLayoutEffect, useRef } from 'react';
+import { useLayoutEffect, useRef } from 'react';
 import { useTheme } from '../hooks/useTheme';
 import type { TableTheme } from '../types';
-import { FilterControlContext } from './filterControl';
 
 type Props = TableTheme['components']['TextField'] extends ComponentType<infer T> ? T : never;
 
@@ -10,15 +9,11 @@ export function AutoFocusTextField(props: Omit<Props, 'inputRef'>) {
   const TextField = useTheme((t) => t.components.TextField);
 
   const ref = useRef<HTMLInputElement>(null);
-  const { isActive } = useContext(FilterControlContext);
-
+  // Filters mount when their popover opens. The popover positions itself first.
   useLayoutEffect(() => {
-    if (isActive && ref.current) {
-      setTimeout(() => {
-        ref.current?.focus();
-      });
-    }
-  }, [isActive]);
+    const timeout = setTimeout(() => ref.current?.focus());
+    return () => clearTimeout(timeout);
+  }, []);
 
   return (
     <TextField

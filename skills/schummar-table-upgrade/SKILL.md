@@ -170,9 +170,73 @@ actions.resetTable();
 
 No action needed for most consumers. If code narrows or reconstructs `TableItem` objects manually (e.g. in tests or mocks), add the `depth` field.
 
-## 10. `useFilter` unchanged, but timing note
+## 10. Filters are descriptors, filter values are table state
 
-`useFilter` (custom filters) keeps its existing API — no signature changes. One behavioral note: filter implementation functions (`test`, `isActive`, `filterBy`) are read when filtering runs; changing only those functions (new identity, same behavior otherwise) does not itself trigger re-filtering. If a custom filter needs to re-run when one of these functions' _closed-over values_ change, make sure that value is also reflected in the filter's `value`/dependency the table already re-filters on — don't rely on function identity alone.
+Filter components are replaced by factories returning a plain descriptor. The filter UI only mounts while its popover is open.
+
+`grep -rnE '<(TextFilter|SelectFilter|RangeFilter|DateFilter|CombinedFilter)\b|useFilter\b|FilterImplementation|CommonFilterProps|(substring|prefix|exact)Compare' src/`
+
+Before → after:
+
+```tsx
+filter: <TextFilter />                                  filter: textFilter()
+filter: <TextFilter compare={prefixCompare} />          filter: textFilter({ compare: 'prefix' })
+filter: <TextFilter compare={substringCompare} />       filter: textFilter({ compare: 'contains' })
+filter: <TextFilter compare={exactCompare} />           filter: textFilter({ compare: 'exact' })
+filter: <TextFilter compare={(a, b) => …} />            filter: textFilter({ compare: (a, b) => … })
+filter: <SelectFilter singleSelect virtual={false} />   filter: selectFilter({ singleSelect: true, virtual: false })
+filter: <RangeFilter min={0} />                         filter: rangeFilter({ min: 0 })
+filter: <DateFilter maxDate={d} defaultValue={r} />     filter: dateFilter({ maxDate: d, defaultValue: r })
+```
+
+Every prop becomes an option of the same name. `filterBy` is now typed from the column (`(value, item) => …`), so drop explicit parameter annotations. Keep options plain data where possible: inline descriptors are compared deeply with functions by reference, so an inline `compare`/`render`/`filterBy` arrow makes the column change on every render (hoist it or let the compiler memoize it).
+
+**Controlled values moved to the table.** The per-filter `value` and `onChange` are gone. Use `filterValues` / `defaultFilterValues` / `onFilterValuesChange` on the table: a `Map` from column id to filter value. Give filtered columns an explicit `id`.
+
+```tsx
+// before
+col((x) => x.first_name, {
+  filter: <TextFilter external value={name} onChange={(v) => setName(v ?? '')} />,
+});
+// after
+const [filterValues, setFilterValues] = useState(new Map<Id, unknown>());
+<Table
+  filterValues={filterValues}
+  onFilterValuesChange={setFilterValues}
+  columns={(col) => [
+    col((x) => x.first_name, { id: 'first_name', filter: textFilter({ external: true }) }),
+  ]}
+/>;
+const name = (filterValues.get('first_name') as string | undefined) ?? '';
+```
+
+A column without an entry uses its filter's `defaultValue`; a cleared filter has an entry with value `undefined`. Clearing filters reports the cleared values through `onFilterValuesChange`. Resetting the table does too when filter values are uncontrolled; with controlled `filterValues`, reset them in `onReset` (scope `'table'`) like you do for `sort`.
+
+**`CombinedFilter` → `enableHiddenColumnFilters`.** Remove the `CombinedFilter` column filter and set `enableHiddenColumnFilters` on the table: a button in the header lists the filters of hidden columns (by display size or column selection) and keeps them applied.
+
+**Hidden columns keep their filter value.** Previously hiding a column cleared its filter. Now the value is kept and ignored while the column is hidden (applied with `enableHiddenColumnFilters`). `actions.clearFilters()` clears all filters, hidden ones included.
+
+**Custom filters.** `useFilter` is removed. Rewrite with `defineFilter`:
+
+```tsx
+const myFilter = defineFilter<TFilterBy, TValue, MyOptions>({
+  isActive: (value, options) => …,
+  test: (value, x, options) => …,
+  filterBy: (columnValue, item) => …,    // optional default
+  debounce: 300,                         // optional, for typing-heavy UIs
+  Component: ({ value, onChange, close, options, getValues }) => …,
+});
+// column: filter: myFilter({ …MyOptions, defaultValue, filterBy, external, persist })
+```
+
+The component no longer reads the table context for its value: it gets `value`/`onChange` (debounced by the table when `debounce` is set), `close()`, and `getValues()` for the distinct `filterBy` values of all items.
+
+- Only `textFilter` is debounced now (300 ms instead of 500 ms for every filter); select, range and date filters apply immediately.
+- New theme text `text.hiddenColumnFilters`: add it to translated themes.
+- `AutoFocusTextField` now focuses whenever it mounts, not only inside an open filter popover.
+- **Type safety caveat:** without `filterBy`, a factory's column value type can't be inferred from `col(...)` and falls back to `any`, so e.g. `selectFilter({ defaultValue })` is not checked against the column. `filterBy` parameters are typed.
+- `TableState.filters` and the actions `registerFilter`/`syncControlledFilterValue` are gone; `actions.setFilterValues(map)` was added. `TableRef` gained `getFilterValues`/`setFilterValues`.
+- **Needs human review:** code that relied on a filter's `onChange` firing (e.g. analytics) → use `onFilterValuesChange`.
 
 ## 11. `debugRender` messages changed
 

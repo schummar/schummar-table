@@ -6,7 +6,7 @@ import { useColumnContext, useTableStructure } from '../state/context';
 export const columnWidthVariable = (index: number) => `--column-width-${index}`;
 
 export function ResizeHandle() {
-  const { props, visibleColumns, filters, actions } = useTableStructure();
+  const { props, visibleColumns, actions } = useTableStructure();
   const columnId = useColumnContext();
   const enabled = props.enableColumnResize;
   const index = visibleColumns.findIndex((column) => column.id === columnId);
@@ -31,7 +31,7 @@ export function ResizeHandle() {
 
   function widthAt(event: React.PointerEvent<HTMLDivElement>) {
     const header = event.currentTarget.parentElement!;
-    const minWidth = filters.has(columnId) ? 80 : 50;
+    const minWidth = visibleColumns.find((column) => column.id === columnId)?.filter ? 80 : 50;
     return Math.max(event.clientX - header.getBoundingClientRect().left + 5, minWidth);
   }
 

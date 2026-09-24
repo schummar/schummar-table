@@ -1,6 +1,16 @@
 import { describe, expect, test } from 'vite-plus/test';
-import { exactCompare, prefixCompare, substringCompare } from '../components/textFilter';
+import { textFilter, type TextFilterOptions } from '../filters/textFilter';
 import { termMatch, textMatch } from './textMatch';
+
+function compareWith(compare: TextFilterOptions['compare']) {
+  const filter = textFilter({ compare });
+  return (itemValue: string, filterValue: string) =>
+    filter.test(filterValue, itemValue, filter.options);
+}
+
+const substringCompare = compareWith('contains');
+const exactCompare = compareWith('exact');
+const prefixCompare = compareWith('prefix');
 
 describe('termMatch', () => {
   test('matches when query chars appear in order as a subsequence', () => {

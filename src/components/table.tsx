@@ -15,19 +15,29 @@ import { TableLoadingState } from './tableLoadingState';
 
 export function Table<T>({ ref, ...props }: TableProps<T> & { ref?: Ref<TableRef> }): ReactElement {
   const [resetKey, onReset] = useTableReset(props);
-  return <TableWithState key={resetKey} props={props} tableRef={ref} onReset={onReset} />;
+  return (
+    <TableWithState
+      key={resetKey}
+      props={props}
+      tableRef={ref}
+      onReset={onReset}
+      isReset={resetKey > 0}
+    />
+  );
 }
 
 function TableWithState<T>({
   props,
   tableRef,
   onReset,
+  isReset,
 }: {
   props: TableProps<T>;
   tableRef?: Ref<TableRef>;
   onReset: () => void;
+  isReset: boolean;
 }): ReactElement {
-  const table = useTable(props, onReset);
+  const table = useTable(props, onReset, isReset);
   const { context, structure, actions, theme, isHydrated } = table;
   useTableImperativeHandle(tableRef, table);
 

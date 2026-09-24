@@ -1,90 +1,91 @@
 import { ClassNames } from '@emotion/react';
-import { createContext, useState, type ReactElement } from 'react';
+import { useState, type ReactElement } from 'react';
 import { useTheme } from '../hooks/useTheme';
 import { useColumnContext, useTableStructure } from '../state/context';
+import { isActiveFilter } from '../state/useFilters';
 import { useCssVariables } from '../theme/useCssVariables';
-
-export const FilterControlContext = createContext({
-  isActive: false,
-  close: (): void => undefined,
-});
+import type { InternalColumn } from '../types';
+import { FilterPanel } from './filterPanel';
 
 export function FilterControl<T>(): ReactElement | null {
-  const { filters, filterValues, activeColumns, actions } = useTableStructure<T>();
+  const { filterValues, visibleColumns, actions } = useTableStructure<T>();
   const columnId = useColumnContext();
+  const column = visibleColumns.find((column) => column.id === columnId);
 
-  const Popover = useTheme((t) => t.components.Popover);
-  const classes = useTheme((t) => t.classes);
-  const styles = useTheme((t) => t.styles);
   const IconButton = useTheme((t) => t.components.IconButton);
   const FilterList = useTheme((t) => t.icons.FilterList);
   const ArrowDropDown = useTheme((t) => t.icons.ArrowDropDown);
-  const cssVariables = useCssVariables();
 
   const [anchor, setAnchor] = useState<Element | null>(null);
-  const impl = filters.get(columnId);
-  const filterValue = filterValues.get(columnId);
-  const isActive = impl !== undefined && filterValue !== undefined && impl.isActive(filterValue);
-  const filterClassNames = impl?.classNames;
-  const filter = activeColumns.find((column) => column.id === columnId)?.filter;
 
-  function reset() {
-    actions.setFilterValue(columnId, undefined);
-  }
+  if (!column?.filter) return null;
 
-  if (!filter) return null;
-
-  function close() {
-    setAnchor(null);
-  }
+  const isActive = isActiveFilter(column.filter, filterValues.get(columnId));
 
   return (
-    <FilterControlContext.Provider value={{ isActive: !!anchor, close }}>
+    <>
       <IconButton
         onClick={(event) => setAnchor(event.currentTarget)}
         onContextMenu={(event) => {
-          reset();
+          actions.setFilterValue(columnId, undefined);
           event.preventDefault();
           return false;
         }}
-        css={[
-          { color: '#b0bac9' },
-          isActive && {
-            color: 'var(--primaryMain) !important',
-          },
-        ]}
+        css={[{ color: '#b0bac9' }, isActive && { color: 'var(--primaryMain) !important' }]}
       >
         {isActive ? <FilterList /> : <ArrowDropDown />}
       </IconButton>
 
-      <div
-        onPointerDown={(event) => {
-          event.stopPropagation();
-        }}
-        onPointerMove={(event) => {
-          event.stopPropagation();
-        }}
-      >
-        <ClassNames>
-          {({ css, cx }) => (
-            <Popover
-              open
-              hidden={!anchor}
-              onClose={close}
-              anchorEl={anchor ?? document.body}
-              css={[cssVariables, styles?.popover]}
-              className={cx(classes?.popover, filterClassNames?.popover)}
-              backdropClassName={cx(
-                classes?.popoverBackdrop,
-                filterClassNames?.popoverBackdrop,
-                css(styles?.popoverBackdrop),
-              )}
-            >
-              {filter}
-            </Popover>
-          )}
-        </ClassNames>
-      </div>
-    </FilterControlContext.Provider>
+      {anchor && (
+        <FilterPopover anchor={anchor} onClose={() => setAnchor(null)} column={column}>
+          <FilterPanel column={column} close={() => setAnchor(null)} />
+        </FilterPopover>
+      )}
+    </>
+  );
+}
+
+export function FilterPopover<T>({
+  anchor,
+  onClose,
+  column,
+  children,
+}: {
+  anchor: Element;
+  onClose: () => void;
+  column?: InternalColumn<T, unknown>;
+  children: React.ReactNode;
+}): ReactElement {
+  const Popover = useTheme((t) => t.components.Popover);
+  const classes = useTheme((t) => t.classes);
+  const styles = useTheme((t) => t.styles);
+  const cssVariables = useCssVariables();
+  const filterClassNames = column?.filter?.classNames;
+
+  return (
+    // Keeps pointer events from reaching the header, e.g. the resize handle.
+    <div
+      onPointerDown={(event) => event.stopPropagation()}
+      onPointerMove={(event) => event.stopPropagation()}
+    >
+      <ClassNames>
+        {({ css, cx }) => (
+          <Popover
+            open
+            onClose={onClose}
+            anchorEl={anchor}
+            css={[cssVariables, styles?.popover]}
+            className={cx(classes?.popover, filterClassNames?.popover)}
+            backdropClassName={cx(
+              classes?.popoverBackdrop,
+              filterClassNames?.popoverBackdrop,
+              css(styles?.popoverBackdrop),
+            )}
+          >
+            {children}
+          </Popover>
+        )}
+      </ClassNames>
+    </div>
   );
 }

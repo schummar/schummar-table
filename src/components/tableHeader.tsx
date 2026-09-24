@@ -5,6 +5,7 @@ import { defaultClasses } from '../theme/defaultTheme/defaultClasses';
 import { ColumnHeader } from './columnHeader';
 import { ColumnSelection } from './columnSelection';
 import { Export } from './export';
+import { HiddenColumnFilters } from './hiddenColumnFilters';
 import { ResizeHandleView } from './resizeHandle';
 import { SelectAll } from './selectComponent';
 
@@ -14,6 +15,7 @@ export const TableHeader = memo(function TableHeader() {
   const classes = useTheme((t) => t.classes?.headerCell);
   const styles = useTheme((t) => t.styles?.headerCell);
   const { stickyHeader, enableSelection, enableColumnSelection, enableExport } = props;
+  const { enableHiddenColumnFilters } = props;
 
   return (
     <div
@@ -29,8 +31,12 @@ export const TableHeader = memo(function TableHeader() {
         {enableSelection && <SelectAll />}
         {enableColumnSelection && <ColumnSelection />}
         {enableExport && <Export />}
+        {enableHiddenColumnFilters && <HiddenColumnFilters />}
 
-        {(enableSelection || enableColumnSelection || enableExport) && (
+        {(enableSelection ||
+          enableColumnSelection ||
+          enableExport ||
+          enableHiddenColumnFilters) && (
           <>
             <div css={{ flex: 1 }} />
             <ResizeHandleView />

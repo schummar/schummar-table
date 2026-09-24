@@ -66,6 +66,7 @@ export interface TableTheme<TItem = unknown> {
     rangeMin: ReactNode;
     rangeMax: ReactNode;
     calendarWeek: ReactNode;
+    hiddenColumnFilters: ReactNode;
   };
   /** Define styles. */
   classes?: {
@@ -295,6 +296,22 @@ export interface TableProps<TItem> extends PartialTableTheme<TItem> {
   onHiddenColumnsChange?: (hiddenColumns: Set<Id>) => void;
 
   /// ///////////////////////////////////////////////
+  // Filters
+  /// ///////////////////////////////////////////////
+  /** Default filter values by column id. Columns without an entry use their filter's `defaultValue`. */
+  defaultFilterValues?: Map<Id, unknown>;
+  /** If given, controls filter values. Columns without an entry use their filter's `defaultValue`;
+   * a cleared filter has an entry with the value `undefined`. */
+  filterValues?: Map<Id, unknown>;
+  /** Called when filter values change, with an entry for every filter that has a value. */
+  onFilterValuesChange?: (filterValues: Map<Id, unknown>) => void;
+  /** Keep applying the filters of hidden columns and make them editable from a button in the
+   * header. Without it, the value of a hidden column's filter is kept but ignored.
+   * @default false
+   */
+  enableHiddenColumnFilters?: boolean;
+
+  /// ///////////////////////////////////////////////
   // Layout
   /// ///////////////////////////////////////////////
 
@@ -410,6 +427,8 @@ export interface TableRef {
   setExpanded: (expanded: Set<Id>) => void;
   getHiddenColumns: () => Set<Id>;
   setHiddenColumns: (hidden: Set<Id>) => void;
+  getFilterValues: () => Map<Id, unknown>;
+  setFilterValues: (filterValues: Map<Id, unknown>) => void;
 }
 
 export type InternalTableProps<TItem> = Omit<
@@ -452,8 +471,8 @@ export type Column<TItem, TColumnValue> = {
   /** Render this column's cells progressively, see `virtual.deferCells`. Overrides the table setting.
    * Give the column a fixed `width` to keep it from widening while its cells are revealed. */
   deferred?: boolean;
-  /** Set filter component that will be displayed in the column header */
-  filter?: ReactNode;
+  /** Filter shown in the column header, e.g. `textFilter()`. */
+  filter?: Filter<TItem, TColumnValue>;
   /** Override whether the column is hidden. If set, prevents toggling the column via menu. */
   hidden?: boolean;
   /** Specify a css width.
@@ -491,7 +510,7 @@ export interface TableState<TItem> {
   expanded: Set<Id>;
   hiddenColumns: Set<Id>;
   columnWidths: Map<Id, string>;
-  filters: Map<Id, FilterImplementation<TItem, any, any, any>>;
+  /** Filter values by column id, defaults included. Hidden columns keep theirs. */
   filterValues: Map<Id, unknown>;
 
   /** Columns matching the current display size, hidden ones included. */
@@ -520,13 +539,9 @@ export interface TableActions<TItem = unknown> {
   toggleExpanded: (itemId: Id) => void;
   setHiddenColumns: (hiddenColumns: Set<Id>) => void;
   setColumnWidth: (columnId: Id, width: string | undefined) => void;
-  /** Returns a function that unregisters the filter. Register once per column with a stable
-   * object: registering causes a table render. */
-  registerFilter: (columnId: Id, filter: FilterImplementation<TItem, any, any, any>) => () => void;
-  /** Sets the value of an uncontrolled filter and reports it through the filter's onChange. */
+  setFilterValues: (filterValues: Map<Id, unknown>) => void;
   setFilterValue: (columnId: Id, value: unknown) => void;
-  /** Mirrors a filter's controlled `value` prop into the table; undefined when uncontrolled. */
-  syncControlledFilterValue: (columnId: Id, value: unknown) => void;
+  /** Clears every filter, hidden columns' included. */
   clearFilters: () => void;
   /** Clear persisted state and reset the table to its defaults. */
   resetTable: () => Promise<void>;
@@ -542,18 +557,28 @@ export type TableStructure<TItem = unknown> = Omit<
   'selection' | 'expanded' | 'activeItems' | 'activeItemsById'
 >;
 
-export type CommonFilterProps<TItem, TColumnValue, TFilterBy, TFilterValue> = {
-  /** Filter by? By default the column value will be used. If filterBy returns an array, an items will be active if at least one entry matches the active filter. */
+export interface FilterComponentProps<TFilterBy, TValue, TOptions> {
+  /** The current value; `undefined` (or `null` after persisting) when cleared. */
+  value: TValue | null | undefined;
+  onChange: (value: TValue | undefined) => void;
+  /** Closes the filter popover. */
+  close: () => void;
+  options: TOptions;
+  /** The `filterBy` values of all items, regardless of filters, flattened and deduplicated. */
+  getValues: () => TFilterBy[];
+}
+
+/** Options every filter accepts. */
+export interface FilterOptions<TItem, TColumnValue, TFilterBy, TValue> {
+  /** Filter by? By default the column value is used. If it returns an array, an item matches if
+   * at least one entry matches. */
   filterBy?: (value: TColumnValue, item: TItem) => TFilterBy | TFilterBy[];
-  /** Preselected filter value. */
-  defaultValue?: TFilterValue;
-  /** Controlled filter value. */
-  value?: TFilterValue;
-  /** Notifies on filter change. */
-  onChange?: (value?: TFilterValue) => void;
-  /** Table should not filter using this filter. It will be done externally, e.g. server side. */
+  /** Value while the filter has none set, see `TableProps['filterValues']`. */
+  defaultValue?: TValue;
+  /** The table does not filter by this filter; it's done externally, e.g. server side. Read its
+   * value through `onFilterValuesChange`. */
   external?: boolean;
-  /** Whether to persist filter value (given that filter persitance is enabled for the table).
+  /** Whether to persist the value (given that filter persistence is enabled for the table).
    * @default true
    */
   persist?: boolean;
@@ -561,18 +586,22 @@ export type CommonFilterProps<TItem, TColumnValue, TFilterBy, TFilterValue> = {
     popover?: string;
     popoverBackdrop?: string;
   };
-};
+}
 
-export type FilterImplementation<TItem, TColumnValue, TFilterBy, TFilterValue> = CommonFilterProps<
+/** A column filter, created by a filter factory like `textFilter()` or one made with
+ * `defineFilter`. */
+export interface Filter<
   TItem,
   TColumnValue,
-  TFilterBy,
-  TFilterValue
-> & {
-  /** Unique filter id. Used to persist filter values. */
-  id: string;
-  /** Whether the filter is active currently. */
-  isActive: (filterValue: TFilterValue) => boolean;
-  /** When the filter is active, this function is used to filter the items to be displayed. */
-  test: (filterValue: TFilterValue, value: TFilterBy) => boolean;
-};
+  TFilterBy = any,
+  TValue = any,
+  TOptions = any,
+> extends Omit<FilterOptions<TItem, TColumnValue, TFilterBy, TValue>, 'filterBy'> {
+  isActive: (value: TValue, options: TOptions) => boolean;
+  test: (value: TValue, x: TFilterBy, options: TOptions) => boolean;
+  filterBy: (value: TColumnValue, item: TItem) => TFilterBy | TFilterBy[];
+  /** Delay in ms before changes made in the UI apply. */
+  debounce?: number;
+  options: TOptions;
+  Component: ComponentType<FilterComponentProps<TFilterBy, TValue, TOptions>>;
+}

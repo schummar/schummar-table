@@ -22,4 +22,5 @@ export const defaultTexts: TableTheme['text'] = {
   rangeMin: 'Min',
   rangeMax: 'Max',
   calendarWeek: 'Wk',
+  hiddenColumnFilters: 'Filters of hidden columns',
 };

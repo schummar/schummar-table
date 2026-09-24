@@ -178,6 +178,7 @@ export const Mobile: Story = {
     ...Primary.args,
     items: data.slice(0, 50),
     displaySize: { mobile: 500, desktop: Infinity },
+    enableHiddenColumnFilters: true,
     columns: defaultColumns
       .map<Column<Person, any>>((col) => ({
         ...col,
