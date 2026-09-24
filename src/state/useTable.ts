@@ -3,6 +3,7 @@ import { useTableTheme } from '../hooks/useTheme';
 import { getAncestors, getDescendants } from '../misc/helpers';
 import type {
   Id,
+  InternalColumn,
   TableActions,
   TableContextValue,
   TableProps,
@@ -22,6 +23,9 @@ import { useActiveItems, useItems } from './useItems';
 import { useSelection } from './useSelection';
 import { useSort } from './useSort';
 import { useTableProps } from './useTableProps';
+
+const isControlledFilter = (columns: InternalColumn<any, unknown>[], columnId: Id) =>
+  columns.find((column) => column.id === columnId)?.filter?.value !== undefined;
 
 function withEntry<K, V>(map: Map<K, V>, key: K, value: V | undefined) {
   const result = new Map(map);
@@ -81,7 +85,11 @@ export function useTable<T>(raw: TableProps<T>, onReset: () => void, isReset = f
     add(
       'filterValues',
       new Map(
-        [...filters.stored].filter(([columnId]) => isFilterValuePersisted(persist, columnId)),
+        [...filters.stored].filter(
+          ([columnId]) =>
+            isFilterValuePersisted(persist, columnId) &&
+            !isControlledFilter(props.columns, columnId),
+        ),
       ),
       props.filterValues !== undefined,
     );
@@ -98,6 +106,7 @@ export function useTable<T>(raw: TableProps<T>, onReset: () => void, isReset = f
     columns.hiddenColumns,
     columns.columnWidths,
     filters.stored,
+    props.columns,
     props.sort !== undefined,
     props.selection !== undefined,
     props.expanded !== undefined,
@@ -111,7 +120,7 @@ export function useTable<T>(raw: TableProps<T>, onReset: () => void, isReset = f
   });
 
   function restore(data: PersistedData) {
-    const { state, sort, selection, expanded, columns, filters } = latest.current;
+    const { state, sort, selection, expanded, columns } = latest.current;
     const { props } = state;
 
     if (data.sort && props.sort === undefined) sort.setSort(data.sort);
@@ -126,17 +135,24 @@ export function useTable<T>(raw: TableProps<T>, onReset: () => void, isReset = f
     if (filterValues && props.filterValues === undefined) {
       const next = new Map(state.filterValues);
       for (const [columnId, value] of filterValues) {
-        if (props.persist && isFilterValuePersisted(props.persist, columnId)) {
+        if (
+          props.persist &&
+          isFilterValuePersisted(props.persist, columnId) &&
+          !isControlledFilter(props.columns, columnId)
+        ) {
           next.set(columnId, value);
         }
       }
-      filters.setFilterValues(next);
+      commitFilterValues(next);
     }
   }
 
   useEffect(() => {
-    if (isReset && props.filterValues === undefined) {
-      props.onFilterValuesChange?.(filters.filterValues);
+    if (!isReset) return;
+    if (props.filterValues === undefined) props.onFilterValuesChange?.(filters.filterValues);
+
+    for (const { id, filter } of props.columns) {
+      filter?.onChange?.(filters.stored.has(id) ? filters.stored.get(id) : filter.defaultValue);
     }
   }, []);
 
@@ -149,6 +165,19 @@ export function useTable<T>(raw: TableProps<T>, onReset: () => void, isReset = f
   // `latest` only catches up after the next render.
   function patchState(patch: Partial<TableState<T>>) {
     latest.current = { ...latest.current, state: { ...latest.current.state, ...patch } };
+  }
+
+  /** Sets filter values and notifies the `onChange` of each filter whose value changed. */
+  function commitFilterValues(next: Map<Id, unknown>) {
+    const { state, filters } = latest.current;
+    const previous = state.filterValues;
+    filters.setFilterValues(next);
+    patchState({ filterValues: next });
+
+    for (const { id, filter } of state.props.columns) {
+      const value = next.get(id);
+      if (filter?.onChange && !Object.is(value, previous.get(id))) filter.onChange(value);
+    }
   }
 
   const [actions] = useState((): TableActions<T> => {
@@ -230,27 +259,21 @@ export function useTable<T>(raw: TableProps<T>, onReset: () => void, isReset = f
         get().columns.setColumnWidths((widths) => withEntry(widths, columnId, width));
       },
 
-      setFilterValues(filterValues) {
-        get().filters.setFilterValues(filterValues);
-        patchState({ filterValues });
-      },
+      setFilterValues: (filterValues) => commitFilterValues(filterValues),
 
       setFilterValue(columnId, value) {
-        const { state, filters } = get();
-        const next = new Map(state.filterValues);
+        const next = new Map(get().state.filterValues);
         next.set(columnId, value);
-        filters.setFilterValues(next);
-        patchState({ filterValues: next });
+        commitFilterValues(next);
       },
 
       clearFilters() {
-        const { state, filters } = get();
+        const { state } = get();
         const next = new Map(state.filterValues);
         for (const column of state.props.columns) {
           if (column.filter) next.set(column.id, undefined);
         }
-        filters.setFilterValues(next);
-        patchState({ filterValues: next });
+        commitFilterValues(next);
         state.props.onReset?.('filters');
       },
 

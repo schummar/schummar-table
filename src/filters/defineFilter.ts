@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { eventHandler } from '../misc/equal';
 import type { Filter, FilterComponentProps, FilterOptions } from '../types';
 
 export interface FilterDefinition<TInput, TState, TOptions> {
@@ -23,7 +24,7 @@ export function defineFilter<TInput, TState, TOptions extends object = {}>(
   definition: FilterDefinition<TInput, TState, TOptions>,
 ) {
   return (input?: FilterOptions<TState> & TOptions): Filter<TInput, TState, TOptions> => {
-    const { defaultValue, external, classNames, ...options } =
+    const { defaultValue, value, onChange, external, classNames, ...options } =
       input ?? ({} as FilterOptions<TState>);
 
     return {
@@ -32,6 +33,8 @@ export function defineFilter<TInput, TState, TOptions extends object = {}>(
       debounce: (options as { debounce?: number }).debounce ?? definition.debounce,
       Component: definition.Component,
       defaultValue,
+      value,
+      onChange: onChange && eventHandler(onChange),
       external,
       classNames,
       options: options as TOptions,

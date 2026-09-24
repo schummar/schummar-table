@@ -209,7 +209,7 @@ Previously filters converted anything (text filters stringified dates and object
 
 Keep options plain data where possible: inline filters are compared deeply with functions by reference, so an inline `compare`/`render` arrow makes the column change on every render (hoist it or let the compiler memoize it).
 
-**Controlled values moved to the table.** The per-filter `value` and `onChange` are gone. Use `filterValues` / `defaultFilterValues` / `onFilterValuesChange` on the table: a `Map` from column id to filter value. Give filtered columns an explicit `id`.
+**Controlled values.** `value`, `onChange` and `defaultValue` stay as filter options, now typed against the filter's own value:
 
 ```tsx
 // before
@@ -217,18 +217,16 @@ col((x) => x.first_name, {
   filter: <TextFilter external value={name} onChange={(v) => setName(v ?? '')} />,
 });
 // after
-const [filterValues, setFilterValues] = useState(new Map<Id, unknown>());
-<Table
-  filterValues={filterValues}
-  onFilterValuesChange={setFilterValues}
-  columns={(col) => [
-    col((x) => x.first_name, { id: 'first_name', filter: textFilter({ external: true }) }),
-  ]}
-/>;
-const name = (filterValues.get('first_name') as string | undefined) ?? '';
+col((x) => x.first_name, {
+  filter: textFilter({ external: true, value: name, onChange: (v) => setName(v ?? '') }),
+});
 ```
 
-A column without an entry uses its filter's `defaultValue`; a cleared filter has an entry with value `undefined`. Clearing filters reports the cleared values through `onFilterValuesChange`. Resetting the table does too when filter values are uncontrolled; with controlled `filterValues`, reset them in `onReset` (scope `'table'`) like you do for `sort`.
+- `value: undefined` leaves the filter to the table (uncontrolled). A filter's `value` wins over the table's `filterValues`.
+- `onChange` fires on every change of that filter: its UI, clearing all filters, right-click reset, table reset and restoring persisted state. Its identity doesn't matter; an inline arrow doesn't cause refiltering.
+- Filters with a controlled `value` are not persisted.
+
+Additionally, the table can control all filter values at once: `filterValues` / `defaultFilterValues` / `onFilterValuesChange`, a `Map` from column id to filter value (give filtered columns an explicit `id`). A column without an entry uses its filter's `defaultValue`; a cleared filter has an entry with value `undefined`. Resetting the table reports through `onFilterValuesChange` only when `filterValues` is uncontrolled; with controlled `filterValues`, reset them in `onReset` (scope `'table'`) like you do for `sort`.
 
 **`CombinedFilter` → `enableHiddenColumnFilters`.** Remove the `CombinedFilter` column filter and set `enableHiddenColumnFilters` on the table: a button in the header lists the filters of hidden columns (by display size or column selection) and keeps them applied.
 
@@ -254,7 +252,7 @@ The component no longer reads the table context for its value: it gets `value`/`
 - `AutoFocusTextField` now focuses whenever it mounts, not only inside an open filter popover.
 - Type check gap: the check passes when the column type is wider than everything the filter accepts, e.g. a column typed `unknown`.
 - `TableState.filters` and the actions `registerFilter`/`syncControlledFilterValue` are gone; `actions.setFilterValues(map)` was added. `TableRef` gained `getFilterValues`/`setFilterValues`.
-- **Needs human review:** code that relied on a filter's `onChange` firing (e.g. analytics) → use `onFilterValuesChange`.
+- **Needs human review:** a filter's `onChange` now also fires for table reset and restored persisted values, not only for UI changes.
 
 ## 11. `debugRender` messages changed
 

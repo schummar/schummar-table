@@ -6,6 +6,8 @@ import { dateFilter, defineFilter, rangeFilter, selectFilter, Table, textFilter 
 import type { ColumnFactory, Filter, Id, SingleOrMultiple, TableProps, TableRef } from '../types';
 import { persons, type Person } from './fixtures';
 
+const renderFirstName = (v: string) => <span data-testid="first-name">{v}</span>;
+
 const INACTIVE_COLOR = 'rgb(176, 186, 201)';
 const ALL_FIRST_NAMES = persons.map((p) => p.first_name);
 
@@ -568,6 +570,96 @@ describe('controlled filter values', () => {
   });
 });
 
+describe('filter value and onChange', () => {
+  test('control a single filter', async () => {
+    const reported: (string | undefined)[] = [];
+    function Parent() {
+      const [name, setName] = useState('ar');
+      return (
+        <>
+          <button onClick={() => setName('arne')}>arne</button>
+          <PersonTable
+            enableClearFiltersButton
+            filters={{
+              firstName: textFilter({
+                value: name,
+                onChange: (value) => {
+                  reported.push(value);
+                  setName(value ?? '');
+                },
+              }),
+            }}
+          />
+        </>
+      );
+    }
+    await render(<Parent />);
+    await expectFirstNames().toEqual(['Arne', 'Jarib', 'Eduard']);
+
+    await page.getByRole('button', { name: 'arne' }).click();
+    await expectFirstNames().toEqual(['Arne']);
+
+    await openFilter('First Name');
+    await page.getByRole('textbox').fill('jar');
+    await expectFirstNames().toEqual(['Jarib']);
+    expect(reported[reported.length - 1]).toBe('jar');
+    closePopovers();
+
+    await page.getByRole('button', { name: 'Clear all filters' }).click();
+    await expectFirstNames().toEqual(ALL_FIRST_NAMES);
+    expect(reported[reported.length - 1]).toBe(undefined);
+  });
+
+  test('an inline onChange neither refilters nor goes stale', async () => {
+    const calls = { test: 0 };
+    const counting = defineFilter<string, string>({
+      isActive: (value) => !!value,
+      test: (value, x) => {
+        calls.test++;
+        return x.includes(value);
+      },
+      Component: ({ onChange }) => <button onClick={() => onChange('K')}>set K</button>,
+    });
+    const firstName = (person: Person) => person.first_name;
+    const seen: number[] = [];
+    function Parent() {
+      const [count, setCount] = useState(0);
+      return (
+        <>
+          <button onClick={() => setCount(count + 1)}>rerender {count}</button>
+          <Table
+            items={persons}
+            id="id"
+            enableSelection={false}
+            columns={[
+              {
+                id: 'first_name',
+                header: 'First Name',
+                value: firstName,
+                renderCell: renderFirstName,
+                filter: counting({ defaultValue: 'a', onChange: () => seen.push(count) }),
+              },
+            ]}
+          />
+        </>
+      );
+    }
+    await render(<Parent />);
+    await expect.poll(() => calls.test).toBeGreaterThan(0);
+    const testCalls = calls.test;
+
+    await page.getByRole('button', { name: 'rerender 0' }).click();
+    await page.getByRole('button', { name: 'rerender 1' }).click();
+    await expect.element(page.getByRole('button', { name: 'rerender 2' })).toBeInTheDocument();
+    expect(calls.test).toBe(testCalls);
+
+    await openFilter('First Name');
+    await page.getByRole('button', { name: 'set K' }).click();
+    await expectFirstNames().toEqual(['Kassia']);
+    expect(seen).toEqual([2]);
+  });
+});
+
 describe('filter descriptors', () => {
   function countingFilter() {
     const calls = { render: 0, test: 0 };
@@ -696,6 +788,9 @@ describe('filter types', () => {
     col((x) => x.birthday, { filter: textFilter() });
     // @ts-expect-error filterBy returns strings, the range filter needs numbers
     col((x) => x.birthday, { filterBy: (d) => d.toISOString(), filter: rangeFilter() });
+    col((x) => x.tags, { filter: selectFilter({ onChange: (value) => value?.has('a') }) });
+    // @ts-expect-error a value of the wrong type
+    col((x) => x.name, { filter: textFilter({ value: 1 }) });
     // @ts-expect-error arbitrary strings are not dates
     col((x) => x.name, { filter: dateFilter() });
   });

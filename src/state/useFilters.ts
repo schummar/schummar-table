@@ -29,11 +29,12 @@ export function useFilters<T>(
 
   const filterValues = useMemo(() => {
     let result = stored;
-    for (const column of props.columns) {
-      const defaultValue = column.filter?.defaultValue;
-      if (defaultValue === undefined || stored.has(column.id)) continue;
+    for (const { id, filter } of props.columns) {
+      const value =
+        filter?.value !== undefined || stored.has(id) ? filter?.value : filter?.defaultValue;
+      if (value === undefined) continue;
       if (result === stored) result = new Map(stored);
-      result.set(column.id, defaultValue);
+      result.set(id, value);
     }
     return result;
   }, [stored, props.columns]);

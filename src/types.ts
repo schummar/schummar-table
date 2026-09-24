@@ -575,6 +575,11 @@ export interface FilterComponentProps<TInput, TState, TOptions> {
 export interface FilterOptions<TState> {
   /** Value while the filter has none set, see `TableProps['filterValues']`. */
   defaultValue?: TState;
+  /** Controls the filter's value; `undefined` leaves it to the table. Wins over `filterValues`. */
+  value?: TState;
+  /** Called whenever the filter's value changes: from its UI, clearing, resetting or restoring.
+   * Its identity doesn't matter, an inline function doesn't cause refiltering. */
+  onChange?: (value: TState | undefined) => void;
   /** The table does not filter by this filter; it's done externally, e.g. server side. Read its
    * value through `onFilterValuesChange`. */
   external?: boolean;
