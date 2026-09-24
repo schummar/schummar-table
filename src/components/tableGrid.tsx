@@ -1,4 +1,4 @@
-import { useCallback, useLayoutEffect, useMemo, useRef, type Ref } from 'react';
+import { useCallback, useLayoutEffect, useMemo, useRef, type RefCallback } from 'react';
 import { useTheme } from '../hooks/useTheme';
 import { useTableContext } from '../state/context';
 import { defaultClasses } from '../theme/defaultTheme/defaultClasses';
@@ -69,7 +69,7 @@ export function TableGrid<T>({ hidden }: { hidden: boolean }) {
     ],
   );
 
-  const renderRow = (index: number, measureRef?: Ref<HTMLDivElement>) => {
+  const renderRow = (index: number, measureRef?: RefCallback<HTMLElement>) => {
     const item = activeItems[index]!;
     return (
       <Row

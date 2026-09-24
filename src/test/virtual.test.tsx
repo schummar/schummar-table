@@ -118,6 +118,17 @@ describe('virtual', () => {
     expect(lifecycle.mounts).toBe(renderedRows());
   });
 
+  test('wrapRow can render a non-div element', async () => {
+    await render(
+      <div style={{ height: 400, overflowY: 'auto' }}>
+        <Table {...props} wrapRow={(rowProps, item) => <a href={`#${item.id}`} {...rowProps} />} />
+      </div>,
+    );
+
+    await expect.poll(() => document.querySelector('a.row[data-index="0"]')).not.toBeNull();
+    await expect.poll(renderedRows).toBeLessThan(200);
+  });
+
   test('renders all rows when virtual is disabled', async () => {
     await render(<Table {...props} items={items.slice(0, 300)} virtual={false} />);
 

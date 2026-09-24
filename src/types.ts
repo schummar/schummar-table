@@ -7,7 +7,14 @@ import type {
   Theme,
 } from '@emotion/react';
 import type React from 'react';
-import type { ComponentType, CSSProperties, ReactElement, ReactNode, Ref } from 'react';
+import type {
+  ComponentType,
+  CSSProperties,
+  ReactElement,
+  ReactNode,
+  Ref,
+  RefCallback,
+} from 'react';
 import { ExportOptions } from './exporters/exporter';
 import type { PersistEntry, TableStateStorage } from './state/persistence';
 
@@ -320,11 +327,11 @@ export interface TableProps<TItem> extends PartialTableTheme<TItem> {
   /** Whether the table header should be sticky.
    * @default true
    */
-  stickyHeader?: boolean | { top: number };
+  stickyHeader?: boolean | { top: number | string };
   /** Whether the table footer should be sticky.
    * @default true
    */
-  stickyFooter?: boolean | { bottom: number };
+  stickyFooter?: boolean | { bottom: number | string };
   /** Whether the table cells should only be rendered when in viewport.
    * @default false
    */
@@ -400,7 +407,7 @@ export interface TableProps<TItem> extends PartialTableTheme<TItem> {
 }
 
 export interface WrapRowProps {
-  ref: Ref<HTMLDivElement>;
+  ref: RefCallback<HTMLElement> | null;
   'data-index': number;
   className?: string;
   style?: CSSProperties;

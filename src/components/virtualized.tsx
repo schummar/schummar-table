@@ -4,7 +4,7 @@ import {
   useLayoutEffect,
   useState,
   type ReactNode,
-  type Ref,
+  type RefCallback,
   type RefObject,
 } from 'react';
 import { CellSchedulerContext } from './cellScheduler';
@@ -12,7 +12,7 @@ import type { Id, TableProps } from '../types';
 
 type VirtualOptions = Exclude<TableProps<unknown>['virtual'], boolean | undefined>;
 
-export type RenderRow = (index: number, measureRef?: Ref<HTMLDivElement>) => ReactNode;
+export type RenderRow = (index: number, measureRef?: RefCallback<HTMLElement>) => ReactNode;
 
 const spacerCss = { gridColumn: '1 / -1' } as const;
 

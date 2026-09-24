@@ -1,4 +1,4 @@
-import { memo, useLayoutEffect, type ReactElement, type ReactNode, type Ref } from 'react';
+import { memo, useLayoutEffect, type ReactElement, type ReactNode, type RefCallback } from 'react';
 import { ColumnContext } from '../state/context';
 import type { Id, InternalColumn, TableProps, WrapRowProps } from '../types';
 import { Cell } from './cell';
@@ -32,7 +32,7 @@ interface RowProps<T> {
   hasChildren: boolean;
   expanded: boolean;
   config: RowConfig<T>;
-  measureRef?: Ref<HTMLDivElement>;
+  measureRef?: RefCallback<HTMLElement>;
 }
 
 const defaultWrapRow = (props: WrapRowProps) => <div {...props} />;
