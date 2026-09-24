@@ -1,29 +1,38 @@
+import { css } from '@emotion/react';
+import { cx } from '../../misc/helpers';
 import type { TableTheme } from '../../types';
+import { useLibraryClassName } from '../emotion';
+
+const labelCss = css({
+  padding: 'calc(var(--spacing) * 1.8)',
+  display: 'flex',
+  color: 'currentcolor',
+  userSelect: 'none',
+
+  '& input': {
+    appearance: 'none',
+    margin: 0,
+  },
+});
+
+const disabledCss = css({ color: 'rgba(0, 0, 0, 0.26)' });
+
+const iconCss = css({ fontSize: '1.25rem', width: '1em', height: '1em', fill: 'currentColor' });
+
+const checkedIconCss = css({ fill: 'var(--primaryMain)' });
 
 export const Checkbox: TableTheme['components']['Checkbox'] = ({ className, ...props }) => {
+  const libraryClass = useLibraryClassName();
+
   return (
     <label
-      css={[
-        {
-          padding: 'calc(var(--spacing) * 1.8)',
-          display: 'flex',
-          color: 'currentcolor',
-          userSelect: 'none',
-
-          '& input': {
-            appearance: 'none',
-            margin: 0,
-          },
-        },
-        props.disabled && { color: 'rgba(0, 0, 0, 0.26)' },
-      ]}
-      className={className}
+      className={cx(libraryClass(labelCss), props.disabled && libraryClass(disabledCss), className)}
     >
       <input type="checkbox" {...props} />
 
       {props.checked ? (
         <svg
-          css={{ fontSize: '1.25rem', width: '1em', height: '1em', fill: 'var(--primaryMain)' }}
+          className={libraryClass(iconCss, checkedIconCss)}
           focusable="false"
           viewBox="0 0 24 24"
           aria-hidden="true"
@@ -32,7 +41,7 @@ export const Checkbox: TableTheme['components']['Checkbox'] = ({ className, ...p
         </svg>
       ) : (
         <svg
-          css={{ fontSize: '1.25rem', width: '1em', height: '1em', fill: 'currentColor' }}
+          className={libraryClass(iconCss)}
           focusable="false"
           viewBox="0 0 24 24"
           aria-hidden="true"

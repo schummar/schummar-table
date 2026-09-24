@@ -1,22 +1,18 @@
 import type { ReactElement, ReactNode } from 'react';
 import { memo, useLayoutEffect } from 'react';
-import { columnTheme } from '../hooks/useTheme';
-import { calcClassNames, calcCss } from '../misc/calcClassNames';
-import { cx } from '../misc/helpers';
-import { defaultClasses } from '../theme/defaultTheme/defaultClasses';
-import type { InternalColumn, TableTheme } from '../types';
+import type { InternalColumn } from '../types';
 import type { RowConfig } from './row';
 
-const defaultWrapCell = (content: ReactNode) => {
+function wrapText(content: ReactNode, className: string) {
   if (typeof content === 'string') {
     return (
-      <span css={defaultClasses.text} title={content}>
+      <span className={className} title={content}>
         {content}
       </span>
     );
   }
   return content;
-};
+}
 
 export const Cell = memo(function Cell<T>({
   column,
@@ -29,8 +25,7 @@ export const Cell = memo(function Cell<T>({
   rowIndex: number;
   config: RowConfig<T>;
 }) {
-  const { classes, styles } = columnTheme(config.theme as TableTheme<T>, column);
-  const wrapCell = config.wrapCell ?? defaultWrapCell;
+  const { styles, wrapCell } = config;
 
   useLayoutEffect(() => {
     config.debugRender('render cell', column.id);
@@ -40,11 +35,8 @@ export const Cell = memo(function Cell<T>({
   const content = column.renderCell(columnValue, value);
 
   return (
-    <div
-      className={cx(...calcClassNames(classes, value, rowIndex))}
-      css={[defaultClasses.cell, calcCss<T>(styles, value, rowIndex)]}
-    >
-      {wrapCell(content, columnValue, value, rowIndex)}
+    <div className={styles.cells.get(column.id)!(value, rowIndex)}>
+      {wrapCell ? wrapCell(content, columnValue, value, rowIndex) : wrapText(content, styles.text)}
     </div>
   );
 }) as <T>(props: {

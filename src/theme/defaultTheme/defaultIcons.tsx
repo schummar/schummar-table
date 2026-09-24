@@ -1,7 +1,9 @@
-import { ClassNames, css } from '@emotion/react';
+import { css } from '@emotion/react';
 import type { HTMLProps, ReactElement } from 'react';
 import { cloneElement } from 'react';
+import { cx } from '../../misc/helpers';
 import type { TableTheme } from '../../types';
+import { useLibraryClassName } from '../emotion';
 
 const IconDefaultStyle = css({
   width: '1.5em',
@@ -11,16 +13,11 @@ const IconDefaultStyle = css({
 
 function Icon(svg: ReactElement<HTMLProps<Element>>) {
   return function IconComponent(props: HTMLProps<Element>) {
-    return (
-      <ClassNames>
-        {({ css }) =>
-          cloneElement(svg, {
-            ...props,
-            className: css(IconDefaultStyle, props.className),
-          })
-        }
-      </ClassNames>
-    );
+    const libraryClass = useLibraryClassName();
+    return cloneElement(svg, {
+      ...props,
+      className: cx(libraryClass(IconDefaultStyle), props.className),
+    });
   };
 }
 

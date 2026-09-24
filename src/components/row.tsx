@@ -1,18 +1,15 @@
-import { ClassNames } from '@emotion/react';
 import { memo, useLayoutEffect, type ReactElement, type ReactNode, type Ref } from 'react';
-import { calcClassNames, calcCss } from '../misc/calcClassNames';
-import { cx } from '../misc/helpers';
 import { ColumnContext } from '../state/context';
-import { defaultClasses } from '../theme/defaultTheme/defaultClasses';
-import type { Id, InternalColumn, TableProps, TableTheme, WrapRowProps } from '../types';
+import type { Id, InternalColumn, TableProps, WrapRowProps } from '../types';
 import { Cell } from './cell';
 import { Details } from './details';
 import { ExpandControl } from './expandControl';
+import type { RowStyles } from './rowStyles';
 import { SelectComponent } from './selectComponent';
 
 /** Everything rows need from the table props. Changing it renders every row. */
 export interface RowConfig<T> {
-  theme: TableTheme<T>;
+  styles: RowStyles<T>;
   columns: InternalColumn<T, unknown>[];
   enableSelection: boolean | undefined;
   rowAction: TableProps<T>['rowAction'];
@@ -36,12 +33,6 @@ interface RowProps<T> {
 
 const defaultWrapRow = (props: WrapRowProps) => <div {...props} />;
 
-const rowCss = {
-  gridColumn: '1 / -1',
-  display: 'grid',
-  gridTemplateColumns: 'subgrid',
-} as const;
-
 export const Row = memo(function Row<T>({
   id,
   value,
@@ -52,29 +43,24 @@ export const Row = memo(function Row<T>({
   config,
   measureRef,
 }: RowProps<T>): ReactElement {
-  const { theme, columns, enableSelection, rowAction, rowDetails, hasDeferredChildren } = config;
-  const { classes, styles } = theme;
+  const { styles, columns, enableSelection, rowAction, rowDetails, hasDeferredChildren } = config;
   const wrapRow = config.wrapRow ?? defaultWrapRow;
 
   useLayoutEffect(() => {
     config.debugRender('render row', id);
   });
 
-  const rowClassName =
-    classes?.row instanceof Function ? classes.row(value, rowIndex) : classes?.row;
-  const rowStyles = styles?.row instanceof Function ? styles.row(value, rowIndex) : styles?.row;
-  const cellClassName = cx(...calcClassNames(classes, value, rowIndex));
-  const cellCss = calcCss<T>(styles, value, rowIndex);
+  const fillClassName = styles.fillCell(value, rowIndex);
   const deferred = hasDeferredChildren?.(value) ?? false;
   const action = rowAction instanceof Function ? rowAction(value, rowIndex) : rowAction;
   const hasDetails = rowDetails instanceof Function ? !!rowDetails(value, rowIndex) : !!rowDetails;
 
   const children: ReactNode = (
     <>
-      <div className={cellClassName} css={[defaultClasses.cellFill, cellCss]} />
+      <div className={fillClassName} />
 
-      <div className={cellClassName} css={[defaultClasses.cell, defaultClasses.firstCell, cellCss]}>
-        {depth > 0 && <div css={{ width: depth * 20 }} />}
+      <div className={styles.firstCell(value, rowIndex)}>
+        {depth > 0 && <div style={{ width: depth * 20 }} />}
 
         {enableSelection && <SelectComponent itemId={id} />}
 
@@ -96,26 +82,20 @@ export const Row = memo(function Row<T>({
         </ColumnContext.Provider>
       ))}
 
-      <div className={cellClassName} css={[defaultClasses.cellFill, cellCss]} />
+      <div className={fillClassName} />
 
       {expanded && hasDetails && <Details value={value} rowIndex={rowIndex} config={config} />}
     </>
   );
 
-  return (
-    <ClassNames>
-      {({ css, cx }) =>
-        wrapRow(
-          {
-            ref: measureRef ?? null,
-            'data-index': rowIndex,
-            className: cx(css([rowCss, rowStyles]), rowClassName),
-            children,
-          },
-          value,
-          rowIndex,
-        )
-      }
-    </ClassNames>
-  );
+  return wrapRow(
+    {
+      ref: measureRef ?? null,
+      'data-index': rowIndex,
+      className: styles.row(value, rowIndex),
+      children,
+    },
+    value,
+    rowIndex,
+  ) as ReactElement;
 }) as <T>(props: RowProps<T>) => ReactElement;

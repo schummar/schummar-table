@@ -178,4 +178,13 @@ No action needed for most consumers. If code narrows or reconstructs `TableItem`
 
 `debugRender` now reports `'render table'`, `'render row', id` and `'render cell', columnId`. `'render table inner'` and `'Virtualized render …'` are gone. Update render-count tests that match on these strings.
 
+## 12. Styling: library styles are prepended, function styles are costly
+
+The table's own styles now live in a separate emotion stylesheet (key `<your cache key>-st`, e.g. `css-st`) that is inserted **before** all other styles. Any override of equal specificity now wins, including a plain class from a CSS file passed via `classes`. Previously the built-in styles were appended and beat such classes.
+
+- **Needs human review:** overrides that used extra specificity or `!important` only to beat the built-in styles still work, and can be simplified.
+- Row, cell and details styles are inserted on the client only. Server-rendered HTML no longer contains them; they apply on hydration.
+- Style objects are cached by identity: don't mutate a style object after passing it; pass a new one.
+- Function styles (`styles.row/cell/details` as `(item, index) => …`) run on every row or cell render. Returning new objects makes emotion serialize them each time. Prefer `classes` or return `css\`…\`` results or module-level constants.
+
 <!-- Append new dated sections here for future breaking changes, following the same grep / before-after / needs-human-review structure. -->

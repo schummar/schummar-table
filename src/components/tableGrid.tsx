@@ -6,6 +6,7 @@ import { useCssVariables } from '../theme/useCssVariables';
 import type { TableTheme } from '../types';
 import { columnWidthVariable } from './resizeHandle';
 import { Row, type RowConfig } from './row';
+import { useRowStyles } from './rowStyles';
 import { TableFooter } from './tableFooter';
 import { TableHeader } from './tableHeader';
 import { VirtualRows } from './virtualized';
@@ -26,9 +27,10 @@ export function TableGrid<T>({ hidden }: { hidden: boolean }) {
   });
 
   const { enableSelection, rowAction, rowDetails, wrapRow, wrapCell, hasDeferredChildren } = props;
+  const styles = useRowStyles(theme, visibleColumns);
   const config = useMemo(
     (): RowConfig<T> => ({
-      theme,
+      styles,
       columns: visibleColumns,
       enableSelection,
       rowAction,
@@ -39,7 +41,7 @@ export function TableGrid<T>({ hidden }: { hidden: boolean }) {
       debugRender,
     }),
     [
-      theme,
+      styles,
       visibleColumns,
       enableSelection,
       rowAction,

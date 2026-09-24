@@ -255,6 +255,27 @@ describe('styling', () => {
   });
 });
 
+describe('style precedence', () => {
+  test('a plain CSS class overrides the built-in cell styles', async () => {
+    const style = document.createElement('style');
+    style.textContent = '.plain-cell { padding: 13px; }';
+    document.head.append(style);
+
+    try {
+      const screen = await renderTable({
+        items: persons.slice(0, 1),
+        id: 'id',
+        columns: nameColumns,
+        classes: { cell: 'plain-cell' },
+      });
+      const cell = screen.getByText('Kassia').element().closest('.plain-cell')!;
+      expect(getComputedStyle(cell).paddingLeft).toBe('13px');
+    } finally {
+      style.remove();
+    }
+  });
+});
+
 describe('controls', () => {
   test('selection, column selection and export controls are shown when enabled', async () => {
     const screen = await renderTable({

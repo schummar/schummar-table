@@ -82,6 +82,10 @@ export interface TableTheme<TItem = unknown> {
     columnDivider?: string;
     details?: string | ((item: TItem, index: number) => string | undefined);
   };
+  /** Emotion styles. Static styles are resolved once per table. Function styles (`row`, `cell`,
+   * `details`) run on every row or cell render; if they return new style objects, emotion serializes
+   * them each time, which is expensive for large tables. Return `css` results or constants, or use
+   * `classes` instead. */
   styles?: {
     table?: Interpolation<Theme>;
     row?:
@@ -446,7 +450,7 @@ export type Column<TItem, TColumnValue> = {
   width?: string;
   /** Provide css class names to override columns styles. */
   classes?: Omit<NonNullable<TableTheme<TItem>['classes']>, 'table' | 'details'>;
-  /** Provide css styles to override columns styles. */
+  /** Provide css styles to override columns styles. See the note on `TableTheme['styles']`. */
   styles?: Omit<NonNullable<TableTheme<TItem>['styles']>, 'table' | 'details'>;
   /** Specify the screen size(s) for which this column should be displayed. */
   displaySize?: DisplaySize | DisplaySize[];
