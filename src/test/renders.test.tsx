@@ -50,6 +50,7 @@ describe('render counts', () => {
 
     reset();
     await screen.rerender(<Table {...tableProps} />);
+    expect(count('render table')).toBeGreaterThan(0);
     expect(count('render row')).toBe(0);
     expect(count('render cell')).toBe(0);
   });

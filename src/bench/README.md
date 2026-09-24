@@ -23,9 +23,12 @@ throwaway runs; any other version is committed.
 | `round4`          | progressive cell rendering (`virtual.deferCells`); adds `expensiveCells.bench.tsx` |
 | `round5`          | deferred cells revealed per row                                                    |
 | `round7`          | filter descriptors, without React Compiler                                         |
-| `round7-compiler` | `round7` compiled by React Compiler, which benchmarks use from here on             |
+| `round7-compiler` | `round7` with library and benchmarks compiled by React Compiler (experiment)       |
 
 ## Conventions
+
+- Benchmark code runs through React Compiler, like an app using it would; the library source
+  doesn't, as it is published uncompiled.
 
 - One `test` is one group; `benchGroup` from `_baseline` wires up recording and baselines. The
   group's path comes from the test's full name, so renaming a `describe` or `test` orphans its

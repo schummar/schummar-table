@@ -2,10 +2,14 @@ import { defineConfig } from 'vite-plus';
 import { playwright } from 'vite-plus/test/browser-playwright';
 import babel from '@rolldown/plugin-babel';
 
-/** Tests, benchmarks and Storybook run with React Compiler; the published build (`pack`) doesn't. */
+/**
+ * React Compiler for tests, benchmarks and stories, like an app using it would. The library source
+ * stays uncompiled, as it is published.
+ */
 export function reactCompiler(): ReturnType<typeof babel> {
   return babel({
-    include: /\.[jt]sx?$/,
+    include:
+      /(?:[\\/](?:src[\\/](?:test|bench)|docs[\\/]stories)[\\/].*|\.(?:test|bench))\.[jt]sx?$/,
     plugins: [['babel-plugin-react-compiler', { target: '19' }]],
   });
 }
