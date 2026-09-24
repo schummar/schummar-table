@@ -1,4 +1,5 @@
 import { defineConfig } from 'vite-plus';
+import { playwright } from 'vite-plus/test/browser-playwright';
 
 export default defineConfig({
   staged: {
@@ -25,6 +26,24 @@ export default defineConfig({
     bracketSameLine: false,
     sortPackageJson: false,
     ignorePatterns: ['dist', 'docs/storybook-static', '.claude', 'CHANGELOG.md', 'pnpm-lock.yaml'],
+  },
+  optimizeDeps: {
+    rolldownOptions: {
+      // Without it the prebundle inlines jsxDEV from React's production build, where it is `void 0`.
+      transform: { define: { 'process.env.NODE_ENV': '"development"' } },
+    },
+  },
+  test: {
+    include: ['src/**/*.test.{ts,tsx}'],
+    browser: {
+      enabled: true,
+      headless: true,
+      provider: playwright({
+        contextOptions: { permissions: ['clipboard-read', 'clipboard-write'] },
+      }),
+      instances: [{ browser: 'chromium' }],
+      viewport: { width: 1280, height: 800 },
+    },
   },
   pack: {
     deps: {

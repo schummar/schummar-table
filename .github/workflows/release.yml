@@ -19,13 +19,15 @@ jobs:
         with:
           fetch-depth: 0
 
-      - uses: volta-cli/action@v4
+      - uses: voidzero-dev/setup-vp@v1.21.1
+        with:
+          cache: true
 
-      - name: Install dependencies
-        run: npm --no-workspaces ci
-
-      - run: npm run lint
-      - run: npm run build
+      - run: vp install --frozen-lockfile
+      - run: vp check
+      - run: vp exec playwright install --with-deps chromium
+      - run: vp test
+      - run: vp pack
 
       - name: Setup git user
         run: |
@@ -35,4 +37,5 @@ jobs:
       - name: Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: npx nx release -y
+        # nx shells out to pnpm and node, which setup-vp does not put on PATH.
+        run: vp env exec pnpm nx release -y
