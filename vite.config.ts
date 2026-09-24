@@ -25,7 +25,14 @@ export default defineConfig({
     bracketSpacing: true,
     bracketSameLine: false,
     sortPackageJson: false,
-    ignorePatterns: ['dist', 'docs/storybook-static', '.claude', 'CHANGELOG.md', 'pnpm-lock.yaml'],
+    ignorePatterns: [
+      'dist',
+      'docs/storybook-static',
+      '.claude',
+      '.bench',
+      'CHANGELOG.md',
+      'pnpm-lock.yaml',
+    ],
   },
   optimizeDeps: {
     // Discovering these mid-run reloads the browser and fails the first test file on a cold cache.
@@ -37,6 +44,7 @@ export default defineConfig({
   },
   test: {
     include: ['src/**/*.test.{ts,tsx}'],
+    benchmark: { include: ['src/bench/**/*.bench.{ts,tsx}'] },
     browser: {
       enabled: true,
       headless: true,

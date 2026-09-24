@@ -4,3 +4,4 @@ dist
 storybook-static
 .nx
 .vitest
+.bench/local/
