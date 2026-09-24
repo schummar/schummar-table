@@ -32,7 +32,7 @@ export default class CsvExporter implements StringExporter, BlobExporter {
         }
 
         if (![separator, quote, eol].some((c) => stringValue.includes(c))) {
-          return value;
+          return stringValue;
         }
 
         const clean = stringValue.replace(new RegExp(quote, 'g'), `${quote}${quote}`);

@@ -80,11 +80,7 @@ describe('exportToString', () => {
     expect(result).toBe('Name');
   });
 
-  // Bug: when a Date value needs no escaping, exportToString returns the original Date
-  // object instead of its ISO string, so Array.join later stringifies it with
-  // Date.prototype.toString() (locale/timezone-dependent) rather than toISOString().
-  // src/exporters/csvExporter.ts:35
-  test.fails('serializes dates using toISOString', () => {
+  test('serializes dates using toISOString', () => {
     const exporter = new CsvExporter();
     const date = new Date(2024, 0, 15, 10, 30, 0);
     const result = exporter.exportToString(['Date'], [[date]]);

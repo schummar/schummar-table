@@ -108,8 +108,7 @@ describe('export', () => {
     await clipboard().toBe(csv(['first_name', 'last_name'], ['"Kas\tsia"', '"Ne""ars"']));
   });
 
-  // CsvExporter returns the raw Date when it needs no quoting, so it is joined via Date#toString.
-  test.fails('dates are exported as ISO strings', async () => {
+  test('dates are exported as ISO strings', async () => {
     await renderPersons({
       items: persons.slice(0, 1),
       columns: (col) => [col((x) => new Date(x.birthday), { id: 'birthday', header: 'Birthday' })],
