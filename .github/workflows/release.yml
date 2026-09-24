@@ -35,7 +35,11 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email ""
 
+      # `next` publishes prereleases (0.52.0-beta.0, -beta.1, ...) under the npm dist-tag `next`.
+      # Stable releases ignore the beta tags when resolving the current version (strictPreid).
       - name: Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: vp env exec pnpm nx release -y
+          NPM_CONFIG_TAG: ${{ github.ref_name == 'next' && 'next' || 'latest' }}
+          PREID: ${{ github.ref_name == 'next' && 'beta' || '' }}
+        run: vp env exec pnpm nx release -y --preid "$PREID"

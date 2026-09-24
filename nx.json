@@ -8,7 +8,8 @@
       "commit": false
     },
     "version": {
-      "conventionalCommits": true
+      "conventionalCommits": true,
+      "adjustSemverBumpsForZeroMajorVersion": false
     },
     "changelog": {
       "workspaceChangelog": {
