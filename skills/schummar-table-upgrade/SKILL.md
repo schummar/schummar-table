@@ -26,8 +26,15 @@ Check the consumer's `react`/`react-dom` versions. Upgrade if needed before proc
 
 ## 2. Dependency tuples `[fn, ...deps]` removed
 
-Grep: `grep -rn '\[\s*(async\s*)?\(' src/` (broad — narrow to file/prop names below), or more targeted:
-`grep -rnE '(id|parentId|columnProps|wrapRow|wrapCell|rowAction|rowDetails|value|renderCell|filterBy)=\{\[' src/`
+Tuples appear as JSX props, as object properties and as the first argument of `col()`. Run all three:
+
+```sh
+grep -rnE '(id|parentId|columnProps|wrapRow|wrapCell|rowAction|rowDetails|value|renderCell|filterBy|row|cell|details)=\{\[' src/
+grep -rnE '(id|parentId|columnProps|wrapRow|wrapCell|rowAction|rowDetails|value|renderCell|exportCell|filterBy|sortBy|row|cell|details):\s*\[' src/
+grep -rnE '\bcol\(\s*\[' src/
+```
+
+The patterns are line-based: a tuple whose `[` is on the next line is missed. As a backstop, `grep -rnE '^\s*\[\s*(async\s*)?(\(|[a-zA-Z_]+\s*=>)' src/` finds lines that start a tuple, and the type checker reports whatever is left (a tuple is no longer assignable to a function).
 
 Affected: table `id`, `parentId`, `columnProps`, `wrapRow`, `wrapCell`, `rowAction`, `rowDetails`; column `value`, `renderCell`, `sortBy[]` entries, `filterBy` (now a column property, formerly on the filter); the `col(value, ...)` factory's first argument; theme `classes.row/cell/details` and `styles.row/cell/details`.
 
@@ -65,6 +72,8 @@ Remove the `subgrid` prop entirely — CSS subgrid is now always used. Every row
 
 **Needs human review:** any custom CSS that assumed cells are direct children of the table's grid container, or that targeted rows via `display: contents` (e.g. `.table > .row-child-selector`). Search for `display: contents` and any selectors referencing the table's row/cell DOM structure:
 `grep -rn 'display:\s*contents' src/**/*.css src/**/*.ts src/**/*.tsx`
+
+The header and footer rows are now the sticky elements, not their cells: see section 14. Offsets on `headerCell`/`footerCell` styles break silently.
 
 ## 5. `virtual` option shape changed
 
@@ -109,6 +118,8 @@ After:
 ```tsx
 wrapRow={(props, item) => <Link to={`/items/${item.id}`} {...props} />}
 ```
+
+`props.ref` is a `RefCallback<HTMLElement> | null`, so it can be spread onto any element, including an `<a>`-based `Link`. If the installed version still types it as `Ref<HTMLDivElement>` (early 1.0 betas), cast it: `ref={props.ref as Ref<HTMLAnchorElement>}`. A `Link` component that doesn't forward `ref` to its DOM element can't be measured either.
 
 **Needs human review:** every `wrapRow` implementation — check it spreads `props` (or at minimum forwards `ref`, `data-index`, `className`, and `style`) onto the actual row DOM element.
 
@@ -200,6 +211,17 @@ col((x) => x.birthday, { filter: <RangeFilter filterBy={(d: Date) => d.getFullYe
 col((x) => x.birthday, { filterBy: (d) => d.getFullYear(), filter: rangeFilter() });
 ```
 
+**Custom column helpers need the filter type parameter.** `Column` is now `Column<TItem, TColumnValue, TFilterBy = TColumnValue>`. A wrapper typed with only the first two, e.g. `function myCol<T, V>(…): Column<T, V>`, pins the filter input to the column value, so a `filterBy` returning another type is rejected. Find them and thread a third parameter through:
+
+`grep -rnE 'Column<|ColumnFactory<' src/`
+
+```ts
+function myCol<T, V, F = V>(
+  value: (item: T) => V,
+  column: Omit<Column<T, V, F>, 'value'>,
+): Column<T, V, F>;
+```
+
 **Filters are type checked against the column.** A filter must accept the column value, or the `filterBy` result if given. What the built-in filters accept (each also as an array or `Set` of values: an item matches if one of them does):
 
 - `textFilter`: `string | number | bigint | null | undefined`
@@ -249,6 +271,7 @@ const myFilter = defineFilter<SingleOrMultiple<string>, TState, MyOptions>({
 The component no longer reads the table context for its value: it gets `value`/`onChange` (debounced by the table when `debounce` is set), `close()`, and `getValues()` for the distinct single `filterBy` values of all items. `test` gets each item's `filterBy` value as is, arrays and Sets included.
 
 - Only `textFilter` is debounced by default now (300 ms instead of 500 ms for every filter); select, range and date filters apply immediately. `textFilter` and `rangeFilter` take a `debounce` option (ms).
+- **Saved filter values carry over.** The storage key and format are unchanged, and every built-in filter keeps its value shape (text: `string`; select: `Set`; range: `[min, max]`; date: `Date` or `DateRange`), so values saved by 0.51 are restored under the same column id. Two cases change behaviour: a column that gets an explicit `id` during the migration loses its saved value (it was stored under the column index), and a select filter whose column gains a `filterBy` that changes the value type (e.g. `Date` → ISO string) restores values that no longer match any item. Needs human review if either applies and the persisted filters matter.
 - The per-filter `persist` prop moved to the table's `persist` config: `persist={{ …, exclude: [{ filterValues: ['columnId'] }] }}` replaces `persist={false}` on that column's filter. `include: [{ filterValues: [...] }]` persists only the listed filters.
 - New theme text `text.hiddenColumnFilters`: add it to translated themes.
 - `AutoFocusTextField` now focuses whenever it mounts, not only inside an open filter popover.
@@ -276,5 +299,24 @@ The table's own styles now live in a separate emotion stylesheet (key `<your cac
 If the project uses `schummar-table/excelExporter`: replace the `xlsx` dependency with `write-excel-file` (`>=4`), unless `xlsx` is used elsewhere. Date cells are formatted as `yyyy-mm-dd` by default; pass `new ExcelExporter({ dateFormat: 'dd.mm.yyyy' })` for another Excel number format.
 
 Custom exporters: `BlobExporter.exportToBlob` may now return a `Promise<Blob>`. Code that calls `exportToBlob` directly must `await` it.
+
+## 14. Sticky header and footer: the row is sticky, not the cells
+
+Grep: `grep -rnE 'headerCell|footerCell|stickyHeader|stickyFooter' src/`
+
+`position: sticky` moved from each header/footer cell to the header/footer row (see section 4). A `top` offset on `styles.headerCell` (or `bottom` on `styles.footerCell`) used to offset the sticky cells; now the cells are positioned relative to an already-sticky row, so the header labels shift down over the first row. There is no type error.
+
+Move the offset to the table prop:
+
+```tsx
+// before
+<Table styles={{ headerCell: { top: 64 } }} />
+// after
+<Table stickyHeader={{ top: 64 }} />
+```
+
+`stickyHeader.top` and `stickyFooter.bottom` accept a number (px) or a CSS string, e.g. `stickyHeader={{ top: 'var(--app-shell-header-height)' }}`. Check for the same offsets in `TableSettingsProvider` themes and in CSS passed via `classes.headerCell`. A theme can't set the sticky offset anymore: pass `stickyHeader` on each table, or in the app's own `Table` wrapper if it has one.
+
+**Needs human review:** verify in the browser: scroll a table with a sticky header and check the labels stay aligned with the header background.
 
 <!-- Append new dated sections here for future breaking changes, following the same grep / before-after / needs-human-review structure. -->
