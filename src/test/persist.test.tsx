@@ -10,13 +10,17 @@ const names = items.map((p) => p.first_name);
 const unsorted = ['Kassia', 'Dulcia', 'Chelsey', 'Thoma', 'Maurene'];
 const storageKey = (id: string) => `schummar-table_state-v1_${id}`;
 
+// Unique per test: a throttled save from the previous test can still land after it ended.
+let persistId = '';
+let testCount = 0;
+
 function PersonTable(props: Partial<TableProps<Person>>) {
   return (
     <Table<Person>
       items={items}
       id="id"
       enableSelection={false}
-      persist={{ storage: localStorage, id: 'persist-test' }}
+      persist={{ storage: localStorage, id: persistId }}
       columns={(col) => [
         col((x) => x.first_name, {
           id: 'first_name',
@@ -47,7 +51,7 @@ function shownHeaders() {
     .filter((text) => text === 'First name' || text === 'Last name');
 }
 
-function stored(id = 'persist-test') {
+function stored(id = persistId) {
   const json = localStorage.getItem(storageKey(id));
   return json ? JSON.parse(json) : null;
 }
@@ -77,6 +81,7 @@ async function openColumnSelection() {
 }
 
 beforeEach(() => {
+  persistId = `persist-test-${testCount++}`;
   localStorage.clear();
 });
 
@@ -133,13 +138,13 @@ describe('persist', () => {
     await pollStored().toMatchObject({ sort: [{ columnId: 'first_name' }] });
 
     await screen.unmount();
-    await renderPersons({ persist: { storage: localStorage, id: 'persist-test-other' } });
+    await renderPersons({ persist: { storage: localStorage, id: `${persistId}-other` } });
     await expect.element(page.getByText('Kassia')).toBeVisible();
     await expect.poll(shownNames).toEqual(unsorted);
   });
 
   test('excluded keys are neither saved nor restored', async () => {
-    const persist = { storage: localStorage, id: 'persist-test', exclude: ['sort' as const] };
+    const persist = { storage: localStorage, id: persistId, exclude: ['sort' as const] };
     const screen = await renderPersons({ persist });
     await sortByFirstName();
     await filterFirstName('a');

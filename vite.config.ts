@@ -29,7 +29,7 @@ export default defineConfig({
   },
   optimizeDeps: {
     // Discovering these mid-run reloads the browser and fails the first test file on a cold cache.
-    include: ['vite-plus/test/browser/context', 'vitest-browser-react'],
+    include: ['vite-plus/test/browser/context', 'vitest-browser-react', '@mui/material'],
     rolldownOptions: {
       // Without it the prebundle inlines jsxDEV from React's production build, where it is `void 0`.
       transform: { define: { 'process.env.NODE_ENV': '"development"' } },
@@ -49,7 +49,7 @@ export default defineConfig({
   },
   pack: {
     deps: {
-      // tsdown <0.23 compatibility; drop once verified that subpath imports stay as written.
+      // Keeps tsdown <0.23 behaviour for external subpath imports (e.g. @emotion/react/jsx-runtime).
       resolveDepSubpath: true,
       onlyBundle: ['schummar-state'],
     },
