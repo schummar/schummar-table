@@ -14,10 +14,11 @@ pnpm exec vp test bench --run -t 'interaction'      # filter by group name
 Results live in `.bench/<version>/<group>/<benchmark>.json`. `.bench/local/` is git-ignored for
 throwaway runs; any other version is committed.
 
-| Version  | What it is                                                         |
-| -------- | ------------------------------------------------------------------ |
-| `before` | v0.51 architecture (schummar-state store, per-cell subscriptions)  |
-| `after`  | domain hooks + contexts, memo rows, TanStack Virtual, subgrid rows |
+| Version  | What it is                                                           |
+| -------- | -------------------------------------------------------------------- |
+| `before` | v0.51 architecture (schummar-state store, per-cell subscriptions)    |
+| `after`  | domain hooks + contexts, memo rows, TanStack Virtual, subgrid rows   |
+| `round2` | stable prop/column references, single row mount in scroll containers |
 
 ## Conventions
 

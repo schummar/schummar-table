@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { describe, expect, test } from 'vite-plus/test';
 import { render } from 'vitest-browser-react';
 import { Table } from '..';
@@ -91,6 +92,30 @@ describe('virtual', () => {
     } finally {
       window.scrollTo(0, 0);
     }
+  });
+
+  test('rows mount once inside a scroll container', async () => {
+    const lifecycle = { mounts: 0, unmounts: 0 };
+    function Counter() {
+      useEffect(() => {
+        lifecycle.mounts++;
+        return () => {
+          lifecycle.unmounts++;
+        };
+      }, []);
+      return null;
+    }
+
+    const screen = await render(
+      <div style={{ height: 400, overflowY: 'auto' }}>
+        <Table {...props} rowAction={<Counter />} />
+      </div>,
+    );
+
+    await expect.element(screen.getByText('Row 0', { exact: true })).toBeVisible();
+    await new Promise((resolve) => setTimeout(resolve, 200));
+    expect(lifecycle.unmounts).toBe(0);
+    expect(lifecycle.mounts).toBe(renderedRows());
   });
 
   test('renders all rows when virtual is disabled', async () => {

@@ -43,13 +43,18 @@ function useScrollRoot(tableRef: RefObject<HTMLElement | null>, probe: HTMLEleme
     if (!probe || !table) return;
 
     function update() {
-      const element = findScrollRoot(probe!);
-      const margin = Math.round(measureScrollMargin(probe!, element));
-      setRoot((current) =>
-        current && current.element === element && current.margin === margin
+      setRoot((current) => {
+        // A container stays the scroll root while it can scroll, even when a filter shrinks the
+        // content below its height: switching virtualizers would remount every row.
+        const keep =
+          current?.element?.contains(probe) &&
+          getComputedStyle(current.element).overflowY !== 'visible';
+        const element = keep ? current!.element : findScrollRoot(probe!);
+        const margin = Math.round(measureScrollMargin(probe!, element));
+        return current && current.element === element && current.margin === margin
           ? current
-          : { element, margin },
-      );
+          : { element, margin };
+      });
     }
 
     update();
@@ -136,10 +141,14 @@ export function VirtualRows({
 }: Omit<VirtualRowsProps, 'scrollMargin'> & { tableRef: RefObject<HTMLElement | null> }) {
   const [probe, setProbe] = useState<HTMLDivElement | null>(null);
   const root = useScrollRoot(tableRef, probe);
+  const estimate = props.options.rowHeight ?? props.options.estimatedRowHeight ?? 40;
 
   return (
     <>
       <div ref={setProbe} style={spacerCss} />
+      {/* Takes the rows' estimated space until the scroll root is known, so the container that
+          will scroll already overflows and gets picked right away. */}
+      {!root && <div style={{ ...spacerCss, height: props.count * estimate }} />}
       {root &&
         (root.element ? (
           <ElementRows {...props} root={root.element} scrollMargin={root.margin} />
