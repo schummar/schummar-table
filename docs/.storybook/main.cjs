@@ -20,6 +20,9 @@ module.exports = {
         jsxImportSource: '@emotion/react',
       }),
     );
+
+    const { isReactCompilerEnabled, reactCompiler } = await import('../../reactCompiler.mjs');
+    if (isReactCompilerEnabled) config.plugins.unshift(reactCompiler());
     return config;
   },
   docs: {

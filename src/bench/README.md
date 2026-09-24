@@ -14,14 +14,16 @@ pnpm exec vp test bench --run -t 'interaction'      # filter by group name
 Results live in `.bench/<version>/<group>/<benchmark>.json`. `.bench/local/` is git-ignored for
 throwaway runs; any other version is committed.
 
-| Version  | What it is                                                                         |
-| -------- | ---------------------------------------------------------------------------------- |
-| `before` | v0.51 architecture (schummar-state store, per-cell subscriptions)                  |
-| `after`  | domain hooks + contexts, memo rows, TanStack Virtual, subgrid rows                 |
-| `round2` | stable prop/column references, single row mount in scroll containers               |
-| `round3` | library styles as static prepended classes, no emotion `css` prop in rows/cells    |
-| `round4` | progressive cell rendering (`virtual.deferCells`); adds `expensiveCells.bench.tsx` |
-| `round5` | deferred cells revealed per row                                                    |
+| Version           | What it is                                                                              |
+| ----------------- | --------------------------------------------------------------------------------------- |
+| `before`          | v0.51 architecture (schummar-state store, per-cell subscriptions)                       |
+| `after`           | domain hooks + contexts, memo rows, TanStack Virtual, subgrid rows                      |
+| `round2`          | stable prop/column references, single row mount in scroll containers                    |
+| `round3`          | library styles as static prepended classes, no emotion `css` prop in rows/cells         |
+| `round4`          | progressive cell rendering (`virtual.deferCells`); adds `expensiveCells.bench.tsx`      |
+| `round5`          | deferred cells revealed per row                                                         |
+| `round7`          | filter descriptors; baseline for the React Compiler comparison                          |
+| `round7-compiler` | `round7` with library and benchmarks compiled by React Compiler (`pnpm bench:compiler`) |
 
 ## Conventions
 

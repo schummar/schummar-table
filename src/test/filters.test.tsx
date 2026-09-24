@@ -645,7 +645,9 @@ describe('filter value and onChange', () => {
       );
     }
     await render(<Parent />);
-    await expect.poll(() => calls.test).toBeGreaterThan(0);
+    // Wait for the table to settle, so later filtering can only come from the re-renders.
+    await expectFirstNames().toEqual(namesOf((p) => p.first_name.includes('a')));
+    await new Promise((resolve) => setTimeout(resolve, 100));
     const testCalls = calls.test;
 
     await page.getByRole('button', { name: 'rerender 0' }).click();

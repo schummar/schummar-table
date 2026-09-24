@@ -1,7 +1,10 @@
 import { defineConfig } from 'vite-plus';
 import { playwright } from 'vite-plus/test/browser-playwright';
+import { isReactCompilerEnabled, reactCompiler } from './reactCompiler.mjs';
 
 export default defineConfig({
+  plugins: isReactCompilerEnabled ? [reactCompiler()] : [],
+  define: { __REACT_COMPILER__: JSON.stringify(isReactCompilerEnabled) },
   staged: {
     '*': 'vp check --fix',
   },
@@ -36,7 +39,12 @@ export default defineConfig({
   },
   optimizeDeps: {
     // Discovering these mid-run reloads the browser and fails the first test file on a cold cache.
-    include: ['vite-plus/test/browser/context', 'vitest-browser-react', '@mui/material'],
+    include: [
+      'vite-plus/test/browser/context',
+      'vitest-browser-react',
+      '@mui/material',
+      'react/compiler-runtime',
+    ],
     rolldownOptions: {
       // Without it the prebundle inlines jsxDEV from React's production build, where it is `void 0`.
       transform: { define: { 'process.env.NODE_ENV': '"development"' } },
