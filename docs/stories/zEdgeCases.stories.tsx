@@ -123,3 +123,28 @@ export const PeriodicRerenders = {
     },
   ],
 } satisfies Story;
+
+function ExpensiveCell({ value, ms }: { value: string; ms: number }) {
+  const end = performance.now() + ms;
+  while (performance.now() < end);
+  return <>{value}</>;
+}
+
+export const ExpensiveCells = {
+  args: {
+    items: data.slice(0, 100),
+    id: 'id',
+    virtual: true,
+    stickyHeader: true,
+    fullWidth: 'left',
+    columns: (col) =>
+      Array.from({ length: 10 }, (_x, i) =>
+        col((x) => `${x.first_name} ${x.last_name}`, {
+          id: `col${i}`,
+          header: `Column ${i}`,
+          filter: <TextFilter />,
+          renderCell: (value) => <ExpensiveCell value={value} ms={10} />,
+        }),
+      ),
+  },
+} satisfies Story;
