@@ -1,4 +1,4 @@
-import type { ComponentMeta } from '@storybook/react-vite';
+import type { Meta } from '@storybook/react-vite';
 import { RangeFilter, Table } from '../../src';
 import css from './styles.module.css';
 
@@ -23,7 +23,7 @@ export default {
       control: { type: 'inline-radio' },
     },
   },
-} as ComponentMeta<typeof Table>;
+} as Meta<typeof Table>;
 
 export const Primary = {
   args: {

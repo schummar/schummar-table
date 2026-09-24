@@ -3,7 +3,10 @@
   "version": "0.0.0",
   "description": "",
   "license": "ISC",
-  "repository": "schummar/schummar-table",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/schummar/schummar-table.git"
+  },
   "author": {
     "name": "Marco Schumacher",
     "email": "marco@schumacher.dev"
@@ -37,12 +40,13 @@
     "./package.json": "./package.json"
   },
   "scripts": {
+    "prepare": "vp config --no-agent",
     "start": "pnpm -C docs start",
-    "build": "tsdown",
-    "lint": "runp lint:*",
-    "lint:format": "prettier --check src",
-    "lint:oxlint": "oxlint",
-    "lint:tsc": "tsc --emitDeclarationOnly false --noEmit",
+    "build": "vp pack",
+    "lint": "vp check",
+    "fix": "vp check --fix",
+    "test": "vp test",
+    "test:watch": "vp test watch",
     "docs:build": "pnpm -C docs build"
   },
   "peerDependencies": {
@@ -77,27 +81,19 @@
     "@emotion/styled": "11.11.0",
     "@material-ui/core": "4.12.4",
     "@mui/material": "5.14.18",
-    "@nx/js": "^22.3.3",
-    "@schummar/prettier-config": "github:schummar/prettier-config",
-    "@schummar/runp": "2.0.5",
-    "@swc-node/register": "^1.11.1",
-    "@swc/core": "^1.15.8",
+    "@nx/js": "^23.2.1",
     "@types/react": "18.2.37",
     "@types/react-dom": "18.2.15",
-    "esbuild": "^0.27.2",
-    "nx": "^22.3.3",
-    "oxlint": "^1.39.0",
-    "prettier": "3.1.0",
+    "nx": "^23.2.1",
     "publint": "^0.3.14",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "schummar-state": "0.2.1-experimental-13",
-    "tsdown": "^0.15.6",
     "typescript": "^5.9.3",
     "unplugin-unused": "^0.5.3",
-    "xlsx": "0.18.5"
+    "xlsx": "0.18.5",
+    "vite-plus": "catalog:"
   },
-  "prettier": "@schummar/prettier-config",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
   "types": "./dist/index.d.cts",
@@ -112,5 +108,8 @@
       "version": "12.6.0",
       "onFail": "download"
     }
+  },
+  "inlinedDependencies": {
+    "schummar-state": "0.2.1-experimental-13"
   }
 }

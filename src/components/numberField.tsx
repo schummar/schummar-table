@@ -2,9 +2,8 @@ import { useState } from 'react';
 import { useTheme } from '../hooks/useTheme';
 import type { TableTheme } from '../types';
 
-type TextFieldProps = TableTheme['components']['TextField'] extends React.ComponentType<infer T>
-  ? T
-  : never;
+type TextFieldProps =
+  TableTheme['components']['TextField'] extends React.ComponentType<infer T> ? T : never;
 
 export interface NumberFieldProps extends Omit<TextFieldProps, 'value' | 'onChange'> {
   value?: number | null;

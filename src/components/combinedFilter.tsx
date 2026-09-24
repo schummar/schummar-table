@@ -3,8 +3,10 @@ import { ColumnContext, useTableContext } from '../misc/tableContext';
 import type { CommonFilterProps } from '../types';
 import { NestedFilterControl } from './nestedFilterControl';
 
-export interface CombinedFilterProps
-  extends Pick<CommonFilterProps<any, any, any, any>, 'classNames'> {
+export interface CombinedFilterProps extends Pick<
+  CommonFilterProps<any, any, any, any>,
+  'classNames'
+> {
   columnIds?: string[];
 }
 

@@ -379,7 +379,11 @@ export function DatePicker(props: DatePickerProps) {
   useEffect(
     () =>
       setDateInView(
-        value === null ? defaultDateInView ?? mountTime : value instanceof Date ? value : value.max,
+        value === null
+          ? (defaultDateInView ?? mountTime)
+          : value instanceof Date
+            ? value
+            : value.max,
       ),
     [getValueForComparison(value), getValueForComparison(defaultDateInView), mountTime],
   );

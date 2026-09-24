@@ -1,5 +1,5 @@
 import { Box, Typography } from '@mui/material';
-import type { ComponentMeta } from '@storybook/react-vite';
+import type { Meta } from '@storybook/react-vite';
 import { useState } from 'react';
 import type { DateRange, Sort } from '../../src';
 import { DateFilter, SelectFilter, Table, TextFilter } from '../../src';
@@ -11,7 +11,7 @@ const dateFormat = new Intl.DateTimeFormat(undefined, { dateStyle: 'medium' });
 export default {
   title: 'External Filters',
   component: Table,
-} as ComponentMeta<typeof Table>;
+} as Meta<typeof Table>;
 
 export const Primary = () => {
   const [sort, setSort] = useState(new Array<Sort>());

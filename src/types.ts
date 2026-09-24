@@ -160,16 +160,18 @@ export interface TableTheme<TItem = unknown> {
   };
   /** Define icons for the table. */
   icons: {
-    [K in
-      | 'Settings'
-      | 'Export'
-      | 'Clipboard'
-      | 'ChevronRight'
-      | 'Search'
-      | 'Clear'
-      | 'ArrowDropDown'
-      | 'FilterList'
-      | 'ArrowUpward']: ComponentType<{
+    [
+      K in
+        | 'Settings'
+        | 'Export'
+        | 'Clipboard'
+        | 'ChevronRight'
+        | 'Search'
+        | 'Clear'
+        | 'ArrowDropDown'
+        | 'FilterList'
+        | 'ArrowUpward'
+    ]: ComponentType<{
       className?: string;
     }>;
   };

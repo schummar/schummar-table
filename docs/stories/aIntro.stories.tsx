@@ -212,10 +212,8 @@ export const RowClass: Story = {
   args: {
     ...Primary.args,
     classes: {
-      row(item, index) {
-        if (index % 2 === 0) {
-          return css.evenRow;
-        }
+      row(_item, index) {
+        return index % 2 === 0 ? css.evenRow : undefined;
       },
     },
   },

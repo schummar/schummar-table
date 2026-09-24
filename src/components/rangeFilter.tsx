@@ -5,8 +5,12 @@ import { useColumnContext, useTableContext } from '../misc/tableContext';
 import type { CommonFilterProps } from '../types';
 import { NumberField } from './numberField';
 
-export interface RangeFilterProps<T, V>
-  extends CommonFilterProps<T, V, number | null, [number | null, number | null] | null> {
+export interface RangeFilterProps<T, V> extends CommonFilterProps<
+  T,
+  V,
+  number | null,
+  [number | null, number | null] | null
+> {
   min?: number;
   max?: number;
 }

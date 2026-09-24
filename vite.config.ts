@@ -1,0 +1,51 @@
+import { defineConfig } from 'vite-plus';
+
+export default defineConfig({
+  staged: {
+    '*': 'vp check --fix',
+  },
+  lint: {
+    jsPlugins: [{ name: 'vite-plus', specifier: 'vite-plus/oxlint-plugin' }],
+    rules: {
+      'vite-plus/prefer-vite-plus-imports': 'error',
+      // Flags emotion's destructured css/cx and debounced .cancel, which don't use this.
+      'typescript/unbound-method': 'off',
+    },
+    options: { typeAware: true, typeCheck: true },
+    ignorePatterns: ['dist', 'docs/storybook-static'],
+  },
+  fmt: {
+    printWidth: 100,
+    tabWidth: 2,
+    useTabs: false,
+    semi: true,
+    singleQuote: true,
+    trailingComma: 'all',
+    bracketSpacing: true,
+    bracketSameLine: false,
+    sortPackageJson: false,
+    ignorePatterns: ['dist', 'docs/storybook-static', '.claude', 'CHANGELOG.md', 'pnpm-lock.yaml'],
+  },
+  pack: {
+    deps: {
+      // tsdown <0.23 compatibility; drop once verified that subpath imports stay as written.
+      resolveDepSubpath: true,
+      onlyBundle: ['schummar-state'],
+    },
+    clean: true,
+    entry: {
+      index: 'src/index.ts',
+      mui5Theme: 'src/theme/mui5Theme/index.tsx',
+      mui4Theme: 'src/theme/mui4Theme/index.tsx',
+      csvExporter: 'src/exporters/csvExporter.ts',
+      excelExporter: 'src/exporters/excelExporter.ts',
+    },
+    format: ['esm', 'cjs'],
+    platform: 'neutral',
+    publint: true,
+    unused: true,
+    dts: true,
+    sourcemap: true,
+    exports: true,
+  },
+});
