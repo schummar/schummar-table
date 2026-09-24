@@ -70,6 +70,7 @@
     "docs:build": "pnpm -C docs build"
   },
   "peerDependencies": {
+    "@emotion/react": "^11.11.1",
     "@material-ui/core": ">=4.0.0",
     "@mui/material": ">=5.0.0",
     "react": ">=19.0.0",
@@ -89,7 +90,6 @@
   },
   "dependencies": {
     "@emotion/cache": "^11.14.0",
-    "@emotion/react": ">=11.11.1",
     "@emotion/serialize": "^1.3.3",
     "@emotion/utils": "^1.4.2",
     "@tanstack/react-virtual": "^3.14.13",
@@ -97,6 +97,7 @@
     "temporal-polyfill": "^1.0.5"
   },
   "devDependencies": {
+    "@emotion/react": "11.14.0",
     "@emotion/styled": "11.14.1",
     "@material-ui/core": "4.12.4",
     "@mui/material": "5.14.18",

@@ -22,6 +22,8 @@ New breaking changes are appended below as new numbered sections — treat this 
 
 Check the consumer's `react`/`react-dom` versions. Upgrade if needed before proceeding; the rest of this migration assumes React 19.
 
+`@emotion/react` (`^11.11.1`) is a peer dependency now too, so the table shares the app's emotion instance, cache and theme. Add it to the consumer's dependencies if it isn't there.
+
 ## 2. Dependency tuples `[fn, ...deps]` removed
 
 Grep: `grep -rn '\[\s*(async\s*)?\(' src/` (broad — narrow to file/prop names below), or more targeted:
