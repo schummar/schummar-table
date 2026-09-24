@@ -1,264 +1,245 @@
 import {
-  forwardRef,
-  memo,
+  useCallback,
   useEffect,
+  useImperativeHandle,
   useLayoutEffect,
+  useMemo,
+  useRef,
   useState,
-  type ForwardedRef,
   type ReactElement,
+  type Ref,
 } from 'react';
-import { TableMemoContextProvider } from '../hooks/useTableMemo';
-import useTableRef from '../hooks/useTableRef';
-import { useTheme } from '../hooks/useTheme';
-import { useTableStateStorage } from '../internalState/tableStateStorage';
-import { useTableState } from '../internalState/useTableState';
+import { ThemeContext, useTheme } from '../hooks/useTheme';
 import {
-  ColumnContext,
+  SelectionContext,
+  TableActionsContext,
   TableContext,
-  TableResetContext,
+  TableStructureContext,
   useTableContext,
-} from '../misc/tableContext';
+} from '../state/context';
+import { useTable } from '../state/useTable';
 import { defaultClasses } from '../theme/defaultTheme/defaultClasses';
 import { useCssVariables } from '../theme/useCssVariables';
-import type { TableProps, TableRef } from '../types';
-import ClearFiltersButton from './clearFiltersButton';
-import { ColumnFooter } from './columnFooter';
-import { ColumnHeader, ColumnHeaderContext } from './columnHeader';
-import { ColumnSelection } from './columnSelection';
-import { Export } from './export';
-import { ResizeHandleView } from './resizeHandle';
-import { Row } from './row';
-import { SelectComponent } from './selectComponent';
-import { Virtualized } from './virtualized';
+import type { TableContextValue, TableProps, TableRef, TableStructure, TableTheme } from '../types';
+import { columnWidthVariable } from './resizeHandle';
+import { Row, type RowConfig } from './row';
+import { TableFooter } from './tableFooter';
+import { TableHeader } from './tableHeader';
+import { VirtualRows } from './virtualized';
 
-export const Table = forwardRef(_Table) as <T>(
-  props: TableProps<T> & { ref?: ForwardedRef<TableRef> },
-) => ReturnType<typeof _Table>;
+export function Table<T>({ ref, ...props }: TableProps<T> & { ref?: Ref<TableRef> }): ReactElement {
+  const [resetKey, setResetKey] = useState(0);
+  const latestProps = useRef(props);
+  latestProps.current = props;
 
-function _Table<T>(props: TableProps<T>, ref: ForwardedRef<TableRef>): ReactElement {
-  // The memo cache must be provided above useTableState, so that calcProps memoizes
-  // per table instance instead of falling back to a cache shared between tables.
-  return (
-    <TableMemoContextProvider>
-      <TableWithState props={props} tableRef={ref} />
-    </TableMemoContextProvider>
-  );
+  const onReset = useCallback(() => {
+    const props = latestProps.current;
+    setResetKey((key) => key + 1);
+
+    if (props.sort === undefined) props.onSortChange?.(props.defaultSort ?? []);
+    if (props.expanded === undefined) props.onExpandedChange?.(props.defaultExpanded ?? new Set());
+    if (props.selection === undefined) {
+      props.onSelectionChange?.(props.defaultSelection ?? new Set());
+    }
+    if (props.hiddenColumns === undefined) {
+      props.onHiddenColumnsChange?.(props.defaultHiddenColumns ?? new Set());
+    }
+    props.onReset?.('table');
+  }, []);
+
+  return <TableWithState key={resetKey} props={props} tableRef={ref} onReset={onReset} />;
 }
 
 function TableWithState<T>({
-  props,
+  props: rawProps,
   tableRef,
+  onReset,
 }: {
   props: TableProps<T>;
-  tableRef: ForwardedRef<TableRef>;
+  tableRef?: Ref<TableRef>;
+  onReset: () => void;
 }): ReactElement {
-  const [table, resetState] = useTableState(props);
-  const [isHydrated, clearStorage] = useTableStateStorage(table);
-  useTableRef(table, tableRef);
+  const table = useTable(rawProps, onReset);
+  const { state, actions, theme, isHydrated } = table;
 
-  async function reset() {
-    await clearStorage();
-    resetState();
-  }
+  useImperativeHandle(
+    tableRef,
+    () => ({
+      getSort: () => actions.getState().sort,
+      setSort: table.setSortInternal,
+      getSelection: () => actions.getState().selection,
+      setSelection: table.setSelectionInternal,
+      getExpanded: () => actions.getState().expanded,
+      setExpanded: table.setExpandedInternal,
+      getHiddenColumns: () => actions.getState().hiddenColumns,
+      setHiddenColumns: table.setHiddenColumnsInternal,
+    }),
+    [actions],
+  );
 
-  useLayoutEffect(() => {
-    table.getState().props.debugRender?.('render table');
-  });
+  const context: TableContextValue<T> = { ...state, actions };
+  const { props, displaySize, sort, hiddenColumns, columnWidths, filters, filterValues } = state;
+  const { columns, activeColumns, visibleColumns, items, itemsById } = state;
+  const structure = useMemo(
+    (): TableStructure<T> => ({
+      props,
+      displaySize,
+      sort,
+      hiddenColumns,
+      columnWidths,
+      filters,
+      filterValues,
+      columns,
+      activeColumns,
+      visibleColumns,
+      items,
+      itemsById,
+      actions,
+    }),
+    [
+      props,
+      displaySize,
+      sort,
+      hiddenColumns,
+      columnWidths,
+      filters,
+      filterValues,
+      columns,
+      activeColumns,
+      visibleColumns,
+      items,
+      itemsById,
+      actions,
+    ],
+  );
 
   return (
-    <TableContext.Provider value={table}>
-      <TableResetContext.Provider value={reset}>
-        <TableLoadingState isHydrated={isHydrated} />
-      </TableResetContext.Provider>
-    </TableContext.Provider>
+    <ThemeContext.Provider value={theme}>
+      <TableActionsContext.Provider value={actions}>
+        <TableStructureContext.Provider value={structure}>
+          <TableContext.Provider value={context}>
+            <TableLoadingState isHydrated={isHydrated} />
+            <SelectionContext.Provider value={state.selection}>
+              <TableGrid hidden={!isHydrated} />
+            </SelectionContext.Provider>
+          </TableContext.Provider>
+        </TableStructureContext.Provider>
+      </TableActionsContext.Provider>
+    </ThemeContext.Provider>
   );
 }
 
 function TableLoadingState({ isHydrated }: { isHydrated: boolean }) {
-  const loadingText = useTheme((t) => t.text.loading);
   const [showLoading, setShowLoading] = useState(false);
+  const loadingText = useTheme((t) => t.text.loading);
 
   useEffect(() => {
     const handle = setTimeout(() => setShowLoading(true), 500);
     return () => clearTimeout(handle);
-  });
+  }, []);
 
-  return (
-    <>
-      {!isHydrated && showLoading && <div>{loadingText}</div>}
-      <TableInner hidden={!isHydrated} />
-    </>
-  );
+  return !isHydrated && showLoading ? <div>{loadingText}</div> : null;
 }
 
-const TableInner = memo(function TableInner<T>({ hidden }: { hidden: boolean }) {
-  const table = useTableContext<T>();
-  const fullWidth = table.useState((state) => state.props.fullWidth);
-
-  const visibleColumns = table.useState((state) =>
-    state.visibleColumns.map((column) => ({
-      id: column.id,
-      width: column.width,
-      classes: column.classes,
-      styles: column.styles,
-      footer: column.footer,
-    })),
-  );
-
-  const hasActiveFilters = table.useState((state) => {
-    return state.activeColumns.some((column) => {
-      const filter = state.filters.get(column.id);
-      const filterValue = state.filterValues.get(column.id);
-      return filter !== undefined && filterValue !== undefined && filter.isActive(filterValue);
-    });
-  });
-  const columnWidths = table.useState((state) => state.columnWidths, { throttle: 16 });
-  const hasFooter = table.useState((state) => state.activeColumns.some((column) => column.footer));
-
-  const classes = useTheme((theme) => theme.classes);
-  const styles = useTheme((theme) => theme.styles);
-  const stickyHeader = table.useState((state) => state.props.stickyHeader);
-  const stickyFooter = table.useState((state) => state.props.stickyFooter);
-
-  const enableSelection = table.useState((state) => state.props.enableSelection);
-  const enableColumnSelection = table.useState((state) => state.props.enableColumnSelection);
-  const enableExport = table.useState((state) => state.props.enableExport);
+function TableGrid<T>({ hidden }: { hidden: boolean }) {
+  const state = useTableContext<T>();
+  const theme = useTheme((t: TableTheme<T>) => t);
+  const { props, visibleColumns, columnWidths, activeItems, expanded } = state;
   const cssVariables = useCssVariables();
-  const rowHeightsKey = table.useState((state) => state.rowHeightsKey);
+  const tableRef = useRef<HTMLDivElement>(null);
 
-  const enableClearFiltersButton = table.useState((state) => state.props.enableClearFiltersButton);
+  const debugRenderRef = useRef(props.debugRender);
+  debugRenderRef.current = props.debugRender;
+  const debugRender = useCallback((...output: any) => debugRenderRef.current?.(...output), []);
 
   useLayoutEffect(() => {
-    table.getState().props.debugRender?.('render table inner');
+    debugRender('render table');
   });
 
+  const { enableSelection, rowAction, rowDetails, wrapRow, wrapCell, hasDeferredChildren } = props;
+  const config = useMemo(
+    (): RowConfig<T> => ({
+      theme,
+      columns: visibleColumns,
+      enableSelection,
+      rowAction,
+      rowDetails,
+      wrapRow,
+      wrapCell,
+      hasDeferredChildren,
+      debugRender,
+    }),
+    [
+      theme,
+      visibleColumns,
+      enableSelection,
+      rowAction,
+      rowDetails,
+      wrapRow,
+      wrapCell,
+      hasDeferredChildren,
+      debugRender,
+    ],
+  );
+
+  const renderRow = (index: number, measureRef?: Ref<HTMLDivElement>) => {
+    const item = activeItems[index]!;
+    return (
+      <Row
+        key={item.id}
+        id={item.id}
+        value={item.value}
+        rowIndex={index}
+        depth={item.depth}
+        hasChildren={item.children.length > 0}
+        expanded={expanded.has(item.id)}
+        config={config}
+        measureRef={measureRef}
+      />
+    );
+  };
+
+  const getKey = useCallback((index: number) => activeItems[index]!.id, [activeItems]);
+  const { fullWidth, virtual } = props;
+
   return (
-    <Virtualized
-      className={classes?.table}
-      css={[cssVariables, defaultClasses.table, styles?.table, hidden && { visibility: 'hidden' }]}
+    <div
+      ref={tableRef}
+      data-schummar-table=""
+      className={theme.classes?.table}
+      css={[
+        cssVariables,
+        defaultClasses.table,
+        theme.styles?.table,
+        hidden && { visibility: 'hidden' },
+      ]}
       style={{
         gridTemplateColumns: [
-          //
           fullWidth === 'right' || fullWidth === true ? 'auto' : '0',
           'max-content',
           ...visibleColumns.map(
-            (column) => columnWidths.get(column.id) ?? column.width ?? 'max-content',
+            (column, index) =>
+              `var(${columnWidthVariable(index)}, ${columnWidths.get(column.id) ?? column.width ?? 'max-content'})`,
           ),
           fullWidth === 'left' || fullWidth === true ? 'auto' : '0',
         ].join(' '),
       }}
-      header={
-        <>
-          <div
-            className={classes?.headerCell}
-            css={[
-              { gridRow: 1, gridColumn: 1 },
-              defaultClasses.headerFill,
-              stickyHeader && defaultClasses.sticky,
-              stickyHeader instanceof Object && stickyHeader,
-              styles?.headerCell,
-            ]}
-          />
-
-          <div
-            className={classes?.headerCell}
-            css={[
-              { gridRow: 1, gridColumn: 2 },
-              defaultClasses.headerCell,
-              stickyHeader && defaultClasses.sticky,
-              stickyHeader instanceof Object && stickyHeader,
-              styles?.headerCell,
-            ]}
-          >
-            {enableSelection && <SelectComponent />}
-
-            {enableColumnSelection && <ColumnSelection />}
-
-            {enableExport && <Export />}
-
-            {(enableSelection || enableColumnSelection || enableExport) && (
-              <>
-                <div css={{ flex: 1 }} />
-                <ResizeHandleView />
-              </>
-            )}
-          </div>
-
-          <ColumnHeaderContext.Provider>
-            {visibleColumns.map((column, index) => (
-              <ColumnContext.Provider key={column.id} value={column.id}>
-                <ColumnHeader index={index} />
-              </ColumnContext.Provider>
-            ))}
-          </ColumnHeaderContext.Provider>
-
-          <div
-            className={classes?.headerCell}
-            css={[
-              { gridRow: 1, gridColumn: visibleColumns.length + 3 },
-              defaultClasses.headerFill,
-              stickyHeader && defaultClasses.sticky,
-              stickyHeader instanceof Object && stickyHeader,
-              styles?.headerCell,
-            ]}
-          />
-        </>
-      }
-      footer={
-        <>
-          {enableClearFiltersButton && hasActiveFilters && <ClearFiltersButton />}
-          {hasFooter && (
-            <>
-              <div
-                className={classes?.footerCell}
-                css={[
-                  { gridColumn: 1 },
-                  defaultClasses.footerFill,
-                  stickyFooter && defaultClasses.stickyBottom,
-                  stickyFooter instanceof Object && stickyFooter,
-                  styles?.footerCell,
-                ]}
-              />
-              <div
-                className={classes?.footerCell}
-                css={[
-                  defaultClasses.footerFill,
-                  stickyFooter && defaultClasses.stickyBottom,
-                  stickyFooter instanceof Object && stickyFooter,
-                  styles?.footerCell,
-                ]}
-              />
-
-              {visibleColumns.map((column) => (
-                <ColumnContext.Provider key={column.id} value={column.id}>
-                  <ColumnFooter />
-                </ColumnContext.Provider>
-              ))}
-
-              <div
-                className={classes?.footerCell}
-                css={[
-                  defaultClasses.footerFill,
-                  stickyFooter && defaultClasses.stickyBottom,
-                  stickyFooter instanceof Object && stickyFooter,
-                  styles?.footerCell,
-                ]}
-              />
-            </>
-          )}
-        </>
-      }
     >
-      {(itemIds, startIndex) =>
-        itemIds.map((itemId, index) => (
-          <Row
-            key={itemId}
-            itemId={itemId}
-            rowIndex={startIndex + index}
-            rowHeightsKey={rowHeightsKey}
-          />
-        ))
-      }
-    </Virtualized>
+      <TableHeader />
+
+      {virtual ? (
+        <VirtualRows
+          tableRef={tableRef}
+          count={activeItems.length}
+          getKey={getKey}
+          options={virtual === true ? {} : virtual}
+          renderRow={renderRow}
+        />
+      ) : (
+        activeItems.map((_, index) => renderRow(index))
+      )}
+
+      <TableFooter />
+    </div>
   );
-});
+}

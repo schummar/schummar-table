@@ -1,79 +1,76 @@
-import { castDraft } from 'immer';
-import { nanoid } from 'nanoid';
 import { useContext, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { FilterControlContext } from '../components/filterControl';
 import { debounce } from '../misc/debounce';
-import { useColumnContext, useTableContext } from '../misc/tableContext';
+import { useColumnContext, useTableStructure } from '../state/context';
 import type { FilterImplementation } from '../types';
-import { useTableMemo } from './useTableMemo';
+
+const identity = (x: unknown) => x;
 
 export function useFilter<TItem, TColumnValue, TFilterBy, TFilterValue>(
   impl: FilterImplementation<TItem, TColumnValue, TFilterBy, TFilterValue>,
 ) {
-  const table = useTableContext<TItem>();
+  const { filterValues, actions } = useTableStructure<TItem>();
   const columnId = useColumnContext();
-  const cache = useTableMemo();
-  const cacheId = useMemo(() => nanoid(), []);
-  const filterBy = impl.filterBy && cache(cacheId, impl.filterBy);
 
-  // On mount and reset: Fire onChange
-  useEffect(() => {
-    if (impl.value === undefined) {
-      impl.onChange?.(impl.defaultValue);
-    }
-  }, [table]);
-
-  // Update implementation
-  useEffect(() => {
-    table.update((state) => {
-      if (impl.defaultValue !== undefined) {
-        state.filterValues.set(columnId, impl.defaultValue);
-      }
-    });
-  }, [table]);
-
-  useEffect(() => {
-    table.update((state) => {
-      state.filters.set(columnId, castDraft({ ...impl, filterBy }));
-
-      if (impl.value !== undefined) {
-        state.filterValues.set(columnId, impl.value);
-      }
-    });
-
-    return () => {
-      table.update((state) => {
-        state.filters.delete(columnId);
-      });
-    };
-  }, [table, columnId, impl]);
-
-  // Track local value and update it globally after delay
-  const value = table.useState(
-    (state) => state.filterValues.get(columnId) as TFilterValue | undefined,
-  );
-  const [dirtyValue, setDirtyValue] = useState<TFilterValue>();
   const implRef = useRef(impl);
-
   useLayoutEffect(() => {
     implRef.current = impl;
   });
 
+  // Before registering: registration may apply a persisted value and report it, which must win.
+  useEffect(() => {
+    if (impl.value === undefined) {
+      impl.onChange?.(impl.defaultValue);
+    }
+  }, [actions]);
+
+  // Registering renders the table, which renders this component again: register once with a
+  // stable proxy instead of the per-render impl, or this loops.
+  useEffect(() => {
+    const proxy: FilterImplementation<TItem, TColumnValue, TFilterBy, TFilterValue> = {
+      get id() {
+        return implRef.current.id;
+      },
+      get value() {
+        return implRef.current.value;
+      },
+      get defaultValue() {
+        return implRef.current.defaultValue;
+      },
+      get external() {
+        return implRef.current.external;
+      },
+      get persist() {
+        return implRef.current.persist;
+      },
+      get classNames() {
+        return implRef.current.classNames;
+      },
+      get filterBy() {
+        return implRef.current.filterBy;
+      },
+      isActive: (filterValue) => implRef.current.isActive(filterValue),
+      test: (filterValue, value) => implRef.current.test(filterValue, value),
+      onChange: (value) => implRef.current.onChange?.(value),
+    };
+
+    return actions.registerFilter(columnId, proxy);
+  }, [actions, columnId]);
+
+  useEffect(() => {
+    actions.syncControlledFilterValue(columnId, impl.value);
+  }, [actions, columnId, impl.value]);
+
+  const value = filterValues.get(columnId) as TFilterValue | undefined;
+  const [dirtyValue, setDirtyValue] = useState<TFilterValue>();
+
   const delayedUpdate = useMemo(
     () =>
       debounce((value?: TFilterValue) => {
-        const { value: controlledValue, onChange } = implRef.current;
-
-        if (controlledValue === undefined) {
-          table.update((state) => {
-            state.filterValues.set(columnId, value);
-          });
-        }
-
-        onChange?.(value);
+        actions.setFilterValue(columnId, value);
         setDirtyValue(undefined);
       }, 500),
-    [table],
+    [actions, columnId],
   );
 
   function onChange(value?: TFilterValue) {
@@ -81,14 +78,14 @@ export function useFilter<TItem, TColumnValue, TFilterBy, TFilterValue>(
     delayedUpdate(value);
   }
 
-  useEffect(() => delayedUpdate.flush(), [delayedUpdate]);
+  useEffect(() => () => delayedUpdate.flush(), [delayedUpdate]);
 
   const context = useContext(FilterControlContext);
 
   return {
     value: dirtyValue ?? value,
     onChange,
-    filterBy: filterBy ?? ((x) => x as unknown as TFilterBy | TFilterBy[]),
+    filterBy: impl.filterBy ?? (identity as (value: TColumnValue) => TFilterBy | TFilterBy[]),
     ...context,
   };
 }

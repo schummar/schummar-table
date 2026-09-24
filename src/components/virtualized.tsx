@@ -1,127 +1,151 @@
-import type { HTMLProps, ReactElement, ReactNode } from 'react';
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
-import { useTableContext } from '../misc/tableContext';
-import { throttle } from '../misc/throttle';
-import type { Id } from '../types';
+import { useVirtualizer, useWindowVirtualizer, type Virtualizer } from '@tanstack/react-virtual';
+import { useLayoutEffect, useState, type ReactNode, type Ref, type RefObject } from 'react';
+import type { Id, TableProps } from '../types';
 
-const findScrollRoot = (x: HTMLElement): HTMLElement => {
-  const parent = x.parentElement;
-  if (!parent) return document.documentElement;
-  if (parent.scrollHeight > parent.clientHeight && getComputedStyle(parent).overflowY !== 'visible')
-    return parent;
-  return findScrollRoot(parent);
-};
+type VirtualOptions = Exclude<TableProps<unknown>['virtual'], boolean | undefined>;
 
-const relativeOffset = (x: HTMLElement, y: HTMLElement): number => {
-  if (x.offsetParent === y.offsetParent || !x.offsetParent) return x.offsetTop - y.offsetTop;
-  if (x.offsetParent instanceof HTMLElement) return relativeOffset(x.offsetParent, y) + x.offsetTop;
-  return 0;
-};
+export type RenderRow = (index: number, measureRef?: Ref<HTMLDivElement>) => ReactNode;
 
-export function Virtualized<T>({
-  header,
-  footer,
-  children,
-  ...props
-}: {
-  header: ReactNode;
-  footer: ReactNode;
-  children: (itemIds: Id[], startIndex: number) => ReactNode;
-} & Omit<HTMLProps<HTMLDivElement>, 'children'>): ReactElement {
-  const table = useTableContext<T>();
-  const virtual = table.useState((state) => state.props.virtual);
-  const probeRef = useRef<HTMLDivElement>(null);
-  const [, setId] = useState({});
+const spacerCss = { gridColumn: '1 / -1' } as const;
 
-  const {
-    itemIds = [],
-    from = 0,
-    to,
-    before = 0,
-    after = 0,
-  } = table.useState(
-    (state) => {
-      const itemIds = state.activeItems.map((item) => item.id);
-      const root = probeRef.current && findScrollRoot(probeRef.current);
-      if (!state.props.virtual) return { itemIds };
-      if (!probeRef.current || !root || !document.contains(root)) return {};
+const scrolls = (element: HTMLElement) =>
+  element.scrollHeight > element.clientHeight && getComputedStyle(element).overflowY !== 'visible';
 
-      const {
-        rowHeight,
-        initalRowHeight,
-        overscan = 100,
-        overscanTop,
-        overscanBottom,
-      } = (state.props.virtual instanceof Object ? state.props.virtual : undefined) ?? {};
+function findScrollRoot(element: HTMLElement): HTMLElement | undefined {
+  for (let parent = element.parentElement; parent; parent = parent.parentElement) {
+    if (parent === document.documentElement) return undefined;
+    if (parent === document.body) {
+      // body's overflow applies to the viewport unless <html> sets its own.
+      const ownScroller = getComputedStyle(document.documentElement).overflowY !== 'visible';
+      return ownScroller && scrolls(parent) ? parent : undefined;
+    }
+    if (scrolls(parent)) return parent;
+  }
+  return undefined;
+}
 
-      let totalHeight = 0;
-      const rowHeights = itemIds.map((itemId, index) => {
-        const h =
-          rowHeight ??
-          state.rowHeights.get(itemId) ??
-          initalRowHeight ??
-          (index === 0 ? 100 : totalHeight / index);
-        totalHeight += h;
-        return h;
-      });
+/** Offset of the first row from the start of the scroll root's content. */
+function measureScrollMargin(probe: HTMLElement, root: HTMLElement | undefined) {
+  if (!root) return probe.getBoundingClientRect().top + window.scrollY;
+  return probe.getBoundingClientRect().top - root.getBoundingClientRect().top + root.scrollTop;
+}
 
-      const probeOffset = relativeOffset(probeRef.current, root);
-      const headerHeight = probeRef.current.offsetTop;
-      const topOfTable = root.scrollTop - probeOffset + headerHeight;
-      const bottomOfTable = topOfTable + root.clientHeight - headerHeight;
-
-      let from = 0;
-      let to = itemIds.length;
-      let before = 0;
-      let after = 0;
-      for (const h of rowHeights) {
-        if (before + h > topOfTable - (overscanTop ?? overscan)) break;
-        from++;
-        before += h;
-      }
-
-      for (const h of rowHeights.reverse()) {
-        if (after + h > totalHeight - bottomOfTable - (overscanBottom ?? overscan)) break;
-        to--;
-        after += h;
-      }
-
-      return { itemIds: itemIds.slice(from, to), from, to, before, after };
-    },
-    { throttle: 16 },
-  );
-
-  const throttleScroll = (typeof virtual === 'boolean' ? undefined : virtual)?.throttleScroll ?? 16;
-  const update = useMemo(() => throttle(() => setId({}), throttleScroll), [throttleScroll]);
-
-  useEffect(() => {
-    if (!virtual || !probeRef.current) return;
-
-    window.addEventListener('scroll', update, true);
-    window.addEventListener('resize', update, true);
-    return () => {
-      window.removeEventListener('scroll', update, true);
-      window.removeEventListener('resize', update, true);
-    };
-  }, [update, virtual]);
-
-  useEffect(() => update.cancel, [update]);
+/**
+ * Finds the scroll root and the rows' offset in it. Both are re-measured when the table or the
+ * page layout resizes: a container only becomes a scroll root once its content overflows, and
+ * content above the table shifts the offset.
+ */
+function useScrollRoot(tableRef: RefObject<HTMLElement | null>, probe: HTMLElement | null) {
+  const [root, setRoot] = useState<{ element: HTMLElement | undefined; margin: number }>();
 
   useLayoutEffect(() => {
-    table.getState().props.debugRender?.(`Virtualized render ${from} to ${to}`);
-  });
+    const table = tableRef.current;
+    if (!probe || !table) return;
+
+    function update() {
+      const element = findScrollRoot(probe!);
+      const margin = Math.round(measureScrollMargin(probe!, element));
+      setRoot((current) =>
+        current && current.element === element && current.margin === margin
+          ? current
+          : { element, margin },
+      );
+    }
+
+    update();
+    const observer = new ResizeObserver(update);
+    observer.observe(table);
+    observer.observe(document.body);
+    return () => observer.disconnect();
+  }, [tableRef, probe]);
+
+  return root;
+}
+
+interface VirtualRowsProps {
+  count: number;
+  getKey: (index: number) => Id;
+  options: VirtualOptions;
+  scrollMargin: number;
+  renderRow: RenderRow;
+}
+
+function VirtualWindow({
+  virtualizer,
+  renderRow,
+  measure,
+}: {
+  virtualizer: Virtualizer<any, HTMLDivElement>;
+  renderRow: RenderRow;
+  measure: boolean;
+}) {
+  const items = virtualizer.getVirtualItems();
+  const margin = virtualizer.options.scrollMargin;
+  const before = items.length ? items[0]!.start - margin : 0;
+  const after = items.length
+    ? virtualizer.getTotalSize() - (items[items.length - 1]!.end - margin)
+    : 0;
 
   return (
-    <div {...props}>
-      {header}
+    <>
+      <div style={{ ...spacerCss, height: before }} />
+      {items.map((item) => renderRow(item.index, measure ? virtualizer.measureElement : undefined))}
+      <div style={{ ...spacerCss, height: after }} />
+    </>
+  );
+}
 
-      {virtual && <div style={{ gridColumn: '1 / -1', height: before }} ref={probeRef} />}
+function virtualizerOptions({ count, getKey, options, scrollMargin }: VirtualRowsProps) {
+  return {
+    count,
+    getItemKey: getKey,
+    estimateSize: () => options.rowHeight ?? options.estimatedRowHeight ?? 40,
+    overscan: options.overscan ?? 5,
+    scrollMargin,
+  };
+}
 
-      {children(itemIds, from)}
+function ElementRows(props: VirtualRowsProps & { root: HTMLElement }) {
+  const virtualizer = useVirtualizer<HTMLElement, HTMLDivElement>({
+    ...virtualizerOptions(props),
+    getScrollElement: () => props.root,
+  });
+  return (
+    <VirtualWindow
+      virtualizer={virtualizer}
+      renderRow={props.renderRow}
+      measure={props.options.rowHeight === undefined}
+    />
+  );
+}
 
-      {virtual && <div style={{ gridColumn: '1 / -1', height: after }} />}
+function WindowRows(props: VirtualRowsProps) {
+  const virtualizer = useWindowVirtualizer<HTMLDivElement>(virtualizerOptions(props));
+  return (
+    <VirtualWindow
+      virtualizer={virtualizer}
+      renderRow={props.renderRow}
+      measure={props.options.rowHeight === undefined}
+    />
+  );
+}
 
-      {footer}
-    </div>
+export function VirtualRows({
+  tableRef,
+  ...props
+}: Omit<VirtualRowsProps, 'scrollMargin'> & { tableRef: RefObject<HTMLElement | null> }) {
+  const [probe, setProbe] = useState<HTMLDivElement | null>(null);
+  const root = useScrollRoot(tableRef, probe);
+
+  return (
+    <>
+      <div ref={setProbe} style={spacerCss} />
+      {root &&
+        (root.element ? (
+          <ElementRows {...props} root={root.element} scrollMargin={root.margin} />
+        ) : (
+          <WindowRows {...props} scrollMargin={root.margin} />
+        ))}
+    </>
   );
 }

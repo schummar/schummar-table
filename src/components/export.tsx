@@ -1,13 +1,13 @@
 import { useContext, useState, type ReactElement } from 'react';
 import { ExportOptions, ExporterEntry } from '../exporters/exporter';
 import { useTheme } from '../hooks/useTheme';
-import { useTableContext } from '../misc/tableContext';
+import { useTableStructure } from '../state/context';
 import { TableSettingsContext } from '../misc/tableSettings';
 import { useCssVariables } from '../theme/useCssVariables';
 
 export function Export<T>(): ReactElement {
   const { exporters: contextExporters } = useContext(TableSettingsContext);
-  const table = useTableContext<T>();
+  const { props, actions } = useTableStructure<T>();
   const Button = useTheme((t) => t.components.Button);
   const IconButton = useTheme((t) => t.components.IconButton);
   const Popover = useTheme((t) => t.components.Popover);
@@ -19,21 +19,15 @@ export function Export<T>(): ReactElement {
   const classes = useTheme((t) => t.classes);
   const cssVariables = useCssVariables();
 
-  const { all, exporters } = table.useState((state): ExportOptions => {
-    if (typeof state.props.enableExport === 'boolean' || state.props.enableExport === undefined) {
-      return {
-        all: false,
-        exporters: contextExporters,
-      };
-    }
-
-    return state.props.enableExport;
-  });
+  const { all, exporters }: ExportOptions =
+    typeof props.enableExport === 'boolean' || props.enableExport === undefined
+      ? { all: false, exporters: contextExporters }
+      : props.enableExport;
 
   const [anchor, setAnchor] = useState<Element | null>(null);
 
   function execute({ action, exporter }: ExporterEntry) {
-    const { activeColumns, activeItems, selection, items } = table.getState();
+    const { activeColumns, activeItems, selection, items } = actions.getState();
     const columns = activeColumns.map((column) => column.exportHeader);
 
     let exportedItems = items;

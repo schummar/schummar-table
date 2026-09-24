@@ -1,8 +1,8 @@
-import type { ReactElement } from 'react';
+import { useMemo, type ReactElement } from 'react';
 import { useFilter } from '../hooks/useFilter';
 import { useTheme } from '../hooks/useTheme';
 import { asNumberOrArray, castArray } from '../misc/helpers';
-import { useColumnContext, useTableContext } from '../misc/tableContext';
+import { useColumnContext, useTableStructure } from '../state/context';
 import type { CommonFilterProps } from '../types';
 import { NumberField } from './numberField';
 
@@ -25,16 +25,16 @@ export function RangeFilter<TItem, TColumnValue>({
   const rangeMinText = useTheme((t) => t.text.rangeMin);
   const rangeMaxText = useTheme((t) => t.text.rangeMax);
 
-  const table = useTableContext<TItem>();
+  const { items, activeColumns } = useTableStructure<TItem>();
   const columnId = useColumnContext();
   const filterByFunction = filterBy instanceof Function ? filterBy : filterBy[0];
 
-  const [minValue, maxValue] = table.useState((state) => {
+  const column = activeColumns.find((c) => c.id === columnId);
+
+  const [minValue, maxValue] = useMemo(() => {
     if (typeof min === 'number' && typeof max === 'number') {
       return [min, max];
     }
-
-    const column = state.activeColumns.find((c) => c.id === columnId);
 
     if (!column) {
       return [0, 100];
@@ -43,7 +43,7 @@ export function RangeFilter<TItem, TColumnValue>({
     let minValue;
     let maxValue;
 
-    for (const item of state.items) {
+    for (const item of items) {
       const columnValue = column.value(item.value) as TColumnValue;
       const numberValues = castArray(filterByFunction(columnValue, item.value)).filter(
         (value): value is number => value !== null,
@@ -56,7 +56,7 @@ export function RangeFilter<TItem, TColumnValue>({
     }
 
     return [min ?? minValue, max ?? maxValue];
-  });
+  }, [min, max, column, items, filterByFunction]);
 
   const { value, onChange } = useFilter({
     ...props,

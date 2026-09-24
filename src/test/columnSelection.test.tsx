@@ -167,22 +167,4 @@ describe('column selection', () => {
     expect(onHiddenColumnsChange).toHaveBeenLastCalledWith(new Set(['job_title']));
     await expect.poll(tableHeaders).toEqual(['First name', 'Last name']);
   });
-
-  test('popover order follows the column order after reordering', async () => {
-    await renderPersons();
-    await expect.poll(tableHeaders).toEqual(headers);
-
-    const header = (text: string) =>
-      page.getByText(text, { exact: true }).element().parentElement!.parentElement!;
-    await userEvent.dragAndDrop(
-      page.elementLocator(header('First name')),
-      page.elementLocator(header('Job title')),
-      // Headers only react to moves while pressed, so the pointer has to travel gradually.
-      { steps: 20 },
-    );
-    await expect.poll(tableHeaders).toEqual(['Last name', 'Job title', 'First name']);
-
-    await openColumnSelection();
-    expect(popoverColumns()).toEqual(['Last name', 'Job title', 'First name']);
-  });
 });

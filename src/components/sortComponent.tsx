@@ -1,39 +1,28 @@
 import type { ReactElement, ReactNode } from 'react';
 import type React from 'react';
 import { useTheme } from '../hooks/useTheme';
-import { useColumnContext, useTableContext } from '../misc/tableContext';
+import { useColumnContext, useTableStructure } from '../state/context';
 
 export function SortComponent<T>({ children }: { children: ReactNode }): ReactElement {
-  const table = useTableContext<T>();
+  const { sort, activeColumns, props, actions } = useTableStructure<T>();
   const columnId = useColumnContext();
   const Badge = useTheme((t) => t.components.Badge);
   const ArrowUpward = useTheme((t) => t.icons.ArrowUpward);
 
-  const { direction, index, sortDisabled } = table.useState((state) => {
-    const index = state.sort.findIndex((s) => s.columnId === columnId) ?? -1;
-    const column = state.activeColumns.find((column) => column.id === columnId);
-
-    return {
-      direction: state.sort[index]?.direction,
-      index: index >= 0 && state.sort.length > 1 ? index + 1 : undefined,
-      sortDisabled: column?.disableSort ?? state.props.disableSort,
-    };
-  });
+  const sortIndex = sort.findIndex((s) => s.columnId === columnId);
+  const direction = sort[sortIndex]?.direction;
+  const index = sortIndex >= 0 && sort.length > 1 ? sortIndex + 1 : undefined;
+  const sortDisabled =
+    activeColumns.find((column) => column.id === columnId)?.disableSort ?? props.disableSort;
 
   function toggle(event: React.MouseEvent, off?: boolean) {
     if (sortDisabled) {
       return;
     }
 
-    const {
-      props: { sort: controlledSort, onSortChange },
-    } = table.getState();
-
     const newDirection = direction === 'asc' ? 'desc' : 'asc';
     const newSort =
-      event.getModifierState('Control') || off
-        ? table.getState().sort.filter((s) => s.columnId !== columnId)
-        : [];
+      event.getModifierState('Control') || off ? sort.filter((s) => s.columnId !== columnId) : [];
     if (!off) {
       newSort.push({
         columnId,
@@ -41,13 +30,7 @@ export function SortComponent<T>({ children }: { children: ReactNode }): ReactEl
       });
     }
 
-    onSortChange?.(newSort);
-
-    if (!controlledSort) {
-      table.update((state) => {
-        state.sort = newSort;
-      });
-    }
+    actions.setSort(newSort);
 
     event.preventDefault();
     return false;

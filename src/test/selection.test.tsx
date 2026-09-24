@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { describe, expect, test, vi } from 'vite-plus/test';
 import { type Locator, page, userEvent } from 'vite-plus/test/browser/context';
 import { render, type RenderResult } from 'vitest-browser-react';
-import { Table, TextFilter } from '..';
+import { Table, TextFilter, useTableActions } from '..';
 import type { Id, TableProps } from '../types';
 import { persons, renderTable, type Person } from './fixtures';
 
@@ -209,5 +209,30 @@ describe('selection', () => {
 
     await toggle(checkboxes(screen).rows[0]!);
     await expectChecked(screen, [false, false, false, false]);
+  });
+
+  test('two actions in one event both apply', async () => {
+    function SelectTwo() {
+      const actions = useTableActions();
+      return (
+        <button
+          onClick={() => {
+            actions.toggleSelection(1);
+            actions.toggleSelection(2);
+          }}
+        >
+          select two
+        </button>
+      );
+    }
+
+    const onSelectionChange = vi.fn();
+    const screen = await renderTable(
+      tableProps({ onSelectionChange, rowAction: (item) => item.id === 3 && <SelectTwo /> }),
+    );
+
+    await screen.getByRole('button', { name: 'select two' }).click();
+    expect(onSelectionChange).toHaveBeenLastCalledWith(new Set([1, 2]));
+    await expectChecked(screen, [true, true, false, false, false, false]);
   });
 });

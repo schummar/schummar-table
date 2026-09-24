@@ -1,28 +1,24 @@
 import { useContext, useEffect, useRef, type ReactElement } from 'react';
 import { useTheme } from '../hooks/useTheme';
-import { useColumnContext, useTableContext } from '../misc/tableContext';
+import { useColumnContext, useTableStructure } from '../state/context';
 import { FilterControlContext } from './filterControl';
 import FilterDialog from './filterDialog';
 
 export function NestedFilterControl<T>(): ReactElement | null {
-  const table = useTableContext<T>();
+  const { filters, filterValues, activeColumns, actions } = useTableStructure<T>();
   const columnId = useColumnContext();
   const Button = useTheme((t) => t.components.Button);
   const FilterList = useTheme((t) => t.icons.FilterList);
   const dialog = useRef<HTMLDialogElement>(null);
-  const label = table.useState((state) => {
-    return state.activeColumns.find((column) => column.id === columnId)?.header ?? null;
-  });
+  const parentContext = useContext(FilterControlContext);
 
-  const isActive = table.useState((state) => {
-    const filter = state.filters.get(columnId);
-    const filterValue = state.filterValues.get(columnId);
-    return filter !== undefined && filterValue !== undefined && filter.isActive(filterValue);
-  });
+  const column = activeColumns.find((column) => column.id === columnId);
+  const label = column?.header ?? null;
+  const filter = column?.filter;
 
-  const filter = table.useState(
-    (state) => state.activeColumns.find((column) => column.id === columnId)?.filter,
-  );
+  const impl = filters.get(columnId);
+  const filterValue = filterValues.get(columnId);
+  const isActive = impl !== undefined && filterValue !== undefined && impl.isActive(filterValue);
 
   useEffect(
     () => () => {
@@ -34,18 +30,8 @@ export function NestedFilterControl<T>(): ReactElement | null {
   if (!filter) return null;
 
   function reset() {
-    const impl = table.getState().filters.get(columnId);
-
-    impl?.onChange?.(undefined);
-
-    if (impl?.value === undefined) {
-      table.update((state) => {
-        state.filterValues.delete(columnId);
-      });
-    }
+    actions.setFilterValue(columnId, undefined);
   }
-
-  const parentContext = useContext(FilterControlContext);
 
   function close() {
     dialog.current?.close();

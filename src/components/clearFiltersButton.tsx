@@ -1,25 +1,15 @@
 import { useTheme } from '../hooks/useTheme';
-import { useTableContext } from '../misc/tableContext';
+import { useTableActions } from '../state/context';
 import { defaultClasses } from '../theme/defaultTheme/defaultClasses';
 
 export default function ClearFiltersButton<T>() {
   const Button = useTheme((t) => t.components.Button);
   const textClearFilters = useTheme((t) => t.text.clearFilters);
-  const table = useTableContext<T>();
+  const actions = useTableActions<T>();
 
   return (
     <div css={defaultClasses.clearFiltersButton}>
-      <Button
-        variant="outlined"
-        onClick={() => {
-          table.update((state) => {
-            state.activeColumns.forEach((column) => {
-              state.filterValues.delete(column.id);
-            });
-            table.getState().props.onReset?.('filters');
-          });
-        }}
-      >
+      <Button variant="outlined" onClick={() => actions.clearFilters()}>
         {textClearFilters}
       </Button>
     </div>

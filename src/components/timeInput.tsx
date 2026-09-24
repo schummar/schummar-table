@@ -1,5 +1,4 @@
-import { nanoid } from 'nanoid';
-import { Fragment, useMemo, useState } from 'react';
+import { Fragment, useId, useMemo, useState } from 'react';
 import { debounce } from '../misc/debounce';
 import useLatestRef from '../hooks/useLatestRef';
 
@@ -53,7 +52,7 @@ function buildTime(value: Partial<Record<Part, string>>, baseDate = new Date()):
 }
 
 export function TimeInput({ value, onChange, locale, showSeconds = true }: TimeInputProps) {
-  const id = useMemo(() => nanoid(), []);
+  const id = useId();
   const [localValue, setLocalValue] = useState<Partial<Record<Part, string>>>();
   const latestValue = useLatestRef(value);
 

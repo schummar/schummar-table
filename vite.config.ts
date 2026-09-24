@@ -59,7 +59,6 @@ export default defineConfig({
     deps: {
       // Keeps tsdown <0.23 behaviour for external subpath imports (e.g. @emotion/react/jsx-runtime).
       resolveDepSubpath: true,
-      onlyBundle: ['schummar-state'],
     },
     clean: true,
     entry: {

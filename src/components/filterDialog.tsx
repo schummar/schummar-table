@@ -1,12 +1,12 @@
 import { forwardRef, useContext, type ReactElement } from 'react';
 import { useTheme } from '../hooks/useTheme';
-import { useColumnContext, useTableContext } from '../misc/tableContext';
+import { useColumnContext, useTableStructure } from '../state/context';
 import { FilterControlContext } from './filterControl';
 
 export default forwardRef(FilterDialog);
 
 function FilterDialog(_props: {}, ref: React.Ref<HTMLDialogElement>): ReactElement | null {
-  const table = useTableContext();
+  const { filters, filterValues, activeColumns } = useTableStructure();
   const columnId = useColumnContext();
 
   const classes = useTheme((t) => t.classes);
@@ -14,19 +14,13 @@ function FilterDialog(_props: {}, ref: React.Ref<HTMLDialogElement>): ReactEleme
   const IconButton = useTheme((t) => t.components.IconButton);
   const FilterList = useTheme((t) => t.icons.FilterList);
 
-  const filter = table.useState(
-    (state) => state.activeColumns.find((column) => column.id === columnId)?.filter,
-  );
+  const column = activeColumns.find((column) => column.id === columnId);
+  const filter = column?.filter;
+  const label = column?.header ?? null;
 
-  const label = table.useState((state) => {
-    return state.activeColumns.find((column) => column.id === columnId)?.header ?? null;
-  });
-
-  const isActive = table.useState((state) => {
-    const filter = state.filters.get(columnId);
-    const filterValue = state.filterValues.get(columnId);
-    return filter !== undefined && filterValue !== undefined && filter.isActive(filterValue);
-  });
+  const impl = filters.get(columnId);
+  const filterValue = filterValues.get(columnId);
+  const isActive = impl !== undefined && filterValue !== undefined && impl.isActive(filterValue);
 
   const { close } = useContext(FilterControlContext);
 

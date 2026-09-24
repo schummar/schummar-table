@@ -1,5 +1,6 @@
 import { useFilter } from '../hooks/useFilter';
-import { ColumnContext, useTableContext } from '../misc/tableContext';
+import { useMemo } from 'react';
+import { ColumnContext, useTableStructure } from '../state/context';
 import type { CommonFilterProps } from '../types';
 import { NestedFilterControl } from './nestedFilterControl';
 
@@ -14,26 +15,24 @@ export default function CombinedFilter({
   columnIds: inputColumnIds,
   ...props
 }: CombinedFilterProps) {
-  const table = useTableContext();
+  const { activeColumns, visibleColumns, filters, filterValues, actions } = useTableStructure();
 
-  const columnIds = table.useState((state) => {
-    return (
+  const columnIds = useMemo(
+    () =>
       inputColumnIds ??
-      state.activeColumns
+      activeColumns
         .filter(
           (column) =>
-            column.filter !== undefined && !state.visibleColumns.some((c) => c.id === column.id),
+            column.filter !== undefined && !visibleColumns.some((c) => c.id === column.id),
         )
-        .map((column) => column.id)
-    );
-  });
+        .map((column) => column.id),
+    [inputColumnIds, activeColumns, visibleColumns],
+  );
 
-  const isActive = table.useState((state) => {
-    return columnIds.some((columnId) => {
-      const filter = state.filters.get(columnId);
-      const filterValue = state.filterValues.get(columnId);
-      return filter !== undefined && filterValue !== undefined && filter.isActive(filterValue);
-    });
+  const isActive = columnIds.some((columnId) => {
+    const filter = filters.get(columnId);
+    const filterValue = filterValues.get(columnId);
+    return filter !== undefined && filterValue !== undefined && filter.isActive(filterValue);
   });
 
   useFilter({
@@ -54,15 +53,7 @@ export default function CombinedFilter({
     onChange(value) {
       if (value === undefined) {
         for (const columnId of columnIds) {
-          const impl = table.getState().filters.get(columnId);
-
-          impl?.onChange?.(undefined);
-
-          if (impl?.value === undefined) {
-            table.update((state) => {
-              state.filterValues.delete(columnId);
-            });
-          }
+          actions.setFilterValue(columnId, undefined);
         }
       }
     },

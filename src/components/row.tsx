@@ -1,178 +1,121 @@
 import { ClassNames } from '@emotion/react';
-import { memo, useLayoutEffect, useRef, type ReactElement } from 'react';
-import { useTheme } from '../hooks/useTheme';
+import { memo, useLayoutEffect, type ReactElement, type ReactNode, type Ref } from 'react';
 import { calcClassNames, calcCss } from '../misc/calcClassNames';
-import { cx, getAncestors } from '../misc/helpers';
-import { ColumnContext, useTableContext } from '../misc/tableContext';
+import { cx } from '../misc/helpers';
+import { ColumnContext } from '../state/context';
 import { defaultClasses } from '../theme/defaultTheme/defaultClasses';
-import type { Id } from '../types';
+import type { Id, InternalColumn, TableProps, TableTheme, WrapRowProps } from '../types';
 import { Cell } from './cell';
 import { Details } from './details';
 import { ExpandControl } from './expandControl';
 import { SelectComponent } from './selectComponent';
 
-export const Row = memo(function Row<T>({
-  itemId,
-  rowIndex,
-  rowHeightsKey,
-}: {
-  itemId: Id;
+/** Everything rows need from the table props. Changing it renders every row. */
+export interface RowConfig<T> {
+  theme: TableTheme<T>;
+  columns: InternalColumn<T, unknown>[];
+  enableSelection: boolean | undefined;
+  rowAction: TableProps<T>['rowAction'];
+  rowDetails: TableProps<T>['rowDetails'];
+  wrapRow: TableProps<T>['wrapRow'];
+  wrapCell: TableProps<T>['wrapCell'];
+  hasDeferredChildren: TableProps<T>['hasDeferredChildren'];
+  debugRender: (...output: any) => void;
+}
+
+interface RowProps<T> {
+  id: Id;
+  value: T;
   rowIndex: number;
-  rowHeightsKey: {};
-}): ReactElement | null {
-  const table = useTableContext<T>();
-  const divRef = useRef<HTMLDivElement>(null);
-  const detailsDivRef = useRef<HTMLDivElement>(null);
+  depth: number;
+  hasChildren: boolean;
+  expanded: boolean;
+  config: RowConfig<T>;
+  measureRef?: Ref<HTMLDivElement>;
+}
 
-  const classes = useTheme((t) => t.classes);
-  const styles = useTheme((t) => t.styles);
+const defaultWrapRow = (props: WrapRowProps) => <div {...props} />;
 
-  const item = table.useState((state) => state.activeItemsById.get(itemId));
-  const wrapRow = table.useState((state) => state.props.wrapRow) ?? ((props) => <div {...props} />);
+const rowCss = {
+  gridColumn: '1 / -1',
+  display: 'grid',
+  gridTemplateColumns: 'subgrid',
+} as const;
+
+export const Row = memo(function Row<T>({
+  id,
+  value,
+  rowIndex,
+  depth,
+  hasChildren,
+  expanded,
+  config,
+  measureRef,
+}: RowProps<T>): ReactElement {
+  const { theme, columns, enableSelection, rowAction, rowDetails, hasDeferredChildren } = config;
+  const { classes, styles } = theme;
+  const wrapRow = config.wrapRow ?? defaultWrapRow;
+
+  useLayoutEffect(() => {
+    config.debugRender('render row', id);
+  });
+
   const rowClassName =
-    classes?.row instanceof Function ? classes.row(item?.value, rowIndex) : classes?.row;
-  const rowStyles =
-    styles?.row instanceof Function ? styles.row(item?.value, rowIndex) : styles?.row;
-  const subgrid = table.useState((state) => state.props.subgrid);
+    classes?.row instanceof Function ? classes.row(value, rowIndex) : classes?.row;
+  const rowStyles = styles?.row instanceof Function ? styles.row(value, rowIndex) : styles?.row;
+  const cellClassName = cx(...calcClassNames(classes, value, rowIndex));
+  const cellCss = calcCss<T>(styles, value, rowIndex);
+  const deferred = hasDeferredChildren?.(value) ?? false;
+  const action = rowAction instanceof Function ? rowAction(value, rowIndex) : rowAction;
+  const hasDetails = rowDetails instanceof Function ? !!rowDetails(value, rowIndex) : !!rowDetails;
 
-  const {
-    cellClassName,
-    css_,
-    indent,
-    hasChildren,
-    hasDeferredChildren,
-    columnIds,
-    enableSelection,
-    rowAction,
-    hasDetails,
-  } = table.useState((state) => {
-    const item = state.activeItemsById.get(itemId);
+  const children: ReactNode = (
+    <>
+      <div className={cellClassName} css={[defaultClasses.cellFill, cellCss]} />
 
-    return {
-      cellClassName: cx(...calcClassNames(classes, item?.value, rowIndex)),
-      css_: calcCss<T>(styles, item?.value, rowIndex),
-      indent: item ? getAncestors(state.activeItemsById, item).size : 0,
-      hasChildren: !!item?.children.length,
-      hasDeferredChildren: item && state.props.hasDeferredChildren?.(item.value),
-      columnIds: state.visibleColumns.map((column) => column.id),
-      enableSelection: state.props.enableSelection,
-      rowAction:
-        state.props.rowAction instanceof Function
-          ? item
-            ? state.props.rowAction(item.value, rowIndex)
-            : null
-          : state.props.rowAction,
-      hasDetails:
-        state.props.rowDetails instanceof Function
-          ? item
-            ? !!state.props.rowDetails(item.value, rowIndex)
-            : null
-          : !!state.props.rowDetails,
-    };
-  });
+      <div className={cellClassName} css={[defaultClasses.cell, defaultClasses.firstCell, cellCss]}>
+        {depth > 0 && <div css={{ width: depth * 20 }} />}
 
-  useLayoutEffect(() => {
-    function update() {
-      table.update((state) => {
-        if (!divRef.current) {
-          return;
-        }
+        {enableSelection && <SelectComponent itemId={id} />}
 
-        const h1 = divRef.current.offsetHeight;
-        const h2 =
-          detailsDivRef.current && document.contains(detailsDivRef.current)
-            ? detailsDivRef.current.offsetHeight
-            : 0;
+        {(hasChildren || deferred || hasDetails) && (
+          <ExpandControl
+            itemId={id}
+            expanded={expanded}
+            hasChildren={hasChildren}
+            hasDeferredChildren={deferred}
+          />
+        )}
 
-        state.rowHeights.set(itemId, h1 + h2);
-      });
-    }
+        {action}
+      </div>
 
-    update();
+      {columns.map((column) => (
+        <ColumnContext.Provider key={column.id} value={column.id}>
+          <Cell column={column} value={value} rowIndex={rowIndex} config={config} />
+        </ColumnContext.Provider>
+      ))}
 
-    const handles = [divRef.current, detailsDivRef.current]
-      .filter((x): x is HTMLDivElement => !!x)
-      .map((div) => {
-        const o = new ResizeObserver(update);
-        o.observe(div);
-        return () => o.disconnect();
-      });
+      <div className={cellClassName} css={[defaultClasses.cellFill, cellCss]} />
 
-    return () => {
-      handles.forEach((h) => h());
-    };
-  }, [table, itemId, divRef.current, detailsDivRef.current, rowHeightsKey]);
-
-  useLayoutEffect(() => {
-    table.getState().props.debugRender?.('render row', itemId);
-  });
-
-  if (!item) {
-    return null;
-  }
+      {expanded && hasDetails && <Details value={value} rowIndex={rowIndex} config={config} />}
+    </>
+  );
 
   return (
     <ClassNames>
-      {({ css, cx }) => (
-        <>
-          {wrapRow(
-            {
-              className: cx(
-                css([
-                  subgrid
-                    ? {
-                        gridColumn: `1 / -1`,
-                        display: 'grid',
-                        gridTemplateColumns: 'subgrid',
-                      }
-                    : {
-                        display: 'contents',
-                      },
-                  rowStyles,
-                ]),
-                rowClassName,
-              ),
-
-              children: (
-                <>
-                  <div
-                    className={cellClassName}
-                    css={[defaultClasses.cellFill, css_]}
-                    ref={divRef}
-                  />
-
-                  <div
-                    className={cellClassName}
-                    css={[defaultClasses.cell, defaultClasses.firstCell, css_]}
-                  >
-                    {indent > 0 && <div css={{ width: indent * 20 }} />}
-
-                    {enableSelection && <SelectComponent itemId={itemId} />}
-
-                    {(hasChildren || hasDeferredChildren || hasDetails) && (
-                      <ExpandControl itemId={itemId} hasDeferredChildren={hasDeferredChildren} />
-                    )}
-
-                    {rowAction}
-                  </div>
-
-                  {columnIds.map((columnId) => (
-                    <ColumnContext.Provider key={columnId} value={columnId}>
-                      <Cell itemId={itemId} rowIndex={rowIndex} />
-                    </ColumnContext.Provider>
-                  ))}
-
-                  <div className={cellClassName} css={[defaultClasses.cellFill, css_]} />
-
-                  <Details ref={detailsDivRef} itemId={itemId} rowIndex={rowIndex} />
-                </>
-              ),
-            },
-            item.value,
-            rowIndex,
-          )}
-        </>
-      )}
+      {({ css, cx }) =>
+        wrapRow(
+          {
+            ref: measureRef ?? null,
+            'data-index': rowIndex,
+            className: cx(css([rowCss, rowStyles]), rowClassName),
+            children,
+          },
+          value,
+          rowIndex,
+        )
+      }
     </ClassNames>
   );
-});
+}) as <T>(props: RowProps<T>) => ReactElement;

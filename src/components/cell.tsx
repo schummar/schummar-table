@@ -1,11 +1,11 @@
-import type { ReactNode } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 import { memo, useLayoutEffect } from 'react';
-import { useTheme } from '../hooks/useTheme';
+import { columnTheme } from '../hooks/useTheme';
 import { calcClassNames, calcCss } from '../misc/calcClassNames';
 import { cx } from '../misc/helpers';
-import { useColumnContext, useTableContext } from '../misc/tableContext';
 import { defaultClasses } from '../theme/defaultTheme/defaultClasses';
-import type { Id } from '../types';
+import type { InternalColumn, TableTheme } from '../types';
+import type { RowConfig } from './row';
 
 const defaultWrapCell = (content: ReactNode) => {
   if (typeof content === 'string') {
@@ -18,38 +18,38 @@ const defaultWrapCell = (content: ReactNode) => {
   return content;
 };
 
-export const Cell = memo(function Cell<T>({ itemId, rowIndex }: { itemId: Id; rowIndex: number }) {
-  const table = useTableContext<T>();
-  const columnId = useColumnContext();
-
-  const column = table.useState((state) => {
-    const col = state.activeColumns.find((column) => column.id === columnId);
-    return (
-      col && {
-        value: col.value,
-        renderCell: col.renderCell,
-      }
-    );
-  });
-  const wrapCell = table.useState((state) => state.props.wrapCell) ?? defaultWrapCell;
-  const item = table.useState((state) => state.activeItemsById.get(itemId));
-  const columnStyleOverride = table.useState((state) => state.columnStyleOverride.get(columnId), {
-    throttle: 16,
-  });
+export const Cell = memo(function Cell<T>({
+  column,
+  value,
+  rowIndex,
+  config,
+}: {
+  column: InternalColumn<T, unknown>;
+  value: T;
+  rowIndex: number;
+  config: RowConfig<T>;
+}) {
+  const { classes, styles } = columnTheme(config.theme as TableTheme<T>, column);
+  const wrapCell = config.wrapCell ?? defaultWrapCell;
 
   useLayoutEffect(() => {
-    table.getState().props.debugRender?.('render cell', itemId, columnId);
+    config.debugRender('render cell', column.id);
   });
-  const className = useTheme((t) => cx(...calcClassNames(t.classes, item?.value, rowIndex)));
-  const styles = useTheme((t) => calcCss<T>(t.styles, item?.value, rowIndex));
 
-  if (!column || !item) return null;
-
-  const content = column.renderCell(column.value(item.value), item.value);
+  const columnValue = column.value(value);
+  const content = column.renderCell(columnValue, value);
 
   return (
-    <div className={className} css={[defaultClasses.cell, styles]} style={columnStyleOverride}>
-      {wrapCell(content, column.value(item.value), item.value, rowIndex)}
+    <div
+      className={cx(...calcClassNames(classes, value, rowIndex))}
+      css={[defaultClasses.cell, calcCss<T>(styles, value, rowIndex)]}
+    >
+      {wrapCell(content, columnValue, value, rowIndex)}
     </div>
   );
-});
+}) as <T>(props: {
+  column: InternalColumn<T, unknown>;
+  value: T;
+  rowIndex: number;
+  config: RowConfig<T>;
+}) => ReactElement;

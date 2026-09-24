@@ -43,7 +43,6 @@ export const NoColumns = {
         enableExport: false,
       },
     },
-    subgrid: true,
     styles: {
       table: {
         border: '1px solid red',

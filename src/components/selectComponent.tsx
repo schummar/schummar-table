@@ -1,76 +1,37 @@
-import type { ReactElement } from 'react';
+import { memo, useContext } from 'react';
 import type React from 'react';
 import { useTheme } from '../hooks/useTheme';
-import { getAncestors, getDescendants } from '../misc/helpers';
-import { useTableContext } from '../misc/tableContext';
+import { SelectionContext, useTableActions, useTableContext } from '../state/context';
 import type { Id } from '../types';
 
-export function SelectComponent<T>({ itemId }: { itemId?: Id }): ReactElement {
-  const table = useTableContext<T>();
+const checkboxCss = { justifySelf: 'start', color: '#c9cfda' } as const;
+
+export const SelectComponent = memo(function SelectComponent({ itemId }: { itemId: Id }) {
+  const selected = useContext(SelectionContext).has(itemId);
   const Checkbox = useTheme((t) => t.components.Checkbox);
-
-  const isSelected = table.useState((state) => {
-    const itemIds = itemId ? [itemId] : Array.from(state.activeItemsById.keys());
-    return state.activeItemsById.size > 0 && itemIds.every((itemId) => state.selection.has(itemId));
-  });
-
-  function toggle(event: React.ChangeEvent) {
-    const mouseEvent = event.nativeEvent as MouseEvent;
-
-    const {
-      activeItems,
-      activeItemsById,
-      lastSelectedId,
-      selection,
-      props: { selectSyncChildren, selection: controlledSelection, onSelectionChange },
-    } = table.getState();
-
-    let range;
-    if (mouseEvent.shiftKey && itemId) {
-      const a = lastSelectedId ? activeItems.findIndex((i) => lastSelectedId === i.id) : 0;
-      const b = activeItems.findIndex((item) => item.id === itemId);
-      range = activeItems.slice(Math.min(a, b), Math.max(a, b) + 1);
-    } else {
-      const item = itemId ? activeItemsById.get(itemId) : undefined;
-      range = item ? [item] : activeItems;
-    }
-
-    const newSelection = new Set(selection);
-    for (const item of range) {
-      if (isSelected) newSelection.delete(item.id);
-      else newSelection.add(item.id);
-    }
-
-    if (selectSyncChildren && isSelected) {
-      for (const ancestor of getAncestors(activeItemsById, ...range)) {
-        newSelection.delete(ancestor);
-      }
-      for (const descendant of getDescendants(...range)) {
-        newSelection.delete(descendant);
-      }
-    }
-
-    onSelectionChange?.(newSelection);
-
-    if (!controlledSelection) {
-      table.update((state) => {
-        state.selection = newSelection;
-      });
-    }
-
-    table.update((state) => {
-      state.lastSelectedId = itemId;
-    });
-  }
+  const actions = useTableActions();
 
   return (
     <Checkbox
-      css={{
-        justifySelf: 'start',
-        color: '#c9cfda',
-      }}
-      checked={isSelected}
-      onChange={toggle}
+      css={checkboxCss}
+      checked={selected}
+      onChange={(event: React.ChangeEvent) =>
+        actions.toggleSelection(itemId, { range: (event.nativeEvent as MouseEvent).shiftKey })
+      }
+    />
+  );
+});
+
+export function SelectAll() {
+  const Checkbox = useTheme((t) => t.components.Checkbox);
+  const { activeItems, selection, actions } = useTableContext();
+  const selected = activeItems.length > 0 && activeItems.every((item) => selection.has(item.id));
+
+  return (
+    <Checkbox
+      css={checkboxCss}
+      checked={selected}
+      onChange={() => actions.toggleSelection(undefined)}
     />
   );
 }

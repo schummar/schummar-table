@@ -28,30 +28,39 @@ export { Table } from './components/table';
 export { TextFilter, exactCompare, prefixCompare, substringCompare } from './components/textFilter';
 export { useFilter } from './hooks/useFilter';
 export { useTheme } from './hooks/useTheme';
-export type { TableStateStorage } from './internalState/tableStateStorage';
+export type { TableStateStorage } from './state/persistence';
 export * as helpers from './misc/helpers';
 export {
   ColumnContext,
+  TableActionsContext,
   TableContext,
-  TableResetContext,
+  TableStructureContext,
   useColumnContext,
+  useTableActions,
   useTableContext,
-} from './misc/tableContext';
+  useTableStructure,
+} from './state/context';
 export { TableSettingsContext, TableSettingsProvider } from './misc/tableSettings';
 export { termMatch, textMatch } from './misc/textMatch';
-export { configureTableTheme, mergeThemes } from './theme/tableTheme';
+export { mergeThemes } from './theme/tableTheme';
 export type {
   Column,
   ColumnFactory,
   ColumnGenerator,
   CommonFilterProps,
   FilterImplementation,
-  FunctionWithDeps,
   Id,
   InternalColumn,
   PartialTableTheme,
   Sort,
   SortDirection,
+  TableActions,
+  TableContextValue,
+  TableItem,
   TableProps,
   TableRef,
+  TableState,
+  TableStructure,
+  TableTheme,
+  WrapRowProps,
 } from './types';

@@ -1,51 +1,58 @@
 import type React from 'react';
-import type { HTMLProps } from 'react';
+import { useEffect, useRef, type HTMLProps } from 'react';
 import { useTheme } from '../hooks/useTheme';
-import { useColumnContext, useTableContext } from '../misc/tableContext';
+import { useColumnContext, useTableStructure } from '../state/context';
+
+export const columnWidthVariable = (index: number) => `--column-width-${index}`;
 
 export function ResizeHandle() {
-  const table = useTableContext();
+  const { props, visibleColumns, filters, actions } = useTableStructure();
   const columnId = useColumnContext();
-  const enabled = table.useState((state) => state.props.enableColumnResize);
-  const hasFilter = table.useState((state) => state.filters.get(columnId) !== undefined);
+  const enabled = props.enableColumnResize;
+  const index = visibleColumns.findIndex((column) => column.id === columnId);
+  const table = useRef<HTMLElement | null>(null);
+  const hasMoved = useRef(false);
 
-  function onPointerDown(event: React.PointerEvent) {
+  // The drag width lives in a CSS variable, keyed by visible index, so dragging renders nothing.
+  const variable = columnWidthVariable(index);
+  useEffect(
+    () => () => {
+      table.current?.style.removeProperty(variable);
+    },
+    [variable],
+  );
+
+  function onPointerDown(event: React.PointerEvent<HTMLDivElement>) {
     event.stopPropagation();
-
-    const div = event.target as HTMLDivElement;
-    div.setPointerCapture(event.pointerId);
+    event.currentTarget.setPointerCapture(event.pointerId);
+    table.current = event.currentTarget.closest('[data-schummar-table]');
+    hasMoved.current = false;
   }
 
-  function onPointerMove(event: React.PointerEvent) {
-    event.stopPropagation();
-
-    const div = event.target as HTMLDivElement;
-    if (!div.hasPointerCapture(event.pointerId)) return;
-
-    const parent = div.parentElement as HTMLDivElement;
-    const minWidth = hasFilter ? 80 : 50;
-    const width = Math.max(event.clientX - parent.getBoundingClientRect().left + 5, minWidth);
-
-    table.update((state) => {
-      state.columnWidths.set(columnId, `${width}px`);
-    });
+  function widthAt(event: React.PointerEvent<HTMLDivElement>) {
+    const header = event.currentTarget.parentElement!;
+    const minWidth = filters.has(columnId) ? 80 : 50;
+    return Math.max(event.clientX - header.getBoundingClientRect().left + 5, minWidth);
   }
 
-  function onPointerUp(event: React.PointerEvent) {
+  function onPointerMove(event: React.PointerEvent<HTMLDivElement>) {
     event.stopPropagation();
+    if (!event.currentTarget.hasPointerCapture(event.pointerId)) return;
+    hasMoved.current = true;
+    table.current?.style.setProperty(variable, `${widthAt(event)}px`);
+  }
 
-    const div = event.target as HTMLDivElement;
-    div.releasePointerCapture(event.pointerId);
+  function onPointerUp(event: React.PointerEvent<HTMLDivElement>) {
+    event.stopPropagation();
+    if (!event.currentTarget.hasPointerCapture(event.pointerId)) return;
+    event.currentTarget.releasePointerCapture(event.pointerId);
+    // The committed width renders before the next paint, so dropping the variable doesn't flash.
+    table.current?.style.removeProperty(variable);
+    if (hasMoved.current) actions.setColumnWidth(columnId, `${widthAt(event)}px`);
   }
 
   function onDoubleClick(event: React.MouseEvent) {
-    table.update((state) => {
-      if (event.getModifierState('Control')) {
-        state.columnWidths.delete(columnId);
-      } else {
-        state.columnWidths.set(columnId, 'max-content');
-      }
-    });
+    actions.setColumnWidth(columnId, event.getModifierState('Control') ? undefined : 'max-content');
   }
 
   if (!enabled) {
@@ -55,10 +62,10 @@ export function ResizeHandle() {
   return (
     <ResizeHandleView
       enabled={enabled}
-      onPointerDown={enabled ? onPointerDown : undefined}
-      onPointerMove={enabled ? onPointerMove : undefined}
-      onPointerUp={enabled ? onPointerUp : undefined}
-      onDoubleClick={enabled ? onDoubleClick : undefined}
+      onPointerDown={onPointerDown}
+      onPointerMove={onPointerMove}
+      onPointerUp={onPointerUp}
+      onDoubleClick={onDoubleClick}
     />
   );
 }

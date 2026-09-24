@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useFilter } from '../hooks/useFilter';
 import { useTheme } from '../hooks/useTheme';
 import { asString, castArray, flatMap, orderBy, uniq } from '../misc/helpers';
-import { useColumnContext, useTableContext } from '../misc/tableContext';
+import { useColumnContext, useTableStructure } from '../state/context';
 import type { CommonFilterProps, InternalColumn } from '../types';
 import { AutoFocusTextField } from './autoFocusTextField';
 import { FormControlLabel } from './formControlLabel';
@@ -54,7 +54,7 @@ export function SelectFilter<TItem, TColumnValue, TFilterBy>({
   const deselectAll = useTheme((t) => t.text.deselectAll);
   const noResults = useTheme((t) => t.text.noResults);
 
-  const table = useTableContext<TItem>();
+  const { items, activeColumns } = useTableStructure<TItem>();
   const columnId = useColumnContext();
 
   const {
@@ -76,20 +76,18 @@ export function SelectFilter<TItem, TColumnValue, TFilterBy>({
     },
   });
 
-  const options = table.useState((state) => {
-    if (providedOptions) return uniq(providedOptions);
+  const column = activeColumns.find((column) => column.id === columnId) as
+    | InternalColumn<TItem, TColumnValue>
+    | undefined;
 
-    const column = state.activeColumns.find((column) => column.id === columnId) as
-      | InternalColumn<TItem, TColumnValue>
-      | undefined;
+  const options = useMemo(() => {
+    if (providedOptions) return uniq(providedOptions);
     if (!column) return [];
 
     return orderBy(
-      uniq(
-        flatMap(state.items, (item) => castArray(filterBy(column.value(item.value), item.value))),
-      ),
+      uniq(flatMap(items, (item) => castArray(filterBy(column.value(item.value), item.value)))),
     );
-  });
+  }, [providedOptions, column, items, filterBy]);
 
   const [query, setQuery] = useState('');
   const filtered = options.filter(

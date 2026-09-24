@@ -1,21 +1,16 @@
+import { useVirtualizer } from '@tanstack/react-virtual';
 import type { HTMLProps, ReactElement, ReactNode } from 'react';
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { throttle } from '../misc/throttle';
+import { useState } from 'react';
+
+type VirtualOptions = { rowHeight?: number; estimatedRowHeight?: number; overscan?: number };
 
 export interface VirtualListProps<T> extends Omit<HTMLProps<HTMLDivElement>, 'children'> {
-  virtual?:
-    | boolean
-    | {
-        rowHeight?: number;
-        initalRowHeight?: number;
-        throttleScroll?: number;
-        overscan?: number;
-        overscanBottom?: number;
-        overscanTop?: number;
-      };
+  virtual?: boolean | VirtualOptions;
   items: T[];
   children: (item: T, index: number) => ReactNode;
 }
+
+const containerCss = { overflowY: 'auto', display: 'grid' } as const;
 
 export function VirtualList<T>({
   virtual = true,
@@ -23,99 +18,58 @@ export function VirtualList<T>({
   children,
   ...props
 }: VirtualListProps<T>): ReactElement {
-  const container = useRef<HTMLDivElement>(null);
-  const [, setId] = useState({});
-
-  const throttleScroll = (typeof virtual === 'boolean' ? undefined : virtual)?.throttleScroll ?? 16;
-  const update = useMemo(() => throttle(() => setId({}), throttleScroll), [throttleScroll]);
-
-  useEffect(() => {
-    if (!virtual) return;
-
-    const ro = new ResizeObserver(update);
-
-    if (container.current) {
-      ro.observe(container.current);
-    }
-
-    window.addEventListener('resize', update, true);
-    return () => {
-      ro.disconnect();
-      window.removeEventListener('resize', update, true);
-      update.cancel();
-    };
-  }, [update, virtual, throttleScroll]);
-
   if (!virtual) {
     return (
-      <div
-        {...props}
-        css={{
-          overflowY: 'auto',
-          display: 'grid',
-        }}
-      >
+      <div {...props} css={containerCss}>
         {items.map((item, index) => children(item, index))}
       </div>
     );
   }
 
-  const {
-    rowHeight,
-    initalRowHeight = 38,
-    overscan = 100,
-    overscanTop,
-    overscanBottom,
-  } = (virtual instanceof Object ? virtual : undefined) ?? {};
-
-  const itemHeight = rowHeight ?? (averageItemHeight(container.current) || initalRowHeight);
-  const from = container.current?.clientHeight
-    ? Math.max(
-        0,
-        Math.floor((container.current.scrollTop - (overscanTop ?? overscan)) / itemHeight),
-      )
-    : 0;
-  const to = container.current?.clientHeight
-    ? Math.min(
-        items.length,
-        Math.ceil(
-          (container.current.scrollTop +
-            container.current.clientHeight +
-            (overscanBottom ?? overscan)) /
-            itemHeight,
-        ),
-      )
-    : 1;
-  const before = from * itemHeight;
-  const after = (items.length - to) * itemHeight;
-
   return (
-    <div
-      {...props}
-      onScroll={(event) => {
-        update();
-        props.onScroll?.(event);
-      }}
-      ref={container}
-      css={{
-        overflowY: 'auto',
-        display: 'grid',
-      }}
-    >
-      <div data-virtual-before style={{ height: before }} />
-      {items.slice(from, to).map((item, index) => children(item, index + from))}
-      <div data-virtual-after style={{ height: after }} />
-    </div>
+    <VirtualItems {...props} items={items} options={virtual === true ? {} : virtual}>
+      {children}
+    </VirtualItems>
   );
 }
 
-function averageItemHeight(container: HTMLDivElement | null) {
-  if (!container?.children.length) {
-    return undefined;
-  }
+function VirtualItems<T>({
+  items,
+  options,
+  children,
+  ...props
+}: Omit<VirtualListProps<T>, 'virtual'> & { options: VirtualOptions }) {
+  const [scrollElement, setScrollElement] = useState<HTMLDivElement | null>(null);
 
-  const heights = Array.from(container.children)
-    .slice(1, -1)
-    .map((child) => child.clientHeight);
-  return heights.reduce((a, b) => a + b, 0) / heights.length;
+  const virtualizer = useVirtualizer<HTMLDivElement, HTMLDivElement>({
+    count: items.length,
+    getScrollElement: () => scrollElement,
+    estimateSize: () => options.rowHeight ?? options.estimatedRowHeight ?? 38,
+    overscan: options.overscan ?? 5,
+    useFlushSync: false,
+  });
+
+  const virtualItems = virtualizer.getVirtualItems();
+  const measure = options.rowHeight === undefined ? virtualizer.measureElement : undefined;
+  const before = virtualItems[0]?.start ?? 0;
+  // With no items rendered yet the spacer must still take up the full size: the virtualizer
+  // renders nothing while the container has no height.
+  const after = virtualizer.getTotalSize() - (virtualItems[virtualItems.length - 1]?.end ?? 0);
+
+  return (
+    <div {...props} ref={setScrollElement} css={containerCss}>
+      <div style={{ height: before }} />
+      {virtualItems.map((virtualItem) => (
+        <div
+          key={virtualItem.key}
+          ref={measure}
+          data-index={virtualItem.index}
+          css={{ display: 'grid' }}
+        >
+          {children(items[virtualItem.index]!, virtualItem.index)}
+        </div>
+      ))}
+      <div style={{ height: after }} />
+    </div>
+  );
 }

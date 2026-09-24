@@ -14,7 +14,8 @@
   "type": "module",
   "sideEffects": false,
   "files": [
-    "dist"
+    "dist",
+    "skills"
   ],
   "exports": {
     ".": {
@@ -53,8 +54,8 @@
   "peerDependencies": {
     "@material-ui/core": ">=4.0.0",
     "@mui/material": ">=5.0.0",
-    "react": ">=17.0.0",
-    "react-dom": ">=17.0.0",
+    "react": ">=19.0.0",
+    "react-dom": ">=19.0.0",
     "xlsx": ">=0.18.5"
   },
   "peerDependenciesMeta": {
@@ -73,9 +74,8 @@
   },
   "dependencies": {
     "@emotion/react": ">=11.11.1",
+    "@tanstack/react-virtual": "^3.14.13",
     "date-fns": "^4.4.0",
-    "immer": ">=9.0.21",
-    "nanoid": ">=4.0.2",
     "temporal-polyfill": "^1.0.5"
   },
   "devDependencies": {
@@ -91,7 +91,6 @@
     "publint": "^0.3.24",
     "react": "19.3.0",
     "react-dom": "19.3.0",
-    "schummar-state": "0.2.1-experimental-13",
     "typescript": "^7.0.2",
     "unplugin-unused": "^0.6.0",
     "vite-plus": "catalog:",
@@ -113,8 +112,5 @@
       "version": "12.6.0",
       "onFail": "warn"
     }
-  },
-  "inlinedDependencies": {
-    "schummar-state": "0.2.1-experimental-13"
   }
 }

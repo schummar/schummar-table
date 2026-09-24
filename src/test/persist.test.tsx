@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, test } from 'vite-plus/test';
 import { page, userEvent } from 'vite-plus/test/browser/context';
+import { createRoot } from 'react-dom/client';
 import { render } from 'vitest-browser-react';
 import { Table, TextFilter } from '..';
 import type { TableProps } from '../types';
@@ -130,6 +131,32 @@ describe('persist', () => {
     await screen.unmount();
     await renderPersons();
     await expect.poll(shownNames).toEqual(['Chelsey']);
+  });
+
+  // render() wraps the mount in act(), which renders filter registration before the stored
+  // state loads. A real mount doesn't.
+  test('filter values are restored on a mount outside act', async () => {
+    localStorage.setItem(
+      storageKey(persistId),
+      JSON.stringify({ filterValues: { __map: [['first_name', 'el']] } }),
+    );
+    const actEnvironment = globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean };
+    const previous = actEnvironment.IS_REACT_ACT_ENVIRONMENT;
+    actEnvironment.IS_REACT_ACT_ENVIRONMENT = false;
+
+    const container = document.createElement('div');
+    document.body.append(container);
+    const root = createRoot(container);
+    try {
+      root.render(<PersonTable />);
+      await expect.poll(shownNames).toEqual(['Chelsey']);
+      await new Promise((resolve) => setTimeout(resolve, 100));
+      expect(stored()).toMatchObject({ filterValues: { __map: [['first_name', 'el']] } });
+    } finally {
+      root.unmount();
+      container.remove();
+      actEnvironment.IS_REACT_ACT_ENVIRONMENT = previous;
+    }
   });
 
   test('a different persist id does not restore the state', async () => {

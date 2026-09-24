@@ -20,7 +20,7 @@ import {
 } from './helpers';
 
 function item<T>(id: string, value: T, parentId?: string | null): TableItem<T> {
-  return { id, parentId, children: [], value };
+  return { id, parentId, children: [], depth: 0, value };
 }
 
 describe('flatMap', () => {

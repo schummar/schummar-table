@@ -1,11 +1,4 @@
-import { Store } from 'schummar-state/react';
 import type { PartialTableTheme } from '../types';
-
-export const globalTableTheme = new Store<PartialTableTheme>({});
-
-export function configureTableTheme(tableTheme: PartialTableTheme) {
-  globalTableTheme.set(tableTheme);
-}
 
 export function mergeThemes<T>(...themes: PartialTableTheme<T>[]): PartialTableTheme<T> {
   return {

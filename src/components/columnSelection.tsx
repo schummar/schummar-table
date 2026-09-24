@@ -1,7 +1,6 @@
-import { useContext, useState, type ReactElement } from 'react';
+import { useState, type ReactElement } from 'react';
 import { useTheme } from '../hooks/useTheme';
-import { orderBy } from '../misc/helpers';
-import { TableResetContext, useTableContext } from '../misc/tableContext';
+import { useTableStructure } from '../state/context';
 import { useCssVariables } from '../theme/useCssVariables';
 import type { InternalColumn } from '../types';
 import { FormControlLabel } from './formControlLabel';
@@ -19,28 +18,11 @@ export function ColumnSelection<T>(): ReactElement {
   const classes = useTheme((t) => t.classes);
   const cssVariables = useCssVariables();
 
-  const table = useTableContext<T>();
-  const reset = useContext(TableResetContext);
-  const columns = table.useState((state) =>
-    orderBy(
-      state.props.columns.filter(
-        (column) =>
-          state.displaySize === undefined ||
-          column.displaySize === undefined ||
-          column.displaySize.includes(state.displaySize),
-      ),
-      [(column) => state.columnOrder.indexOf(column.id)],
-    ),
-  );
-  const hiddenColumns = table.useState((state) => state.hiddenColumns);
+  const { columns, hiddenColumns, actions } = useTableStructure<T>();
 
   const [anchorElement, setAnchorElement] = useState<Element | null>(null);
 
   const toggle = (column?: InternalColumn<T, unknown>, state?: boolean) => {
-    const {
-      props: { hiddenColumns: controlledHiddenColumns, onHiddenColumnsChange },
-    } = table.getState();
-
     const newValue = new Set(hiddenColumns);
 
     for (const columnId of column ? [column.id] : columns.map((column) => column.id)) {
@@ -51,13 +33,7 @@ export function ColumnSelection<T>(): ReactElement {
       }
     }
 
-    if (!controlledHiddenColumns) {
-      table.update((state) => {
-        state.hiddenColumns = newValue;
-      });
-    }
-
-    onHiddenColumnsChange?.(newValue);
+    actions.setHiddenColumns(newValue);
   };
 
   const allVisible = columns.every((column) => !hiddenColumns.has(column.id));
@@ -84,7 +60,7 @@ export function ColumnSelection<T>(): ReactElement {
               {allVisible ? hideAll : showAll}
             </Button>
 
-            <Button variant="outlined" onClick={reset}>
+            <Button variant="outlined" onClick={() => actions.resetTable()}>
               {resetAll}
             </Button>
           </div>

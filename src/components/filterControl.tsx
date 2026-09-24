@@ -1,7 +1,7 @@
 import { ClassNames } from '@emotion/react';
 import { createContext, useState, type ReactElement } from 'react';
 import { useTheme } from '../hooks/useTheme';
-import { useColumnContext, useTableContext } from '../misc/tableContext';
+import { useColumnContext, useTableStructure } from '../state/context';
 import { useCssVariables } from '../theme/useCssVariables';
 
 export const FilterControlContext = createContext({
@@ -10,7 +10,7 @@ export const FilterControlContext = createContext({
 });
 
 export function FilterControl<T>(): ReactElement | null {
-  const table = useTableContext<T>();
+  const { filters, filterValues, activeColumns, actions } = useTableStructure<T>();
   const columnId = useColumnContext();
 
   const Popover = useTheme((t) => t.components.Popover);
@@ -22,29 +22,14 @@ export function FilterControl<T>(): ReactElement | null {
   const cssVariables = useCssVariables();
 
   const [anchor, setAnchor] = useState<Element | null>(null);
-  const isActive = table.useState((state) => {
-    const filter = state.filters.get(columnId);
-    const filterValue = state.filterValues.get(columnId);
-    return filter !== undefined && filterValue !== undefined && filter.isActive(filterValue);
-  });
-  const filterClassNames = table.useState((state) => {
-    const filter = state.filters.get(columnId);
-    return filter?.classNames;
-  });
-  const filter = table.useState(
-    (state) => state.activeColumns.find((column) => column.id === columnId)?.filter,
-  );
+  const impl = filters.get(columnId);
+  const filterValue = filterValues.get(columnId);
+  const isActive = impl !== undefined && filterValue !== undefined && impl.isActive(filterValue);
+  const filterClassNames = impl?.classNames;
+  const filter = activeColumns.find((column) => column.id === columnId)?.filter;
 
   function reset() {
-    const impl = table.getState().filters.get(columnId);
-
-    impl?.onChange?.(undefined);
-
-    if (impl?.value === undefined) {
-      table.update((state) => {
-        state.filterValues.delete(columnId);
-      });
-    }
+    actions.setFilterValue(columnId, undefined);
   }
 
   if (!filter) return null;

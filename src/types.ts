@@ -7,16 +7,9 @@ import type {
   Theme,
 } from '@emotion/react';
 import type React from 'react';
-import type {
-  ComponentType,
-  CSSProperties,
-  DependencyList,
-  ReactElement,
-  ReactNode,
-  Ref,
-} from 'react';
+import type { ComponentType, CSSProperties, ReactElement, ReactNode, Ref } from 'react';
 import { ExportOptions } from './exporters/exporter';
-import type { TableStateStorage } from './internalState/tableStateStorage';
+import type { TableStateStorage } from './state/persistence';
 
 export type Sort = {
   columnId: string | number;
@@ -28,13 +21,6 @@ export type SortDirection = 'asc' | 'desc';
 
 export type Id = string | number;
 export type KeyOfType<T, S> = { [K in keyof T]: T[K] extends S ? K : never }[keyof T];
-
-export type FunctionWithDeps<F extends (...args: any[]) => any> =
-  | F
-  | [function: F, ...deps: DependencyList];
-export type MemoizedFunctions<T> = {
-  [K in keyof T]: Exclude<T[K], [function: (...args: any[]) => any, ...deps: DependencyList]>;
-};
 
 type InterpolationPrimitive =
   | null
@@ -84,28 +70,26 @@ export interface TableTheme<TItem = unknown> {
   /** Define styles. */
   classes?: {
     table?: string;
-    row?: string | FunctionWithDeps<(item: TItem, index: number) => string | undefined>;
+    row?: string | ((item: TItem, index: number) => string | undefined);
     headerCell?: string;
     footerCell?: string;
-    cell?: string | FunctionWithDeps<(item: TItem, index: number) => string | undefined>;
+    cell?: string | ((item: TItem, index: number) => string | undefined);
     evenCell?: string;
     oddCell?: string;
     popover?: string;
     popoverBackdrop?: string;
     dialog?: string;
     columnDivider?: string;
-    details?: string | FunctionWithDeps<(item: TItem, index: number) => string | undefined>;
+    details?: string | ((item: TItem, index: number) => string | undefined);
   };
   styles?: {
     table?: Interpolation<Theme>;
     row?:
       | CSSInterpolation
-      | FunctionWithDeps<(item: TItem, index: number) => CSSInterpolation | CSSInterpolation[]>;
+      | ((item: TItem, index: number) => CSSInterpolation | CSSInterpolation[]);
     headerCell?: Interpolation<Theme>;
     footerCell?: Interpolation<Theme>;
-    cell?:
-      | CSSInterpolation
-      | FunctionWithDeps<(item: TItem, index: number) => Interpolation<Theme>>;
+    cell?: CSSInterpolation | ((item: TItem, index: number) => Interpolation<Theme>);
     evenCell?: Interpolation<Theme>;
     oddCell?: Interpolation<Theme>;
     popover?: Interpolation<Theme>;
@@ -114,7 +98,7 @@ export interface TableTheme<TItem = unknown> {
     columnDivider?: Interpolation<Theme>;
     details?:
       | Exclude<Interpolation<Theme>, ((...args: any[]) => any) | Array<any>>
-      | FunctionWithDeps<(item: TItem, index: number) => Interpolation<Theme>>;
+      | ((item: TItem, index: number) => Interpolation<Theme>);
   };
   /** Define components to be used in the table. */
   components: {
@@ -204,16 +188,10 @@ export type PartialTableTheme<TItem = unknown> = {
     : TableTheme<TItem>[K];
 };
 
-export type MemoizedTableTheme<TItem> = Omit<TableTheme, 'classes' | 'styles' | 'text'> & {
-  classes: MemoizedFunctions<TableTheme<TItem>['classes']>;
-  styles: MemoizedFunctions<TableTheme<TItem>['styles']>;
-  text: MemoizedFunctions<TableTheme<TItem>['text']>;
-};
-
 export type ColumnGenerator<TItem> = (col: ColumnFactory<TItem>) => (Column<TItem, any> | Falsy)[];
 
 export type ColumnFactory<TItem> = <TColumnValue>(
-  value: FunctionWithDeps<(item: TItem) => TColumnValue>,
+  value: (item: TItem) => TColumnValue,
   column: Omit<Column<TItem, TColumnValue>, 'value'>,
 ) => Column<TItem, TColumnValue>;
 
@@ -225,11 +203,9 @@ export interface TableProps<TItem> extends PartialTableTheme<TItem> {
   /** The data to be rendered. One item per row. */
   items?: readonly TItem[];
   /** Unique id for each item/row. */
-  id: FunctionWithDeps<(item: TItem) => Id> | KeyOfType<TItem, Id>;
+  id: ((item: TItem) => Id) | KeyOfType<TItem, Id>;
   /** Create a nested structure by assigning parents to items. Child items are hidden until the parent is expanded. */
-  parentId?:
-    | FunctionWithDeps<(item: TItem) => Id | undefined>
-    | KeyOfType<TItem, Id | undefined | null>;
+  parentId?: ((item: TItem) => Id | undefined) | KeyOfType<TItem, Id | undefined | null>;
   /** If true for an item, it means that children will be loaded asynchronously as soon as item is expanded. */
   hasDeferredChildren?: (item: TItem) => boolean;
 
@@ -241,24 +217,18 @@ export interface TableProps<TItem> extends PartialTableTheme<TItem> {
   /** Default props for all column. Will take effect if not overriden in column definition. */
   defaultColumnProps?: Omit<Column<TItem, unknown>, 'id' | 'value'>;
   /** Set props for multiple columns at once. Will take effect if not overriden in column definition. */
-  columnProps?: FunctionWithDeps<(id: Id) => Partial<Omit<Column<TItem, unknown>, 'id'>>>;
+  columnProps?: (id: Id) => Partial<Omit<Column<TItem, unknown>, 'id'>>;
   /** Wrap each row */
-  wrapRow?: FunctionWithDeps<
-    (
-      props: { className?: string; style?: CSSProperties; children?: ReactNode },
-      item: TItem,
-      index: number,
-    ) => ReactNode
-  >;
+  /** Wrap each row. `props` must be spread onto the row element: it carries the ref and
+   * `data-index` the virtualizer measures the row with. */
+  wrapRow?: (props: WrapRowProps, item: TItem, index: number) => ReactNode;
   /** Wrap each cell */
-  wrapCell?: FunctionWithDeps<
-    (content: ReactNode, value: unknown, item: TItem, index: number) => ReactNode
-  >;
+  wrapCell?: (content: ReactNode, value: unknown, item: TItem, index: number) => ReactNode;
 
   /** Display a cell at the start of each row. Useful for "go to details" button for example. */
-  rowAction?: ReactNode | FunctionWithDeps<(item: TItem, index: number) => ReactNode>;
+  rowAction?: ReactNode | ((item: TItem, index: number) => ReactNode);
   /** Expand row to show details. */
-  rowDetails?: ReactNode | FunctionWithDeps<(item: TItem, index: number) => ReactNode>;
+  rowDetails?: ReactNode | ((item: TItem, index: number) => ReactNode);
 
   /// ///////////////////////////////////////////////
   // Sorting
@@ -335,20 +305,22 @@ export interface TableProps<TItem> extends PartialTableTheme<TItem> {
    */
   stickyFooter?: boolean | { bottom: number };
   /** Whether the table cells should only be rendered when in viewport.
-   * @default true
+   * @default false
    */
   virtual?:
     | boolean
     | {
+        /** Fixed row height in px. Rows are not measured when set. */
         rowHeight?: number;
-        initalRowHeight?: number;
-        throttleScroll?: number;
+        /** Row height in px assumed until a row has been measured.
+         * @default 40
+         */
+        estimatedRowHeight?: number;
+        /** Number of rows rendered beyond each edge of the viewport.
+         * @default 5
+         */
         overscan?: number;
-        overscanBottom?: number;
-        overscanTop?: number;
       };
-  /** Whether to use a subgrid layout */
-  subgrid?: boolean;
 
   /// ///////////////////////////////////////////////
   // Misc
@@ -369,10 +341,6 @@ export interface TableProps<TItem> extends PartialTableTheme<TItem> {
    * @default true
    */
   enableColumnResize?: boolean | 'visualOnly';
-  /** Allow to drag and drop column header to reorder columns.
-   * @default true
-   */
-  enableColumnReorder?: boolean;
   /** If enabled, automatically store table state in localStorage, localForage or another compatible storage. */
   persist?: {
     storage: TableStateStorage;
@@ -384,7 +352,6 @@ export interface TableProps<TItem> extends PartialTableTheme<TItem> {
       | 'hiddenColumns'
       | 'filterValues'
       | 'columnWidths'
-      | 'columnOrder'
     )[];
     exclude?: (
       | 'sort'
@@ -393,7 +360,6 @@ export interface TableProps<TItem> extends PartialTableTheme<TItem> {
       | 'hiddenColumns'
       | 'filterValues'
       | 'columnWidths'
-      | 'columnOrder'
     )[];
   };
   /** The current screen size. Used to determine which columns to display.
@@ -414,6 +380,14 @@ export interface TableProps<TItem> extends PartialTableTheme<TItem> {
   onReset?: (scope?: 'table' | 'filters') => void;
 }
 
+export interface WrapRowProps {
+  ref: Ref<HTMLDivElement>;
+  'data-index': number;
+  className?: string;
+  style?: CSSProperties;
+  children?: ReactNode;
+}
+
 export interface TableRef {
   getSort: () => Sort[];
   setSort: (sort: Sort[]) => void;
@@ -425,27 +399,20 @@ export interface TableRef {
   setHiddenColumns: (hidden: Set<Id>) => void;
 }
 
-export type InternalTableProps<TItem> = MemoizedFunctions<
-  Omit<
-    TableProps<TItem>,
-    'id' | 'parentId' | 'columns' | 'defaultColumnProps' | 'displaySizeOverrides'
-  > & {
-    id: (item: TItem) => Id;
-    parentId?: (item: TItem) => Id | undefined;
-    columns: InternalColumn<TItem, unknown>[];
-    displaySizeOverrides?: Partial<
-      Record<
-        DisplaySize,
-        Partial<Omit<InternalTableProps<TItem>, 'displaySize' | 'displaySizeOverrides'>>
-      >
-    >;
-  }
->;
+export type InternalTableProps<TItem> = Omit<
+  TableProps<TItem>,
+  'id' | 'parentId' | 'columns' | 'defaultColumnProps' | 'columnProps' | 'displaySizeOverrides'
+> & {
+  id: (item: TItem) => Id;
+  parentId?: (item: TItem) => Id | undefined;
+  columns: InternalColumn<TItem, unknown>[];
+};
 
 export type TableItem<TItem = unknown> = {
   id: Id;
   parentId?: Id | null;
   children: TableItem<TItem>[];
+  depth: number;
   value: TItem;
 };
 
@@ -460,13 +427,13 @@ export type Column<TItem, TColumnValue> = {
   /** Render table header for this column. */
   footer?: ReactNode;
   /** Extract value for this column */
-  value: FunctionWithDeps<(item: TItem) => TColumnValue>;
+  value: (item: TItem) => TColumnValue;
   /** Render table cell. If not provided, a string representation of the value will be rendered. */
-  renderCell?: FunctionWithDeps<(value: TColumnValue, item: TItem) => ReactNode>;
+  renderCell?: (value: TColumnValue, item: TItem) => ReactNode;
   /** Serialize column value for exports. If not provided, a string representation of the value will be used. */
   exportCell?: (value: TColumnValue, item: TItem) => string | number | Date;
   /** Customize sort criteria. By default it will be the value itself in case it's a number or Date, or a string representation of the value otherwise. */
-  sortBy?: FunctionWithDeps<(value: TColumnValue, item: TItem) => unknown>[];
+  sortBy?: ((value: TColumnValue, item: TItem) => unknown)[];
   /** Disable sort for this column */
   disableSort?: boolean;
   /** Set filter component that will be displayed in the column header */
@@ -485,55 +452,83 @@ export type Column<TItem, TColumnValue> = {
   displaySize?: DisplaySize | DisplaySize[];
 };
 
-export type InternalColumn<TItem, TColumnValue> = MemoizedFunctions<
-  Required<
-    Omit<Column<TItem, TColumnValue>, 'id' | 'sortBy' | 'displaySize'>,
-    'header' | 'exportHeader' | 'renderCell' | 'exportCell' | 'sortBy'
-  > & {
-    id: Id;
-    sortBy: ((value: TColumnValue, item: TItem) => unknown)[];
-    displaySize: DisplaySize[] | undefined;
-  }
->;
+export type InternalColumn<TItem, TColumnValue> = Required<
+  Omit<Column<TItem, TColumnValue>, 'id' | 'sortBy' | 'displaySize'>,
+  'header' | 'exportHeader' | 'renderCell' | 'exportCell' | 'sortBy'
+> & {
+  id: Id;
+  sortBy: ((value: TColumnValue, item: TItem) => unknown)[];
+  displaySize: DisplaySize[] | undefined;
+};
 
 type Required<T, S> = T & {
   [P in keyof T as P extends S ? P : never]-?: T[P];
 };
 
-export type InternalTableState<TItem> = {
-  // Basically the passed in props, but normalized
-  normalizedProps: InternalTableProps<TItem>;
+export interface TableState<TItem> {
+  /** Normalized props with the overrides of the current display size applied. */
   props: InternalTableProps<TItem>;
+  displaySize: DisplaySize | undefined;
 
-  // Actual internal state
-  key: any;
   sort: Sort[];
   selection: Set<Id>;
   expanded: Set<Id>;
-  rowHeights: Map<Id, number>;
-  rowHeightsKey: number;
-  filters: Map<Id, MemoizedFunctions<FilterImplementation<TItem, any, any, any>>>;
-  filterValues: Map<Id, any>;
   hiddenColumns: Set<Id>;
   columnWidths: Map<Id, string>;
-  columnOrder: Id[];
-  columnStyleOverride: Map<Id, CSSProperties>;
+  filters: Map<Id, FilterImplementation<TItem, any, any, any>>;
+  filterValues: Map<Id, unknown>;
 
-  // Helper data structures for efficient lookup etc.
+  /** Columns matching the current display size, hidden ones included. */
+  columns: InternalColumn<TItem, unknown>[];
+  /** Columns that are not hidden, regardless of display size. */
   activeColumns: InternalColumn<TItem, unknown>[];
+  /** Columns that are rendered: not hidden and matching the display size. */
   visibleColumns: InternalColumn<TItem, unknown>[];
+  /** All items in display order, as a flattened tree. */
   items: TableItem<TItem>[];
   itemsById: Map<Id, TableItem<TItem>>;
+  /** Items that pass the filters and whose ancestors are expanded. */
   activeItems: TableItem<TItem>[];
   activeItemsById: Map<Id, TableItem<TItem>>;
-  lastSelectedId?: Id;
-  displaySizePx: number | undefined;
-  displaySize: DisplaySize | undefined;
+}
+
+export interface TableActions<TItem = unknown> {
+  /** Latest state, for event handlers. */
+  getState: () => TableState<TItem>;
+  setSort: (sort: Sort[]) => void;
+  setSelection: (selection: Set<Id>) => void;
+  /** Toggle one item, or all active items when `itemId` is undefined. With `range`, toggles
+   * everything between the last toggled item and this one. */
+  toggleSelection: (itemId: Id | undefined, options?: { range?: boolean }) => void;
+  setExpanded: (expanded: Set<Id>) => void;
+  toggleExpanded: (itemId: Id) => void;
+  setHiddenColumns: (hiddenColumns: Set<Id>) => void;
+  setColumnWidth: (columnId: Id, width: string | undefined) => void;
+  /** Returns a function that unregisters the filter. Register once per column with a stable
+   * object: registering causes a table render. */
+  registerFilter: (columnId: Id, filter: FilterImplementation<TItem, any, any, any>) => () => void;
+  /** Sets the value of an uncontrolled filter and reports it through the filter's onChange. */
+  setFilterValue: (columnId: Id, value: unknown) => void;
+  /** Mirrors a filter's controlled `value` prop into the table; undefined when uncontrolled. */
+  syncControlledFilterValue: (columnId: Id, value: unknown) => void;
+  clearFilters: () => void;
+  /** Clear persisted state and reset the table to its defaults. */
+  resetTable: () => Promise<void>;
+}
+
+export type TableContextValue<TItem = unknown> = TableState<TItem> & {
+  actions: TableActions<TItem>;
 };
+
+/** Table state without selection, expansion and the resulting active items. */
+export type TableStructure<TItem = unknown> = Omit<
+  TableContextValue<TItem>,
+  'selection' | 'expanded' | 'activeItems' | 'activeItemsById'
+>;
 
 export type CommonFilterProps<TItem, TColumnValue, TFilterBy, TFilterValue> = {
   /** Filter by? By default the column value will be used. If filterBy returns an array, an items will be active if at least one entry matches the active filter. */
-  filterBy?: FunctionWithDeps<(value: TColumnValue, item: TItem) => TFilterBy | TFilterBy[]>;
+  filterBy?: (value: TColumnValue, item: TItem) => TFilterBy | TFilterBy[];
   /** Preselected filter value. */
   defaultValue?: TFilterValue;
   /** Controlled filter value. */
