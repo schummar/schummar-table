@@ -1,7 +1,25 @@
 {
   "name": "schummar-table",
   "version": "0.0.0",
-  "description": "",
+  "description": "A fast, fully typed React table with sorting, filtering, selection, trees, virtualization, persistence and exports.",
+  "keywords": [
+    "react",
+    "table",
+    "data-table",
+    "datagrid",
+    "grid",
+    "typescript",
+    "virtualization",
+    "filter",
+    "sort",
+    "tree",
+    "emotion",
+    "mui"
+  ],
+  "homepage": "https://github.com/schummar/schummar-table#readme",
+  "bugs": {
+    "url": "https://github.com/schummar/schummar-table/issues"
+  },
   "license": "ISC",
   "repository": {
     "type": "git",
@@ -59,9 +77,6 @@
     "xlsx": ">=0.18.5"
   },
   "peerDependenciesMeta": {
-    "@emotion/styled": {
-      "optional": true
-    },
     "@material-ui/core": {
       "optional": true
     },

@@ -83,8 +83,9 @@ export const identity = (x: unknown): any => x;
 
 export const asString = (x: unknown): string => {
   if (Array.isArray(x)) return x.map(asString).join(', ');
+  if (x === null || x === undefined) return '';
   if (x instanceof Object) return JSON.stringify(x);
-  return String(x ?? '');
+  return String(x as string | number | bigint | boolean | symbol);
 };
 
 export const asStringOrArray = (x: unknown): string | string[] => {

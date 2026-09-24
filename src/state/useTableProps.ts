@@ -32,7 +32,7 @@ const defaultProps = {
 const identity = (value: unknown) => value;
 
 const defaultSortBy = (v: unknown) =>
-  typeof v === 'number' || v instanceof Date ? v : v === null || v === undefined ? '' : String(v);
+  typeof v === 'number' || v instanceof Date ? v : asString(v);
 
 function normalizeId<T>(id: TableProps<T>['id']): (item: T) => Id {
   return id instanceof Function ? id : (item) => item[id] as Id;

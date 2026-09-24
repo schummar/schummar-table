@@ -18,8 +18,10 @@ const storageName = (id: string) => `schummar-table_state-v1_${id}`;
 
 export type TableStateStorage = {
   getItem: (key: string) => string | null | Promise<string | null>;
-  setItem: (key: string, value: string) => unknown | Promise<unknown>;
-  removeItem: (key: string) => unknown | Promise<unknown>;
+  /** May return a promise. */
+  setItem: (key: string, value: string) => unknown;
+  /** May return a promise. */
+  removeItem: (key: string) => unknown;
 } & (
   | {
       keys: () => string[] | Promise<string[]>;

@@ -45,7 +45,9 @@ export function Export<T>(): ReactElement {
 
     if (action === 'copy') {
       const data = exporter.exportToString(columns, rows);
-      navigator.clipboard.writeText(data);
+      navigator.clipboard.writeText(data).catch((error: unknown) => {
+        console.error('Failed to copy the export to the clipboard:', error);
+      });
     } else {
       const blob = exporter.exportToBlob(columns, rows);
       const url = URL.createObjectURL(blob);

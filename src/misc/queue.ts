@@ -14,7 +14,8 @@ export class Queue {
       }
       this.q.push({ job, resolve, reject });
 
-      if (!this.isRunning) this.start();
+      // start() never rejects: each job's outcome goes to its own promise.
+      if (!this.isRunning) void this.start();
     });
   }
 
