@@ -5,8 +5,6 @@ import { Table } from '..';
 import type { TableProps } from '../types';
 import { persons, type Person } from './fixtures';
 
-declare const __REACT_COMPILER__: boolean;
-
 const columns: TableProps<Person>['columns'] = (col) => [
   col((x) => x.first_name, { id: 'first', header: 'First' }),
   col((x) => x.last_name, { id: 'last', header: 'Last' }),
@@ -52,8 +50,6 @@ describe('render counts', () => {
 
     reset();
     await screen.rerender(<Table {...tableProps} />);
-    // With React Compiler, the table itself doesn't render again either.
-    if (!__REACT_COMPILER__) expect(count('render table')).toBeGreaterThan(0);
     expect(count('render row')).toBe(0);
     expect(count('render cell')).toBe(0);
   });

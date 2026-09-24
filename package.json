@@ -61,15 +61,12 @@
   "scripts": {
     "prepare": "vp config --no-agent",
     "start": "pnpm -C docs start",
-    "start:compiler": "REACT_COMPILER=1 pnpm -C docs start",
     "build": "vp pack",
     "lint": "vp check",
     "fix": "vp check --fix",
     "test": "vp test",
-    "test:compiler": "REACT_COMPILER=1 vp test",
     "test:watch": "vp test watch",
     "bench": "vp test bench --run --reporter=verbose",
-    "bench:compiler": "REACT_COMPILER=1 vp test bench --run --reporter=verbose",
     "docs:build": "pnpm -C docs build"
   },
   "peerDependencies": {
@@ -107,7 +104,6 @@
     "@mui/material": "5.14.18",
     "@nx/js": "^23.2.1",
     "@rolldown/plugin-babel": "0.2.4",
-    "@types/babel__core": "^7.20.5",
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",
     "@vitest/browser-playwright": "5.0.1",

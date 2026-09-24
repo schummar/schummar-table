@@ -1,10 +1,17 @@
 import { defineConfig } from 'vite-plus';
 import { playwright } from 'vite-plus/test/browser-playwright';
-import { isReactCompilerEnabled, reactCompiler } from './reactCompiler.mjs';
+import babel from '@rolldown/plugin-babel';
+
+/** Tests, benchmarks and Storybook run with React Compiler; the published build (`pack`) doesn't. */
+export function reactCompiler(): ReturnType<typeof babel> {
+  return babel({
+    include: /\.[jt]sx?$/,
+    plugins: [['babel-plugin-react-compiler', { target: '19' }]],
+  });
+}
 
 export default defineConfig({
-  plugins: isReactCompilerEnabled ? [reactCompiler()] : [],
-  define: { __REACT_COMPILER__: JSON.stringify(isReactCompilerEnabled) },
+  plugins: [reactCompiler()],
   staged: {
     '*': 'vp check --fix',
   },

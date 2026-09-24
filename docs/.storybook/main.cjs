@@ -21,8 +21,8 @@ module.exports = {
       }),
     );
 
-    const { isReactCompilerEnabled, reactCompiler } = await import('../../reactCompiler.mjs');
-    if (isReactCompilerEnabled) config.plugins.unshift(reactCompiler());
+    const { reactCompiler } = await import('../../vite.config.ts');
+    config.plugins.unshift(reactCompiler());
     return config;
   },
   docs: {
