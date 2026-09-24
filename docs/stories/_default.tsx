@@ -12,24 +12,27 @@ const _defaultColumns = (col: ColumnFactory<Person>) => [
     header: 'Avatar',
     exportHeader: 'Avatar',
     renderCell: (avatar) => <img width={50} height={50} src={avatar} />,
-    width: 'max-content',
+    // width: 'max-content',
   }),
 
   col((x) => x.first_name, {
     id: 'first_name',
     header: 'First Name',
     filter: <TextFilter />,
+    width: '30ch',
   }),
 
   col((x) => x.last_name, {
     id: 'last_name',
     header: 'Last Name',
     filter: <TextFilter />,
+    width: '30ch',
   }),
 
   col((x) => x.job_title, {
     header: 'Job Title',
     filter: <SelectFilter />,
+    width: '30ch',
   }),
 
   col((x) => new Date(x.birthday), {
