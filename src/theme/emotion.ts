@@ -1,5 +1,10 @@
 import createCache, { type EmotionCache } from '@emotion/cache';
-import { __unsafe_useEmotionCache, useTheme as useEmotionTheme } from '@emotion/react';
+// Aliased to a `use…` name: React Compiler only treats functions named like that as hooks, and
+// would otherwise call it on the first render only.
+import {
+  __unsafe_useEmotionCache as useEmotionCache,
+  useTheme as useEmotionTheme,
+} from '@emotion/react';
 import { serializeStyles, type Interpolation, type SerializedStyles } from '@emotion/serialize';
 import { insertStyles } from '@emotion/utils';
 import { useMemo } from 'react';
@@ -61,7 +66,7 @@ const libraryClassNameOf = new WeakMap<EmotionCache, ClassNameOf>();
  * cache's nonce and container.
  */
 export function useLibraryClassName(): ClassNameOf {
-  const appCache = __unsafe_useEmotionCache() ?? getStandaloneAppCache();
+  const appCache = useEmotionCache() ?? getStandaloneAppCache();
 
   return useMemo(() => {
     let classNameOf = libraryClassNameOf.get(appCache);
@@ -95,7 +100,7 @@ const userClassNameOf = new WeakMap<EmotionCache, WeakMap<object, ClassNameOf>>(
  * the app's emotion cache, with its theme for function interpolations.
  */
 export function useUserClassName(): ClassNameOf {
-  const appCache = __unsafe_useEmotionCache() ?? getStandaloneAppCache();
+  const appCache = useEmotionCache() ?? getStandaloneAppCache();
   const theme = useEmotionTheme();
 
   return useMemo(() => {

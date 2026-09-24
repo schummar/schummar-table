@@ -16,6 +16,20 @@ export function filteredColumns<T>(
   return props.enableHiddenColumnFilters ? props.columns : visibleColumns;
 }
 
+/** Adds controlled values and defaults. Returns `stored` itself when there are none. */
+// Outside the hook: React Compiler miscompiles the reassigned `result` into a memo that never hits.
+function withFilterDefaults(stored: Map<Id, unknown>, columns: InternalColumn<any, unknown>[]) {
+  let result = stored;
+  for (const { id, filter } of columns) {
+    const value =
+      filter?.value !== undefined || stored.has(id) ? filter?.value : filter?.defaultValue;
+    if (value === undefined) continue;
+    if (result === stored) result = new Map(stored);
+    result.set(id, value);
+  }
+  return result;
+}
+
 export function useFilters<T>(
   props: InternalTableProps<T>,
   visibleColumns: InternalColumn<T, unknown>[],
@@ -27,17 +41,10 @@ export function useFilters<T>(
     props.onFilterValuesChange,
   );
 
-  const filterValues = useMemo(() => {
-    let result = stored;
-    for (const { id, filter } of props.columns) {
-      const value =
-        filter?.value !== undefined || stored.has(id) ? filter?.value : filter?.defaultValue;
-      if (value === undefined) continue;
-      if (result === stored) result = new Map(stored);
-      result.set(id, value);
-    }
-    return result;
-  }, [stored, props.columns]);
+  const filterValues = useMemo(
+    () => withFilterDefaults(stored, props.columns),
+    [stored, props.columns],
+  );
 
   const applied = filteredColumns(props, visibleColumns);
 

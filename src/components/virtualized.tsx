@@ -92,6 +92,7 @@ function VirtualWindow({
   renderRow: RenderRow;
   measure: boolean;
 }) {
+  'use no memo';
   const items = virtualizer.getVirtualItems();
   const scheduler = useContext(CellSchedulerContext);
 
@@ -126,7 +127,10 @@ function virtualizerOptions({ count, getKey, options, scrollMargin }: VirtualRow
   };
 }
 
+// The virtualizers return the same mutable object on every render: memoizing on it would freeze
+// the rows, so these must stay out of React Compiler.
 function ElementRows(props: VirtualRowsProps & { root: HTMLElement }) {
+  'use no memo';
   const virtualizer = useVirtualizer<HTMLElement, HTMLDivElement>({
     ...virtualizerOptions(props),
     getScrollElement: () => props.root,
@@ -141,6 +145,7 @@ function ElementRows(props: VirtualRowsProps & { root: HTMLElement }) {
 }
 
 function WindowRows(props: VirtualRowsProps) {
+  'use no memo';
   const virtualizer = useWindowVirtualizer<HTMLDivElement>(virtualizerOptions(props));
   return (
     <VirtualWindow
