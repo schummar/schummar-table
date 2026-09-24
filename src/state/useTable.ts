@@ -1,7 +1,14 @@
 import { useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useTableTheme } from '../hooks/useTheme';
 import { getAncestors, getDescendants } from '../misc/helpers';
-import type { Id, TableActions, TableProps, TableState } from '../types';
+import type {
+  Id,
+  TableActions,
+  TableContextValue,
+  TableProps,
+  TableState,
+  TableStructure,
+} from '../types';
 import { isPersisted, usePersistence, type PersistedData } from './persistence';
 import { useColumns } from './useColumns';
 import { useExpanded } from './useExpanded';
@@ -276,12 +283,58 @@ export function useTable<T>(raw: TableProps<T>, onReset: () => void) {
       },
     };
   });
+  const { sort: sortValue, hiddenColumns, columnWidths, filterValues } = state;
+  const { columns: allColumns, activeColumns, visibleColumns } = state;
+  const structure = useMemo(
+    (): TableStructure<T> => ({
+      props,
+      displaySize,
+      sort: sortValue,
+      hiddenColumns,
+      columnWidths,
+      filters: state.filters,
+      filterValues,
+      columns: allColumns,
+      activeColumns,
+      visibleColumns,
+      items,
+      itemsById,
+      actions,
+    }),
+    [
+      props,
+      displaySize,
+      sortValue,
+      hiddenColumns,
+      columnWidths,
+      state.filters,
+      filterValues,
+      allColumns,
+      activeColumns,
+      visibleColumns,
+      items,
+      itemsById,
+      actions,
+    ],
+  );
+
+  const context = useMemo(
+    (): TableContextValue<T> => ({
+      ...structure,
+      selection: state.selection,
+      expanded: state.expanded,
+      activeItems,
+      activeItemsById,
+    }),
+    [structure, state.selection, state.expanded, activeItems, activeItemsById],
+  );
+
   return {
-    state,
+    context,
+    structure,
     actions,
     theme,
     isHydrated,
-    hasActiveFilters: filters.hasActiveFilters,
     setSortInternal: sort.setSortInternal,
     setSelectionInternal: selection.setSelectionInternal,
     setExpandedInternal: expanded.setExpandedInternal,
