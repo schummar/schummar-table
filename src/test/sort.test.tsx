@@ -156,9 +156,7 @@ describe('sort', () => {
     await expect.element(screen.getByText('2', { exact: true })).toBeInTheDocument();
   });
 
-  // orderBy (src/misc/helpers.ts:25) returns the localeCompare result even when it is 0,
-  // so a tie on a string key never falls through to the next sort key.
-  test.fails('a secondary sort breaks ties of a string primary sort', async () => {
+  test('a secondary sort breaks ties of a string primary sort', async () => {
     const screen = await personTable({
       defaultSort: [
         { columnId: 'job', direction: 'asc' },

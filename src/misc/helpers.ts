@@ -22,7 +22,9 @@ export const orderBy = <T>(
       const _options = options?.[i];
 
       if (typeof _a === 'string' && typeof _b === 'string') {
-        return _a.localeCompare(_b, _locale, _options) * _direction;
+        const result = _a.localeCompare(_b, _locale, _options);
+        if (result !== 0) return result * _direction;
+        continue;
       }
 
       if (_a > _b) return _direction;

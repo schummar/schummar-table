@@ -68,6 +68,19 @@ describe('orderBy', () => {
     ]);
   });
 
+  test('falls through to the next selector on equal strings', () => {
+    const items = [
+      { a: 'x', b: 2 },
+      { a: 'x', b: 1 },
+      { a: 'w', b: 5 },
+    ];
+    expect(orderBy(items, [(x) => x.a, (x) => x.b])).toEqual([
+      { a: 'w', b: 5 },
+      { a: 'x', b: 1 },
+      { a: 'x', b: 2 },
+    ]);
+  });
+
   test('does not mutate the input array', () => {
     const input = [3, 1, 2];
     orderBy(input);
