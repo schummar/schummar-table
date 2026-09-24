@@ -200,9 +200,9 @@ col((x) => x.birthday, { filterBy: (d) => d.getFullYear(), filter: rangeFilter()
 
 **Filters are type checked against the column.** A filter must accept the column value, or the `filterBy` result if given. What the built-in filters accept (each also as an array or `Set` of values: an item matches if one of them does):
 
-- `textFilter`: `string | number | null | undefined`
+- `textFilter`: `string | number | bigint | null | undefined`
 - `selectFilter`: anything; typing `options`, `defaultValue` or `render` narrows it
-- `rangeFilter`: `number | null | undefined`
+- `rangeFilter`: `number | bigint | null | undefined`
 - `dateFilter`: `Date | DateRange | ISODate | null | undefined`, where `ISODate` is a template literal type like `2024-05-03` or `2024-05-03T13:47:23Z`
 
 Previously filters converted anything (text filters stringified dates and objects, date filters parsed any string or timestamp). New compile errors on `filter:` mean a conversion is needed: add a column `filterBy`, e.g. `filterBy: (d) => d.toISOString()` for a text filter on a `Date` column, or `filterBy: (s) => new Date(s)` for a date filter on a plain `string` column.
@@ -240,15 +240,16 @@ A column without an entry uses its filter's `defaultValue`; a cleared filter has
 const myFilter = defineFilter<SingleOrMultiple<string>, TState, MyOptions>({
   isActive: (state, options) => …,
   test: (state, input, options) => toSingles(input).some(…),   // helpers.toSingles
-  debounce: 300,                          // optional, for typing-heavy UIs
+  debounce: 300,                          // optional default; a `debounce` option overrides it
   Component: ({ value, onChange, close, options, getValues }) => …,
 });
-// column: filterBy (optional), filter: myFilter({ …MyOptions, defaultValue, external, persist })
+// column: filterBy (optional), filter: myFilter({ …MyOptions, defaultValue, external })
 ```
 
 The component no longer reads the table context for its value: it gets `value`/`onChange` (debounced by the table when `debounce` is set), `close()`, and `getValues()` for the distinct single `filterBy` values of all items. `test` gets each item's `filterBy` value as is, arrays and Sets included.
 
-- Only `textFilter` is debounced now (300 ms instead of 500 ms for every filter); select, range and date filters apply immediately.
+- Only `textFilter` is debounced by default now (300 ms instead of 500 ms for every filter); select, range and date filters apply immediately. `textFilter` and `rangeFilter` take a `debounce` option (ms).
+- The per-filter `persist` prop moved to the table's `persist` config: `persist={{ …, exclude: [{ filterValues: ['columnId'] }] }}` replaces `persist={false}` on that column's filter. `include: [{ filterValues: [...] }]` persists only the listed filters.
 - New theme text `text.hiddenColumnFilters`: add it to translated themes.
 - `AutoFocusTextField` now focuses whenever it mounts, not only inside an open filter popover.
 - Type check gap: the check passes when the column type is wider than everything the filter accepts, e.g. a column typed `unknown`.

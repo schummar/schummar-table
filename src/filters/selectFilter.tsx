@@ -7,7 +7,7 @@ import { VirtualList } from '../components/virtualList';
 import { useTheme } from '../hooks/useTheme';
 import { asString, orderBy, toSingles, uniq } from '../misc/helpers';
 import type { Filter, FilterComponentProps, FilterOptions, SingleOrMultiple } from '../types';
-import { createFilter, type FilterDefinition } from './defineFilter';
+import { defineFilter } from './defineFilter';
 
 export interface SelectFilterOptions<TFilterBy> {
   /** Which options are provided to select. By default all unique item values are used. */
@@ -144,19 +144,16 @@ function SelectFilterComponent({
   );
 }
 
-const definition: FilterDefinition<
+/** Accepts any value; typing `options`, `defaultValue`, `render` etc. narrows it. */
+// defineFilter can't make the factory generic, hence the cast.
+export const selectFilter = defineFilter<
   SingleOrMultiple<unknown>,
   Set<unknown>,
   SelectFilterOptions<unknown>
-> = {
+>({
   isActive: (value) => value.size > 0,
   test: (value, input) => toSingles(input).some((x) => value.has(x)),
   Component: SelectFilterComponent,
-};
-
-/** Accepts any value; typing `options`, `defaultValue`, `render` etc. narrows it. */
-export function selectFilter<T>(
+}) as <T>(
   options?: FilterOptions<Set<T>> & SelectFilterOptions<T>,
-): Filter<SingleOrMultiple<T>, Set<T>, SelectFilterOptions<T>> {
-  return createFilter(definition as any, options ?? {});
-}
+) => Filter<SingleOrMultiple<T>, Set<T>, SelectFilterOptions<T>>;

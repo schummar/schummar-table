@@ -175,18 +175,18 @@ describe('persist', () => {
     await expect.poll(shownNames).toEqual(unsorted);
   });
 
-  test('filters with persist: false are neither saved nor restored', async () => {
+  test.each([
+    ['excluded', { exclude: [{ filterValues: ['first_name'] }] }],
+    ['not included', { include: [{ filterValues: ['last_name'] }] }],
+  ] as const)('%s filter values are neither saved nor restored', async (_name, options) => {
     localStorage.setItem(
       storageKey(persistId),
       JSON.stringify({ filterValues: { __map: [['first_name', 'el']] } }),
     );
     await renderPersons({
+      persist: { storage: localStorage, id: persistId, ...options },
       columns: (col) => [
-        col((x) => x.first_name, {
-          id: 'first_name',
-          header: 'First name',
-          filter: textFilter({ persist: false }),
-        }),
+        col((x) => x.first_name, { id: 'first_name', header: 'First name', filter: textFilter() }),
         col((x) => x.last_name, { id: 'last_name', header: 'Last name', filter: textFilter() }),
       ],
     });
@@ -196,6 +196,19 @@ describe('persist', () => {
     await expect.poll(shownNames).toEqual(['Kassia', 'Dulcia', 'Thoma', 'Maurene']);
     await new Promise((resolve) => setTimeout(resolve, 1500));
     expect(stored()?.filterValues?.__map ?? []).not.toContainEqual(['first_name', 'a']);
+  });
+
+  test('included filter values are saved', async () => {
+    await renderPersons({
+      persist: {
+        storage: localStorage,
+        id: persistId,
+        include: [{ filterValues: ['first_name'] }],
+      },
+    });
+    await sortByFirstName();
+    await filterFirstName('a');
+    await pollStored().toEqual({ filterValues: { __map: [['first_name', 'a']] } });
   });
 
   test('a different persist id does not restore the state', async () => {

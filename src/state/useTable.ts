@@ -9,7 +9,12 @@ import type {
   TableState,
   TableStructure,
 } from '../types';
-import { isPersisted, usePersistence, type PersistedData } from './persistence';
+import {
+  isFilterValuePersisted,
+  isPersisted,
+  usePersistence,
+  type PersistedData,
+} from './persistence';
 import { useColumns } from './useColumns';
 import { useExpanded } from './useExpanded';
 import { useFilters } from './useFilters';
@@ -60,8 +65,6 @@ export function useTable<T>(raw: TableProps<T>, onReset: () => void, isReset = f
   };
 
   const { persist } = props;
-  const isFilterPersisted = (columnId: Id) =>
-    props.columns.find((column) => column.id === columnId)?.filter?.persist !== false;
   const persistData = useMemo(() => {
     const data: PersistedData = {};
     if (!persist) return data;
@@ -77,7 +80,9 @@ export function useTable<T>(raw: TableProps<T>, onReset: () => void, isReset = f
     add('columnWidths', columns.columnWidths);
     add(
       'filterValues',
-      new Map([...filters.stored].filter(([columnId]) => isFilterPersisted(columnId))),
+      new Map(
+        [...filters.stored].filter(([columnId]) => isFilterValuePersisted(persist, columnId)),
+      ),
       props.filterValues !== undefined,
     );
 
@@ -85,15 +90,14 @@ export function useTable<T>(raw: TableProps<T>, onReset: () => void, isReset = f
   }, [
     persist?.storage,
     persist?.id,
-    String(persist?.include),
-    String(persist?.exclude),
+    JSON.stringify(persist?.include),
+    JSON.stringify(persist?.exclude),
     sort.sort,
     selection.selection,
     expanded.expanded,
     columns.hiddenColumns,
     columns.columnWidths,
     filters.stored,
-    props.columns,
     props.sort !== undefined,
     props.selection !== undefined,
     props.expanded !== undefined,
@@ -109,8 +113,6 @@ export function useTable<T>(raw: TableProps<T>, onReset: () => void, isReset = f
   function restore(data: PersistedData) {
     const { state, sort, selection, expanded, columns, filters } = latest.current;
     const { props } = state;
-    const isFilterPersisted = (columnId: Id) =>
-      props.columns.find((column) => column.id === columnId)?.filter?.persist !== false;
 
     if (data.sort && props.sort === undefined) sort.setSort(data.sort);
     if (data.selection && props.selection === undefined) selection.setSelection(data.selection);
@@ -124,7 +126,9 @@ export function useTable<T>(raw: TableProps<T>, onReset: () => void, isReset = f
     if (filterValues && props.filterValues === undefined) {
       const next = new Map(state.filterValues);
       for (const [columnId, value] of filterValues) {
-        if (isFilterPersisted(columnId)) next.set(columnId, value);
+        if (props.persist && isFilterValuePersisted(props.persist, columnId)) {
+          next.set(columnId, value);
+        }
       }
       filters.setFilterValues(next);
     }

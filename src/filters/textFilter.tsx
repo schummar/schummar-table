@@ -21,9 +21,13 @@ export interface TextFilterOptions {
    */
   compare?: keyof typeof compares | ((itemValue: string, filterValue: string) => boolean);
   placeholder?: string;
+  /** Delay in ms before typed text applies.
+   * @default 300
+   */
+  debounce?: number;
 }
 
-type TextInput = SingleOrMultiple<string | number | null | undefined>;
+type TextInput = SingleOrMultiple<string | number | bigint | null | undefined>;
 
 function TextFilterComponent({
   value,

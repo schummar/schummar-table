@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Queue } from '../misc/queue';
-import type { TableProps } from '../types';
+import type { Id, TableProps } from '../types';
 
 export const PERSIST_KEYS = [
   'sort',
@@ -76,8 +76,31 @@ function parse(value: string) {
   });
 }
 
-export function isPersisted(persist: NonNullable<TableProps<any>['persist']>, key: PersistKey) {
-  return (!persist.include || persist.include.includes(key)) && !persist.exclude?.includes(key);
+/** A persisted key, or `{ filterValues: [...] }` for the values of some filters only. */
+export type PersistEntry = PersistKey | { filterValues: readonly Id[] };
+
+type Persist = NonNullable<TableProps<any>['persist']>;
+
+const filterIds = (entries: readonly PersistEntry[] | undefined) =>
+  entries?.flatMap((entry) => (typeof entry === 'object' ? entry.filterValues : []));
+
+export function isPersisted(persist: Persist, key: PersistKey) {
+  const isIncluded =
+    !persist.include ||
+    persist.include.includes(key) ||
+    (key === 'filterValues' && filterIds(persist.include)!.length > 0);
+  return isIncluded && !persist.exclude?.includes(key);
+}
+
+export function isFilterValuePersisted(persist: Persist, columnId: Id) {
+  if (!isPersisted(persist, 'filterValues')) return false;
+  const included = persist.include?.includes('filterValues')
+    ? undefined
+    : filterIds(persist.include);
+  return (
+    (included === undefined || included.includes(columnId)) &&
+    !filterIds(persist.exclude)?.includes(columnId)
+  );
 }
 
 /**

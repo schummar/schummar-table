@@ -660,7 +660,14 @@ describe('filter descriptors', () => {
 
 describe('filter types', () => {
   test('filters are checked against the column value or filterBy', () => {
-    type Item = { name: string; age: number; tags: string[]; birthday: Date; iso: '2024-01-01' };
+    type Item = {
+      name: string;
+      age: number;
+      big: bigint;
+      tags: string[];
+      birthday: Date;
+      iso: '2024-01-01';
+    };
     const col: ColumnFactory<Item> = (value, column) => ({ ...column, value });
 
     col((x) => x.name, { filter: textFilter(), renderCell: (v) => v.toUpperCase() });
@@ -669,6 +676,8 @@ describe('filter types', () => {
     col((x) => x.name, { filter: selectFilter() });
     col((x) => x.tags, { filter: selectFilter({ defaultValue: new Set(['a']) }) });
     col((x) => x.age, { filter: rangeFilter() });
+    col((x) => x.big, { filter: rangeFilter() });
+    col((x) => x.big, { filter: textFilter({ debounce: 0 }) });
     col((x) => x.birthday, { filter: dateFilter() });
     col((x) => x.iso, { filter: dateFilter() });
     col((x) => x.birthday, { filterBy: (d) => d.getFullYear(), filter: rangeFilter() });

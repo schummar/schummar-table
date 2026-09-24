@@ -9,7 +9,7 @@ import type {
 import type React from 'react';
 import type { ComponentType, CSSProperties, ReactElement, ReactNode, Ref } from 'react';
 import { ExportOptions } from './exporters/exporter';
-import type { TableStateStorage } from './state/persistence';
+import type { PersistEntry, TableStateStorage } from './state/persistence';
 
 export type Sort = {
   columnId: string | number;
@@ -375,22 +375,11 @@ export interface TableProps<TItem> extends PartialTableTheme<TItem> {
   persist?: {
     storage: TableStateStorage;
     id: string;
-    include?: (
-      | 'sort'
-      | 'selection'
-      | 'expanded'
-      | 'hiddenColumns'
-      | 'filterValues'
-      | 'columnWidths'
-    )[];
-    exclude?: (
-      | 'sort'
-      | 'selection'
-      | 'expanded'
-      | 'hiddenColumns'
-      | 'filterValues'
-      | 'columnWidths'
-    )[];
+    /** What to persist; everything by default. `{ filterValues: [...] }` persists the values of the
+     * given filters (column ids) only. */
+    include?: readonly PersistEntry[];
+    /** What not to persist. `{ filterValues: [...] }` excludes the values of the given filters. */
+    exclude?: readonly PersistEntry[];
   };
   /** The current screen size. Used to determine which columns to display.
    * Either assert the size manually - e.g. "mobile" or "desktop".
@@ -589,10 +578,6 @@ export interface FilterOptions<TState> {
   /** The table does not filter by this filter; it's done externally, e.g. server side. Read its
    * value through `onFilterValuesChange`. */
   external?: boolean;
-  /** Whether to persist the value (given that filter persistence is enabled for the table).
-   * @default true
-   */
-  persist?: boolean;
   classNames?: {
     popover?: string;
     popoverBackdrop?: string;
@@ -609,7 +594,7 @@ export interface FilterOptions<TState> {
 export interface Filter<TInput, TState = any, TOptions = any> extends FilterOptions<TState> {
   isActive(value: TState, options: TOptions): boolean;
   test(value: TState, input: TInput, options: TOptions): boolean;
-  /** Delay in ms before changes made in the UI apply. */
+  /** Delay in ms before changes made in the UI apply. Filters may take it as an option. */
   debounce?: number;
   options: TOptions;
   Component(props: FilterComponentProps<TInput, TState, TOptions>): ReactNode;

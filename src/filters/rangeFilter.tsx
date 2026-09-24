@@ -6,11 +6,13 @@ import type { FilterComponentProps, SingleOrMultiple } from '../types';
 import { defineFilter } from './defineFilter';
 
 type Range = [number | null, number | null] | null;
-type RangeInput = SingleOrMultiple<number | null | undefined>;
+type RangeInput = SingleOrMultiple<number | bigint | null | undefined>;
 
 export interface RangeFilterOptions {
   min?: number;
   max?: number;
+  /** Delay in ms before changes apply. The inputs apply on blur anyway. */
+  debounce?: number;
 }
 
 function RangeFilterComponent({
@@ -32,8 +34,9 @@ function RangeFilterComponent({
 
     for (const value of getValues()) {
       if (value === null || value === undefined) continue;
-      minValue = Math.min(minValue ?? value, value);
-      maxValue = Math.max(maxValue ?? value, value);
+      const number = Number(value);
+      minValue = Math.min(minValue ?? number, number);
+      maxValue = Math.max(maxValue ?? number, number);
     }
 
     return [min ?? minValue, max ?? maxValue];
@@ -91,7 +94,9 @@ export const rangeFilter = defineFilter<RangeInput, Range, RangeFilterOptions>({
 
     const min = value[0] ?? Number.NEGATIVE_INFINITY;
     const max = value[1] ?? Number.POSITIVE_INFINITY;
-    return toSingles(input).some((x) => typeof x === 'number' && x >= min && x <= max);
+    return toSingles(input).some(
+      (x) => (typeof x === 'number' || typeof x === 'bigint') && x >= min && x <= max,
+    );
   },
   Component: RangeFilterComponent,
 });
