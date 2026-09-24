@@ -97,7 +97,8 @@ export const PeriodicRerenders = {
     columns: (col) => [
       col(() => 'x', {
         header: 'X',
-        filter: textFilter({ filterBy: (_x, person) => person.first_name }),
+        filterBy: (_x, person) => person.first_name,
+        filter: textFilter(),
       }),
     ],
   },

@@ -29,6 +29,8 @@ const defaultProps = {
   },
 } satisfies Partial<TableProps<any>>;
 
+const identity = (value: unknown) => value;
+
 const defaultSortBy = (v: unknown) =>
   typeof v === 'number' || v instanceof Date ? v : v === null || v === undefined ? '' : String(v);
 
@@ -73,6 +75,7 @@ function normalizeColumns<T>(
         hidden: column.hidden ?? defaults.hidden,
         classes: column.classes ?? defaults.classes,
         styles: column.styles ?? defaults.styles,
+        filterBy: column.filterBy ?? defaults.filterBy ?? identity,
         filter: column.filter ?? defaults.filter,
         width: column.width ?? defaults.width,
         displaySize: displaySize !== undefined ? castArray(displaySize) : undefined,

@@ -1,8 +1,8 @@
 import type { ReactElement } from 'react';
 import { AutoFocusTextField } from '../components/autoFocusTextField';
 import { useTheme } from '../hooks/useTheme';
-import { asStringOrArray } from '../misc/helpers';
-import type { FilterComponentProps } from '../types';
+import { toSingles } from '../misc/helpers';
+import type { FilterComponentProps, SingleOrMultiple } from '../types';
 import { defineFilter } from './defineFilter';
 
 const compares = {
@@ -23,12 +23,14 @@ export interface TextFilterOptions {
   placeholder?: string;
 }
 
+type TextInput = SingleOrMultiple<string | number | null | undefined>;
+
 function TextFilterComponent({
   value,
   onChange,
   close,
   options,
-}: FilterComponentProps<string, string, TextFilterOptions>): ReactElement {
+}: FilterComponentProps<TextInput, string, TextFilterOptions>): ReactElement {
   const IconButton = useTheme((t) => t.components.IconButton);
   const Search = useTheme((t) => t.icons.Search);
   const Clear = useTheme((t) => t.icons.Clear);
@@ -50,11 +52,12 @@ function TextFilterComponent({
   );
 }
 
-export const textFilter = defineFilter<string, string, TextFilterOptions>({
+export const textFilter = defineFilter<TextInput, string, TextFilterOptions>({
   isActive: (value) => !!value,
-  test: (value, x, { compare = 'contains' }) =>
-    (typeof compare === 'function' ? compare : compares[compare])(x, value),
-  filterBy: asStringOrArray,
+  test(value, input, { compare = 'contains' }) {
+    const match = typeof compare === 'function' ? compare : compares[compare];
+    return toSingles(input).some((x) => x !== null && x !== undefined && match(String(x), value));
+  },
   debounce: 300,
   Component: TextFilterComponent,
 });

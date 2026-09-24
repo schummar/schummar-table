@@ -1,5 +1,4 @@
 import { useMemo } from 'react';
-import { castArray } from '../misc/helpers';
 import type { Filter, Id, InternalColumn, InternalTableProps, TableItem } from '../types';
 import { useControllableState } from './useControllableState';
 
@@ -59,9 +58,7 @@ export function useFilters<T>(
       const isMatch =
         result.has(item.id) ||
         active.every(({ column, filter, value }) =>
-          castArray(filter.filterBy(column.value(item.value), item.value)).some((x) =>
-            filter.test(value, x, filter.options),
-          ),
+          filter.test(value, column.filterBy(column.value(item.value), item.value), filter.options),
         );
 
       if (isMatch) {

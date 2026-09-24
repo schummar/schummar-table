@@ -27,7 +27,7 @@ Check the consumer's `react`/`react-dom` versions. Upgrade if needed before proc
 Grep: `grep -rn '\[\s*(async\s*)?\(' src/` (broad — narrow to file/prop names below), or more targeted:
 `grep -rnE '(id|parentId|columnProps|wrapRow|wrapCell|rowAction|rowDetails|value|renderCell|filterBy)=\{\[' src/`
 
-Affected: table `id`, `parentId`, `columnProps`, `wrapRow`, `wrapCell`, `rowAction`, `rowDetails`; column `value`, `renderCell`, `sortBy[]` entries; the `col(value, ...)` factory's first argument; filter `filterBy`; theme `classes.row/cell/details` and `styles.row/cell/details`.
+Affected: table `id`, `parentId`, `columnProps`, `wrapRow`, `wrapCell`, `rowAction`, `rowDetails`; column `value`, `renderCell`, `sortBy[]` entries, `filterBy` (now a column property, formerly on the filter); the `col(value, ...)` factory's first argument; theme `classes.row/cell/details` and `styles.row/cell/details`.
 
 Before:
 
@@ -189,7 +189,25 @@ filter: <RangeFilter min={0} />                         filter: rangeFilter({ mi
 filter: <DateFilter maxDate={d} defaultValue={r} />     filter: dateFilter({ maxDate: d, defaultValue: r })
 ```
 
-Every prop becomes an option of the same name. `filterBy` is now typed from the column (`(value, item) => …`), so drop explicit parameter annotations. Keep options plain data where possible: inline descriptors are compared deeply with functions by reference, so an inline `compare`/`render`/`filterBy` arrow makes the column change on every render (hoist it or let the compiler memoize it).
+Every prop becomes an option of the same name, except `filterBy`: it moved to the column.
+
+```tsx
+// before
+col((x) => x.birthday, { filter: <RangeFilter filterBy={(d: Date) => d.getFullYear()} /> });
+// after
+col((x) => x.birthday, { filterBy: (d) => d.getFullYear(), filter: rangeFilter() });
+```
+
+**Filters are type checked against the column.** A filter must accept the column value, or the `filterBy` result if given. What the built-in filters accept (each also as an array or `Set` of values: an item matches if one of them does):
+
+- `textFilter`: `string | number | null | undefined`
+- `selectFilter`: anything; typing `options`, `defaultValue` or `render` narrows it
+- `rangeFilter`: `number | null | undefined`
+- `dateFilter`: `Date | DateRange | ISODate | null | undefined`, where `ISODate` is a template literal type like `2024-05-03` or `2024-05-03T13:47:23Z`
+
+Previously filters converted anything (text filters stringified dates and objects, date filters parsed any string or timestamp). New compile errors on `filter:` mean a conversion is needed: add a column `filterBy`, e.g. `filterBy: (d) => d.toISOString()` for a text filter on a `Date` column, or `filterBy: (s) => new Date(s)` for a date filter on a plain `string` column.
+
+Keep options plain data where possible: inline filters are compared deeply with functions by reference, so an inline `compare`/`render` arrow makes the column change on every render (hoist it or let the compiler memoize it).
 
 **Controlled values moved to the table.** The per-filter `value` and `onChange` are gone. Use `filterValues` / `defaultFilterValues` / `onFilterValuesChange` on the table: a `Map` from column id to filter value. Give filtered columns an explicit `id`.
 
@@ -219,22 +237,21 @@ A column without an entry uses its filter's `defaultValue`; a cleared filter has
 **Custom filters.** `useFilter` is removed. Rewrite with `defineFilter`:
 
 ```tsx
-const myFilter = defineFilter<TFilterBy, TValue, MyOptions>({
-  isActive: (value, options) => …,
-  test: (value, x, options) => …,
-  filterBy: (columnValue, item) => …,    // optional default
-  debounce: 300,                         // optional, for typing-heavy UIs
+const myFilter = defineFilter<SingleOrMultiple<string>, TState, MyOptions>({
+  isActive: (state, options) => …,
+  test: (state, input, options) => toSingles(input).some(…),   // helpers.toSingles
+  debounce: 300,                          // optional, for typing-heavy UIs
   Component: ({ value, onChange, close, options, getValues }) => …,
 });
-// column: filter: myFilter({ …MyOptions, defaultValue, filterBy, external, persist })
+// column: filterBy (optional), filter: myFilter({ …MyOptions, defaultValue, external, persist })
 ```
 
-The component no longer reads the table context for its value: it gets `value`/`onChange` (debounced by the table when `debounce` is set), `close()`, and `getValues()` for the distinct `filterBy` values of all items.
+The component no longer reads the table context for its value: it gets `value`/`onChange` (debounced by the table when `debounce` is set), `close()`, and `getValues()` for the distinct single `filterBy` values of all items. `test` gets each item's `filterBy` value as is, arrays and Sets included.
 
 - Only `textFilter` is debounced now (300 ms instead of 500 ms for every filter); select, range and date filters apply immediately.
 - New theme text `text.hiddenColumnFilters`: add it to translated themes.
 - `AutoFocusTextField` now focuses whenever it mounts, not only inside an open filter popover.
-- **Type safety caveat:** without `filterBy`, a factory's column value type can't be inferred from `col(...)` and falls back to `any`, so e.g. `selectFilter({ defaultValue })` is not checked against the column. `filterBy` parameters are typed.
+- Type check gap: the check passes when the column type is wider than everything the filter accepts, e.g. a column typed `unknown`.
 - `TableState.filters` and the actions `registerFilter`/`syncControlledFilterValue` are gone; `actions.setFilterValues(map)` was added. `TableRef` gained `getFilterValues`/`setFilterValues`.
 - **Needs human review:** code that relied on a filter's `onChange` firing (e.g. analytics) → use `onFilterValuesChange`.
 

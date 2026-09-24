@@ -1,11 +1,12 @@
 import { useMemo, type ReactElement } from 'react';
 import { NumberField } from '../components/numberField';
 import { useTheme } from '../hooks/useTheme';
-import { asNumberOrArray } from '../misc/helpers';
-import type { FilterComponentProps } from '../types';
+import { toSingles } from '../misc/helpers';
+import type { FilterComponentProps, SingleOrMultiple } from '../types';
 import { defineFilter } from './defineFilter';
 
 type Range = [number | null, number | null] | null;
+type RangeInput = SingleOrMultiple<number | null | undefined>;
 
 export interface RangeFilterOptions {
   min?: number;
@@ -17,7 +18,7 @@ function RangeFilterComponent({
   onChange,
   options: { min, max },
   getValues,
-}: FilterComponentProps<number | null, Range, RangeFilterOptions>): ReactElement {
+}: FilterComponentProps<RangeInput, Range, RangeFilterOptions>): ReactElement {
   const rangeMinText = useTheme((t) => t.text.rangeMin);
   const rangeMaxText = useTheme((t) => t.text.rangeMax);
 
@@ -30,7 +31,7 @@ function RangeFilterComponent({
     let maxValue;
 
     for (const value of getValues()) {
-      if (value === null) continue;
+      if (value === null || value === undefined) continue;
       minValue = Math.min(minValue ?? value, value);
       maxValue = Math.max(maxValue ?? value, value);
     }
@@ -81,18 +82,17 @@ function RangeFilterComponent({
   );
 }
 
-export const rangeFilter = defineFilter<number | null, Range, RangeFilterOptions>({
+export const rangeFilter = defineFilter<RangeInput, Range, RangeFilterOptions>({
   isActive: (value) => !!value,
-  test(value, x) {
+  test(value, input) {
     if (!value || (value[0] === null && value[1] === null)) {
       return true;
     }
 
     const min = value[0] ?? Number.NEGATIVE_INFINITY;
     const max = value[1] ?? Number.POSITIVE_INFINITY;
-    return x !== null && x >= min && x <= max;
+    return toSingles(input).some((x) => typeof x === 'number' && x >= min && x <= max);
   },
-  filterBy: asNumberOrArray,
   Component: RangeFilterComponent,
 });
 

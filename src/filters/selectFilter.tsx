@@ -5,8 +5,8 @@ import { FormControlLabel } from '../components/formControlLabel';
 import type { VirtualListProps } from '../components/virtualList';
 import { VirtualList } from '../components/virtualList';
 import { useTheme } from '../hooks/useTheme';
-import { asString, orderBy, uniq } from '../misc/helpers';
-import type { Filter, FilterComponentProps, FilterOptions } from '../types';
+import { asString, orderBy, toSingles, uniq } from '../misc/helpers';
+import type { Filter, FilterComponentProps, FilterOptions, SingleOrMultiple } from '../types';
 import { createFilter, type FilterDefinition } from './defineFilter';
 
 export interface SelectFilterOptions<TFilterBy> {
@@ -144,17 +144,19 @@ function SelectFilterComponent({
   );
 }
 
-const definition: FilterDefinition<unknown, Set<unknown>, SelectFilterOptions<unknown>> = {
+const definition: FilterDefinition<
+  SingleOrMultiple<unknown>,
+  Set<unknown>,
+  SelectFilterOptions<unknown>
+> = {
   isActive: (value) => value.size > 0,
-  test: (value, x) => value.has(x),
+  test: (value, input) => toSingles(input).some((x) => value.has(x)),
   Component: SelectFilterComponent,
 };
 
-type ElementOf<T> = T extends readonly (infer U)[] ? U : T;
-
-export function selectFilter<TItem, TColumnValue, TFilterBy = ElementOf<TColumnValue>>(
-  options?: FilterOptions<TItem, TColumnValue, TFilterBy, Set<TFilterBy>> &
-    SelectFilterOptions<TFilterBy>,
-): Filter<TItem, TColumnValue, TFilterBy, Set<TFilterBy>, SelectFilterOptions<TFilterBy>> {
+/** Accepts any value; typing `options`, `defaultValue`, `render` etc. narrows it. */
+export function selectFilter<T>(
+  options?: FilterOptions<Set<T>> & SelectFilterOptions<T>,
+): Filter<SingleOrMultiple<T>, Set<T>, SelectFilterOptions<T>> {
   return createFilter(definition as any, options ?? {});
 }

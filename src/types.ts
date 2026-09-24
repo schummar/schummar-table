@@ -195,10 +195,10 @@ export type PartialTableTheme<TItem = unknown> = {
 
 export type ColumnGenerator<TItem> = (col: ColumnFactory<TItem>) => (Column<TItem, any> | Falsy)[];
 
-export type ColumnFactory<TItem> = <TColumnValue>(
+export type ColumnFactory<TItem> = <TColumnValue, TFilterBy = TColumnValue>(
   value: (item: TItem) => TColumnValue,
-  column: Omit<Column<TItem, TColumnValue>, 'value'>,
-) => Column<TItem, TColumnValue>;
+  column: Omit<Column<TItem, TColumnValue, TFilterBy>, 'value'>,
+) => Column<TItem, TColumnValue, TFilterBy>;
 
 export interface TableProps<TItem> extends PartialTableTheme<TItem> {
   /// ///////////////////////////////////////////////
@@ -448,7 +448,7 @@ export type TableItem<TItem = unknown> = {
   value: TItem;
 };
 
-export type Column<TItem, TColumnValue> = {
+export type Column<TItem, TColumnValue, TFilterBy = TColumnValue> = {
   /** Column id. If not provided, the index in the column array will be used.
    * An explicit id is better however for controlling column related states, persitance etc.
    */
@@ -471,8 +471,11 @@ export type Column<TItem, TColumnValue> = {
   /** Render this column's cells progressively, see `virtual.deferCells`. Overrides the table setting.
    * Give the column a fixed `width` to keep it from widening while its cells are revealed. */
   deferred?: boolean;
-  /** Filter shown in the column header, e.g. `textFilter()`. */
-  filter?: Filter<TItem, TColumnValue>;
+  /** The value the column's filter works with. By default the column value. */
+  filterBy?: (value: TColumnValue, item: TItem) => TFilterBy;
+  /** Filter shown in the column header, e.g. `textFilter()`. It must accept the `filterBy` value.
+   * `NoInfer`: the column value alone determines the type the filter is checked against. */
+  filter?: Filter<NoInfer<TFilterBy>>;
   /** Override whether the column is hidden. If set, prevents toggling the column via menu. */
   hidden?: boolean;
   /** Specify a css width.
@@ -488,10 +491,11 @@ export type Column<TItem, TColumnValue> = {
 };
 
 export type InternalColumn<TItem, TColumnValue> = Required<
-  Omit<Column<TItem, TColumnValue>, 'id' | 'sortBy' | 'displaySize'>,
-  'header' | 'exportHeader' | 'renderCell' | 'exportCell' | 'sortBy'
+  Omit<Column<TItem, TColumnValue, unknown>, 'id' | 'sortBy' | 'displaySize' | 'filter'>,
+  'header' | 'exportHeader' | 'renderCell' | 'exportCell' | 'sortBy' | 'filterBy'
 > & {
   id: Id;
+  filter?: Filter<any>;
   sortBy: ((value: TColumnValue, item: TItem) => unknown)[];
   displaySize: DisplaySize[] | undefined;
 };
@@ -557,24 +561,31 @@ export type TableStructure<TItem = unknown> = Omit<
   'selection' | 'expanded' | 'activeItems' | 'activeItemsById'
 >;
 
-export interface FilterComponentProps<TFilterBy, TValue, TOptions> {
+/** A single value, or several of them: an item matches if one of them does. */
+export type SingleOrMultiple<T> = T | readonly T[] | ReadonlySet<T>;
+
+/** The single values in `SingleOrMultiple<T>`. */
+export type SingleOf<T> = T extends readonly (infer U)[]
+  ? U
+  : T extends ReadonlySet<infer U>
+    ? U
+    : T;
+
+export interface FilterComponentProps<TInput, TState, TOptions> {
   /** The current value; `undefined` (or `null` after persisting) when cleared. */
-  value: TValue | null | undefined;
-  onChange: (value: TValue | undefined) => void;
+  value: TState | null | undefined;
+  onChange: (value: TState | undefined) => void;
   /** Closes the filter popover. */
   close: () => void;
   options: TOptions;
   /** The `filterBy` values of all items, regardless of filters, flattened and deduplicated. */
-  getValues: () => TFilterBy[];
+  getValues: () => SingleOf<TInput>[];
 }
 
 /** Options every filter accepts. */
-export interface FilterOptions<TItem, TColumnValue, TFilterBy, TValue> {
-  /** Filter by? By default the column value is used. If it returns an array, an item matches if
-   * at least one entry matches. */
-  filterBy?: (value: TColumnValue, item: TItem) => TFilterBy | TFilterBy[];
+export interface FilterOptions<TState> {
   /** Value while the filter has none set, see `TableProps['filterValues']`. */
-  defaultValue?: TValue;
+  defaultValue?: TState;
   /** The table does not filter by this filter; it's done externally, e.g. server side. Read its
    * value through `onFilterValuesChange`. */
   external?: boolean;
@@ -588,20 +599,18 @@ export interface FilterOptions<TItem, TColumnValue, TFilterBy, TValue> {
   };
 }
 
-/** A column filter, created by a filter factory like `textFilter()` or one made with
- * `defineFilter`. */
-export interface Filter<
-  TItem,
-  TColumnValue,
-  TFilterBy = any,
-  TValue = any,
-  TOptions = any,
-> extends Omit<FilterOptions<TItem, TColumnValue, TFilterBy, TValue>, 'filterBy'> {
-  isActive: (value: TValue, options: TOptions) => boolean;
-  test: (value: TValue, x: TFilterBy, options: TOptions) => boolean;
-  filterBy: (value: TColumnValue, item: TItem) => TFilterBy | TFilterBy[];
+/**
+ * A column filter, created by a filter factory like `textFilter()` or one made with
+ * `defineFilter`. `TInput` is what it accepts from the column's `filterBy`, `TState` its own value.
+ *
+ * Members are methods on purpose: their parameters are then compared bivariantly, which lets
+ * `col(...)` infer the column value before checking the filter against it.
+ */
+export interface Filter<TInput, TState = any, TOptions = any> extends FilterOptions<TState> {
+  isActive(value: TState, options: TOptions): boolean;
+  test(value: TState, input: TInput, options: TOptions): boolean;
   /** Delay in ms before changes made in the UI apply. */
   debounce?: number;
   options: TOptions;
-  Component: ComponentType<FilterComponentProps<TFilterBy, TValue, TOptions>>;
+  Component(props: FilterComponentProps<TInput, TState, TOptions>): ReactNode;
 }

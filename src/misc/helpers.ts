@@ -1,4 +1,4 @@
-import type { Id, TableItem } from '../types';
+import type { Id, SingleOrMultiple, TableItem } from '../types';
 
 export const flatMap = <T, S>(array: Iterable<T>, flatMap: (t: T) => S[]): S[] => {
   return [...array].flatMap(flatMap);
@@ -125,4 +125,11 @@ export const cx = (
 type Falsy = false | 0 | '' | null | undefined;
 export function isTruthy<T>(x: T): x is Exclude<T, Falsy> {
   return !!x;
+}
+
+/** The single values of a `SingleOrMultiple` value. */
+export function toSingles<T>(value: SingleOrMultiple<T>): readonly T[] {
+  if (Array.isArray(value)) return value;
+  if (value instanceof Set) return [...value];
+  return [value as T];
 }

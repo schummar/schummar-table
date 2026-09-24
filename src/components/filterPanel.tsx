@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState, type ReactElement } from 'react';
 import { debounce } from '../misc/debounce';
-import { castArray, uniq } from '../misc/helpers';
+import { toSingles, uniq } from '../misc/helpers';
 import { useTableStructure } from '../state/context';
 import type { InternalColumn } from '../types';
 
@@ -33,10 +33,10 @@ export function FilterPanel<T>({
     return () =>
       (values ??= uniq(
         items.flatMap((item) =>
-          castArray(filter?.filterBy(column.value(item.value), item.value) ?? []),
+          toSingles(column.filterBy(column.value(item.value), item.value) as unknown[]),
         ),
       ));
-  }, [items, column, filter]);
+  }, [items, column]);
 
   if (!filter) return null;
 

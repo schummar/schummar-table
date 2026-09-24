@@ -21,7 +21,7 @@ export type {
   DateRange,
 } from './components/datePicker';
 export { Table } from './components/table';
-export { dateFilter, type DateFilterOptions } from './filters/dateFilter';
+export { dateFilter, type DateFilterOptions, type ISODate } from './filters/dateFilter';
 export { defineFilter, type FilterDefinition } from './filters/defineFilter';
 export { rangeFilter, type RangeFilterOptions } from './filters/rangeFilter';
 export { selectFilter, type SelectFilterOptions } from './filters/selectFilter';
@@ -52,6 +52,8 @@ export type {
   Id,
   InternalColumn,
   PartialTableTheme,
+  SingleOf,
+  SingleOrMultiple,
   Sort,
   SortDirection,
   TableActions,

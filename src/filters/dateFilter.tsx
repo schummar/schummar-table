@@ -1,32 +1,18 @@
 import type { ReactElement } from 'react';
 import type { DatePickerProps, DateRange } from '../components/datePicker';
 import { dateIntersect, DatePicker } from '../components/datePicker';
-import type { FilterComponentProps } from '../types';
+import { toSingles } from '../misc/helpers';
+import type { FilterComponentProps, SingleOrMultiple } from '../types';
 import { defineFilter } from './defineFilter';
 
-function convertDate(x: unknown): Date | null {
-  if (x instanceof Date) return x;
-  if (typeof x === 'number' || typeof x === 'string') return new Date(x);
-  return null;
-}
-
-function convertDateOrRange(x: unknown): Date | DateRange | null {
-  if (x instanceof Object && 'min' in x && 'max' in x) {
-    const range = {
-      min: convertDate((x as any).min),
-      max: convertDate((x as any).max),
-    };
-    return range.min && range.max ? (range as DateRange) : null;
-  }
-  return convertDate(x);
-}
-
-function convertDateOrArray(x: unknown): Date | DateRange | (Date | DateRange)[] | null {
-  if (Array.isArray(x)) return x.map(convertDateOrRange).filter(Boolean) as (Date | DateRange)[];
-  return convertDateOrRange(x);
-}
+/** An ISO 8601 date or date-time string, e.g. `2024-05-03` or `2024-05-03T13:47:23Z`. */
+export type ISODate = `${number}-${number}-${number}${string}`;
 
 type DateValue = Date | DateRange | null;
+type DateInput = SingleOrMultiple<Date | DateRange | ISODate | null | undefined>;
+
+const toDate = (x: Date | DateRange | ISODate | null | undefined) =>
+  typeof x === 'string' ? new Date(x) : x;
 
 export type DateFilterOptions = {
   /** If enabled, only single days can be selected. Ranges otherwise. */
@@ -58,7 +44,7 @@ function DateFilterComponent({
     showCalendarWeek,
     showTime,
   },
-}: FilterComponentProps<DateValue, DateValue, DateFilterOptions>): ReactElement {
+}: FilterComponentProps<DateInput, DateValue, DateFilterOptions>): ReactElement {
   return (
     <div
       css={{
@@ -88,9 +74,8 @@ function DateFilterComponent({
   );
 }
 
-export const dateFilter = defineFilter<DateValue, DateValue, DateFilterOptions>({
+export const dateFilter = defineFilter<DateInput, DateValue, DateFilterOptions>({
   isActive: (value) => !!value,
-  test: (value, x) => dateIntersect(value, x),
-  filterBy: convertDateOrArray,
+  test: (value, input) => toSingles(input).some((x) => dateIntersect(value, toDate(x))),
   Component: DateFilterComponent,
 });

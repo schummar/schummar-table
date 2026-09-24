@@ -3,17 +3,18 @@ import { describe, expect, test, vi } from 'vite-plus/test';
 import { page, userEvent } from 'vite-plus/test/browser/context';
 import { render } from 'vitest-browser-react';
 import { dateFilter, defineFilter, rangeFilter, selectFilter, Table, textFilter } from '..';
-import type { Filter, Id, TableProps, TableRef } from '../types';
+import type { ColumnFactory, Filter, Id, SingleOrMultiple, TableProps, TableRef } from '../types';
 import { persons, type Person } from './fixtures';
 
 const INACTIVE_COLOR = 'rgb(176, 186, 201)';
 const ALL_FIRST_NAMES = persons.map((p) => p.first_name);
 
 type Filters = {
-  firstName?: Filter<Person, string>;
-  lastName?: Filter<Person, string>;
-  jobTitle?: Filter<Person, string>;
-  birthday?: Filter<Person, Date>;
+  firstName?: Filter<string>;
+  firstNameBy?: (name: string, person: Person) => SingleOrMultiple<string>;
+  lastName?: Filter<string>;
+  jobTitle?: Filter<string>;
+  birthday?: Filter<Date>;
 };
 
 type ExtraProps = Omit<Partial<TableProps<Person>>, 'columns'> & { ref?: React.Ref<TableRef> };
@@ -29,6 +30,7 @@ function PersonTable({ filters, ...props }: { filters: Filters } & ExtraProps) {
           id: 'first_name',
           header: 'First Name',
           renderCell: (v) => <span data-testid="first-name">{v}</span>,
+          filterBy: filters.firstNameBy,
           filter: filters.firstName,
         }),
         col((x) => x.last_name, {
@@ -167,7 +169,8 @@ describe('TextFilter', () => {
 
   test('filterBy filters on a derived value', async () => {
     await renderPersons({
-      firstName: textFilter({ filterBy: (_name, person) => person.last_name }),
+      firstName: textFilter(),
+      firstNameBy: (_name, person) => person.last_name,
     });
     await openFilter('First Name');
     await page.getByRole('textbox').fill('cooke');
@@ -176,10 +179,8 @@ describe('TextFilter', () => {
 
   test('filterBy returning an array matches if any entry matches', async () => {
     await renderPersons({
-      firstName: textFilter({
-        filterBy: (name, person) => [name, person.last_name],
-        defaultValue: 'co',
-      }),
+      firstName: textFilter({ defaultValue: 'co' }),
+      firstNameBy: (name, person) => [name, person.last_name],
     });
     await expectFirstNames().toEqual(
       namesOf((p) => /co/i.test(p.first_name) || /co/i.test(p.last_name)),
@@ -250,7 +251,7 @@ describe('RangeFilter', () => {
     { id: '4', name: 'Jill', age: 23 },
   ];
 
-  function renderAges(filter: Filter<(typeof items)[number], number>) {
+  function renderAges(filter: Filter<number>) {
     return render(
       <Table
         items={items}
@@ -654,5 +655,39 @@ describe('filter descriptors', () => {
           ['job_title', new Set(['Paralegal'])],
         ]),
       );
+  });
+});
+
+describe('filter types', () => {
+  test('filters are checked against the column value or filterBy', () => {
+    type Item = { name: string; age: number; tags: string[]; birthday: Date; iso: '2024-01-01' };
+    const col: ColumnFactory<Item> = (value, column) => ({ ...column, value });
+
+    col((x) => x.name, { filter: textFilter(), renderCell: (v) => v.toUpperCase() });
+    col((x) => x.age, { filter: textFilter() });
+    col((x) => x.tags, { filter: textFilter() });
+    col((x) => x.name, { filter: selectFilter() });
+    col((x) => x.tags, { filter: selectFilter({ defaultValue: new Set(['a']) }) });
+    col((x) => x.age, { filter: rangeFilter() });
+    col((x) => x.birthday, { filter: dateFilter() });
+    col((x) => x.iso, { filter: dateFilter() });
+    col((x) => x.birthday, { filterBy: (d) => d.getFullYear(), filter: rangeFilter() });
+    col((x) => x.birthday, {
+      filterBy: (_d, item) => item.name,
+      filter: selectFilter({ render: (value: string) => value.toUpperCase() }),
+    });
+
+    // @ts-expect-error a string column with a number select
+    col((x) => x.name, { filter: selectFilter({ defaultValue: new Set([1]) }) });
+    // @ts-expect-error options of the wrong type
+    col((x) => x.tags, { filter: selectFilter({ options: [1, 2] }) });
+    // @ts-expect-error a range filter on strings
+    col((x) => x.name, { filter: rangeFilter() });
+    // @ts-expect-error a text filter on dates
+    col((x) => x.birthday, { filter: textFilter() });
+    // @ts-expect-error filterBy returns strings, the range filter needs numbers
+    col((x) => x.birthday, { filterBy: (d) => d.toISOString(), filter: rangeFilter() });
+    // @ts-expect-error arbitrary strings are not dates
+    col((x) => x.name, { filter: dateFilter() });
   });
 });
