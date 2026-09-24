@@ -269,4 +269,12 @@ The table's own styles now live in a separate emotion stylesheet (key `<your cac
 - Style objects are cached by identity: don't mutate a style object after passing it; pass a new one.
 - Function styles (`styles.row/cell/details` as `(item, index) => …`) run on every row or cell render. Returning new objects makes emotion serialize them each time. Prefer `classes` or return `css\`…\`` results or module-level constants.
 
+## 13. Excel exporter uses `write-excel-file` instead of `xlsx`
+
+`grep -rn "excelExporter\|from 'xlsx'" src/ package.json`
+
+If the project uses `schummar-table/excelExporter`: replace the `xlsx` dependency with `write-excel-file` (`>=4`), unless `xlsx` is used elsewhere. Date cells are formatted as `yyyy-mm-dd` by default; pass `new ExcelExporter({ dateFormat: 'dd.mm.yyyy' })` for another Excel number format.
+
+Custom exporters: `BlobExporter.exportToBlob` may now return a `Promise<Blob>`. Code that calls `exportToBlob` directly must `await` it.
+
 <!-- Append new dated sections here for future breaking changes, following the same grep / before-after / needs-human-review structure. -->

@@ -1,18 +1,26 @@
-import { utils, write } from 'xlsx';
-import { BlobExporter } from './exporter';
+import writeXlsxFile from 'write-excel-file/browser';
+import type { BlobExporter } from './exporter';
+
+export interface ExcelExporterOptions {
+  /** Excel number format for date cells.
+   * @default 'yyyy-mm-dd'
+   */
+  dateFormat?: string;
+  /** @default 'Sheet1' */
+  sheet?: string;
+}
 
 export default class ExcelExporter implements BlobExporter {
   readonly type = 'xlsx';
   readonly fileEnding = 'xlsx';
 
-  exportToBlob(columns: (string | number | Date)[], rows: (string | number | Date)[][]): Blob {
-    const worksheet = utils.aoa_to_sheet([columns, ...rows]);
-    const workbook = utils.book_new();
-    utils.book_append_sheet(workbook, worksheet, 'Sheet1');
+  constructor(private readonly options: ExcelExporterOptions = {}) {}
 
-    const data = write(workbook, { type: 'buffer' });
-    return new Blob([data], {
-      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-    });
+  exportToBlob(
+    columns: (string | number | Date)[],
+    rows: (string | number | Date)[][],
+  ): Promise<Blob> {
+    const { dateFormat = 'yyyy-mm-dd', sheet = 'Sheet1' } = this.options;
+    return writeXlsxFile([columns, ...rows], { sheet, dateFormat }).toBlob();
   }
 }

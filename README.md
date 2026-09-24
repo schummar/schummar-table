@@ -23,7 +23,7 @@ the table or controlled from outside.
 npm install schummar-table @emotion/react
 ```
 
-React 19 or newer is required. `xlsx` is only needed for the Excel exporter, `@mui/material` or
+React 19 or newer is required. `write-excel-file` is only needed for the Excel exporter, `@mui/material` or
 `@material-ui/core` only for the matching theme.
 
 ## Quick start

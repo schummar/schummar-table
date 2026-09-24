@@ -49,15 +49,20 @@ export function Export<T>(): ReactElement {
         console.error('Failed to copy the export to the clipboard:', error);
       });
     } else {
-      const blob = exporter.exportToBlob(columns, rows);
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `export.${exporter.fileEnding}`;
-      document.body.append(a);
-      a.click();
-      a.remove();
-      URL.revokeObjectURL(url);
+      Promise.resolve(exporter.exportToBlob(columns, rows))
+        .then((blob) => {
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `export.${exporter.fileEnding}`;
+          document.body.append(a);
+          a.click();
+          a.remove();
+          URL.revokeObjectURL(url);
+        })
+        .catch((error: unknown) => {
+          console.error('Failed to export:', error);
+        });
     }
   }
 

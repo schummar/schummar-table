@@ -75,7 +75,7 @@
     "@mui/material": ">=5.0.0",
     "react": ">=19.0.0",
     "react-dom": ">=19.0.0",
-    "xlsx": ">=0.18.5"
+    "write-excel-file": ">=4.0.0"
   },
   "peerDependenciesMeta": {
     "@material-ui/core": {
@@ -84,7 +84,7 @@
     "@mui/material": {
       "optional": true
     },
-    "xlsx": {
+    "write-excel-file": {
       "optional": true
     }
   },
@@ -115,7 +115,7 @@
     "vite-plus": "catalog:",
     "vitest": "5.0.1",
     "vitest-browser-react": "^2.3.0",
-    "xlsx": "0.18.5"
+    "write-excel-file": "4.1.1"
   },
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",

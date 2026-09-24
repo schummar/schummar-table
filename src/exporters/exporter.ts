@@ -6,7 +6,10 @@ export interface StringExporter {
 export interface BlobExporter {
   type: string;
   fileEnding: string;
-  exportToBlob(columns: (string | number | Date)[], rows: (string | number | Date)[][]): Blob;
+  exportToBlob(
+    columns: (string | number | Date)[],
+    rows: (string | number | Date)[][],
+  ): Blob | Promise<Blob>;
 }
 
 export type Exporter = StringExporter | BlobExporter;
