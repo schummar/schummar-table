@@ -5,11 +5,15 @@
     "build": "storybook build"
   },
   "dependencies": {
+    "@mantine/core": "9.6.2",
+    "@mantine/dates": "9.6.2",
+    "@mantine/hooks": "9.6.2",
     "@material-ui/core": "4.12.4",
     "@mui/material": "5.14.18",
     "@storybook/addon-links": "^10.6.0",
     "@storybook/react": "^10.6.0",
-    "@types/react": "19.3.0"
+    "@types/react": "19.3.0",
+    "dayjs": "^1.11.23"
   },
   "devDependencies": {
     "@storybook/addon-docs": "^10.6.0",

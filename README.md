@@ -204,7 +204,8 @@ always wins. `classes.row/cell` and `styles.row/cell` also take a function of th
 class names or constant styles there: function styles run for every cell render.
 
 Components, icons, texts and colors are replaced through a theme, per table or for all tables via
-`TableSettingsProvider`. MUI themes ship as separate entry points:
+`TableSettingsProvider`. MUI and Mantine themes ship as separate entry points
+(`schummar-table/mui5Theme`, `schummar-table/mantineTheme`):
 
 ```tsx
 import { Mui5TableThemeProvider } from 'schummar-table/mui5Theme';
@@ -213,6 +214,14 @@ import { Mui5TableThemeProvider } from 'schummar-table/mui5Theme';
   <App />
 </Mui5TableThemeProvider>;
 ```
+
+`MantineTableThemeProvider` goes inside `MantineProvider` and takes its colors from Mantine's CSS
+variables, so it follows the color scheme without re-rendering. Its date picker is the one from
+`@mantine/dates`; import `@mantine/dates/styles.css` next to `@mantine/core/styles.css`.
+
+The date picker is a theme component too (`components.DatePicker`). It receives the props with
+`DatePickerProvider` defaults applied and min/max clamping done; `DatePickerQuickOptions` renders
+the quick option buttons for a custom one.
 
 ## Upgrading from 0.x
 

@@ -14,7 +14,8 @@
     "sort",
     "tree",
     "emotion",
-    "mui"
+    "mui",
+    "mantine"
   ],
   "homepage": "https://schummar.github.io/schummar-table/",
   "bugs": {
@@ -48,6 +49,10 @@
       "import": "./dist/excelExporter.js",
       "require": "./dist/excelExporter.cjs"
     },
+    "./mantineTheme": {
+      "import": "./dist/mantineTheme.js",
+      "require": "./dist/mantineTheme.cjs"
+    },
     "./mui4Theme": {
       "import": "./dist/mui4Theme.js",
       "require": "./dist/mui4Theme.cjs"
@@ -71,6 +76,8 @@
   },
   "peerDependencies": {
     "@emotion/react": "^11.11.1",
+    "@mantine/core": ">=9.0.0",
+    "@mantine/dates": ">=9.0.0",
     "@material-ui/core": ">=4.0.0",
     "@mui/material": ">=5.0.0",
     "react": ">=19.0.0",
@@ -78,6 +85,12 @@
     "write-excel-file": ">=4.0.0"
   },
   "peerDependenciesMeta": {
+    "@mantine/core": {
+      "optional": true
+    },
+    "@mantine/dates": {
+      "optional": true
+    },
     "@material-ui/core": {
       "optional": true
     },
@@ -100,6 +113,9 @@
     "@babel/core": "8.0.6",
     "@emotion/react": "11.14.0",
     "@emotion/styled": "11.14.1",
+    "@mantine/core": "9.6.2",
+    "@mantine/dates": "9.6.2",
+    "@mantine/hooks": "9.6.2",
     "@material-ui/core": "4.12.4",
     "@mui/material": "5.14.18",
     "@nx/js": "^23.2.1",
@@ -108,6 +124,7 @@
     "@types/react-dom": "19.3.0",
     "@vitest/browser-playwright": "5.0.1",
     "babel-plugin-react-compiler": "1.0.0",
+    "dayjs": "^1.11.23",
     "nx": "^23.2.1",
     "playwright": "^1.63.0",
     "publint": "^0.3.24",

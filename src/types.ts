@@ -15,6 +15,7 @@ import type {
   Ref,
   RefCallback,
 } from 'react';
+import type { DatePickerProps } from './components/datePicker';
 import { ExportOptions } from './exporters/exporter';
 import type { PersistEntry, TableStateStorage } from './state/persistence';
 
@@ -160,6 +161,8 @@ export interface TableTheme<TItem = unknown> {
       placeholder?: string;
     }>;
     Spinner: (props: { className?: string }) => ReactElement;
+    /** Receives the props with `DatePickerProvider` defaults applied and min/max clamping done. */
+    DatePicker: ComponentType<DatePickerProps>;
   };
   /** Define icons for the table. */
   icons: {

@@ -5,6 +5,8 @@ export {
   dateIntersect,
   DatePicker,
   DatePickerProvider,
+  DatePickerQuickOptions,
+  DefaultDatePicker,
   endOfDay,
   getCalendarWeek,
   lastDays,

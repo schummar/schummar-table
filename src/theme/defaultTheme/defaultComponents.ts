@@ -1,3 +1,4 @@
+import { DefaultDatePicker } from '../../components/datePicker';
 import { Spinner } from '../../components/spinnner';
 import type { TableTheme } from '../../types';
 import { Badge } from './badge';
@@ -15,4 +16,5 @@ export const defaultComponents: TableTheme['components'] = {
   Badge,
   TextField,
   Spinner,
+  DatePicker: DefaultDatePicker,
 };

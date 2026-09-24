@@ -55,6 +55,8 @@ export default defineConfig({
       'vitest-browser-react',
       '@mui/material',
       'react/compiler-runtime',
+      '@mantine/core',
+      '@mantine/dates',
     ],
     rolldownOptions: {
       // Without it the prebundle inlines jsxDEV from React's production build, where it is `void 0`.
@@ -82,6 +84,7 @@ export default defineConfig({
     clean: true,
     entry: {
       index: 'src/index.ts',
+      mantineTheme: 'src/theme/mantineTheme/index.tsx',
       mui5Theme: 'src/theme/mui5Theme/index.tsx',
       mui4Theme: 'src/theme/mui4Theme/index.tsx',
       csvExporter: 'src/exporters/csvExporter.ts',

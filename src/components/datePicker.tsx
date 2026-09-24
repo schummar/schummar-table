@@ -211,23 +211,16 @@ function getValueForComparison(value?: Date | DateRange | null) {
   return `${value.min?.getTime()}-${value.max?.getTime()}`;
 }
 
+/** Renders the theme's date picker, with `DatePickerProvider` defaults and min/max clamping applied. */
 export function DatePicker(props: DatePickerProps) {
   const context = useContext(DatePickerContext);
+  const Component = useTheme((t) => t.components.DatePicker);
 
-  const {
-    value,
-    rangeSelect,
-    locale,
-    firstDayOfWeek = 1,
-    defaultDateInView,
-    quickOptions = ['today', 'thisWeek'],
-    noReset,
-    minDate,
-    maxDate,
-    showCalendarWeek,
-    blockedRanges = [],
-    showTime,
-  } = defaults<DatePickerProps>(props, context);
+  const resolved = defaults<DatePickerProps>(props, context, {
+    firstDayOfWeek: 1,
+    quickOptions: ['today', 'thisWeek'],
+  });
+  const { minDate, maxDate } = resolved;
 
   function onChange(value: Date | DateRange | null, source: DatePickerChangeSource) {
     if (value instanceof Date) {
@@ -242,7 +235,84 @@ export function DatePicker(props: DatePickerProps) {
     props.onChange(value, source);
   }
 
+  return <Component {...resolved} onChange={onChange} />;
+}
+
+/** The quick option buttons (plus reset) below the calendar, for use in theme date pickers. */
+export function DatePickerQuickOptions({
+  onSelect,
+  ...props
+}: DatePickerProps & {
+  /** Called before the value is changed, e.g. to discard a half-selected range. */
+  onSelect?: () => void;
+}) {
   const Button = useTheme((t) => t.components.Button);
+  const { quickOptions = [], noReset, onChange } = props;
+
+  const options = [
+    ...quickOptions,
+    ...(noReset ? [] : [{ label: <Text id="reset" />, value: null }]),
+  ].map((option, index) => {
+    if (option instanceof Function) {
+      return (
+        <Fragment key={index}>
+          {option((value) => {
+            onSelect?.();
+            onChange(value, 'quickOption');
+          })}
+        </Fragment>
+      );
+    }
+
+    const { label, value } = typeof option === 'string' ? commonQuickOptions[option] : option;
+
+    return (
+      <Button
+        key={index}
+        variant="text"
+        type="button"
+        css={{
+          color: 'inherit',
+        }}
+        onClick={() => {
+          onSelect?.();
+          onChange(value instanceof Function ? value(props) : value, 'quickOption');
+        }}
+      >
+        {label}
+      </Button>
+    );
+  });
+
+  return (
+    <div
+      css={{
+        marginTop: 'var(--spacing)',
+        display: 'grid',
+        gridAutoFlow: 'column',
+        justifyContent: 'center',
+      }}
+    >
+      {options}
+    </div>
+  );
+}
+
+export function DefaultDatePicker(props: DatePickerProps) {
+  const {
+    value,
+    onChange,
+    rangeSelect,
+    locale,
+    firstDayOfWeek = 1,
+    defaultDateInView,
+    minDate,
+    maxDate,
+    showCalendarWeek,
+    blockedRanges = [],
+    showTime,
+  } = props;
+
   const IconButton = useTheme((t) => t.components.IconButton);
   const ChevronRight = useTheme((t) => t.icons.ChevronRight);
   const cssVariables = useCssVariables();
@@ -320,42 +390,6 @@ export function DatePicker(props: DatePickerProps) {
 
   const min = dirty ? dirty.min : value instanceof Date ? value : value?.min;
   const max = dirty ? dirty.max : value instanceof Date ? value : value?.max;
-
-  const resolvedQuickOptions = [
-    ...quickOptions,
-    ...(noReset ? [] : [{ label: <Text id="reset" />, value: null }]),
-  ].map((option, index) => {
-    if (option instanceof Function) {
-      return option((value) => {
-        setDirty(undefined);
-        onChange(value, 'quickOption');
-      });
-    }
-
-    const { label, value } = typeof option === 'string' ? commonQuickOptions[option] : option;
-
-    return (
-      <Button
-        key={index}
-        variant="text"
-        type="button"
-        css={{
-          color: 'inherit',
-        }}
-        onClick={() => {
-          setDirty(undefined);
-
-          if (value instanceof Function) {
-            onChange(value(props), 'quickOption');
-          } else {
-            onChange(value, 'quickOption');
-          }
-        }}
-      >
-        {label}
-      </Button>
-    );
-  });
 
   const { calendars, getBackProps, getForwardProps, getDateProps } = useDayzed({
     onDateSelected: () => undefined,
@@ -658,16 +692,7 @@ export function DatePicker(props: DatePickerProps) {
         </div>
       ))}
 
-      <div
-        css={{
-          marginTop: 'var(--spacing)',
-          display: 'grid',
-          gridAutoFlow: 'column',
-          justifyContent: 'center',
-        }}
-      >
-        {resolvedQuickOptions}
-      </div>
+      <DatePickerQuickOptions {...props} onSelect={() => setDirty(undefined)} />
     </div>
   );
 }
