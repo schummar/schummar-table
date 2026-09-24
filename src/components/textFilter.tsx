@@ -9,7 +9,7 @@ export function substringCompare(itemValue: string, filterValue: string): boolea
 }
 
 export function prefixCompare(itemValue: string, filterValue: string): boolean {
-  return itemValue.toLowerCase().includes(filterValue.toLowerCase());
+  return itemValue.toLowerCase().startsWith(filterValue.toLowerCase());
 }
 
 export function exactCompare(itemValue: string, filterValue: string): boolean {

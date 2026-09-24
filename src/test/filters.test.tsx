@@ -170,8 +170,7 @@ describe('TextFilter', () => {
     await expectFirstNames().toEqual(['Arne']);
   });
 
-  // prefixCompare is implemented with includes() instead of startsWith() (textFilter.tsx:12).
-  test.fails('prefixCompare matches the start of the value only', async () => {
+  test('prefixCompare matches the start of the value only', async () => {
     await renderPersons({ firstName: <TextFilter compare={prefixCompare} defaultValue="ar" /> });
     await expectFirstNames().toEqual(['Arne']);
   });

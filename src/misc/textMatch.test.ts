@@ -71,10 +71,7 @@ describe('textFilter compare functions', () => {
     expect(exactCompare('Hello', 'hell')).toBe(false);
   });
 
-  // Bug: prefixCompare is implemented identically to substringCompare (uses .includes
-  // instead of .startsWith), so it matches anywhere in the string, not just as a prefix.
-  // src/components/textFilter.tsx:11-13
-  test.fails('prefixCompare should only match at the start of the string', () => {
+  test('prefixCompare should only match at the start of the string', () => {
     expect(prefixCompare('Hello World', 'World')).toBe(false);
   });
 
