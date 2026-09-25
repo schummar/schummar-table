@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { getAncestors } from '../misc/helpers';
 import type { Id, InternalTableProps, TableItem } from '../types';
 import { useControllableState, useNormalized } from './useControllableState';
@@ -46,18 +46,27 @@ export function useExpanded<T>(
       }
     }
 
-    // Parents of matching items, so matches nested in collapsed branches become visible.
-    if (props.revealFiltered && matching) {
-      for (const id of matching) {
-        const parentId = itemsById.get(id)?.parentId;
-        if (parentId !== undefined && parentId !== null) add(parentId);
-      }
-    }
-
     return result;
-  }, [value, itemsById, matching, props.items, props.expandOnlyOne, props.revealFiltered]);
+  }, [value, itemsById, props.items, props.expandOnlyOne]);
 
   const expanded = useNormalized(value, normalized, setExpanded);
+
+  // Once per filter result, not in normalization: it would fight expandOnlyOne (and forbid
+  // collapsing) and loop the write-back.
+  const latest = useRef({ expanded, itemsById });
+  useEffect(() => {
+    latest.current = { expanded, itemsById };
+  });
+  useEffect(() => {
+    if (!props.revealFiltered || !matching) return;
+    const { expanded, itemsById } = latest.current;
+    const next = new Set(expanded);
+    for (const id of matching) {
+      const parentId = itemsById.get(id)?.parentId;
+      if (parentId !== undefined && parentId !== null) next.add(parentId);
+    }
+    if (next.size > expanded.size) setExpanded(next);
+  }, [matching, props.revealFiltered, setExpanded]);
 
   return { expanded, setExpanded, setExpandedInternal };
 }

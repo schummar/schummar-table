@@ -132,4 +132,22 @@ describe('nested items', () => {
     await filterFirstName('Chelsey');
     await expect.poll(shownNames).toEqual(['Kassia', 'Dulcia', 'Chelsey']);
   });
+
+  test('revealed parents can be collapsed', async () => {
+    await renderNested({ revealFiltered: true });
+    await filterFirstName('Chelsey');
+    await expect.poll(shownNames).toEqual(['Kassia', 'Dulcia', 'Chelsey']);
+
+    await expandButton('Kassia').click();
+    await expect.poll(shownNames).toEqual(['Kassia']);
+  });
+
+  test('revealFiltered with expandOnlyOne and matches in several branches', async () => {
+    const error = vi.spyOn(console, 'error');
+    await renderNested({ revealFiltered: true, expandOnlyOne: true });
+    await filterFirstName('l');
+    await expect.poll(shownNames).toEqual(['Kassia', 'Thoma', 'Maurene', 'Julian']);
+    expect(error).not.toHaveBeenCalled();
+    error.mockRestore();
+  });
 });
