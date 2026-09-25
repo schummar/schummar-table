@@ -232,12 +232,12 @@ export function useTable<T>(raw: TableProps<T>, onReset: () => void, isReset = f
 
       toggleExpanded(itemId) {
         const { state, expanded } = get();
-        const { activeItemsById, props } = state;
+        const { activeItemsById } = state;
         const item = activeItemsById.get(itemId);
         const isExpanded = state.expanded.has(itemId);
         const next = new Set(state.expanded);
 
-        if (props.expandOnlyOne) {
+        if (expanded.expandOnlyOne) {
           next.clear();
           for (const id of item ? getAncestors(activeItemsById, item) : []) next.add(id);
         }

@@ -142,10 +142,20 @@ describe('nested items', () => {
     await expect.poll(shownNames).toEqual(['Kassia']);
   });
 
-  test('revealFiltered with expandOnlyOne and matches in several branches', async () => {
+  test('revealFiltered suspends expandOnlyOne while a filter is active', async () => {
     const error = vi.spyOn(console, 'error');
     await renderNested({ revealFiltered: true, expandOnlyOne: true });
     await filterFirstName('l');
+    await expect
+      .poll(shownNames)
+      .toEqual(['Kassia', 'Dulcia', 'Chelsey', 'Thoma', 'Maurene', 'Julian']);
+
+    await expandButton('Kassia').click();
+    await expect.poll(shownNames).toEqual(['Kassia', 'Thoma', 'Maurene', 'Julian']);
+    await expandButton('Kassia').click();
+    await expect.poll(shownNames).toEqual(['Kassia', 'Dulcia', 'Thoma', 'Maurene', 'Julian']);
+
+    await filterFirstName('');
     await expect.poll(shownNames).toEqual(['Kassia', 'Thoma', 'Maurene', 'Julian']);
     expect(error).not.toHaveBeenCalled();
     error.mockRestore();

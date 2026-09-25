@@ -290,7 +290,8 @@ export interface TableProps<TItem> extends PartialTableTheme<TItem> {
   expanded?: Set<Id>;
   /** Called when expanded rows change. */
   onExpandedChange?: (expanded: Set<Id>) => void;
-  /** If enabled and one row is expanded, other rows will be closed.
+  /** If enabled and one row is expanded, other rows will be closed. Suspended while a filter is
+   * active and `revealFiltered` is on.
    * @default false
    */
   expandOnlyOne?: boolean;

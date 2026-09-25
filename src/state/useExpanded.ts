@@ -14,6 +14,8 @@ export function useExpanded<T>(
     props.onExpandedChange,
   );
 
+  const expandOnlyOne = props.expandOnlyOne && !(props.revealFiltered && matching);
+
   const normalized = useMemo(() => {
     let result = value;
     const add = (id: Id) => {
@@ -22,7 +24,7 @@ export function useExpanded<T>(
       result.add(id);
     };
 
-    if (props.expandOnlyOne && value.size > 1) {
+    if (expandOnlyOne && value.size > 1) {
       // Keep the deepest expanded item and its ancestors, collapse every other branch.
       const deepest = [...value]
         .map((id) => itemsById.get(id))
@@ -47,12 +49,11 @@ export function useExpanded<T>(
     }
 
     return result;
-  }, [value, itemsById, props.items, props.expandOnlyOne]);
+  }, [value, itemsById, props.items, expandOnlyOne]);
 
   const expanded = useNormalized(value, normalized, setExpanded);
 
-  // Once per filter result, not in normalization: it would fight expandOnlyOne (and forbid
-  // collapsing) and loop the write-back.
+  // Once per filter result rather than in normalization, so revealed rows can be collapsed.
   const latest = useRef({ expanded, itemsById });
   useEffect(() => {
     latest.current = { expanded, itemsById };
@@ -68,5 +69,5 @@ export function useExpanded<T>(
     if (next.size > expanded.size) setExpanded(next);
   }, [matching, props.revealFiltered, setExpanded]);
 
-  return { expanded, setExpanded, setExpandedInternal };
+  return { expanded, expandOnlyOne, setExpanded, setExpandedInternal };
 }
