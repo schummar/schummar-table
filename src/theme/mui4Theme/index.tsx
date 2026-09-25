@@ -46,7 +46,7 @@ export function Mui4TableThemeProvider({
   children,
 }: {
   theme?: PartialTableTheme;
-  children: ReactNode;
+  children?: ReactNode;
 }) {
   const muiTheme = useTheme();
 

@@ -89,7 +89,7 @@ export function MantineTableThemeProvider({
   children,
 }: {
   theme?: PartialTableTheme;
-  children: ReactNode;
+  children?: ReactNode;
 }) {
   const _theme = useMemo(() => mergeThemes(mantineTheme, theme ?? {}), [theme]);
 
