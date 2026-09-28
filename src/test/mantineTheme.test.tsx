@@ -3,6 +3,7 @@ import '@mantine/dates/styles.css';
 import { MantineProvider } from '@mantine/core';
 import type { ReactNode } from 'react';
 import { expect, test, vi } from 'vite-plus/test';
+import { page, userEvent } from 'vite-plus/test/browser/context';
 import { render } from 'vitest-browser-react';
 import { DatePicker, endOfDay, Table } from '..';
 import { MantineTableThemeProvider } from '../theme/mantineTheme';
@@ -29,6 +30,27 @@ test('renders the table with mantine components', async () => {
 
   await expect.element(screen.getByText('Kassia')).toBeVisible();
   expect(document.querySelectorAll('.mantine-Checkbox-root')).toHaveLength(4);
+});
+
+test('clicking the checkbox padding in a link-wrapped row selects without following the link', async () => {
+  location.hash = '';
+  const onSelectionChange = vi.fn();
+  await render(
+    <Mantine>
+      <Table
+        items={persons.slice(0, 3)}
+        id="id"
+        columns={(col) => [col((x) => x.first_name, { header: 'First name' })]}
+        wrapRow={(props, item) => <a href={`#row${item.id}`} {...props} />}
+        onSelectionChange={onSelectionChange}
+      />
+    </Mantine>,
+  );
+
+  const root = document.querySelector<HTMLElement>('a .mantine-Checkbox-root')!;
+  await userEvent.click(page.elementLocator(root), { position: { x: 2, y: 2 } });
+  expect(onSelectionChange).toHaveBeenLastCalledWith(new Set([persons[0]!.id]));
+  expect(location.hash).toBe('');
 });
 
 test('the date picker selects a range with the mantine calendar', async () => {

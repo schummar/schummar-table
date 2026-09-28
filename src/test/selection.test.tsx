@@ -170,6 +170,17 @@ describe('selection', () => {
     await expectChecked(screen, [true, false, false, false, false, true]);
   });
 
+  test('clicking a checkbox in a link-wrapped row selects without following the link', async () => {
+    location.hash = '';
+    const screen = await renderTable(
+      tableProps({ wrapRow: (props, item) => <a href={`#row${item.id}`} {...props} /> }),
+    );
+
+    await toggle(checkboxes(screen).rows[1]!);
+    await expectChecked(screen, [false, true, false, false, false, false]);
+    expect(location.hash).toBe('');
+  });
+
   test('selection of items removed from items is cleaned up', async () => {
     const onSelectionChange = vi.fn();
     const screen = await renderTable(
