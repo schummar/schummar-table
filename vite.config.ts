@@ -17,7 +17,7 @@ export function reactCompiler(): ReturnType<typeof babel> {
 export default defineConfig({
   plugins: [reactCompiler()],
   staged: {
-    '*': 'vp check --fix',
+    '*': ['vp check --fix', 'vp test --run related'],
   },
   lint: {
     jsPlugins: [{ name: 'vite-plus', specifier: 'vite-plus/oxlint-plugin' }],
