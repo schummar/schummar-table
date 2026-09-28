@@ -44,22 +44,17 @@ export function SortComponent<T>({ children }: { children: ReactNode }): ReactEl
         gridTemplateColumns: 'minmax(0, 1fr) max-content',
         alignItems: 'center',
         cursor: 'pointer',
-
-        '& > div': {
-          overflow: 'hidden',
-          textOverflow: 'ellipsis',
-        },
       }}
       onClick={(event) => toggle(event)}
       onContextMenu={(event) => toggle(event, true)}
     >
-      <div>{children}</div>
+      <div css={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>{children}</div>
 
       {
         <Badge badgeContent={sortDisabled ? 0 : index}>
           <span
             css={[
-              { transition: 'all 300ms', fontSize: '0.8em' },
+              { display: 'inline-flex', transition: 'all 300ms', fontSize: '0.8em' },
               !direction && { opacity: 0 },
               direction === 'desc' && { transform: 'rotate3d(0, 0, 1, 180deg)' },
             ]}

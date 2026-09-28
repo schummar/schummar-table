@@ -77,3 +77,34 @@ test('the date picker clamps a single date and keeps the quick options', async (
   await screen.getByRole('button', { name: 'New year' }).click();
   expect(onChange).toHaveBeenLastCalledWith(minDate, 'quickOption');
 });
+
+test('the sort arrow flips for desc and the multi-sort badge is not clipped', async () => {
+  const screen = await render(
+    <Mantine>
+      <Table
+        items={persons.slice(0, 3)}
+        id="id"
+        columns={(col) => [
+          col((x) => x.first_name, { header: 'First name' }),
+          col((x) => x.last_name, { header: 'Last name' }),
+        ]}
+        defaultSort={[
+          { columnId: 0, direction: 'desc' },
+          { columnId: 1, direction: 'asc' },
+        ]}
+      />
+    </Mantine>,
+  );
+
+  await expect.element(screen.getByText('Kassia')).toBeVisible();
+  const [first, second] = document.querySelectorAll('.mantine-Indicator-root');
+  const [firstArrow, secondArrow] = [first, second].map((x) =>
+    getComputedStyle(x!.querySelector('span')!),
+  );
+  // Inline boxes ignore transform, even though getComputedStyle still reports it.
+  expect(firstArrow!.display).not.toBe('inline');
+  expect(firstArrow!.transform).not.toBe('none');
+  expect(secondArrow!.transform).toBe('none');
+  expect(getComputedStyle(first!).overflow).toBe('visible');
+  expect(first!.querySelector('.mantine-Indicator-indicator')).toHaveTextContent('1');
+});
