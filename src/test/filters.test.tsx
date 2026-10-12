@@ -496,7 +496,12 @@ describe('hidden columns', () => {
     const lastNames = () => document.body.textContent ?? '';
     await expect.poll(lastNames).toContain('Nears');
 
-    await page.elementLocator(document.querySelector('[data-schummar-table] button')!).click();
+    const headers = document.querySelectorAll('[data-column-header]');
+    const buttons = headers[headers.length - 1]!.querySelectorAll('button');
+    expect(
+      document.querySelector('[data-schummar-table] > div > div:nth-child(2)'),
+    ).toBeEmptyDOMElement();
+    await page.elementLocator(buttons[buttons.length - 1]!).click();
     await expect.element(page.getByText('Filters of hidden columns')).toBeVisible();
     await page.getByRole('button', { name: 'First Name' }).click();
     await page.getByRole('textbox').fill('ar');

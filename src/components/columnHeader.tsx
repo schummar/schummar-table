@@ -3,12 +3,13 @@ import { columnTheme, useTheme } from '../hooks/useTheme';
 import { useColumnContext, useTableStructure } from '../state/context';
 import { defaultClasses } from '../theme/defaultTheme/defaultClasses';
 import { FilterControl } from './filterControl';
+import { HiddenColumnFilters } from './hiddenColumnFilters';
 import { ResizeHandle } from './resizeHandle';
 import { SortComponent } from './sortComponent';
 
 export function ColumnHeader(): ReactElement {
   const columnId = useColumnContext();
-  const { activeColumns } = useTableStructure();
+  const { props, activeColumns, visibleColumns } = useTableStructure();
   const column = activeColumns.find((column) => column.id === columnId);
   const { classes, styles } = useTheme((theme) => columnTheme(theme, column));
 
@@ -25,6 +26,8 @@ export function ColumnHeader(): ReactElement {
       <SortComponent>{column?.header}</SortComponent>
       <div css={{ flex: 1 }} />
       <FilterControl />
+      {props.enableHiddenColumnFilters &&
+        visibleColumns[visibleColumns.length - 1]?.id === columnId && <HiddenColumnFilters />}
       <ResizeHandle />
     </div>
   );

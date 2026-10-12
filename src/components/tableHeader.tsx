@@ -31,12 +31,13 @@ export const TableHeader = memo(function TableHeader() {
         {enableSelection && <SelectAll />}
         {enableColumnSelection && <ColumnSelection />}
         {enableExport && <Export />}
-        {enableHiddenColumnFilters && <HiddenColumnFilters />}
+        {/* Normally in the last column's header, so it doesn't take up a column of its own. */}
+        {enableHiddenColumnFilters && visibleColumns.length === 0 && <HiddenColumnFilters />}
 
         {(enableSelection ||
           enableColumnSelection ||
           enableExport ||
-          enableHiddenColumnFilters) && (
+          (enableHiddenColumnFilters && visibleColumns.length === 0)) && (
           <>
             <div css={{ flex: 1 }} />
             <ResizeHandleView />
