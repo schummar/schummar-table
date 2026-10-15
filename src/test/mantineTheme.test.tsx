@@ -76,6 +76,36 @@ test('the date picker selects a range with the mantine calendar', async () => {
   );
 });
 
+test('the date picker shows the time fields only once a date is set', async () => {
+  const screen = await render(
+    <Mantine>
+      <DatePicker
+        rangeSelect
+        showTime
+        value={null}
+        onChange={() => {}}
+        defaultDateInView={new Date(2024, 0, 1)}
+      />
+    </Mantine>,
+  );
+  await expect.element(screen.getByRole('button', { name: '10 January 2024' })).toBeVisible();
+  // Empty time inputs collapse to a few pixels in Safari on iOS
+  expect(document.querySelectorAll('input[type="time"]')).toHaveLength(0);
+
+  await screen.rerender(
+    <Mantine>
+      <DatePicker
+        rangeSelect
+        showTime
+        value={{ min: new Date(2024, 0, 10), max: endOfDay(new Date(2024, 0, 12)) }}
+        onChange={() => {}}
+        defaultDateInView={new Date(2024, 0, 1)}
+      />
+    </Mantine>,
+  );
+  expect(document.querySelectorAll('input[type="time"]')).toHaveLength(2);
+});
+
 test('the date picker clamps a single date and keeps the quick options', async () => {
   const onChange = vi.fn();
   const minDate = new Date(2024, 0, 10, 12);

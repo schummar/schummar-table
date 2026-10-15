@@ -121,7 +121,7 @@ export function MantineDatePicker(props: DatePickerProps) {
         />
       )}
 
-      {showTime && (
+      {showTime && min && (
         <div css={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing)' }}>
           <TimeField
             date={min}
