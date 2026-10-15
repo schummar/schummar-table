@@ -321,6 +321,37 @@ describe('DateFilter', () => {
     await expectFirstNames().toEqual(bornInNineties);
   });
 
+  test.each([
+    { showTime: false, expected: ['Kassia'] },
+    { showTime: true, expected: [] },
+  ])(
+    'a range on the same day honours its times with showTime $showTime',
+    async ({ showTime, expected }) => {
+      // Kassia's birthday is 1965-05-03T13:47:23Z
+      const afterBirth = {
+        min: new Date('1965-05-03T14:00:00Z'),
+        max: new Date('1965-05-03T15:00:00Z'),
+      };
+      await renderPersons(
+        { birthday: dateFilter({ showTime }) },
+        { filterValues: new Map([['birthday', afterBirth]]) },
+      );
+      await expectFirstNames().toEqual(expected);
+    },
+  );
+
+  test('with showTime, a range around the time matches', async () => {
+    const aroundBirth = {
+      min: new Date('1965-05-03T13:00:00Z'),
+      max: new Date('1965-05-03T14:00:00Z'),
+    };
+    await renderPersons(
+      { birthday: dateFilter({ showTime: true }) },
+      { filterValues: new Map([['birthday', aroundBirth]]) },
+    );
+    await expectFirstNames().toEqual(['Kassia']);
+  });
+
   test('a quick option applies its range and closes the popover, reset clears it', async () => {
     await renderPersons({
       birthday: dateFilter({

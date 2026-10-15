@@ -74,8 +74,22 @@ function DateFilterComponent({
   );
 }
 
+/** Like dateIntersect, but compares the exact times instead of whole days. */
+function timeIntersect(range: DateRange, x: Date | DateRange | null | undefined) {
+  if (!x) {
+    return false;
+  }
+  const { min, max } = x instanceof Date ? { min: x, max: x } : x;
+  return !(range.max < min || range.min > max);
+}
+
 export const dateFilter = defineFilter<DateInput, DateValue, DateFilterOptions>({
   isActive: (value) => !!value,
-  test: (value, input) => toSingles(input).some((x) => dateIntersect(value, toDate(x))),
+  test: (value, input, { showTime }) =>
+    toSingles(input).some((x) =>
+      showTime && value && !(value instanceof Date)
+        ? timeIntersect(value, toDate(x))
+        : dateIntersect(value, toDate(x)),
+    ),
   Component: DateFilterComponent,
 });
