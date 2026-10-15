@@ -339,6 +339,28 @@ describe('DateFilter', () => {
     await page.getByRole('button', { name: 'Reset' }).click();
     await expectFirstNames().toEqual(ALL_FIRST_NAMES);
   });
+
+  test.each([
+    { showTime: false, open: false },
+    { showTime: true, open: true },
+  ])(
+    'picking a day with showTime $showTime leaves the popover open: $open',
+    async ({ showTime, open }) => {
+      await renderPersons({
+        birthday: dateFilter({ singleSelect: true, showTime, defaultDateInView: nineties.min }),
+      });
+      await openFilter('Birthday');
+
+      const day = page.getByText('15', { exact: true });
+      await day.click();
+      await expectFirstNames().toEqual([]);
+      if (open) {
+        await expect.element(day).toBeInTheDocument();
+      } else {
+        await expect.element(day).not.toBeInTheDocument();
+      }
+    },
+  );
 });
 
 describe('combining filters', () => {

@@ -57,7 +57,7 @@ function DateFilterComponent({
         value={value ?? null}
         onChange={(value, source) => {
           onChange(value);
-          if (source !== 'input') {
+          if (source === 'quickOption' || (source !== 'input' && !showTime)) {
             close();
           }
         }}
