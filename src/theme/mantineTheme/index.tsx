@@ -39,9 +39,16 @@ export const mantineTheme: PartialTableTheme = {
     Checkbox: (props) => (
       <Checkbox {...props} size="xs" css={{ padding: 'calc(var(--spacing) * 1.8)' }} />
     ),
-    Popover,
+    Popover: (props) => <Popover {...props} zIndex="var(--mantine-z-index-popover)" />,
     Badge: ({ badgeContent, children }) => (
-      <Indicator label={badgeContent} disabled={!badgeContent} size={16} inline>
+      // Flex, so the root is as tall as the arrow instead of a whole line box, which pushed the badge out of the cell
+      <Indicator
+        label={badgeContent}
+        disabled={!badgeContent}
+        size={16}
+        inline
+        css={{ display: 'inline-flex' }}
+      >
         {children}
       </Indicator>
     ),

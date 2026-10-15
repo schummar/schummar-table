@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef } from 'react';
+import { useLayoutEffect, useRef, type ComponentProps } from 'react';
 import { createPortal } from 'react-dom';
 import { throttle } from '../../misc/throttle';
 import type { TableTheme } from '../../types';
@@ -6,7 +6,7 @@ import { defaultClasses } from './defaultClasses';
 
 const MAX_OFFSET = 20;
 
-export const Popover: TableTheme['components']['Popover'] = ({
+export const Popover = ({
   anchorEl,
   open,
   hidden,
@@ -15,7 +15,9 @@ export const Popover: TableTheme['components']['Popover'] = ({
   className,
   backdropClassName,
   align,
-}) => {
+  // Above typical app chrome (fixed headers, bottom navigation), which a portal to body competes with
+  zIndex = 1000,
+}: ComponentProps<TableTheme['components']['Popover']> & { zIndex?: number | string }) => {
   const probe = useRef<HTMLDivElement>(null);
   const backdrop = useRef<HTMLDivElement>(null);
   const popper = useRef<HTMLDivElement>(null);
@@ -162,6 +164,7 @@ export const Popover: TableTheme['components']['Popover'] = ({
                 right: 0,
                 top: 0,
                 bottom: 0,
+                zIndex: `calc(${zIndex} - 1)`,
               },
               hidden && { display: 'none' },
             ]}
@@ -185,7 +188,7 @@ export const Popover: TableTheme['components']['Popover'] = ({
                   `calc(100dvh - (100dvh - 100%) - var(--margin-x))`,
                 ],
                 margin: 10,
-                zIndex: 1,
+                zIndex,
                 overflowY: 'auto',
                 color: 'var(--table-text-color)',
                 visibility: 'hidden',

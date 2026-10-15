@@ -5,7 +5,7 @@ import type { ReactNode } from 'react';
 import { expect, test, vi } from 'vite-plus/test';
 import { page, userEvent } from 'vite-plus/test/browser/context';
 import { render } from 'vitest-browser-react';
-import { DatePicker, endOfDay, Table } from '..';
+import { DatePicker, endOfDay, Table, textFilter } from '..';
 import { MantineTableThemeProvider } from '../theme/mantineTheme';
 import { persons } from './fixtures';
 
@@ -129,4 +129,98 @@ test('the sort arrow flips for desc and the multi-sort badge is not clipped', as
   expect(secondArrow!.transform).toBe('none');
   expect(getComputedStyle(first!).overflow).toBe('visible');
   expect(first!.querySelector('.mantine-Indicator-indicator')).toHaveTextContent('1');
+});
+
+test('the multi-sort badge fits inside the header cell', async () => {
+  const screen = await render(
+    <Mantine>
+      <Table
+        items={persons.slice(0, 3)}
+        id="id"
+        columns={(col) => [
+          col((x) => x.first_name, { header: 'First name' }),
+          col((x) => x.last_name, { header: 'Last name' }),
+        ]}
+        defaultSort={[
+          { columnId: 0, direction: 'asc' },
+          { columnId: 1, direction: 'asc' },
+        ]}
+      />
+    </Mantine>,
+  );
+
+  await expect.element(screen.getByText('Kassia')).toBeVisible();
+  for (const badge of document.querySelectorAll('.mantine-Indicator-indicator')) {
+    let clip = badge.parentElement!;
+    while (getComputedStyle(clip).overflow === 'visible') clip = clip.parentElement!;
+    const b = badge.getBoundingClientRect();
+    const c = clip.getBoundingClientRect();
+    expect(b.top).toBeGreaterThanOrEqual(c.top);
+    expect(b.right).toBeLessThanOrEqual(c.right);
+  }
+});
+
+test('the multi-sort badge fits inside a header row without the selection checkbox', async () => {
+  const screen = await render(
+    <Mantine>
+      <Table
+        items={persons.slice(0, 3)}
+        id="id"
+        columns={(col) => [
+          col((x) => x.first_name, { header: 'First name' }),
+          col((x) => x.last_name, { header: 'Last name' }),
+        ]}
+        defaultSort={[
+          { columnId: 0, direction: 'asc' },
+          { columnId: 1, direction: 'asc' },
+        ]}
+        enableSelection={false}
+      />
+    </Mantine>,
+  );
+
+  await expect.element(screen.getByText('Kassia')).toBeVisible();
+  for (const badge of document.querySelectorAll('.mantine-Indicator-indicator')) {
+    let clip = badge.parentElement!;
+    while (getComputedStyle(clip).overflow === 'visible') clip = clip.parentElement!;
+    const b = badge.getBoundingClientRect();
+    const c = clip.getBoundingClientRect();
+    expect(b.top).toBeGreaterThanOrEqual(c.top);
+    expect(b.right).toBeLessThanOrEqual(c.right);
+  }
+});
+
+test.each([
+  ['default', (table: ReactNode) => table],
+  ['mantine', (table: ReactNode) => <Mantine>{table}</Mantine>],
+])('the %s theme popover is above fixed app chrome', async (_, wrap) => {
+  await render(
+    wrap(
+      <Table
+        items={persons.slice(0, 3)}
+        id="id"
+        columns={(col) => [
+          col((x) => x.first_name, { header: 'First name', filter: textFilter() }),
+        ]}
+      />,
+    ),
+  );
+
+  const header = document.querySelector('[data-column-header]');
+  if (!header) throw new Error('no column header');
+  await page.elementLocator(header).getByRole('button').click();
+  const input = page.getByRole('textbox');
+  await expect.element(input).toBeVisible();
+
+  const chrome = document.createElement('div');
+  chrome.style.cssText = 'position: fixed; inset: 0; z-index: 100';
+  document.body.append(chrome);
+  try {
+    const box = input.element().getBoundingClientRect();
+    expect(document.elementFromPoint(box.left + box.width / 2, box.top + box.height / 2)).not.toBe(
+      chrome,
+    );
+  } finally {
+    chrome.remove();
+  }
 });
