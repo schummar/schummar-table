@@ -20,6 +20,8 @@ export function useTableImperativeHandle(
       setExpanded: table.setExpandedInternal,
       getHiddenColumns: () => actions.getState().hiddenColumns,
       setHiddenColumns: table.setHiddenColumnsInternal,
+      getColumnOrder: () => actions.getState().columnOrder,
+      setColumnOrder: table.setColumnOrderInternal,
       getFilterValues: () => actions.getState().filterValues,
       setFilterValues: table.setFilterValuesInternal,
     }),

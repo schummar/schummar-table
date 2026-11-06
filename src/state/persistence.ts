@@ -7,6 +7,7 @@ export const PERSIST_KEYS = [
   'selection',
   'expanded',
   'hiddenColumns',
+  'columnOrder',
   'filterValues',
   'columnWidths',
 ] as const;

@@ -73,8 +73,9 @@ col((person) => person.birthday, {
 });
 ```
 
-Columns can be hidden by the user (`enableColumnSelection`, on by default) and resized by dragging
-the header separators (`enableColumnResize`).
+Columns can be hidden by the user (`enableColumnSelection`, on by default), resized by dragging
+the header separators (`enableColumnResize`) and reordered by dragging their headers or with the
+arrows in the column selection (`enableColumnReorder`).
 
 ## Filters
 
@@ -135,6 +136,7 @@ same way as React inputs:
 | Selection      | `defaultSelection`     | `selection`     | `onSelectionChange`     |
 | Expanded rows  | `defaultExpanded`      | `expanded`      | `onExpandedChange`      |
 | Hidden columns | `defaultHiddenColumns` | `hiddenColumns` | `onHiddenColumnsChange` |
+| Column order   | `defaultColumnOrder`   | `columnOrder`   | `onColumnOrderChange`   |
 | Filter values  | `defaultFilterValues`  | `filterValues`  | `onFilterValuesChange`  |
 
 Use `externalSort` when the items arrive sorted already. A `ref` gives imperative access, and

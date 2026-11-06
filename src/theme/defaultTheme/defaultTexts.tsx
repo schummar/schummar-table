@@ -23,4 +23,6 @@ export const defaultTexts: TableTheme['text'] = {
   rangeMax: 'Max',
   calendarWeek: 'Wk',
   hiddenColumnFilters: 'Filters of hidden columns',
+  moveColumnLeft: 'Move column left',
+  moveColumnRight: 'Move column right',
 };

@@ -103,6 +103,20 @@ describe('persist', () => {
     await expect.poll(shownNames).toEqual(['Chelsey', 'Dulcia', 'Kassia', 'Maurene', 'Thoma']);
   });
 
+  test('column order is saved and restored on a fresh mount', async () => {
+    const screen = await renderPersons();
+    await openColumnSelection();
+    await page.getByRole('button', { name: 'Move column right' }).first().click();
+    await expect.poll(shownHeaders).toEqual(['Last name', 'First name']);
+
+    await pollStored().toMatchObject({ columnOrder: ['last_name', 'first_name'] });
+
+    await screen.unmount();
+    await renderPersons();
+    await expect.element(page.getByText('Kassia')).toBeVisible();
+    await expect.poll(shownHeaders).toEqual(['Last name', 'First name']);
+  });
+
   test('hidden columns are saved and restored on a fresh mount', async () => {
     const screen = await renderPersons();
     await openColumnSelection();

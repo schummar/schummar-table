@@ -19,12 +19,14 @@ const defaultProps = {
   stickyFooter: true,
   enableColumnSelection: true,
   enableColumnResize: true,
+  enableColumnReorder: true,
   displaySizeOverrides: {
     mobile: {
       enableSelection: false,
       enableColumnSelection: false,
       enableExport: false,
       enableColumnResize: false,
+      enableColumnReorder: false,
     },
   },
 } satisfies Partial<TableProps<any>>;

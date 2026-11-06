@@ -1,6 +1,6 @@
 ---
 name: schummar-table-upgrade
-description: Use when upgrading the schummar-table dependency from the 0.51.x line to a newer major version, or when the consumer's code hits errors/types referencing FunctionWithDeps, MemoizedTableTheme, subgrid, enableColumnReorder, configureTableTheme, initalRowHeight, throttleScroll, overscanTop, overscanBottom, useTableContext returning a store/getState()-only shape, table.useState, table.update, or TableResetContext.
+description: Use when upgrading the schummar-table dependency from the 0.51.x line to a newer major version, or when the consumer's code hits errors/types referencing FunctionWithDeps, MemoizedTableTheme, subgrid, configureTableTheme, initalRowHeight, throttleScroll, overscanTop, overscanBottom, useTableContext returning a store/getState()-only shape, table.useState, table.update, or TableResetContext.
 ---
 
 # schummar-table upgrade (0.51.x -> current)
@@ -56,13 +56,13 @@ Just drop the wrapping array and the deps array — keep the function that was i
 
 `FunctionWithDeps` and `MemoizedTableTheme` types are gone — remove any imports/usages of them (needs human review if the consumer built their own helpers around these types).
 
-## 3. Column reorder removed
+## 3. Column reorder
 
 Grep: `grep -rn 'enableColumnReorder\|columnOrder' src/`
 
-- Remove the `enableColumnReorder` prop wherever it's passed to `<Table>`.
-- Remove `'columnOrder'` from any `persist.include` / `persist.exclude` array.
-- Previously persisted column orders in storage are silently ignored now — no migration needed, but mention it to users if column order was a documented feature.
+`enableColumnReorder` and the `'columnOrder'` persist key work as before; nothing to change. Column
+order can now also be set with `defaultColumnOrder`, `columnOrder` and `onColumnOrderChange`, and
+reordered from the column selection menu.
 
 ## 4. `subgrid` prop removed (always-on CSS subgrid)
 
@@ -147,10 +147,10 @@ After:
 
 Grep: `grep -rn 'useTableContext\|\.useState(\|\.getState(\|\.update(\|TableResetContext' src/`
 
-`useTableContext()` no longer returns a store. It returns a plain object (type `TableContextValue`) with fields — `props`, `displaySize`, `sort`, `selection`, `expanded`, `hiddenColumns`, `columnWidths`, `filters`, `filterValues`, `columns`, `activeColumns`, `visibleColumns`, `items`, `itemsById`, `activeItems`, `activeItemsById` — plus `actions`.
+`useTableContext()` no longer returns a store. It returns a plain object (type `TableContextValue`) with fields — `props`, `displaySize`, `sort`, `selection`, `expanded`, `hiddenColumns`, `columnOrder`, `columnWidths`, `filters`, `filterValues`, `columns`, `activeColumns`, `visibleColumns`, `items`, `itemsById`, `activeItems`, `activeItemsById` — plus `actions`.
 
 - `table.useState(selector)` → destructure the field directly from `useTableContext()`.
-- `table.update(...)` → call the matching method on `actions`: `actions.setSort`, `actions.setSelection`, `actions.toggleSelection`, `actions.setExpanded`, `actions.toggleExpanded`, `actions.setHiddenColumns`, `actions.setColumnWidth`, `actions.setFilterValue`, `actions.clearFilters`, `actions.resetTable`.
+- `table.update(...)` → call the matching method on `actions`: `actions.setSort`, `actions.setSelection`, `actions.toggleSelection`, `actions.setExpanded`, `actions.toggleExpanded`, `actions.setHiddenColumns`, `actions.setColumnOrder`, `actions.moveColumn`, `actions.setColumnWidth`, `actions.setFilterValue`, `actions.clearFilters`, `actions.resetTable`.
 - `table.getState()` → `actions.getState()` (for reading latest state inside event handlers, where a plain destructure from render would be stale).
 - `TableResetContext` → `actions.resetTable()`.
 - New `useTableActions()` hook returns just the stable `actions` object, useful when a component only needs to dispatch and shouldn't re-render on every state change.

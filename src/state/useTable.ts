@@ -57,6 +57,7 @@ export function useTable<T>(raw: TableProps<T>, onReset: () => void, isReset = f
     selection: selection.selection,
     expanded: expanded.expanded,
     hiddenColumns: columns.hiddenColumns,
+    columnOrder: columns.columnOrder,
     columnWidths: columns.columnWidths,
     filterValues: filters.filterValues,
     columns: columns.columns,
@@ -81,6 +82,7 @@ export function useTable<T>(raw: TableProps<T>, onReset: () => void, isReset = f
     add('selection', selection.selection, props.selection !== undefined);
     add('expanded', expanded.expanded, props.expanded !== undefined);
     add('hiddenColumns', columns.hiddenColumns, props.hiddenColumns !== undefined);
+    add('columnOrder', columns.storedOrder, props.columnOrder !== undefined);
     add('columnWidths', columns.columnWidths);
     add(
       'filterValues',
@@ -104,6 +106,7 @@ export function useTable<T>(raw: TableProps<T>, onReset: () => void, isReset = f
     selection.selection,
     expanded.expanded,
     columns.hiddenColumns,
+    columns.storedOrder,
     columns.columnWidths,
     filters.stored,
     props.columns,
@@ -111,6 +114,7 @@ export function useTable<T>(raw: TableProps<T>, onReset: () => void, isReset = f
     props.selection !== undefined,
     props.expanded !== undefined,
     props.hiddenColumns !== undefined,
+    props.columnOrder !== undefined,
     props.filterValues !== undefined,
   ]);
 
@@ -128,6 +132,9 @@ export function useTable<T>(raw: TableProps<T>, onReset: () => void, isReset = f
     if (data.expanded && props.expanded === undefined) expanded.setExpanded(data.expanded);
     if (data.hiddenColumns && props.hiddenColumns === undefined) {
       columns.setHiddenColumns(data.hiddenColumns);
+    }
+    if (data.columnOrder && props.columnOrder === undefined) {
+      columns.setColumnOrder(data.columnOrder);
     }
     if (data.columnWidths) columns.setColumnWidths(data.columnWidths);
 
@@ -255,6 +262,21 @@ export function useTable<T>(raw: TableProps<T>, onReset: () => void, isReset = f
 
       setHiddenColumns: (hiddenColumns) => get().columns.setHiddenColumns(hiddenColumns),
 
+      setColumnOrder: (columnOrder) => get().columns.setColumnOrder(columnOrder),
+
+      moveColumn(columnId, targetId) {
+        const { state, columns } = get();
+        const next = [...state.columnOrder];
+        const from = next.indexOf(columnId);
+        const to = next.indexOf(targetId);
+        if (from === -1 || to === -1 || from === to) return;
+
+        next.splice(from, 1);
+        next.splice(to, 0, columnId);
+        columns.setColumnOrder(next);
+        patchState({ columnOrder: next });
+      },
+
       setColumnWidth(columnId, width) {
         get().columns.setColumnWidths((widths) => withEntry(widths, columnId, width));
       },
@@ -283,7 +305,7 @@ export function useTable<T>(raw: TableProps<T>, onReset: () => void, isReset = f
       },
     };
   });
-  const { sort: sortValue, hiddenColumns, columnWidths, filterValues } = state;
+  const { sort: sortValue, hiddenColumns, columnOrder, columnWidths, filterValues } = state;
   const { columns: allColumns, activeColumns, visibleColumns } = state;
   const structure = useMemo(
     (): TableStructure<T> => ({
@@ -291,6 +313,7 @@ export function useTable<T>(raw: TableProps<T>, onReset: () => void, isReset = f
       displaySize,
       sort: sortValue,
       hiddenColumns,
+      columnOrder,
       columnWidths,
       filterValues,
       columns: allColumns,
@@ -305,6 +328,7 @@ export function useTable<T>(raw: TableProps<T>, onReset: () => void, isReset = f
       displaySize,
       sortValue,
       hiddenColumns,
+      columnOrder,
       columnWidths,
       filterValues,
       allColumns,
@@ -337,6 +361,7 @@ export function useTable<T>(raw: TableProps<T>, onReset: () => void, isReset = f
     setSelectionInternal: selection.setSelectionInternal,
     setExpandedInternal: expanded.setExpandedInternal,
     setHiddenColumnsInternal: columns.setHiddenColumnsInternal,
+    setColumnOrderInternal: columns.setColumnOrderInternal,
     setFilterValuesInternal: filters.setFilterValuesInternal,
   };
 }

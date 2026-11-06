@@ -19,6 +19,9 @@ export function useTableReset<T>(props: TableProps<T>) {
     if (props.hiddenColumns === undefined) {
       props.onHiddenColumnsChange?.(props.defaultHiddenColumns ?? new Set());
     }
+    if (props.columnOrder === undefined) {
+      props.onColumnOrderChange?.(props.defaultColumnOrder ?? []);
+    }
     props.onReset?.('table');
   }, []);
 

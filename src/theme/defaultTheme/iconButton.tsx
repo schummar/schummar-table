@@ -22,6 +22,12 @@ const iconButtonCss = css({
   '&:active': {
     transformColor: 'scale3d(0.95, 0.95, 1)',
   },
+
+  '&:disabled': {
+    opacity: 0.3,
+    cursor: 'default',
+    backgroundColor: 'transparent',
+  },
 });
 
 export const IconButton: TableTheme['components']['IconButton'] = ({ className, ...props }) => {

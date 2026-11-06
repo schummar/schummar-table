@@ -11,6 +11,9 @@ export function ColumnSelection<T>(): ReactElement {
   const Checkbox = useTheme((t) => t.components.Checkbox);
   const Button = useTheme((t) => t.components.Button);
   const Settings = useTheme((t) => t.icons.Settings);
+  const ArrowUpward = useTheme((t) => t.icons.ArrowUpward);
+  const moveLeft = useTheme((t) => t.text.moveColumnLeft);
+  const moveRight = useTheme((t) => t.text.moveColumnRight);
   const selectColumns = useTheme((t) => t.text.selectColumns);
   const resetAll = useTheme((t) => t.text.resetAll);
   const showAll = useTheme((t) => t.text.showAllColumns);
@@ -18,7 +21,7 @@ export function ColumnSelection<T>(): ReactElement {
   const classes = useTheme((t) => t.classes);
   const cssVariables = useCssVariables();
 
-  const { columns, hiddenColumns, actions } = useTableStructure<T>();
+  const { props, columns, hiddenColumns, actions } = useTableStructure<T>();
 
   const [anchorElement, setAnchorElement] = useState<Element | null>(null);
 
@@ -65,19 +68,44 @@ export function ColumnSelection<T>(): ReactElement {
             </Button>
           </div>
 
-          {columns.map((column) => (
-            <FormControlLabel
-              key={column.id}
-              control={
-                <Checkbox
-                  checked={!(column.hidden ?? hiddenColumns.has(column.id))}
-                  onChange={() => toggle(column)}
-                  disabled={column.hidden !== undefined}
+          {columns.map((column, index) => {
+            const previous = columns[index - 1];
+            const next = columns[index + 1];
+
+            return (
+              <div key={column.id} css={{ display: 'flex', alignItems: 'center' }}>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={!(column.hidden ?? hiddenColumns.has(column.id))}
+                      onChange={() => toggle(column)}
+                      disabled={column.hidden !== undefined}
+                    />
+                  }
+                  label={column.header}
                 />
-              }
-              label={column.header}
-            ></FormControlLabel>
-          ))}
+
+                {props.enableColumnReorder && (
+                  <div css={{ marginLeft: 'auto', paddingLeft: 'var(--spacing)', display: 'flex' }}>
+                    <IconButton
+                      aria-label={moveLeft}
+                      disabled={!previous}
+                      onClick={() => previous && actions.moveColumn(column.id, previous.id)}
+                    >
+                      <ArrowUpward />
+                    </IconButton>
+                    <IconButton
+                      aria-label={moveRight}
+                      disabled={!next}
+                      onClick={() => next && actions.moveColumn(column.id, next.id)}
+                    >
+                      <ArrowUpward css={{ transform: 'rotate(180deg)' }} />
+                    </IconButton>
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
       </Popover>
     </>

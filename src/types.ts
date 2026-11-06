@@ -75,6 +75,8 @@ export interface TableTheme<TItem = unknown> {
     rangeMax: ReactNode;
     calendarWeek: ReactNode;
     hiddenColumnFilters: ReactNode;
+    moveColumnLeft: string;
+    moveColumnRight: string;
   };
   /** Define styles. */
   classes?: {
@@ -121,6 +123,8 @@ export interface TableTheme<TItem = unknown> {
       onContextMenu?: (event: React.MouseEvent<Element>) => void;
       className?: string;
       type?: React.ButtonHTMLAttributes<HTMLButtonElement>['type'];
+      disabled?: boolean;
+      'aria-label'?: string;
     }>;
     Button: ComponentType<{
       children: ReactNode;
@@ -307,6 +311,17 @@ export interface TableProps<TItem> extends PartialTableTheme<TItem> {
   onHiddenColumnsChange?: (hiddenColumns: Set<Id>) => void;
 
   /// ///////////////////////////////////////////////
+  // Column order
+  /// ///////////////////////////////////////////////
+  /** Default column order, by column id. Columns missing from it keep their place relative to the
+   * column defined before them. */
+  defaultColumnOrder?: Id[];
+  /** If given, controls the column order. */
+  columnOrder?: Id[];
+  /** Called when the column order changes, with the ids of all columns. */
+  onColumnOrderChange?: (columnOrder: Id[]) => void;
+
+  /// ///////////////////////////////////////////////
   // Filters
   /// ///////////////////////////////////////////////
   /** Default filter values by column id. Columns without an entry use their filter's `defaultValue`. */
@@ -382,6 +397,10 @@ export interface TableProps<TItem> extends PartialTableTheme<TItem> {
    * @default true
    */
   enableColumnResize?: boolean | 'visualOnly';
+  /** Allow to reorder columns by dragging their headers and from the column selection menu.
+   * @default true
+   */
+  enableColumnReorder?: boolean;
   /** If enabled, automatically store table state in localStorage, localForage or another compatible storage. */
   persist?: {
     storage: TableStateStorage;
@@ -427,6 +446,8 @@ export interface TableRef {
   setExpanded: (expanded: Set<Id>) => void;
   getHiddenColumns: () => Set<Id>;
   setHiddenColumns: (hidden: Set<Id>) => void;
+  getColumnOrder: () => Id[];
+  setColumnOrder: (columnOrder: Id[]) => void;
   getFilterValues: () => Map<Id, unknown>;
   setFilterValues: (filterValues: Map<Id, unknown>) => void;
 }
@@ -513,6 +534,8 @@ export interface TableState<TItem> {
   selection: Set<Id>;
   expanded: Set<Id>;
   hiddenColumns: Set<Id>;
+  /** Ids of all columns, in display order. */
+  columnOrder: Id[];
   columnWidths: Map<Id, string>;
   /** Filter values by column id, defaults included. Hidden columns keep theirs. */
   filterValues: Map<Id, unknown>;
@@ -542,6 +565,9 @@ export interface TableActions<TItem = unknown> {
   setExpanded: (expanded: Set<Id>) => void;
   toggleExpanded: (itemId: Id) => void;
   setHiddenColumns: (hiddenColumns: Set<Id>) => void;
+  setColumnOrder: (columnOrder: Id[]) => void;
+  /** Moves a column to the position of `targetId`, shifting the columns in between. */
+  moveColumn: (columnId: Id, targetId: Id) => void;
   setColumnWidth: (columnId: Id, width: string | undefined) => void;
   setFilterValues: (filterValues: Map<Id, unknown>) => void;
   setFilterValue: (columnId: Id, value: unknown) => void;
