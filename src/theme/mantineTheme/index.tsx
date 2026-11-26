@@ -1,8 +1,8 @@
 import { ActionIcon, Button, Checkbox, Indicator, Loader, TextInput } from '@mantine/core';
 import type { ReactNode } from 'react';
-import { useMemo } from 'react';
+import { useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { TableSettingsProvider } from '../../misc/tableSettings';
-import type { PartialTableTheme } from '../../types';
+import type { PartialTableTheme, TableTheme } from '../../types';
 import { Popover } from '../defaultTheme/popover';
 import { mergeThemes } from '../tableTheme';
 import { MantineDatePicker } from './datePicker';
@@ -12,6 +12,49 @@ const buttonVariants = {
   outlined: 'default',
   contained: 'filled',
 } as const;
+
+type TextFieldProps =
+  TableTheme['components']['TextField'] extends React.ComponentType<infer T> ? T : never;
+
+// Mantine's sections are as wide as the input is tall, so a text label like the range filter's
+// "Min" runs into the value. Widen the section to its content when that does not fit.
+function MantineTextField({ startIcon, endIcon, inputRef, value, ...props }: TextFieldProps) {
+  const startRef = useRef<HTMLSpanElement>(null);
+  const [startWidth, setStartWidth] = useState<number>();
+
+  useLayoutEffect(() => {
+    const element = startRef.current;
+    if (!element) return;
+
+    const observer = new ResizeObserver(() => setStartWidth(element.offsetWidth));
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, [startIcon]);
+
+  return (
+    <TextInput
+      {...props}
+      ref={inputRef}
+      value={value ?? ''}
+      leftSection={
+        startIcon && (
+          <span ref={startRef} css={{ display: 'inline-flex', flexShrink: 0 }}>
+            {startIcon}
+          </span>
+        )
+      }
+      leftSectionWidth={
+        startWidth
+          ? `max(${startWidth}px, calc(var(--input-height) - calc(0.125rem * var(--mantine-scale))))`
+          : undefined
+      }
+      rightSection={endIcon}
+      leftSectionPointerEvents="all"
+      rightSectionPointerEvents="all"
+      size="sm"
+    />
+  );
+}
 
 export const mantineTheme: PartialTableTheme = {
   components: {
@@ -52,18 +95,7 @@ export const mantineTheme: PartialTableTheme = {
         {children}
       </Indicator>
     ),
-    TextField: ({ startIcon, endIcon, inputRef, value, ...props }) => (
-      <TextInput
-        {...props}
-        ref={inputRef}
-        value={value ?? ''}
-        leftSection={startIcon}
-        rightSection={endIcon}
-        leftSectionPointerEvents="all"
-        rightSectionPointerEvents="all"
-        size="sm"
-      />
-    ),
+    TextField: MantineTextField,
     Spinner: (props) => <Loader {...props} size="sm" />,
     DatePicker: MantineDatePicker,
   },

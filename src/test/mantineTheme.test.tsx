@@ -5,7 +5,7 @@ import type { ReactNode } from 'react';
 import { expect, test, vi } from 'vite-plus/test';
 import { page, userEvent } from 'vite-plus/test/browser/context';
 import { render } from 'vitest-browser-react';
-import { DatePicker, endOfDay, Table, textFilter } from '..';
+import { DatePicker, endOfDay, rangeFilter, Table, textFilter } from '..';
 import { MantineTableThemeProvider } from '../theme/mantineTheme';
 import { persons } from './fixtures';
 
@@ -252,5 +252,34 @@ test.each([
     );
   } finally {
     chrome.remove();
+  }
+});
+
+test('the range filter labels do not overlap the values', async () => {
+  await render(
+    <MantineProvider>
+      <MantineTableThemeProvider theme={{ text: { rangeMin: 'Minimum', rangeMax: 'Maximum' } }}>
+        <Table
+          items={persons.slice(0, 3)}
+          id="id"
+          columns={(col) => [
+            col((x) => x.id, { header: 'Id', filter: rangeFilter({ value: [80, 100] }) }),
+          ]}
+        />
+      </MantineTableThemeProvider>
+    </MantineProvider>,
+  );
+
+  const header = document.querySelector('[data-column-header]');
+  if (!header) throw new Error('no column header');
+  await page.elementLocator(header).getByRole('button').last().click();
+
+  for (const label of ['Minimum', 'Maximum']) {
+    const text = page.getByText(label, { exact: true });
+    await expect.element(text).toBeVisible();
+    const input = text.element().closest('.mantine-Input-wrapper')!.querySelector('input')!;
+    const valueStart =
+      input.getBoundingClientRect().left + parseFloat(getComputedStyle(input).paddingLeft);
+    expect(valueStart).toBeGreaterThanOrEqual(text.element().getBoundingClientRect().right);
   }
 });
